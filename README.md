@@ -5,6 +5,8 @@ HTML + GSAP composition per brief; HyperFrames checks it, renders it to an mp4 o
 back only the tool's error text. This repo holds the briefs, the harness, every attempt (mp4, each round's HTML, the model's reply)
 and the raw numbers, so you can check or re-run it.
 
+Video: https://youtu.be/XyJNavV8kGw
+
 - **Inkling 2 Mini**, IQ4_NL (`ggml-org/Inkling-2-Mini-GGUF`), reasoning on at its default (high).
 - **Qwen3.8-27B**, Q4_K_M (`ggml-org/Qwen3.8-27B-GGUF`), thinking on (default).
 - **Arm C**, added after the first result was known: the same Qwen file with thinking off. Only Qwen got this arm. It is exploratory.
