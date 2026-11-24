@@ -1,0 +1,255 @@
+{
+ "Y01": {
+  "kind": "decoy",
+  "old_id": "X13",
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B4",
+  "mp4": "renders/qwen_s1/B4/B4.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y02": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "2",
+  "brief": "B2",
+  "mp4": "renders/qwennothink_s2/B2/B2.mp4"
+ },
+ "Y03": {
+  "kind": "decoy",
+  "old_id": "X25",
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B5",
+  "mp4": "renders/inkling_s3/B5/B5.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y04": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "4",
+  "brief": "B4",
+  "mp4": "renders/qwennothink_s4/B4/B4.mp4"
+ },
+ "Y05": {
+  "kind": "decoy",
+  "old_id": "X26",
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B1",
+  "mp4": "renders/qwen_s1/B1/B1.mp4",
+  "first_verdict": "FAIL",
+  "first_note": "LOCALAI, space lost and the L of REAL clipped by the yellow band (R2/R3)"
+ },
+ "Y06": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "3",
+  "brief": "B2",
+  "mp4": "renders/qwennothink_s3/B2/B2.mp4"
+ },
+ "Y07": {
+  "kind": "decoy",
+  "old_id": "X22",
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B3",
+  "mp4": "renders/inkling_s2/B3/B3.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y08": {
+  "kind": "decoy",
+  "old_id": "X06",
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B1",
+  "mp4": "renders/inkling_s3/B1/B1.mp4",
+  "first_verdict": "FAIL",
+  "first_note": "LOCALAI, space lost (R2 text)"
+ },
+ "Y09": {
+  "kind": "decoy",
+  "old_id": "X19",
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B5",
+  "mp4": "renders/inkling_s1/B5/B5.mp4",
+  "first_verdict": "FAIL",
+  "first_note": "logo horizontally squeezed (distorted) and VIDEO band overlaps AUTOMATIONS during the slam (R3)"
+ },
+ "Y10": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "1",
+  "brief": "B2",
+  "mp4": "renders/qwennothink_s1/B2/B2.mp4"
+ },
+ "Y11": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "4",
+  "brief": "B2",
+  "mp4": "renders/qwennothink_s4/B2/B2.mp4"
+ },
+ "Y12": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "2",
+  "brief": "B4",
+  "mp4": "renders/qwennothink_s2/B4/B4.mp4"
+ },
+ "Y13": {
+  "kind": "decoy",
+  "old_id": "X01",
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B2",
+  "mp4": "renders/inkling_s4/B2/B2.mp4",
+  "first_verdict": "PASS",
+  "first_note": "content huddled left in step columns"
+ },
+ "Y14": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "1",
+  "brief": "B4",
+  "mp4": "renders/qwennothink_s1/B4/B4.mp4"
+ },
+ "Y15": {
+  "kind": "decoy",
+  "old_id": "X33",
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B3",
+  "mp4": "renders/qwen_s1/B3/B3.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y16": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "4",
+  "brief": "B1",
+  "mp4": "renders/qwennothink_s4/B1/B1.mp4"
+ },
+ "Y17": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "2",
+  "brief": "B5",
+  "mp4": "renders/qwennothink_s2/B5/B5.mp4"
+ },
+ "Y18": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "2",
+  "brief": "B3",
+  "mp4": "renders/qwennothink_s2/B3/B3.mp4"
+ },
+ "Y19": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "1",
+  "brief": "B5",
+  "mp4": "renders/qwennothink_s1/B5/B5.mp4"
+ },
+ "Y20": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "3",
+  "brief": "B3",
+  "mp4": "renders/qwennothink_s3/B3/B3.mp4"
+ },
+ "Y21": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "4",
+  "brief": "B3",
+  "mp4": "renders/qwennothink_s4/B3/B3.mp4"
+ },
+ "Y22": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "3",
+  "brief": "B4",
+  "mp4": "renders/qwennothink_s3/B4/B4.mp4"
+ },
+ "Y23": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "3",
+  "brief": "B5",
+  "mp4": "renders/qwennothink_s3/B5/B5.mp4"
+ },
+ "Y24": {
+  "kind": "decoy",
+  "old_id": "X07",
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B2",
+  "mp4": "renders/qwen_s1/B2/B2.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y25": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "4",
+  "brief": "B5",
+  "mp4": "renders/qwennothink_s4/B5/B5.mp4"
+ },
+ "Y26": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "1",
+  "brief": "B1",
+  "mp4": "renders/qwennothink_s1/B1/B1.mp4"
+ },
+ "Y27": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "1",
+  "brief": "B3",
+  "mp4": "renders/qwennothink_s1/B3/B3.mp4"
+ },
+ "Y28": {
+  "kind": "decoy",
+  "old_id": "X08",
+  "model": "qwen",
+  "seed": "2",
+  "brief": "B2",
+  "mp4": "renders/qwen_s2/B2/B2.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y29": {
+  "kind": "armc",
+  "model": "qwennothink",
+  "seed": "3",
+  "brief": "B1",
+  "mp4": "renders/qwennothink_s3/B1/B1.mp4"
+ },
+ "Y30": {
+  "kind": "decoy",
+  "old_id": "X03",
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B2",
+  "mp4": "renders/inkling_s2/B2/B2.mp4",
+  "first_verdict": "PASS",
+  "first_note": ""
+ },
+ "Y31": {
+  "kind": "decoy",
+  "old_id": "X24",
+  "model": "qwen",
+  "seed": "4",
+  "brief": "B1",
+  "mp4": "renders/qwen_s4/B1/B1.mp4",
+  "first_verdict": "FAIL",
+  "first_note": "LOCALAI, space lost (R2 text)"
+ }
+}

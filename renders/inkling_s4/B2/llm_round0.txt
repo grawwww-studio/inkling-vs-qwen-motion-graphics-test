@@ -1,0 +1,784 @@
+[REASONING]
+Let me design a 9-second explainer video. 1920x1080 canvas.
+
+Structure:
+- Eyebrow: "Workflow / 03 steps"
+- Heading "How it works"
+- Three columns with number 01/02/03, inline SVG icons, labels
+- Connector lines between columns that draw in
+- Steps reveal sequentially
+
+Timing plan (9s):
+- 0.0-0.5: eyebrow fades in
+- 0.3-1.0: heading slides in
+- 1.0: step 1 reveals (number, icon, label)
+- 2.6: connector line 1 draws
+- 3.2: step 2 reveals
+- 4.8: connector line 2 draws
+- 5.4: step 3 reveals
+- 7.5: maybe a bottom bar/footer appears, hold until 9.0
+
+Brand: dark #0E0E0E background, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 as band behind #111 text (class hl). Fonts: var(--display) for headings (class h), var(--body), var(--mono) for labels (class m). No rounded corners, no box-shadow, no gradients.
+
+Icons: stroke #F4F4F1 or brand colour, stroke-width 6, no fill or flat fill.
+
+Let me check gw.css — I don't have it but I know the classes: `h` (display uppercase heavy wide), `m` (mono uppercase labels), `hl` (yellow band). Colors: --c (cyan?), --m (magenta?), --y? Actually in the example: `color:var(--c)` for eyebrow, `background:var(--m)` for rule. So --c = cyan, --m = magenta presumably. I'll use var(--c) and var(--m) and var(--y) maybe. Let me be careful: use var(--c) for cyan and var(--m) for magenta. I could also use var(--ink). Safe to use hex values directly too: #12A9E6, #FF2D92, #FFD400, #F4F4F1.
+
+Layout:
+- Eyebrow at top left: left 160, top 130, font-size 26, letter spacing.
+- Heading "How it works" at left 160, top 175, font-size ~110. Maybe "How it" then "works" with hl on "works"? Keep one line: "HOW IT WORKS" at 150px would be wide: 12 chars * ~100px = 1200px. Fits in 1600 width. Actually display font at 150px uppercase letter ~100px wide, "HOW IT WORKS" = 12 chars including spaces ~ maybe 1100px. Fine. Let's use font-size 120px to be safe.
+
+- Three columns: each column width ~440px, starting left 160, gap for connectors. Total width available: 1920 - 320 = 1600. Columns: 3 * 400 = 1200, connectors 2 * 200 = 400. So columns at left 160, 760, 1360? Let's compute: col width 440, connector 160: 160+440=600, +160=760, +440=1200, +160=1360, +440=1800. Right margin 120. Hmm, margin should be at least 100. 1920-1800=120. Good.
+
+Column content:
+- Number "01" at top, font mono or display, big, colored per step (cyan, magenta, yellow? yellow is only for hl band... "yellow #FFD400 only as a band behind #111 text". So avoid yellow as icon color. Use cyan, magenta, and ink/white for the three numbers? Or cyan for all. Let's do: 01 cyan, 02 magenta, 03 ink (#F4F4F1). Icons: stroke cyan, magenta, ink respectively? Or all icons ink with colored numbers. Let's do numbers colored and icons ink with colored accent.
+
+- Icon container: a square box? Maybe a 200x200 box with border (stroke) — no rounded corners. Border 4px ink at low opacity? Use border: 4px solid rgba? Hmm, no gradients, no shadows. Border is fine.
+
+Icon SVG 160x160 inside box 220x220.
+
+Icon 1: pencil/document — document with pencil. Draw: a document outline (rect with folded corner) and a pencil diagonal. Stroke cyan.
+
+Icon 2: brackets </> — text "</>" as SVG paths: chevron left, slash, chevron right. Stroke magenta.
+
+Icon 3: play triangle — triangle outline, maybe in a circle. Stroke ink/cyan.
+
+Labels under icons: "Write a brief", "Model writes the code", "Render the video" — mono class, uppercase, font-size ~24-28. Label may wrap to two lines; width 440, at 24px mono uppercase letter ~14px, "MODEL WRITES THE CODE" = 21 chars * ~15 = 315px. Fits one line. "WRITE A BRIEF" fits. "RENDER THE VIDEO" fits.
+
+Also a small caption under each label maybe? Keep minimal: number, icon box, label. Maybe a small step descriptor line in body font, e.g. "01 — Write a brief"? The brief says each column: number, icon, label. Keep that.
+
+Connector lines between columns: horizontal lines at icon height, with arrowhead. Draw with scaleX from 0. Line: height 4px, background ink/cyan. Add small arrowhead triangle via SVG or CSS border. Use a div with a pseudo? No pseudo complexities; just an SVG line with marker, or a div line + a small triangle div. Simpler: a div with height 4px background cyan, plus a small rotated square at the end (diamond). Or an SVG: <svg width="160" height="20"><line x1="0" y1="10" x2="140" y2="10" stroke="#12A9E6" stroke-width="4"/><polygon points="140,3 158,10 140,17" fill="#12A9E6"/></svg>. Animate scaleX with transform-origin left. That works — animate the svg element scaleX.
+
+Actually animate a wrapper div scaleX 0->1, containing the line+arrow.
+
+Footer: maybe a bottom strip with "01 / 03" progress or a tagline. Add a bottom-left mono label "Brief B2 — Workflow" and bottom-right "9s"? Keep simple: a bottom bar with three small segments that fill as steps reveal? That's nice: progress segments at bottom. Steps reveal sequentially; segments fill cyan/magenta/ink as each step appears. Nice touch.
+
+Let me also add a subtle background grid? No gradients; could add faint lines via repeating-linear-gradient — that's a gradient technically. Avoid. Use thin absolute divs as rules.
+
+Layout plan (y coordinates):
+- Top eyebrow: top 120, left 160.
+- Heading: top 160, left 160, font-size 120px. Height ~140.
+- Thin rule under heading? Maybe a 6px rule from left 160 width 300 under heading at top ~330. Actually let's put heading top 150, font-size 110, then rule at top 300.
+- Columns row: top 400. Number at top 400 (height 70, font-size 56 mono). Icon box top 490, size 220. Label top 740, font-size 26.
+- Connector lines at top ~600 (icon middle): left 600..760 etc. Connector div at left 608, top 596, width 144, height 20.
+
+Wait columns at left 160 (w 440), 760 (w 440), 1360 (w 440). Gap between col1 right edge (600) and col2 left (760) = 160. Connector at left 604, width 152, top 595.
+
+- Progress segments bottom: top 980, left 160, three segments each width 480, height 8, gap 20. Total 3*480+2*20=1480. Left 160, ends 1640. Right margin 280 — fine, or make widths 500: 3*500+40=1540, ends 1700. Right margin 220. OK.
+
+Also add step counter "STEP 01 / 03" bottom right? Might clutter. Skip.
+
+Bottom-left mono label: "HOW IT WORKS — BRIEF B2" at top 1000? Keep within margins: bottom margin 100 → y up to 980. Progress bar at 950, labels at 1010? 1080-100=980 max for text bottom. Text at top 990 would violate margin? "Keep all text inside the canvas with at least 100 px margin" — meaning text should not be within 100px of edges. So text bottom edge ≤ 980, top edge ≥ 100. Progress bar at top 950 height 8 → bottom 958, fine (not text).
+
+Let me finalize timeline (9s total):
+
+- 0.2: eyebrow opacity 0→1 (0.4s)
+- 0.4: heading from y 50, opacity 0 → in (0.7s, power3.out)
+- 1.0: rule scaleX 0→1 (0.6s)
+- 1.2: step1 number set/fromTo (opacity 0, y 30 → 1, 0) 0.5s
+- 1.4: step1 icon box: scale 0.6 opacity 0 → 1 (0.6s back.out)
+- 1.6: step1 label fade in (0.4s)
+- 2.3: segment1 scaleX 0→1 (0.5s)
+- 2.6: connector1 scaleX 0→1 (0.5s)
+- 3.1: step2 number/icon/label reveal (stagger 3.1/3.3/3.5)
+- 3.9: segment2 fill
+- 4.2: connector2 draw
+- 4.7: step3 reveal (4.7/4.9/5.1)
+- 5.7: segment3 fill
+- 6.4: footer tagline fade in? Maybe a closing line: "From brief to video in one pass." as a bottom headline? Hmm, keep it: a bottom-center mono line "BRIEF → CODE → VIDEO" appears at 6.6. Actually that's redundant with the three columns. Alternative: a final highlight band: yellow hl band with "READY WHEN YOU ARE"? The hl class is yellow band behind #111 text. Could do a closing tagline with hl: "Ship it." at 6.8. Nice brand touch.
+
+Let me add: bottom area (top ~850?) no—columns occupy until ~800. Put closing line at top 860, left 160, font-size 40 body/mono: "THE WHOLE LOOP, IN ONE PASS." with hl on "ONE PASS". Hmm.
+
+Actually simpler and cleaner: keep the three steps as the core, plus progress segments, and a small closing caption at 6.6 fading in: mono 22px, color ink dim: "ONE BRIEF IN — ONE VIDEO OUT." That's a nice kicker. Position top 880, left 160. Bottom edge ~910, within margin.
+
+Hold frame: everything at opacity 1 at 9.0.
+
+Also numbers: use display font? Numbers "01" big mono look good. Use class m with font-size 64, colored.
+
+Icons: inline SVG. Let me draft them.
+
+Icon 1 — document + pencil (stroke cyan #12A9E6):
+```
+<svg viewBox="0 0 160 160" width="160" height="160" fill="none" stroke="#12A9E6" stroke-width="6" stroke-linecap="square">
+  <path d="M40 20 H96 L124 48 V140 H40 Z"/>  <!-- document -->
+  <path d="M96 20 V48 H124"/>  <!-- folded corner -->
+  <line x1="58" y1="70" x2="104" y2="70"/>
+  <line x1="58" y1="92" x2="104" y2="92"/>
+  <!-- pencil diagonal -->
+  <path d="M70 128 L108 90"/> hmm
+</svg>
+```
+Maybe simpler: document with lines, plus pencil overlapping bottom-right. Pencil: a rotated rect + tip. Path: M96 108 L118 86 L126 94 L104 116 Z? Let's do a simple pencil: body line from (86,128) to (118,96), tip triangle. Eh, keep it clean:
+
+Document: rect x=36 y=22 w=88 h=116, fold corner. Lines inside. Pencil: diagonal from bottom-right corner area: line (78,132)-(118,92) with small tip. Actually pencil crossing the document might clutter. Alternative: document with a pencil drawn to its side. Width 160: document on left (x 24-92), pencil on right diagonal (x 100-140). Pencil: rect rotated 45°. Use path: M112 96 L136 72 L144 80 L120 104 Z (body), tip: M112 96 L104 104 L120 104? Hmm.
+
+Simpler recognizable: pencil alone? Brief says "pencil/document". A document with pencil is fine. Let me do:
+
+```
+<svg viewBox="0 0 160 160" ...>
+  <path d="M34 18 H92 L118 44 V142 H34 Z"/>
+  <path d="M92 18 V44 H118"/>
+  <line x1="52" y1="66" x2="100" y2="66"/>
+  <line x1="52" y1="88" x2="100" y2="88"/>
+  <line x1="52" y1="110" x2="84" y2="110"/>
+</svg>
+```
+That's a document. Add pencil: a diagonal bar across lower right:
+```
+<path d="M96 128 L128 96"/>  body
+<path d="M96 128 L88 132 L100 120"/> tip? 
+```
+Might look messy. Alternative: pencil icon separate from document — draw a pencil: 
+```
+<path d="M40 120 L104 56"/> (shaft)
+<path d="M104 56 L124 36 L130 42 L110 62"/> (eraser end?) 
+```
+Hmm.
+
+Cleanest: document icon (stroke cyan) — reads as "write a brief" well enough, especially with label. But brief explicitly says pencil/document — either is fine. I'll do document with lines, plus a small pencil as separate strokes:
+
+```
+<path d="M100 132 L132 100 L140 108 L108 140 Z"/>  pencil body (parallelogram)
+<path d="M100 132 L92 140 L108 140"/>  tip
+```
+Hmm tip: pencil pointing down-left: body from (100,132) to (132,100)... Let me think in coordinates. Pencil diagonal from bottom-left tip to top-right end:
+- tip at (96,132)
+- body: parallelogram from (96,132) to (128,100), width ~12: points (96,132) (104,140) (136,108) (128,100). 
+- tip triangle: (96,132) (104,140) (88,140)? 
+
+Let me just do a simple pencil shape:
+```
+<path d="M92 136 L118 110 L130 122 L104 148 Z"/>  -- no, y max 160, 148 ok
+```
+Getting fiddly. Alternative approach: pencil as a rotated group:
+```
+<g transform="rotate(-45 110 110)">
+  <rect x="98" y="66" width="24" height="64"/>  body
+  <path d="M98 130 L110 148 L122 130 Z"/>  tip
+  <line x1="98" y1="78" x2="122" y2="78"/>  band
+</g>
+```
+Rotated -45 around (110,110): body vertical from y66 to y130, tip below. After rotation it points down-left. That's clean and symmetric. Document occupies left portion: x 26-96, y 22-142. Pencil rotated around (112,112), body x 100-124, y 60-128, tip to y 146. Overlap region x 100-96 minimal. Good.
+
+Stroke width 6, stroke-linejoin miter. Fine.
+
+Icon 2 — brackets </> (stroke magenta #FF2D92):
+```
+<svg viewBox="0 0 160 160" fill="none" stroke="#FF2D92" stroke-width="8" stroke-linecap="square">
+  <path d="M58 48 L28 80 L58 112"/>
+  <path d="M102 48 L132 80 L102 112"/>
+  <line x1="94" y1="40" x2="66" y2="120"/>
+</svg>
+```
+Chevron left: M58 48 L28 80 L58 112. Chevron right: M102 48 L132 80 L102 112. Slash: from (94,40) to (66,120). Good.
+
+Icon 3 — play triangle (stroke ink #F4F4F1 or cyan). Use ink. Maybe triangle inside circle? Circle + triangle:
+```
+<circle cx="80" cy="80" r="56"/>
+<path d="M68 56 L108 80 L68 104 Z" fill="#F4F4F1" stroke="none"/>  -- flat fill triangle
+```
+Brief says no fill or flat fill — flat fill ok. Triangle filled ink, circle stroke ink. Or triangle stroke only. I'll do circle stroke + filled triangle (flat fill). Actually "no fill or flat fill" — flat fill allowed. Good.
+
+Maybe give step 3 magenta? Step colors: 01 cyan, 02 magenta, 03 ink. Icons match their number colors. Numbers: 01 cyan, 02 magenta, 03 ink. Icons: same. Connector lines: gradient? No gradients. Connector 1 cyan→? Just ink or cyan. Use cyan for both connectors, or match next step color. Connector1 → cyan (step1) or magenta (step2)? Use ink at 40%? Keep simple: connector strokes ink #F4F4F1 with arrowhead, and segments colored.
+
+Progress segments: segment colors cyan, magenta, ink — matching steps. 
+
+Now the heading: "HOW IT WORKS" — uppercase via CSS class h. With hl on "WORKS"? The example uses hl on a word. "HOW IT <span class='hl'>WORKS</span>" — yellow band behind #111 text. Nice brand pop. hl class: yellow background, #111 text, padding maybe. Check gw.css for .hl — presumably defined. I'll use it as-is.
+
+Eyebrow: "WORKFLOW / 03 STEPS" mono, cyan.
+
+Kicker at bottom: "ONE BRIEF IN — ONE VIDEO OUT." mono, color #F4F4F1 at 60%? Use opacity via color rgba? Colors: use style color:#F4F4F1; opacity handled by animation. Fine.
+
+Also add small corner marks or frame lines? Add a top-left small square logo-ish mark? There's assets/icon.svg and logo-negative.png — could place logo bottom-right. Brief doesn't require it; adding logo adds brand. "assets/logo-negative.png" — negative logo (white). Place small logo at top-right? Keep margins. Maybe bottom-right corner: logo height 48px at right 160? Hmm, margins 100px. Place at left 160? Bottom bar area. I'll add the logo at top right: right edge at 1920-160=1760, top 120, height 40. It adds brand identity. Use <img src="assets/logo-negative.png">. Is that allowed? Rule 1 says project has those files; linking them is fine. Logo is an image asset — allowed. I'll include it small.
+
+Actually careful: logo-negative.png might be wide. Height 36, width auto. Set height:36px; width:auto.
+
+Now animation details. All elements start hidden (opacity 0) via tl.set or fromTo. The linter wants tl.set / tl.to / tl.from / tl.fromTo with absolute start times. Use fromTo for most.
+
+Elements:
+- #eyebrow (mono, cyan)
+- #heading (h, 110px, with hl span)
+- #rule (div, 6px height, width 420, background cyan? Use magenta? Use cyan) — scaleX origin left.
+- #logo (img) — fade in at 0.5.
+- For each step i (1..3): #num1, #iconbox1 (div with border), #svg1, #label1. Animate num, box, label. Maybe animate the whole column group instead? Columns are separate absolutely-positioned divs; I can animate a group container per column: #col1 { position absolute; left; top; width; } containing num, iconbox, label. Animate #col1 from {opacity 0, y 40} → visible. That's simpler and robust. But staggered inside-column reveal is fancier. Group animation is safe. I'll do group: num + icon + label in one .a div, animate y+opacity. Plus icon box scale separately? Keep group-level: fromTo opacity 0→1, y 50→0, duration 0.6, ease power3.out. And icon svg scale 0.5→1 with back.out inside.
+
+Let me structure per column:
+```
+<div class="a" id="col1" style="left:160px;top:400px;width:440px;opacity:0">
+  <div class="a m" id="num1" style="left:0;top:0;font-size:52px;color:var(--c)">01</div>
+  <div class="a" id="box1" style="left:0;top:64px;width:220px;height:220px;border:4px solid #12A9E6">
+     <svg ...>...</svg>
+  </div>
+  <div class="a m" id="label1" style="left:0;top:308px;width:440px;font-size:26px;color:#F4F4F1">Write a brief</div>
+</div>
+```
+Wait .a class = position absolute. Nested .a inside .a — position absolute relative to .a (which is positioned). Fine.
+
+Icon svg centered in box: svg width 150 height 150, position absolute left 35 top 35 within 220 box.
+
+Column height: 64 + 220 + 8 + 40 = ~330. Top 400 → bottom 730.
+
+Connectors:
+```
+<div class="a" id="conn1" style="left:604px;top:600px;width:152px;height:24px;transform-origin:left center;opacity:0">
+  <svg width="152" height="24" viewBox="0 0 152 24"><line x1="0" y1="12" x2="132" y2="12" stroke="#F4F4F1" stroke-width="4"/><polygon points="132,4 152,12 132,20" fill="#F4F4F1"/></svg>
+</div>
+```
+Animate scaleX 0→1.
+
+Progress segments:
+```
+<div class="a" id="seg1" style="left:160px;top:900px;width:480px;height:8px;background:#12A9E6;transform-origin:left center;opacity:0"></div>
+```
+Wait bottom margin: top 900 + 8 = 908, ok (text not involved). Kicker text at top 940? 940+30=970 < 980. OK. Actually let's put kicker at top 930, font-size 24, height ~30 → bottom 960. Good. Hmm, but segments at 900 and kicker at 930 — 22px gap, tight but fine. Alternatively kicker above segments. Let's do: kicker at top 880 (text), segments at top 950. Kicker bottom ~912, segments 950-958. Good.
+
+Wait, columns bottom at ~730. Kicker at 880. Fine.
+
+Hmm, actually maybe place kicker at 860 and segments at 960. Fine-tune: segments top 950, height 8 → 958. Kicker top 880, font 24 → ~910. Good.
+
+Heading: font-size 110px. "HOW IT WORKS" — 12 glyphs; at 110px display, uppercase ~75px/char → ~900px. Width 1600 fine.
+
+Eyebrow at top 130, font-size 24.
+Heading top 170, height ~130 → bottom 300.
+Rule: top 330, left 162, width 420, height 6, background cyan.
+
+Columns top 420. Number font-size 52 at top 0 (height ~60). Box top 70, size 220 → bottom 290. Label top 310, font-size 26 → bottom ~340. Column bottom = 420+340 = 760.
+
+Connectors at icon middle: box center y = 420 + 70 + 110 = 600. Connector top 588 (height 24). Left: col1 right edge = 160+440=600; connector left 606, width 148 (to 754, col2 starts 760). Good.
+
+Segments: left 160, widths: total 1600? 3 segments + 2 gaps: gap 24, widths (1600-48)/3 = 517. Use width 517. Lefts: 160, 160+517+24=701, 160+2*(541)=1242. 1242+517=1759 ≤ 1760. 
+
+Kicker: "ONE BRIEF IN — ONE VIDEO OUT." at left 160, top 880, font-size 26, mono, color #F4F4F1, letter-spacing. Maybe with hl on "ONE VIDEO OUT"? hl yellow band. Let's do: "ONE BRIEF IN — <span class='hl'>ONE VIDEO OUT.</span>" Nice.
+
+Logo top-right: img height 40, right: left = 1760 - width. Without knowing aspect, set style right? position absolute with left... I can set left:1500px;top:120px;height:44px;width:auto. If logo is wide (e.g., 3:1), width ~130. Fine. Or use right:160px — absolute positioning with right works too (left auto). Use right:160px;top:118px;height:44px.
+
+Timeline (9s):
+- tl.set("#eyebrow", {opacity:0}, 0) — actually set initial states via CSS opacity:0 inline, then animate. Rule 4: set initial hidden state with tl.set or fromTo, not by CSS transform. CSS opacity:0 inline is fine? Rule 3 says never put CSS transform on animated element; opacity in CSS is okay-ish but rule 4 says initial hidden state with tl.set or fromTo. I'll use tl.set for initial hidden states at time 0, or just use fromTo everywhere. fromTo sets the from state at tween start... Actually fromTo with absolute start time: the from state applies at the tween's start time, meaning before that time the element is at natural state (visible). Hmm — with paused timeline and rendering at frame 0, elements would show at natural state before their tween starts. That's why the example uses inline style opacity:0 AND tl.to opacity 1. The example does: eyebrow style opacity:0, then tl.to(...). So inline opacity:0 + tl.to is the pattern. I'll do that: inline opacity:0 on all animated elements, then tl.to / tl.fromTo with opacity.
+
+For scaleX elements (rule, connectors, segments): inline opacity:0 + tl.fromTo(el, {scaleX:0}, {scaleX:1, opacity:1,...}). transform-origin left center in CSS.
+
+Timeline:
+```
+tl.to("#eyebrow", {opacity:1, duration:0.4}, 0.2);
+tl.to("#logo", {opacity:1, duration:0.4}, 0.3);
+tl.fromTo("#heading", {opacity:0, y:50}, {opacity:1, y:0, duration:0.7, ease:"power3.out"}, 0.4);
+tl.fromTo("#rule", {scaleX:0, opacity:1}, {scaleX:1, duration:0.7, ease:"power2.inOut"}, 1.0);
+```
+Hmm rule: inline opacity 0? If fromTo sets scaleX 0 but opacity natural 1... set opacity 0 inline and include opacity:1 in to. fromTo({opacity:0, scaleX:0}, {opacity:1, scaleX:1}).
+
+Steps:
+```
+tl.fromTo("#col1", {opacity:0, y:50}, {opacity:1, y:0, duration:0.6, ease:"power3.out"}, 1.3);
+tl.fromTo("#box1", {scale:0.5}, {scale:1, duration:0.6, ease:"back.out(1.6)"}, 1.35);
+```
+Wait box inside col1 — col1 animates y; box scale also animating — both fine (different properties). But box has transform-origin center in CSS.
+
+Actually nested transforms: col1 y transform + box scale transform — independent elements, fine.
+
+Label stagger: labels inside col1; animate #label1 from opacity 0? Col1 already fades in. To add stagger, animate label separately: col1 contains num+box only; label separate element? Simpler: keep col group, animate group once. Add extra flourish: number pops separately.
+
+Let me restructure: separate elements per part, all positioned absolute at page level:
+- #num1 (left 160, top 420)
+- #box1 (left 160, top 490, 220x220)
+- #label1 (left 160, top 730, width 440)
+- #conn1 (left 606, top 588, width 148)
+- #seg1 (left 160, top 950, width 517)
+
+Then stagger:
+- num1: fromTo opacity 0,y 24 → 1,0 at 1.3
+- box1: fromTo scale 0.4, opacity 0 → 1,1 at 1.45 (back.out)
+- label1: fromTo opacity 0, y 16 → 1,0 at 1.65
+- seg1: fromTo scaleX 0 → 1 at 2.2
+- conn1: fromTo scaleX 0 → 1 at 2.6
+- step2 at 3.1/3.25/3.45, seg2 3.9, conn2 4.3
+- step3 at 4.8/4.95/5.15, seg3 5.7
+- kicker at 6.5 (fade + y)
+- maybe final: heading subtle pulse? No.
+
+End 9.0. Hold: all visible at 9.0.
+
+Connector2: left = col2 right edge (760+440=1200) + 6 = 1206, width 148 (to 1354, col3 starts 1360). Good.
+
+Numbers: mono class m, font-size 56, letter-spacing 2px. Colors: #12A9E6, #FF2D92, #F4F4F1.
+
+Boxes: border 4px solid color; svg inside centered. Icon svg 150x150 at left 35 top 35.
+
+Labels: mono uppercase 26px, color #F4F4F1, letter-spacing 1px. Width 440 — "MODEL WRITES THE CODE" at 26px mono: mono letter width ~0.6em = 15.6px; 21 chars ≈ 328px. Fits.
+
+Kicker: mono 26px, letter-spacing 2px. "ONE BRIEF IN — ONE VIDEO OUT." ~29 chars * 16 = 464px. Fine.
+
+Eyebrow: "WORKFLOW / 03 STEPS" 24px cyan, letter-spacing 3px.
+
+Heading: class h, font-size 108px. Check width: display font heavy wide, ~0.72em per char uppercase → 108*0.72 ≈ 78px/char; "HOW IT WORKS" = 12 chars → 936px. Fits 1600.
+
+Let me also add small tick marks or step index on the right of each column? Keep clean.
+
+Background: body #0E0E0E already. Maybe add subtle frame: thin border lines at edges? Add a 4px top bar? A thin cyan rule at very top? Could add top edge strip: left 0 top 0 width 1920 height 6 background #12A9E6? That's a nice brand band. Animate scaleX at 0. Add #topbar. And maybe bottom-left tiny mono text "BRIEF B2"? Kicker covers it. Skip.
+
+Actually add corner frame: 4 small corner brackets? Extra flair, cheap: four L-shaped corners via divs with borders. Might clutter; skip. Keep minimal.
+
+Now the icons in detail:
+
+Icon 1 (document+pencil), stroke #12A9E6, stroke-width 6:
+```
+<svg width="150" height="150" viewBox="0 0 160 160" fill="none" stroke="#12A9E6" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <path d="M30 20 H88 L116 48 V140 H30 Z"/>
+  <path d="M88 20 V48 H116"/>
+  <line x1="48" y1="66" x2="92" y2="66"/>
+  <line x1="48" y1="88" x2="92" y2="88"/>
+  <line x1="48" y1="110" x2="76" y2="110"/>
+  <g transform="rotate(-45 118 112)">
+    <rect x="106" y="66" width="24" height="56"/>
+    <path d="M106 122 L118 140 L130 122 Z"/>
+    <line x1="106" y1="80" x2="130" y2="80"/>
+  </g>
+</svg>
+```
+Document: x 30-116, y 20-140. Pencil rotated around (118,112): body x 106-130 (width 24), y 66-122, tip to y 140. Rotated -45° about (118,112): the pencil axis goes from upper-right to lower-left. Body center (118, 94), tip at (118,140). After rotate(-45): points move... tip at (118,140): relative (0,28), rotated -45°: (0*cos(-45) - 28*sin(-45), 0*sin(-45)+28*cos(-45)) = (0 - 28*(-0.707), 0 + 28*0.707) = (19.8, 19.8). New tip = (137.8, 131.8). Hmm that puts tip at bottom-right, body toward top-left. Body center (118,94): rel (0,-18) → rotated: (0*0.707 - (-18)(-0.707), 0*(-0.707)+(-18)(0.707)) = (-12.7, -12.7) → (105.3, 99.3). So pencil spans from ~(105,99) to ~(138,132) — diagonal from top-left to bottom-right, tip at bottom-right. Document right edge at 116, pencil overlaps region x 105-116 — slight overlap with document's right edge. Acceptable, or shift pencil right: rotate around (124,116)? Body x 112-136, y 70-126, tip to y 144. Rotated: tip rel (0,28)→(19.8,19.8) → (143.8,135.8) — near edge 160, ok. Body center rel (0,-18)→(-12.7,-12.7)→(111.3,103.3). Pencil from (111,103) to (144,136). Document right edge 116 — overlap small at x 111-116, y ~103-110. Fine, or shrink document to x 30-104 (fold at 80). Let me adjust: document path M30 20 H80 L108 48 V140 H30 Z; fold M80 20 V48 H108; lines x 48-88. Pencil rotate around (122,114): body x 110-134 y 68-124, tip to y 142. Rotated: tip rel (0,28) → (19.8,19.8) → (141.8,133.8). Body center rel (0,-18) → (-12.7,-12.7) → (109.3,101.3). Overlap with document (right edge 108) minimal. Good.
+
+Icon 2 (brackets), stroke #FF2D92, stroke-width 9:
+```
+<svg width="150" height="150" viewBox="0 0 160 160" fill="none" stroke="#FF2D92" stroke-width="9" stroke-linecap="square">
+  <path d="M60 46 L26 80 L60 114"/>
+  <path d="M100 46 L134 80 L100 114"/>
+  <line x1="92" y1="38" x2="68" y2="122"/>
+</svg>
+```
+
+Icon 3 (play), stroke #F4F4F1, stroke-width 6:
+```
+<svg width="150" height="150" viewBox="0 0 160 160" fill="none" stroke="#F4F4F1" stroke-width="6">
+  <circle cx="80" cy="80" r="54"/>
+  <path d="M70 56 L106 80 L70 104 Z" fill="#F4F4F1" stroke="none"/>
+</svg>
+```
+Triangle flat fill — allowed.
+
+Connector SVG:
+```
+<svg width="148" height="24" viewBox="0 0 148 24" fill="none">
+  <line x1="2" y1="12" x2="128" y2="12" stroke="#F4F4F1" stroke-width="4"/>
+  <polygon points="128,4 146,12 128,20" fill="#F4F4F1"/>
+</svg>
+```
+
+Now the CSS: inline styles for positioning. Classes: .a (position absolute), .h, .m from gw.css. I'll add my own minimal CSS in <style> for #root and .a? gw.css likely defines .a? The example uses class="a" — yes, .a is presumably defined in gw.css as position:absolute. I'll still add a fallback style block? "No other files" — inline <style> is fine (it's part of the file). I'll add small style block for #root and .a to be safe:
+
+```
+<style>
+  #root { position:relative; width:1920px; height:1080px; overflow:hidden; background:#0E0E0E; }
+  .a { position:absolute; }
+</style>
+```
+But .a might already exist; duplicating is harmless.
+
+transform-origin for rule/connectors/segments: left center. For box: center center.
+
+Fonts: var(--display), var(--mono), var(--body) — defined in gw.css. Use classes h and m.
+
+Numbers: class "a m" with color inline.
+
+Heading: class "a h", font-size 108px, color #F4F4F1. hl span inside.
+
+Eyebrow: class "a m", font-size 24px, color #12A9E6, letter-spacing 4px.
+
+Kicker: class "a m", font-size 26px, color #F4F4F1, letter-spacing 2px.
+
+Logo img: style left auto; right:160px; top:118px; height:44px; opacity:0.
+
+Wait — margins: logo at right 160 — fine.
+
+Top bar: #topbar left 0 top 0 width 1920 height 6 background #12A9E6, transform-origin left center, scaleX 0 → 1 at 0.1. Nice.
+
+Also maybe a subtle bottom strip? Skip.
+
+Segments: colors #12A9E6, #FF2D92, #F4F4F1.
+
+Now check text margins: heading top 170 (≥100 ✓), left 160 ✓. Eyebrow top 130 ✓. Kicker top 880, height ~32 → 912 ✓ (≤980 ✓). Segments top 950 → 958 ✓ (not text). Labels top 730 height ~34 → 764 ✓. Logo top 118 ✓.
+
+Column x positions: col1 left 160 (width 440 → 600), col2 left 760 (→1200), col3 left 1360 (→1800). Right margin 120 ✓ (≥100).
+
+Connectors: left 606 width 148 → 754; col2 at 760 ✓. conn2 left 1206 width 148 → 1354; col3 at 1360 ✓.
+
+Connector vertical: box top 490, height 220, center 600. Connector top 588 (height 24) → center 600 ✓.
+
+Number position: top 420, font-size 56 → height ~64. Box top 500? Number bottom 484; box top 500, height 220 → 720. Label top 740, height ~34 → 774. Kicker at 880 ✓.
+
+Wait, I earlier said box top 490; adjust: num top 420 (height 64), box top 500, label top 740. Connector center = 500+110 = 610. Connector top 598.
+
+Hmm, heading bottom: top 170 + ~130 = 300. Rule top 330. Eyebrow top 130 height ~30 → 160. Heading top 170 ✓.
+
+Rule: left 162, top 330, width 420, height 6, background #12A9E6.
+
+Let me now write the timeline fully:
+
+```
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#topbar", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.out" }, 0.1);
+tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.3);
+tl.to("#logo", { opacity: 1, duration: 0.4 }, 0.4);
+tl.fromTo("#heading", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.5);
+tl.fromTo("#rule", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.1);
+
+// step 1
+tl.fromTo("#num1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 1.4);
+tl.fromTo("#box1", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 1.55);
+tl.fromTo("#label1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.8);
+tl.fromTo("#seg1", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 2.3);
+tl.fromTo("#conn1", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.7);
+
+// step 2
+tl.fromTo("#num2", ..., 3.2);
+tl.fromTo("#box2", ..., 3.35);
+tl.fromTo("#label2", ..., 3.6);
+tl.fromTo("#seg2", ..., 4.1);
+tl.fromTo("#conn2", ..., 4.5);
+
+// step 3
+tl.fromTo("#num3", ..., 4.9);
+tl.fromTo("#box3", ..., 5.05);
+tl.fromTo("#label3", ..., 5.3);
+tl.fromTo("#seg3", ..., 5.8);
+
+// kicker
+tl.fromTo("#kicker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 6.6);
+```
+
+Total duration 9.0. Last tween ends 7.2. Hold 7.2–9.0 ✓.
+
+All elements inline opacity:0 except topbar (scaleX 0 inline? Use fromTo with scaleX 0 — before tween starts, element shows natural scaleX 1 at frame 0!). Important: fromTo only applies from-state when the tween starts. At frame 0 (paused timeline at 0), elements with fromTo tweens would render at natural CSS state. So initial hidden states must be inline CSS: opacity:0 and scaleX:0 / scale:0.4 etc. But rule 4 says don't put CSS transform on animated elements (GSAP overwrites it). Hmm — "Never put a CSS `transform` on an element that GSAP animates (GSAP overwrites it). Use tl.fromTo with the start state". So initial scaleX:0 via CSS transform would be overwritten by GSAP when tween starts... but before tween starts, CSS transform shows. Actually GSAP fromTo at time t: when timeline is at 0 and tween starts at 1.1, the element renders at natural state (CSS). If CSS has scaleX:0 via transform, it renders hidden; when tween starts at 1.1, GSAP sets scaleX 0 (from) then animates to 1 — overwriting CSS. That's fine actually! The rule says don't put CSS transform because GSAP overwrites it — meaning if you rely on CSS transform for final state it breaks, but for initial hidden state... The rule explicitly says: "Set initial hidden state with tl.set or fromTo, not by CSS transform."
+
+So use tl.set for initial states at time 0:
+```
+tl.set("#rule", { scaleX: 0, opacity: 0 }, 0);
+```
+But wait — does tl.set at time 0 persist? Yes, set at time 0 applies from frame 0. And fromTo at later time re-applies from state at tween start. That's the clean approach. But the example uses inline opacity:0 + tl.to — inline opacity is not transform, so it's allowed (only transform is banned). So: inline opacity:0 for opacity-animated elements, and tl.set for scale/scaleX initial states. Or tl.set(...,0) for everything. I'll use tl.set at 0 for scale-type elements and inline opacity:0 for opacity-only elements, plus fromTo with opacity for scale elements.
+
+Actually simplest: use tl.set for all initial states at time 0, and tl.to for animations (to opacity 1, y 0, scale 1...). But fromTo gives explicit from state — with set at 0 it's redundant. Let me just do:
+
+```
+tl.set(["#eyebrow","#logo","#heading","#rule","#num1",...], {opacity:0}, 0);
+tl.set("#heading", {y:50}, 0);
+tl.set("#rule", {scaleX:0}, 0);
+tl.set("#conn1", {scaleX:0}, 0);
+tl.set("#conn2", {scaleX:0}, 0);
+tl.set(["#seg1","#seg2","#seg3"], {scaleX:0}, 0);
+tl.set("#box1", {scale:0.4}, 0);
+...
+```
+Then tl.to with absolute times. That satisfies "initial hidden state with tl.set". Good. And no inline opacity needed. But note: heading fromTo not needed; tl.to("#heading", {opacity:1, y:0, duration:0.7}, 0.5).
+
+For boxes: tl.to("#box1", {opacity:1, scale:1, duration:0.6, ease:"back.out(1.7)"}, 1.55).
+
+Numbers: tl.to("#num1", {opacity:1, y:0, ...}, 1.4).
+Labels: tl.to("#label1", {opacity:1, y:0, ...}, 1.8).
+Kicker: tl.to("#kicker", {opacity:1, y:0, ...}, 6.6).
+
+Transform-origin: #rule, #conn1, #conn2, #seg1..3: left center. #box1..3: center center. #topbar: left center.
+
+Note: #topbar scaleX — set scaleX 0 at 0, animate to 1 at 0.1.
+
+Edge: numbers have y initial 24; set at 0. Labels y 16. Kicker y 20. Heading y 50.
+
+Also ensure heading has no CSS transform (it doesn't; only via GSAP).
+
+Now, "hl" class: yellow band behind #111 text. Check gw.css — presumably `.hl { background:#FFD400; color:#111; padding: 0 0.12em; }`. I'll use it inline in heading and kicker.
+
+Heading: `HOW IT <span class="hl">WORKS</span>` — hl inside h. Fine.
+
+Kicker: `ONE BRIEF IN — <span class="hl">ONE VIDEO OUT.</span>`.
+
+Em dash — fine, not emoji.
+
+Font sizes: heading 108px — check width: display font heavy, wide. "HOW IT WORKS" 12 chars incl 2 spaces. At 108px, avg ~70px/char → 840px. OK.
+
+Number font: mono 56px. "01" width ~2*34=68px. Fine.
+
+Labels: mono 26px uppercase. "MODEL WRITES THE CODE" = 21 chars → 21*16=336px < 440 ✓.
+
+Kicker: mono 26px: "ONE BRIEF IN — ONE VIDEO OUT." = 29 chars → 29*16=464px ✓.
+
+Eyebrow: mono 24px, letter-spacing 4px: "WORKFLOW / 03 STEPS" = 19 chars → 19*(14.4+4)=350px ✓.
+
+Now the logo: assets/logo-negative.png. Use <img class="a" id="logo" src="assets/logo-negative.png" style="right:160px;top:118px;height:44px;width:auto;opacity:0" alt="logo">. Inline opacity:0 — allowed (not transform). But I'm setting initial states via tl.set at 0... For logo, inline opacity:0 then tl.to opacity 1 — pattern from example. Fine, mix is OK. Actually to be consistent, I'll tl.set logo opacity 0 at 0 and not inline. Hmm, but the example uses inline opacity:0 + tl.to — both fine. I'll use tl.set for everything at 0.
+
+Actually simpler and safest with the linter: inline style opacity:0 on every animated element (allowed, not transform), plus tl.set for transforms at time 0. That's belt and suspenders.
+
+Let me also double check the "no CSS transition/animation" — none.
+
+GSAP easing strings: "power3.out", "back.out(1.7)", "power2.inOut" — all valid.
+
+Now write the HTML.
+
+One more consideration: the linter might require exactly one root element with data-composition-id="main". Yes.
+
+Also data-duration="9".
+
+Let me write the file:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Brief B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #0E0E0E; }
+  .a { position: absolute; }
+  #topbar { transform-origin: left center; }
+  #rule, #conn1, #conn2, #seg1, #seg2, #seg3 { transform-origin: left center; }
+  #box1, #box2, #box3 { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+  <div class="a" id="topbar" style="left:0;top:0;width:1920px;height:6px;background:#12A9E6;opacity:0"></div>
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="logo" style="right:160px;top:118px;height:44px;opacity:0" />
+  <div class="a m" id="eyebrow" style="left:160px;top:130px;font-size:24px;letter-spacing:4px;color:#12A9E6;opacity:0">WORKFLOW / 03 STEPS</div>
+  <div class="a h" id="heading" style="left:160px;top:172px;font-size:108px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+  <div class="a" id="rule" style="left:162px;top:336px;width:420px;height:6px;background:#12A9E6;opacity:0"></div>
+
+  <div class="a m" id="num1" style="left:160px;top:420px;font-size:56px;letter-spacing:2px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="box1" style="left:160px;top:500px;width:220px;height:220px;border:4px solid #12A9E6;opacity:0">
+    <svg ...></svg>
+  </div>
+  <div class="a m" id="label1" style="left:160px;top:742px;width:440px;font-size:26px;letter-spacing:1px;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  ... conn1, col2, col3 ...
+
+  <div class="a" id="conn1" style="left:606px;top:598px;width:148px;height:24px;opacity:0"><svg ...></svg></div>
+  ...
+  <div class="a" id="seg1" style="left:160px;top:950px;width:517px;height:8px;background:#12A9E6;opacity:0"></div>
+  <div class="a" id="seg2" style="left:701px;top:950px;width:517px;height:8px;background:#FF2D92;opacity:0"></div>
+  <div class="a" id="seg3" style="left:1242px;top:950px;width:517px;height:8px;background:#F4F4F1;opacity:0"></div>
+
+  <div class="a m" id="kicker" style="left:160px;top:872px;font-size:26px;letter-spacing:2px;color:#F4F4F1;opacity:0">ONE BRIEF IN — <span class="hl">ONE VIDEO OUT.</span></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  // initial states
+  tl.set("#topbar", { scaleX: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+  tl.set("#conn1", { scaleX: 0 }, 0);
+  tl.set("#conn2", { scaleX: 0 }, 0);
+  tl.set(["#seg1", "#seg2", "#seg3"], { scaleX: 0 }, 0);
+  tl.set("#heading", { y: 50 }, 0);
+  tl.set(["#num1", "#num2", "#num3"], { y: 24 }, 0);
+  tl.set(["#label1", "#label2", "#label3"], { y: 16 }, 0);
+  tl.set("#kicker", { y: 20 }, 0);
+  tl.set(["#box1", "#box2", "#box3"], { scale: 0.4 }, 0);
+
+  tl.to("#topbar", { opacity: 1, scaleX: 1, duration: 0.8, ease: "power2.out" }, 0.1);
+  ...
+</script>
+</body>
+</html>
+```
+
+Wait: topbar has inline opacity:0 and set scaleX 0; tl.to opacity 1 scaleX 1 at 0.1. Good.
+
+Note: heading y 50 — inline opacity 0, set y 50 at 0, to y 0 at 0.5. Good.
+
+Boxes: inline opacity 0, set scale 0.4, to scale 1 + opacity 1 at staggered times.
+
+Labels: inline opacity 0, set y 16, to opacity 1 y 0.
+
+Numbers: inline opacity 0, set y 24.
+
+Kicker: inline opacity 0, set y 20.
+
+Eyebrow/logo: inline opacity 0, tl.to opacity 1.
+
+Segments: inline opacity 0, set scaleX 0, tl.to opacity 1 scaleX 1.
+
+Connectors: inline opacity 0, set scaleX 0, tl.to.
+
+Rule: inline opacity 0, set scaleX 0, tl.to.
+
+Now the SVG icons inline in each box. Box 220x220, svg 150x150 at left 35 top 35 (position absolute — class a).
+
+Icon 1 svg (cyan):
+```
+<svg class="a" width="150" height="150" viewBox="0 0 160 160" style="left:35px;top:35px" fill="none" stroke="#12A9E6" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <path d="M30 20 H80 L108 48 V140 H30 Z"/>
+  <path d="M80 20 V48 H108"/>
+  <line x1="46" y1="66" x2="88" y2="66"/>
+  <line x1="46" y1="88" x2="88" y2="88"/>
+  <line x1="46" y1="110" x2="72" y2="110"/>
+  <g transform="rotate(-45 122 114)">
+    <rect x="110" y="68" width="24" height="56"/>
+    <path d="M110 124 L122 142 L134 124 Z"/>
+    <line x1="110" y1="82" x2="134" y2="82"/>
+  </g>
+</svg>
+```
+Check pencil rotation: rotate(-45 122 114). Body rect x110-134, y68-124. Tip path M110 124 L122 142 L134 124 Z — tip pointing down to (122,142). Rotated -45° about (122,114): tip point (122,142): rel (0,28) → (0*cos(-45) - 28*sin(-45), 0*sin(-45) + 28*cos(-45)). cos(-45)=0.7071, sin(-45)=-0.7071. x' = 0 - 28*(-0.7071) = 19.8; y' = 0 + 28*0.7071 = 19.8. New tip = (141.8, 133.8). Body top edge (110,68): rel (-12,-46) → x' = -12*0.7071 - (-46)(-0.7071) = -8.49 - 32.5 = -41.0; y' = -12*(-0.7071) + (-46)(0.7071) = 8.49 - 32.5 = -24.0. New = (81, 90). Hmm body top-left corner at (81,90) — that's inside the document area (document spans x30-108, y20-140)! The pencil would cross the document. Not ideal but... it would look like a pencil over the document — actually that's fine visually? A pencil overlapping the document reads as "writing on document". But it might look cluttered.
+
+Let me reconsider: make pencil smaller and positioned to the right of the document. Document: x 24-92 (fold at 72): path M24 20 H72 L100 48 V140 H24 Z; fold M72 20 V48 H100; lines x 40-84. Pencil: rotate around (126, 112): body rect x 114-138, y 64-118 (w 24 h 54); tip M114 118 L126 136 L138 118 Z; band line x 114-138 at y 78. Rotated -45 about (126,112): tip (126,136): rel (0,24) → (17,17) → (143,129). Body top (114,64): rel (-12,-48) → x' = -8.49 - 48*0.7071*(-1)... wait recompute: x' = x*cos - y*sin where (x,y)=(-12,-48), cos=0.7071, sin=-0.7071: x' = (-12)(0.7071) - (-48)(-0.7071) = -8.49 - 33.94 = -42.4; y' = x*sin + y*cos = (-12)(-0.7071) + (-48)(0.7071) = 8.49 - 33.94 = -25.5. New = (83.6, 86.5). Body top-left at (84,87) — still inside document region x24-100! Hmm.
+
+The issue: rotating -45° with the axis through the pencil center swings the body toward the upper-left. Maybe rotate +45 instead: pencil pointing down-right? rotate(45 126 112): tip (126,136): rel (0,24) → x' = 0*0.7071 - 24*0.7071 = -17; y' = 0*0.7071 + 24*0.7071 = 17 → (109,129). Body top (114,64): rel (-12,-48) → x' = -8.49 - (-48)(0.7071) = -8.49 + 33.94 = 25.5; y' = -12*0.7071 + (-48)(0.7071) = -8.49 - 33.94 = -42.4 → (151.5, 69.6). Body top-right corner (138,64): rel (12,-48) → x' = 8.49 + 33.94 = 42.4; y' = 8.49 - 33.94 = -25.5 → (168.4, 86.5) — beyond 160! Too wide.
+
+Alternative: don't rotate; draw pencil as a diagonal path directly. Pencil from (100,132) tip to (142,90) end:
+- Body: parallelogram with direction vector (42,-42), normal (42,42)/norm... simpler: draw pencil as two lines: shaft line from (104,128) to (138,94), stroke-width 14? No—stroke-width 6 fixed... Actually I can use different stroke-width for the pencil body: stroke-width 16 for shaft, then tip path, then a small band line. That's doable:
+
+```
+<line x1="106" y1="126" x2="138" y2="94" stroke-width="16"/>  <!-- shaft -->
+<path d="M106 126 L94 138 L112 134 Z" fill="#12A9E6" stroke="none"/>  <!-- tip -->
+<line x1="128" y1="104" x2="138" y2="94" stroke-width="16"/> hmm
+```
+Getting messy. Alternative: skip the pencil; document icon alone with lines reads well as "brief". The brief says "pencil/document" — either. I'll do a clean document icon with a small pencil drawn vertically on the right side, no rotation:
+
+```
+<g>
+  <rect x="104" y="52" width="26" height="64"/>  <!-- pencil body -->
+  <path d="M104 116 L117 138 L130 116 Z"/>  <!-- tip -->
+  <line x1="104" y1="66" x2="130" y2="66"/>  <!-- band -->
+</g>
+```
+Vertical pencil on the right of the document. Document x 24-92. Pencil x 104-130, y 52-138. Clean, no rotation. 
+
+Document: M24 20 H72 L100 48 V140 H24 Z — right edge 100, pencil at 104 — 4px gap. Tight but ok. Make document narrower: M24 20 H68 L96 48 V140 H24 Z; fold M68 20 V48 H96; lines x 40-84: line x1=40 x2=84. Pencil x 106-132: rect x106 y52 w26 h64 (y52-116), tip M106 116 L119 138 L132 116 Z, band line x1=106 x2=132 y=66. Gap between doc (96) and pencil (106) = 10px. Good.
+
+Icon 2 brackets — fine as is.
+
+Icon 3 play — fine.
+
+Now connectors: svg 148x24. Polygon points "128,4 146,12 128,20". Line x1=2 x2=128. Good.
+
+Segments: 3 divs.
+
+Everything checks. Let me also think about whether heading should be two lines for more drama: "HOW IT" / "WORKS"? One line is cleaner. Keep one line.
+
+Also add small step numbers as background watermark? Skip.
+
+Kicker y: 872, font 26 → height ~34 → bottom 906. Segments at 950. Good spacing.
+
+Hmm wait, maybe move kicker to top area instead? Bottom is fine.
+
+Let me also double-check the hl class exists in gw.css — presumably yes since the example uses it. Yes.
+
+Font sizes: heading 108px — "display font is wide: at 150px an uppercase letter is about 100px wide" → at 108px, ~72px/char. "HOW IT WORKS" = 12 chars → ~860px. Width available 1600. ✓.
+
+Now write final code. Also remember: no CSS transform on animated elements — my .a class doesn't set transform. transform-origin in CSS is allowed.
+
+One more: `#root` needs background #0E0E0E (body already is, but add for safety).
+
+Also the img logo: alt text. Fine.
+
+Timeline final:
+
+```
+tl.set("#topbar", { scaleX: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+tl.set("#conn1", { scaleX: 0 }, 0);
+tl.set("#conn2", { scaleX: 0 }, 0);
+tl.set(["#seg1", "#seg2", "#seg3"], { scaleX: 0 }, 0);
+tl.set("#heading", { y: 50 }, 0);
+tl.set(["#num1", "#num2", "#num3"], { y: 24 }, 0);
+tl.set(["#label1", "#label2", "#label3"], { y: 16 }, 0);
+tl.set("#kicker", { y: 20 }, 0);
+tl.set(["#box1", "#box2", "#box3"], { scale: 0.4 }, 0);
+
+tl.to("#topbar", { opacity: 1, scaleX: 1, duration: 0.8, ease: "power2.out" }, 0.1);
+tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.3);
+tl.to("#logo", { opacity: 1, duration: 0.4 }, 0.4);
+tl.to("#heading", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.5);
+tl.to("#rule", { opacity: 1, scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.1);
+
+tl.to("#num1", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 1.4);
+tl.to("#box1", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 1.55);
+tl.to("#label1", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.8);
+tl.to("#seg1", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 2.3);
+tl.to("#conn1", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.7);
+
+tl.to("#num2", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.2);
+tl.to("#box2", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 3.35);
+tl.to("#label2", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.6);
+tl.to("#seg2", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 4.1);
+tl.to("#conn2", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.5);
+
+tl.to("#num3", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 4.9);
+tl.to("#box3", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 5.05);
+tl.to("#label3", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 5.3);
+tl.to("#seg3", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 5.8);
+
+tl.to("#kicker", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 6.6);
+```
+
+All elements end at opacity 1, y 0, scale 1, scaleX 1. ✓
+
+Note: tl.set at time 0 with opacity? I set inline opacity:0 in styles for all animated elements — good, and tl.set only transforms. But wait: tl.set at 0 for scale/y — if an element also has inline opacity 0, fine.
+
+Edge: heading inline opacity 0 + set y 50 at 0 — but before timeline is created/rendered... The timeline renders at 0 when paused; set at 0 applies at frame 0. Good.
+
+Actually, does a set at time 0 in a paused timeline apply immediately? Yes — when the timeline renders (at time 0), all tweens/sets at 0 apply.
+
+Also — the linter requires "one paused GSAP timeline" — yes.
+
+Also rule: "Never repeat:-1" — none.
+
+Now finalize SVG icon 3: circle stroke ink + filled triangle. Triangle: M70 56 L106 80 L70 104 Z — points right. Flat fill #F4F4F1.
+
+Also maybe give icon 3 a magenta/cyan accent? Numbers: 01 cyan, 02 magenta, 03 ink. Icons match. Segments match. Connectors ink. Rule cyan. Topbar cyan. Eyebrow cyan. Good balance.
+
+Let me write the complete file now. Also include `<div class="a" id="rule">` etc.
+
+Labels text: "Write a brief", "Model writes the code", "Render the video" — class m → uppercase via CSS presumably (class m: uppercase labels). Keep text as given; CSS uppercases.
+
+Connector SVG inside conn divs:
+```
+<svg width="148" height="24" viewBox="0 0 148 24" fill="none">
+  <line x1="2" y1="12" x2="126" y2="12" stroke="#F4F4F1" stroke-width="4"/>
+  <polygon points="126,4 146,12 126,20" fill="#F4F4F1"/>
+</svg>
+```
+
+Logo: right:160px — but .a absolute with right set, left auto — fine.
+
+Check heading top 172 + 108px font — line-height maybe 1.1 → ~119px → bottom ~291. Rule at 336 ✓ gap.
+
+Eyebrow at 130, font 24 → bottom ~160. Heading 172 ✓.
+
+Columns: num top 420 (56px font, height ~66 → 486), box top 500 (→720), label top 742 (26px → ~776). Kicker 872. ✓
+
+Logo at top 118 height 44 → bottom 162. Eyebrow at left 160 — no overlap (logo right side). ✓
+
+Write it.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Brief B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #0E0E0E; }
+  .a { position: absolute; }
+  #topbar { transform-origin: left center; }
+  #rule, #conn1, #conn2, #seg1, #seg2, #seg3 { transform-origin: left center; }
+  #box1, #box2, #box3 { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a" id="topbar" style="left:0;top:0;width:1920px;height:6px;background:#12A9E6;opacity:0"></div>
+
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="logo" style="right:160px;top:118px;height:44px;width:auto;opacity:0" />
+
+  <div class="a m" id="eyebrow" style="left:160px;top:130px;font-size:24px;letter-spacing:4px;color:#12A9E6;opacity:0">WORKFLOW / 03 STEPS</div>
+
+  <div class="a h" id="heading" style="left:160px;top:172px;font-size:108px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+
+  <div class="a" id="rule" style="left:162px;top:336px;width:420px;height:6px;background:#12A9E6;opacity:0"></div>
+
+  <!-- STEP 1 -->
+  <div class="a m" id="num1" style="left:160px;top:420px;font-size:56px;letter-spacing:2px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="box1" style="left:160px;top:500px;width

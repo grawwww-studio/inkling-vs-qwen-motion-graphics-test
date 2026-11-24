@@ -1,0 +1,26 @@
+{
+ "brief": "B3",
+ "name": "Chart reveal from small JSON (8 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 49.4,
+   "prompt_tokens": 1327,
+   "completion_tokens": 1893,
+   "finish": "stop",
+   "check_s": 1.5,
+   "check_errors": [],
+   "render_s": 7.3
+  }
+ ],
+ "model": "qwennothink",
+ "seed": "1",
+ "t0": 1795394538.020679,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 49.4,
+ "prompt_tokens": 1327,
+ "completion_tokens": 1893,
+ "t1": 1795394596.2349653,
+ "wall_s": 58.2
+}

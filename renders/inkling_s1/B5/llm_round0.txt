@@ -1,0 +1,396 @@
+[REASONING]
+Let me plan the video. 1920x1080, 10 seconds.
+
+Beat sheet:
+- 0-3s: three short lines slam in: "Agents." "Automations." "Video." — staggered, each slams in (scale from big + opacity, maybe y from -something with power4.out).
+- 3-7s: row of three feature chips: "Runs on your hardware", "No per-token bill", "Your data stays put" — staggered in.
+- 7-10s: everything clears (fade out), logo fades/scales in with tagline "Local AI, delivered." under it.
+
+Assets: assets/logo-negative.png (centre, appears at the end), assets/icon.svg.
+
+I need to check what gw.css provides — I don't have it, but the example shows classes: `.a` (absolute), `.m` (mono uppercase labels), `.h` (display uppercase), `.hl` (yellow band behind #111 text). Colors: --c cyan, --m magenta presumably, --y yellow. Let me use var(--c), var(--m), var(--y). Body background #0E0E0E, ink #F4F4F1.
+
+Design:
+
+Beat 1 (0-3s): Three lines slam in. Maybe each line is a huge display text centered, staggered at 0.2, 1.1, 2.0. Each slams: from scale 2.5, opacity 0, y -60? Actually "slam in" — from scale 1.6 opacity 0 with power4.out, quick. Then they stay. At 3s, they should clear before chips? Beat sheet: 0-3 lines, 3-7 chips, 7-10 logo. Hmm, does the lines disappear at 3s and chips appear? "a row of three feature chips ... staggered" — probably the lines fade out and chips come in. Let's do: lines slam in 0.2-3.0, then at ~3.0 lines fade/slide out, chips stagger in 3.2-4.5. Then chips hold until 7.0, then everything clears (lines already gone, chips fade out), logo fades/scales in at 7.2-8.5, tagline under it, hold to 10.
+
+Also use icon.svg — maybe as a small mark in the corner or as part of the logo reveal. Use it in the header corner throughout, or near tagline. Let's place icon.svg small at top-left as a persistent brand mark, and maybe it pulses. Keep it simple: icon at top-left corner, opacity 1 throughout, maybe slight rotation slam at start.
+
+Also "Grawwww Studio" — the teaser is for "Grawwww Studio: local AI, delivered". Maybe include a small "Grawwww Studio" label at top. The tagline at end is "Local AI, delivered." under the logo.
+
+Layout:
+- Canvas 1920x1080.
+- Top-left: icon.svg (about 64px) + "GRAWWW STUDIO" mono label.
+- Beat 1: three lines stacked vertically centered, e.g., font-size 130px, each line at top 260, 430, 600? Or one line at a time? "three short lines slam in" — three lines, could be stacked. Stacked looks good: "Agents." / "Automations." / "Video." each slamming in. Add colored accent: "Agents." cyan, "Automations." magenta, "Video." yellow-highlight? Yellow band only behind #111 text (class hl). Use hl on "Video."? That's a nice touch.
+
+Lines: font-size ~110px, centered horizontally. Width: "Automations." at 110px uppercase display — display font is wide, ~0.72em per char? Example says at 150px an uppercase letter is about 100px wide. So at 110px, ~73px per letter. "Automations." = 12 chars → ~880px. Fits in 1920 with margins. Good.
+
+- Beat 2: chips row: three chips horizontally centered, each ~480px wide, 150px tall, with mono text. Chips: border 3px, cyan/magenta/yellow? Yellow is only as band behind #111 text. So chips: cyan border, magenta border, ink border? Or cyan, magenta, ink. Text mono uppercase, size ~28px. "Runs on your hardware" = 21 chars at 28px mono uppercase — mono ~0.6em per char → 17px/char → 357px. Fits in 480px chip with padding. Good.
+
+Chips staggered: from y 60 opacity 0 scale 0.9, stagger 0.35s.
+
+- Beat 3: at 7.0, chips fade out (y -40, opacity 0, 0.4s). Logo: assets/logo-negative.png, centered, width ~560px, from scale 0.8 opacity 0 to scale 1 opacity 1, duration 0.7 ease power3.out at 7.3. Tagline "Local AI, delivered." under logo, mono or display? Tagline probably display-ish, maybe mono uppercase "LOCAL AI, DELIVERED." — but brief says tagline "Local AI, delivered." — keep exact text, styled maybe with hl? Keep it ink, font-size 44px, letter-spacing. Maybe with cyan accent period.
+
+Also maybe a thin rule under tagline.
+
+Logo: need to check the image aspect — unknown. I'll set width 520px and height auto via CSS (img with width, height auto). Position left 700px top ~330px. Tagline below at top ~640px.
+
+Total duration 10s. Ensure everything visible at end: logo + tagline at opacity 1, plus persistent corner mark.
+
+Corner mark: icon.svg + "GRAWWW STUDIO" label top-left. Also maybe a bottom-right mono label "B5 / TEASER"? Keep minimal. Maybe bottom-left "LOCAL AI, DELIVERED — TEASER" small? Avoid text overlap. Keep: top-left brand mark persistent.
+
+Animation details:
+
+tl.set initial states:
+- lines: opacity 0 (set via CSS or tl.set). Use tl.fromTo for each line.
+- chips: set opacity 0.
+- logo: set opacity 0, scale 0.8.
+- tagline: set opacity 0, y 30.
+- corner label: fade in at 0.1.
+
+Timeline:
+- 0.1: corner mark in (opacity 0→1).
+- 0.3: line1 fromTo scale 2.2→1? Slam: from {opacity:0, scale:2.4, y:-40} to {opacity:1, scale:1, y:0, duration:0.35, ease:"power4.out"}. Actually slam from large to 1 with power4.out gives punch. Add slight rotation? Keep simple.
+- 1.15: line2.
+- 2.0: line3.
+- 3.0: lines out — to opacity 0, y: -30, scale 0.95, duration 0.35, stagger? Lines: tl.to(lines, {opacity:0, y:-40, duration:0.35}, 3.0). Stagger 0.08.
+- 3.35: chips in — fromTo y 70 opacity 0 scale 0.92 → y 0 opacity 1 scale 1, duration 0.5, stagger 0.28, ease power3.out.
+- 6.6: chips out — to opacity 0, y -50, duration 0.4, stagger 0.08.
+- 7.1: logo fromTo scale 0.75 opacity 0 → 1, 1, duration 0.7 ease power3.out.
+- 7.6: tagline fromTo opacity 0 y 30 → 1, 0, duration 0.5.
+- 8.0: rule scaleX 0→1? Maybe a small rule under tagline. Could add.
+- Hold to 10.
+
+Also maybe a background accent: thin cyan line at top? Keep minimal. Maybe a subtle frame: top and bottom hairlines? Add a top hairline that grows at start. Nice: a 4px cyan bar across top, scaleX 0→1 at 0.1 duration 0.8. And bottom magenta? Keep one accent.
+
+Also icon.svg usage: corner mark uses it. Also maybe icon appears next to tagline? The logo is the main end element; icon in corner throughout is fine.
+
+Check "icon.svg" — inline SVG file; I'll reference via <img src="assets/icon.svg">. That's allowed (own assets). Logo via <img src="assets/logo-negative.png">.
+
+Text colors: lines: "Agents." ink, "Automations." ink, "Video." with hl (yellow band, #111 text). Or color-code each with cyan/magenta/yellow-hl. Slam lines: make "Agents." cyan? Brand: cyan #12A9E6, magenta #FF2D92, yellow only as band. So: "Agents." cyan, "Automations." magenta, "Video." with .hl yellow band. That's striking.
+
+Chips: border colors cyan, magenta, ink? Third chip "Your data stays put" — maybe yellow band? Chips with border and mono text in ink; add small colored square dot before text. Chip 1 cyan dot, chip 2 magenta dot, chip 3 cyan? Or ink dot. Let's do cyan, magenta, ink... hmm third could be yellow as small square? Yellow only as band behind #111 text. A small square is not a "band behind text" — risky. Use cyan, magenta, ink borders with matching dot.
+
+Actually chips could each have a colored left edge bar. Keep: 3px border, 6px colored dot (inline-block square), mono text.
+
+Chip sizing: width 520px, height 140px, left positions: total row width = 3*520 + 2*40 = 1680; left = (1920-1680)/2 = 120. top = 470. Text 26px mono uppercase, letter-spacing 1px. "Runs on your hardware" 21 chars * ~16px = 336px + dot + padding fits 520. Good. Text vertical center: display flex align center, padding-left 36px.
+
+Lines positions: centered text. Use left 0 width 1920 text-align center. top: 250, 410, 570? Line height ~150px at font-size 110. Actually make font-size 120, line-height 1.05. tops: 230, 380, 530. Bottom of last line ~ 530+130 = 660. Fine.
+
+But wait — during beat 2, lines are gone; chips at top 470 height 140 → center-ish. Good.
+
+Logo: width 540px. Height unknown aspect; assume ~0.5-0.6 ratio. Position left (1920-540)/2 = 690, top 300. Tagline top 640, font-size 46, mono or display? "Local AI, delivered." — display font uppercase would be "LOCAL AI, DELIVERED." but brief quotes "Local AI, delivered." — I'll render exactly "Local AI, delivered." in display font non-uppercase? Display font is uppercase-heavy but CSS .h forces uppercase? The class .h is "uppercase, heavy, wide" per brand. If I use class h it may uppercase automatically. To keep exact text, use mono class with normal case, or style display without uppercase. I'll use a custom class or .m with letter-spacing, text "Local AI, delivered." in ink with cyan period. Actually a nice touch: tagline in display font, font-size 54px, color ink, with "delivered." in cyan? Keep simple: mono 34px uppercase would change text case... The linter probably doesn't check text case. But brief says tagline "Local AI, delivered." — I'll keep exact casing with a div class "a" and inline style font-family var(--display), font-size 52px, letter-spacing 2px, color ink. Display font may be Archivo Black etc. Fine.
+
+Rule under tagline: small cyan bar scaleX.
+
+Also maybe add "GRAWWW STUDIO" wordmark text next to icon top-left: mono 24px letter-spacing 4px, ink.
+
+Bottom-right: mono 20px dim "TEASER — 10S"? Might add flair: "B5 / LOCAL AI" bottom-right, dim ink 50%. Keep.
+
+Also during end beat, maybe dim the corner marks? "everything clears and the logo fades/scales in" — everything clears = lines and chips clear. Corner brand mark could stay (it's brand). Maybe fade corner marks slightly? Keep them; they're persistent brand chrome. Actually "everything clears" suggests full clear. I'll fade corner mark to 0.35 at 7.0 and back? Simpler: fade corner top-left mark out at 7.0 along with chips, and re-fade in at 8.2? That's extra animation; fine. Or keep them — they're not part of the content. I'll fade them out at 7.0 and back in at 8.4 for polish. Hmm, that adds complexity; keep it simple: fade corner chrome out at 6.9, hold hidden, fade back in at 8.6. That's fine.
+
+Actually simpler and cleaner: keep corner chrome constant throughout. The "everything clears" refers to the three lines and chips. I'll keep chrome. Hmm, but a nice reveal: logo centered with nothing else. I'll fade chrome out at 7.0 (opacity 0.25? no, 0) and back at 8.5. Let me just do it — it's a few tl.to calls.
+
+Wait — at end everything must be opacity 1? Rule 7: "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." Corner chrome at end: if faded back in to 1, fine.
+
+Let me also add a subtle background element: big outline text? Skip. Maybe a thin top progress bar that fills over 10s — a cyan hairline at very top growing scaleX 0→1 across whole timeline. Nice touch, animated with tl.to at 0 duration 10. But rule says animate opacity/x/y/scale... scaleX allowed. tl.fromTo("#bar", {scaleX:0},{scaleX:1,duration:10,ease:"none"},0). Good.
+
+Also maybe a subtle magenta hairline at bottom? Skip.
+
+Now write the file.
+
+CSS inline styles for positions; use classes a, m, h from gw.css. I'll write custom classes in a <style> block? The instructions say link gw.css; adding own <style> is fine presumably. I'll add minimal style for .chip etc. Actually keep everything inline via style attributes to be safe, plus a small style block for chip layout (flex). Inline styles can do flex too. I'll use inline styles mostly.
+
+Logo img: assets/logo-negative.png — negative logo (light on dark presumably). Set style="left:690px;top:300px;width:540px;height:auto;opacity:0". img with width 540 and height auto — height auto works.
+
+Icon img: assets/icon.svg, width 56px.
+
+Let me draft:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered.</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+  <div class="a" id="bar" style="left:0;top:0;width:1920px;height:6px;background:var(--c);transform-origin:left center;opacity:1"></div>
+  <div class="a" id="chrome" style="left:80px;top:64px;display:flex;align-items:center;gap:18px;opacity:0">
+    <img src="assets/icon.svg" style="width:52px;height:52px;display:block" />
+    <div class="m" style="font-size:24px;letter-spacing:6px;color:var(--ink)">GRAWWW STUDIO</div>
+  </div>
+  <div class="a m" id="tag-corner" style="right:80px;top:78px;left:auto;font-size:20px;letter-spacing:4px;color:rgba(244,244,241,0.45);opacity:0">TEASER / B5</div>
+  ...
+```
+
+Wait .a is absolute; right:80px with left:auto — fine, or use left:1500px width 340px text-align right. Use left:1380px;width:460px;text-align:right.
+
+Lines:
+
+```html
+<div class="a h" id="line1" style="left:0;top:218px;width:1920px;text-align:center;font-size:118px;color:var(--c);opacity:0">Agents.</div>
+<div class="a h" id="line2" style="left:0;top:372px;width:1920px;text-align:center;font-size:118px;color:var(--m);opacity:0">Automations.</div>
+<div class="a h" id="line3" style="left:0;top:526px;width:1920px;text-align:center;font-size:118px;opacity:0"><span class="hl">Video.</span></div>
+```
+
+Check widths: "Automations." 12 chars at 118px. Per example 150px→100px per letter, so 118px→~79px/letter → 12*79 = 948px. Fine.
+
+.hl class: yellow band behind #111 text. Inline span — band padding? gw.css defines .hl presumably with background yellow, color #111, padding maybe. Fine.
+
+Chips:
+
+```html
+<div class="a" id="chip1" style="left:120px;top:455px;width:520px;height:150px;border:3px solid var(--c);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+  <span style="width:16px;height:16px;background:var(--c);flex:none"></span>
+  <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">Runs on your hardware</span>
+</div>
+```
+
+Hmm mono uppercase: text will render uppercase via CSS class m (uppercase). "Runs on your hardware" → "RUNS ON YOUR HARDWARE" 21 chars at 26px mono: mono char width ~0.6*26=15.6 → 328px + dot 16 + gap 22 + padding 68 = 434 < 520. Good.
+
+Chip2 left 680px (120+520+40=680), border magenta, dot magenta. Chip3 left 1240px, border ink (rgba?) use var(--ink), dot ink.
+
+Chip3 text "Your data stays put" 19 chars fine.
+
+Logo & tagline:
+
+```html
+<img id="logo" class="a" src="assets/logo-negative.png" style="left:690px;top:290px;width:540px;height:auto;opacity:0" />
+<div class="a" id="tagline" style="left:0;top:640px;width:1920px;text-align:center;font-family:var(--display);font-size:52px;letter-spacing:2px;color:var(--ink);opacity:0">Local AI, delivered.</div>
+<div class="a" id="rule" style="left:860px;top:730px;width:200px;height:6px;background:var(--c);transform-origin:center center;opacity:0"></div>
+```
+
+Hmm rule: maybe scaleX from center. Put rule between logo and tagline? Tagline under logo; rule under tagline. top 730. Or rule above tagline. Fine.
+
+Logo vertical: 290 + height. If logo aspect ~ 0.45, height ~243 → bottom ~533. Tagline at 640 fine. If aspect is 1:1, height 540 → bottom 830, overlapping tagline. Unknown aspect. Safer: width 460px, top 280, tagline at 620. If aspect 1:1, bottom = 740 — overlap. Hmm.
+
+Alternative: make logo height fixed via CSS? img with fixed height and width auto: style="height:300px;width:auto" — then left = 960 - (width/2). Unknown width. Could center with left:50%;transform... no transform allowed? transform on element GSAP animates — GSAP overwrites transform, so avoid CSS transform on logo. Instead: left:690px;top:270px;width:540px;height:auto; and tagline at top:660px. If logo is wide (e.g., 2:1), height 270 → bottom 540, good. If square, bottom 810 → overlap with tagline at 660. Risky.
+
+Better: place logo with top:250px and tagline at top:700px, and constrain logo width 480px. If square, bottom = 730 — still overlap with 700.
+
+Safest: use height instead: style="height:330px;width:auto;left:..." — left unknown. Hmm.
+
+Alternative: wrap logo in a centered flex container? Positioning absolute with left:0;width:1920px;text-align:center; then img inline-block height auto width 520px. Overlap risk remains.
+
+Let me think about typical "logo-negative.png" — likely a wordmark, wide aspect (e.g., 1200x500). Width 540 → height ~225. Fine. I'll set width 520, top 300, tagline top 640. If it's slightly taller, could overlap; add tagline top 660 and rule top 750. Canvas bottom margin: tagline 52px font at 660 → bottom ~730. Rule at 760. Fine.
+
+Actually to be safer against tall logos, I could set logo max-height via CSS: style="width:520px;max-height:320px;height:auto". max-height with width auto... img with width 520 and max-height 320: if aspect makes height >320, it will constrain? With width set and height auto, max-height caps height and width adjusts? Actually with width:520px and max-height:320px, the used height = min(auto-height, 320); width stays 520 → distortion? No — for replaced elements with width and max-height, the height is clamped and width... per CSS, if both width and max-height apply, the aspect ratio is preserved? The spec: for replaced elements, if width is specified and height is auto, height = width/ratio. max-height then clamps height; width remains 520 → distorted? Actually the constraint handling: max-height clamps the height; then the width is recalculated to preserve ratio? Per CSS 2.1 / css-sizing, when max-height clamps, the used width is recalculated to maintain aspect ratio (the constraint is applied to the box, and ratio preserved by adjusting width). I believe modern browsers preserve ratio by adjusting width when max-height clamps with width:auto... but width is specified (520px). Hmm, with width specified, clamping height may distort.
+
+Simplest robust: put img in a container with fixed height and center it: container absolute left:0 top:260 width:1920 height:330, display:flex, align-items:center, justify-content:center. img style height:100%;width:auto;max-width:620px. Flex centering handles any aspect. GSAP animates the container (opacity, scale) — scale on container is fine (transform via GSAP, not CSS). Good.
+
+Container: id="logoWrap", left:0;top:255px;width:1920px;height:340px;display:flex;align-items:center;justify-content:center;opacity:0. img: height:100%;width:auto;max-width:640px;display:block.
+
+Tagline top:630px. Rule top:725px.
+
+Also add small mono label under tagline? No.
+
+Now timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+
+tl.fromTo("#chrome", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.15);
+tl.fromTo("#tag-corner", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.3);
+
+// lines
+tl.fromTo("#line1", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 0.35);
+tl.fromTo("#line2", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 1.25);
+tl.fromTo("#line3", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 2.15);
+
+// lines out
+tl.to("#line1", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.05);
+tl.to("#line2", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.13);
+tl.to("#line3", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.21);
+
+// chips in
+tl.fromTo("#chip1", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.55);
+tl.fromTo("#chip2", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.9);
+tl.fromTo("#chip3", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 4.25);
+
+// chrome out + chips out
+tl.to("#chrome", { opacity: 0, duration: 0.35 }, 6.85);
+tl.to("#tag-corner", { opacity: 0, duration: 0.35 }, 6.85);
+tl.to("#chip1", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.9);
+tl.to("#chip2", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.98);
+tl.to("#chip3", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 7.06);
+
+// logo in
+tl.fromTo("#logoWrap", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.75, ease: "power3.out" }, 7.35);
+tl.fromTo("#tagline", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 7.85);
+tl.fromTo("#rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.inOut" }, 8.15);
+tl.to("#chrome", { opacity: 1, duration: 0.5 }, 8.6);
+tl.to("#tag-corner", { opacity: 1, duration: 0.5 }, 8.6);
+
+window.__timelines["main"] = tl;
+```
+
+Wait — chrome out at 6.85 and back at 8.6: at hold (10s) chrome opacity 1. Good.
+
+Rule: fromTo scaleX 0→1 with opacity 0→1. transform-origin center. OK.
+
+Also tagline has exact casing "Local AI, delivered." — inline font-family var(--display). Fine. Maybe make period cyan: "Local AI, delivered<span style=color:var(--c)>.</span>". Nice.
+
+Chips text: use .m class (uppercase mono). Good.
+
+Check lines slam: scale 2.6 → 1 with power4.out — big punch. y:-50 → 0. Good.
+
+One concern: lines with text-align center and width 1920 — .h class might set text-align? Fine.
+
+Also add a small magenta underline accent under lines? Skip.
+
+The icon.svg: used in chrome. Also maybe use icon.svg near tagline? Not needed.
+
+Check rule 5: text at least 100px margin — chrome at left:80px... "at least 100 px margin" — hmm. 80px < 100px. Set chrome left:100px, top:70px. tag-corner right:100px → left: 1920-100-460=1360px width 460. Lines are full-width centered — text within margins ("Automations." ~950px wide, centered → margins ~485px). Good. Chips: left 120px — that's a box, not text; text inside has 34px padding → text starts at 154px. Fine. Chips 3: left 1240 + 520 = 1760, right margin 160. Text inside right-aligned? Text left-aligned with padding. Fine.
+
+Rule at left:860 width 200 → centered. Good.
+
+Logo wrap full width — fine.
+
+Bar top:0 height 6 — fine (not text).
+
+Font sizes: lines 118px — example says at 150px letter ~100px wide; at 118px ~79px. "Automations." 12 chars → 948px < 1720 (with 100px margins). Good.
+
+Chips: 26px mono uppercase. "RUNS ON YOUR HARDWARE" 21 chars ≈ 21*15.6 = 328px. Chip inner width 520-68=452. Good.
+
+Tagline 52px display: "Local AI, delivered." 20 chars, display font wide ~0.72em? 52*0.72=37px/char → 740px. Fits.
+
+Chrome text 24px letter-spacing 6px: "GRAWWW STUDIO" 13 chars → 13*(14.4+6)=263px. Fine.
+
+Now, does .m class set letter-spacing already? Possibly; adding inline letter-spacing overrides. Fine.
+
+The .hl class: yellow band behind #111 text. For "Video." — span.hl inside the h line. Good.
+
+One more: the brief says logo "appears at the end" — yes.
+
+Also ensure no CSS transform on animated elements: I use inline styles without transform. The .h/.m/.a classes — gw.css might define transforms? Unlikely.
+
+Also should set body margin 0 — gw.css presumably does. The example doesn't set it; rely on gw.css.
+
+Image alt attributes for safety.
+
+Edge: `#tag-corner` uses left:1360px;width:460px;text-align:right.
+
+Let me also double check the chips vertical: top 455, height 150 → center 530. Lines region 218-656. Chips appear after lines clear at ~3.4s. Good.
+
+Beat timing: 0-3 lines (slam at 0.35, 1.25, 2.15 — all in by 2.5s), 3-7 chips (in 3.55-4.8, hold until 6.9), 7-10 logo (in 7.35-8.7, hold). Good.
+
+One more polish: add subtle magenta small square accents? Skip, keep clean.
+
+Maybe add a faint big outline circle behind logo? Skip — no gradients, keep flat.
+
+Also add bottom-left mono label "LOCAL AI, DELIVERED" ? No, redundant.
+
+Add bottom-right corner text "B5" — already tag-corner "TEASER / B5".
+
+Now write final file. Ensure single code block, nothing else.
+
+Also ensure `window.__timelines["main"] = tl;`.
+
+One thing: `tl.to("#chrome", { opacity: 1 ... }, 8.6)` — chrome was faded to 0 at 6.85-7.2; then back at 8.6. Good.
+
+Also at 7.35 logo fromTo sets opacity from 0 — but logoWrap initial opacity set via CSS opacity:0. fromTo overrides anyway.
+
+Rule initial: CSS opacity:0, scaleX? fromTo sets scaleX 0 → 1. Good. transform-origin center center inline.
+
+Let me also give the tagline a slight letter-spacing and maybe uppercase? Keep exact case.
+
+Write it.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered.</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <div class="a" id="bar" style="left:0;top:0;width:1920px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a" id="chrome" style="left:100px;top:66px;display:flex;align-items:center;gap:20px;opacity:0">
+    <img src="assets/icon.svg" alt="Grawwww icon" style="width:52px;height:52px;display:block" />
+    <div class="m" style="font-size:24px;letter-spacing:6px;color:var(--ink)">GRAWWW STUDIO</div>
+  </div>
+  <div class="a m" id="tag-corner" style="left:1360px;top:80px;width:460px;text-align:right;font-size:20px;letter-spacing:4px;color:rgba(244,244,241,0.45);opacity:0">TEASER / B5</div>
+
+  <div class="a h" id="line1" style="left:0;top:218px;width:1920px;text-align:center;font-size:118px;color:var(--c);opacity:0">Agents.</div>
+  <div class="a h" id="line2" style="left:0;top:372px;width:1920px;text-align:center;font-size:118px;color:var(--m);opacity:0">Automations.</div>
+  <div class="a h" id="line3" style="left:0;top:526px;width:1920px;text-align:center;font-size:118px;opacity:0"><span class="hl">Video.</span></div>
+
+  <div class="a" id="chip1" style="left:120px;top:455px;width:520px;height:150px;border:3px solid var(--c);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--c);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">Runs on your hardware</span>
+  </div>
+  <div class="a" id="chip2" style="left:680px;top:455px;width:520px;height:150px;border:3px solid var(--m);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--m);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">No per-token bill</span>
+  </div>
+  <div class="a" id="chip3" style="left:1240px;top:455px;width:520px;height:150px;border:3px solid var(--ink);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--ink);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">Your data stays put</span>
+  </div>
+
+  <div class="a" id="logoWrap" style="left:0;top:250px;width:1920px;height:350px;display:flex;align-items:center;justify-content:center;opacity:0">
+    <img src="assets/logo-negative.png" alt="Grawwww Studio logo" style="height:100%;width:auto;max-width:660px;display:block" />
+  </div>
+  <div class="a" id="tagline" style="left:0;top:630px;width:1920px;text-align:center;font-family:var(--display);font-size:52px;letter-spacing:2px;color:var(--ink);opacity:0">Local AI, delivered<span style="color:var(--c)">.</span></div>
+  <div class="a" id="rule" style="left:860px;top:726px;width:200px;height:6px;background:var(--c);transform-origin:center center;opacity:0"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // progress hairline
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+
+  // corner chrome
+  tl.fromTo("#chrome", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.15);
+  tl.fromTo("#tag-corner", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.3);
+
+  // beat 1: three lines slam in
+  tl.fromTo("#line1", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 0.35);
+  tl.fromTo("#line2", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 1.25);
+  tl.fromTo("#line3", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 2.15);
+
+  // lines clear
+  tl.to("#line1", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.05);
+  tl.to("#line2", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.13);
+  tl.to("#line3", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.21);
+
+  // beat 2: feature chips stagger in
+  tl.fromTo("#chip1", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.55);
+  tl.fromTo("#chip2", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.9);
+  tl.fromTo("#chip3", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 4.25);
+
+  // everything clears
+  tl.to("#chrome", { opacity: 0, duration: 0.35 }, 6.85);
+  tl.to("#tag-corner", { opacity: 0, duration: 0.35 }, 6.85);
+  tl.to("#chip1", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.9);
+  tl.to("#chip2", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.98);
+  tl.to("#chip3", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 7.06);
+
+  // beat 3: logo + tagline
+  tl.fromTo("#logoWrap", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.75, ease: "power3.out" }, 7.35);
+  tl.fromTo("#tagline", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 7.85);
+  tl.fromTo("#rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.inOut" }, 8.15);
+  tl.to("#chrome", { opacity: 1, duration: 0.5 }, 8.6);
+  tl.to("#tag-corner", { opacity: 1, duration: 0.5 }, 8.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

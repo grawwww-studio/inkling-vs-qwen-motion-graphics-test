@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Lower Third — Lara Quinn</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="bar" style="left:100px;top:760px;width:14px;height:300px;background:var(--c);transform-origin:left center"></div>
+  <div class="a h" id="name" style="left:170px;top:760px;font-size:150px;opacity:0">Lara <span class="hl">Quinn</span></div>
+  <div class="a m" id="role" style="left:176px;top:948px;font-size:34px;letter-spacing:4px;color:var(--ink);opacity:0">Presenter, Grawwww</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // 1) cyan accent bar wipes in
+  tl.fromTo("#bar", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power3.inOut" }, 0.2);
+
+  // 2) text slides in
+  tl.fromTo("#name", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }, 0.5);
+  tl.fromTo("#role", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.75);
+
+  // 3) hold, then everything wipes out in the last 0.5 s
+  tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power3.inOut" }, 3.5);
+  tl.to("#name", { opacity: 0, x: -60, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#role", { opacity: 0, x: -40, duration: 0.5, ease: "power2.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

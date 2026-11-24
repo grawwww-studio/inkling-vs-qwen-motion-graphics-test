@@ -1,0 +1,192 @@
+[REASONING]
+Let's build a 4-second lower-third composition.
+
+Requirements:
+- 1920x1080, 24fps, 4 seconds
+- Lower third in the bottom left
+- Name "Lara Quinn" (display type, class h)
+- Role line "Presenter, Grawwww" (monospace, class m)
+- Cyan accent bar wipes in first
+- Then the text slides in
+- Hold
+- Everything wipes out in the last 0.5 seconds (3.5–4.0)
+- "Transparent-looking over a dark plate" — the background is #0E0E0E anyway (body). The plate is a plain dark plate with no gradient. So no background needed, or a subtle panel? "Transparent-looking over a dark plate" — the lower third itself should look transparent, sitting over a plain dark plate. So no background panel, just the text and bar. Keep it minimal.
+
+Timeline:
+- 0.0–0.5: cyan bar wipes in (scaleX 0→1, transform-origin left)
+- 0.3–0.9: name slides in (x from -60, opacity 0→1)
+- 0.5–1.1: role line slides in
+- Hold until 3.5
+- 3.5–4.0: everything wipes out — bar scaleX→0 (origin right? or left), text slides out to the left, opacity 0.
+
+"Everything wipes out in the last 0.5 seconds" — bar scaleX 1→0 (transform-origin right center so it wipes toward the left, or left center so it wipes toward the right). Text: x to -80, opacity 0.
+
+Layout: bottom left. Canvas 1920x1080, keep text at least 100px from the edge.
+
+Bar: vertical cyan bar at left:120px, top around 760px, width 14px, height about 240px? Or a horizontal bar behind the text? "Cyan accent bar that wipes in first" — a vertical bar to the left of the text is classic lower-third. Let's go with vertical: left:120px, top:740px, width:16px, height:220px.
+
+Name: "Lara Quinn" display type, uppercase class h. Font size around 110px. Width: "LARA QUINN" is 10 characters. At 110px, uppercase letters are about 0.66em wide → about 73px each, 10 chars ≈ 730px + space. Left: 180px. Top: about 750px.
+
+Role: "Presenter, Grawwww" monospace, uppercase via class m (class m: uppercase labels). Font size 30px. Left: 184px, top: about 900px.
+
+Wait, margin: at least 100px from the edge. Bottom: role baseline is top:900 + font 30 → bottom around 930, 150px from the bottom edge. Good. Left 120px bar — that's 120px from the left edge, no problem (100px+).
+
+Bar height: from top 740 to 960 = 220px. Name is 750–860 (110px font), role is 900–930. Bar spans 730–960.
+
+Let's actually compute: name font-size 110px, top 745. Cap height is about 0.72em ≈ 79px, plus descender. Line box is about 110px or so. So name occupies about 745–865. Role top 895, font 30, occupies 895–935. Bar: top 735, height 215 → 735–950.
+
+Bar wipe: scaleX from 0, transform-origin left center. Duration 0.5, ease power3.out, start 0.15.
+
+Name slide: from x:-80, opacity 0 → x:0, opacity 1, duration 0.5, ease power3.out, start 0.45.
+
+Role slide: from x:-60, opacity 0 → x:0, opacity 1, duration 0.5, start 0.65.
+
+Hold until 3.5.
+
+Exit (3.5–4.0):
+- Bar: scaleX 1→0, transform-origin right center (wipes toward the left). But CSS transform-origin is fixed... can't easily change transform-origin mid-timeline without setting it. Actually, can I set transformOrigin via gsap? The rules say "use only tl.set / tl.to / tl.from / tl.fromTo" — setting transformOrigin via tl.set is a .set call with a property... the allowed property list is "opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height." transformOrigin isn't on that list. Safer: keep transform-origin left center in CSS, and on exit use scaleX→0 (wipes toward the right, bar shrinks toward the right edge) — hmm, with origin left, scaleX→0 shrinks toward the left edge. Wait, origin left center: scaleX 0 collapses toward the left edge. So on exit the bar collapses to the left — that reads as a wipe-out going leftward. No problem, symmetric with the in (wipes in from the left).
+
+Actually, on entry with origin left: scaleX 0→1 grows from the left edge rightward — "wipes in." On exit with the same origin: scaleX 1→0 shrinks toward the left — "wipes out." Consistent.
+
+Text exit: name x→-80, opacity→0, duration 0.4, start 3.5; role x→-60, opacity→0, duration 0.4, start 3.5. Or stagger slightly: name 3.5, role 3.55. Keep it within 4.0.
+
+Bar exit: scaleX→0, duration 0.45, start 3.5, ease power3.in.
+
+The end frame must be empty (lower third wipes out) — rule 7 says "everything that should be visible at the end of the clip must be animated in and be at opacity 1 at the hold frame." Since everything is wiped out, nothing is visible at the end — that's fine per the brief.
+
+Plate: "plain dark plate with no gradient" — the body is already #0E0E0E. Should I add a subtle plate rectangle? "Transparent-looking over a dark plate" means the lower-third graphic itself is transparent (no panel) and sits over a dark plate. The body background serves as the plate. Could add a very subtle hairline? Keep it minimal — no extra elements needed. Actually, to make it look like a plate, I could add a thin bottom rule or a small brand mark? The brief says plain dark plate — body background is enough. Keep it clean.
+
+Should I add a small logo? assets/logo-negative.png exists but the brief doesn't ask for it. Keep it simple, follow the brief.
+
+Should I add a small monospace label above the name? Not in the brief. Stick with name + role + bar.
+
+Font sizes: name "LARA QUINN" — display is wide. At 110px, uppercase is about 73px wide per the rule of thumb (100px at 150px → 0.667em). 10 chars including space: 9 letters × 73 + space about 30 ≈ 690px. Left 180 → right edge about 870. No problem.
+
+Role "PRESENTER, GRAWWWW" monospace 30px: 18 chars × about 18px (monospace 0.6em) ≈ 324px. No problem.
+
+Also, the class h is uppercase and heavy — "Lara Quinn" will render as uppercase "LARA QUINN". Good.
+
+Bar color: var(--c) cyan.
+
+Let's write the file.
+
+Structure:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="bar" style="left:120px;top:735px;width:16px;height:215px;background:var(--c);transform-origin:left center"></div>
+  <div class="a h" id="name" style="left:184px;top:742px;font-size:110px;opacity:0">Lara Quinn</div>
+  <div class="a m" id="role" style="left:188px;top:898px;font-size:30px;letter-spacing:4px;color:var(--ink);opacity:0">Presenter, Grawwww</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set(["#bar", "#name", "#role"], { opacity: 0 }, 0);
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+  tl.fromTo("#name", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.45);
+  tl.fromTo("#role", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.62);
+
+  tl.to("#name", { opacity: 0, x: -80, duration: 0.4, ease: "power3.in" }, 3.5);
+  tl.to("#role", { opacity: 0, x: -60, duration: 0.4, ease: "power3.in" }, 3.5);
+  tl.to("#bar", { scaleX: 0, duration: 0.45, ease: "power3.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait — the bar starts with opacity 0 via tl.set, but fromTo animates scaleX; the opacity stays 0! I need to make the bar visible. Fix: don't set the bar's opacity to 0; the bar is visible from the start but scaleX 0 → invisible. Actually, with scaleX 0 it's invisible anyway. But before the timeline starts (at time 0), does the element render at its CSS state? The renderer probably seeks the timeline; at t=0 the bar is at its CSS state with scaleX 1 and visible for 1 frame? The renderer probably seeks the timeline; at t=0 the bar is at CSS state with scaleX 1 → visible for 1 frame. Safer: use tl.fromTo on the bar including opacity? fromTo with scaleX and opacity: from {scaleX:0, opacity:1}? Hmm, opacity from 1 to 1 is fine but the initial render before the seek... the renderer seeks to each frame, so at frame 0 (t=0), the timeline at t=0: the fromTo at 0.15 hasn't started yet, but GSAP's fromTo sets the start value at timeline creation? No — fromTo applies the start value when the tween starts (immediateRender true by default for fromTo). In a paused timeline, immediateRender renders when the tween's start time is reached... actually, immediateRender renders the "from" values immediately at timeline construction for `from` tweens; for `fromTo`, immediateRender defaults to true, and it renders the from state immediately at creation. Yes, fromTo has immediateRender: true by default. So at construction the bar gets scaleX 0. Good.
+
+But to be safe, add tl.set("#bar", { scaleX: 0 }, 0); — that guarantees it.
+
+For name/role, opacity:0 in CSS plus fromTo with immediateRender — no problem.
+
+Also, the bar's exit: keep it at scaleX 0 at the end. Good.
+
+Check rule 4: no CSS transform on animated elements — the bar has CSS `transform-origin`, which is allowed. Good.
+
+Rule 5: absolute positioning, explicit left/top/width in px. All have them. Bar has height too. Text margins: left 120 (bar) ≥ 100 ✓; bottom: role bottom about 898+30=928, 152px from the bottom ✓. Bar bottom 950 → 130px ✓.
+
+Rule 3: only tl.set/to/fromTo with absolute start times ✓. No repeat, no random ✓.
+
+Rule 7: at the end everything is wiped out — as per the brief.
+
+Colors: role color — var(--ink) is probably defined in gw.css (ink #F4F4F1). The example uses color:var(--c) for the eyebrow. I'll use var(--ink) for the role; if it's undefined it falls back to inherit (body color is probably ink). Safe.
+
+Font size: name 110px. "Lara Quinn" — the display font is wide. 10 chars: L A R A space Q U I N N = 9 letters + 1 space. At 110px: about 73px/letter → 657 + space about 35 → about 692px. Left 184 → right edge about 876. No problem.
+
+Maybe make the name 120px for impact: 9×80=720+38=758 → right edge about 942. Still fine. I'll use 118px. Hmm, let's stick with 110.
+
+Add a small yellow "hl" accent? Not in the brief. Skip.
+
+One more consideration: "Presenter, Grawwww" — monospace class m is uppercase labels, so it will render as "PRESENTER, GRAWWWW". Good.
+
+Letter-spacing on the role for a cleaner look: 4px. Fine.
+
+Final check on the timeline: duration 4, data-duration="4".
+
+Exit timing: everything within the last 0.5 seconds (3.5–4.0). Bar 3.5+0.45=3.95 ✓. Text 3.5+0.4=3.9 ✓.
+
+Done. Writing the final file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <!-- cyan accent bar: wipes in first, wipes out last -->
+  <div class="a" id="bar" style="left:120px;top:735px;width:16px;height:215px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- name, display type -->
+  <div class="a h" id="name" style="left:184px;top:742px;font-size:110px;opacity:0">Lara Quinn</div>
+
+  <!-- role, mono label -->
+  <div class="a m" id="role" style="left:188px;top:898px;font-size:30px;letter-spacing:4px;color:var(--ink);opacity:0">Presenter, Grawwww</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states
+  tl.set("#bar",  { scaleX: 0 }, 0);
+  tl.set("#name", { opacity: 0, x: -80 }, 0);
+  tl.set("#role", { opacity: 0, x: -60 }, 0);
+
+  // in: bar wipes in first, then text slides in
+  tl.fromTo("#bar",  { scaleX: 0 }, { scaleX: 1, duration: 0.5,  ease: "power3.out" }, 0.15);
+  tl.fromTo("#name", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.45);
+  tl.fromTo("#role", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.62);
+
+  // hold 1.12 -> 3.5
+
+  // out: everything wipes out in the last 0.5s
+  tl.to("#name", { opacity: 0, x: -80, duration: 0.4,  ease: "power3.in" }, 3.5);
+  tl.to("#role", { opacity: 0, x: -60, duration: 0.4,  ease: "power3.in" }, 3.5);
+  tl.to("#bar",  { scaleX: 0,            duration: 0.45, ease: "power3.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

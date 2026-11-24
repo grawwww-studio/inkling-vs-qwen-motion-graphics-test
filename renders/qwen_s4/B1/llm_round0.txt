@@ -1,0 +1,435 @@
+[REASONING]
+Let me design this title card:
+
+- 5-second composition, 1920x1080, 24fps
+- Background #0E0E0E (body)
+- Eyebrow: "EP05 / Experiment" in small monospace, above the title
+- Title: "Local AI, real video" — huge uppercase display type, words slide in / stagger one by one
+- The word "real" gets a yellow marker band that wipes in from the left
+- A thin rule that draws across below
+- Hold for the last 1 second
+
+Layout plan:
+- Eyebrow at left:160px, top around 320px, monospace, 26-28px, cyan or ink color
+- Title: 2 lines? "Local AI, real video" — 5 words: LOCAL, AI,, REAL, VIDEO. At 150px, an uppercase letter is about 100px wide. "LOCAL" = 5 letters ≈ 500px. "AI," is small. "REAL" is 4 letters ≈ 400px. "VIDEO" is 5 letters ≈ 500px.
+
+Option A: 1 line: "LOCAL AI, REAL VIDEO" — that's 18 characters including spaces ≈ 18*100 = 1800px at 150px font. Too wide with 160px margins (max 1600px). So either 2 lines or smaller font.
+
+Option B: 2 lines:
+Line 1: "LOCAL AI,"
+Line 2: "REAL VIDEO"
+
+At 150px: "LOCAL AI," ≈ 9 characters ≈ 900px wide. "REAL VIDEO" ≈ 10 characters ≈ 1000px. Fits within 1600px.
+
+Actually, let me make it bigger: 170px? "REAL VIDEO" = 10 chars * about 113px = 1130px. Still fits. The brief says "huge". Let's go with about 160px. Display font: at 150px uppercase letter is about 100px wide (so 0.66em per letter). 160px → about 106px/letter. "REAL VIDEO" including space = 10 chars ≈ 1060px. No problem.
+
+Structure: each word as a span in its own block? Words slide in one by one — stagger. If I put the words in a flex row, the width shifts as they animate… actually, if I use GSAP x (translate) animation, the layout position stays fixed and they just translate — good. So each word is an inline-block span within a line, and I animate x from -80 to 0 with stagger.
+
+But the rule: "position everything with position:absolute (class a) and explicit left/top/width in px". The title lines should be absolute-positioned divs containing word spans. The spans themselves — the rule says to position everything with class a… I think it's fine to have inline spans inside an absolute-positioned line container. The linter probably checks that absolutely-positioned elements have left/top/width. To be safe, I could make each word its own absolute-positioned div. That gives me full control over the yellow band behind "real" — I can absolutely position the band relative to the word.
+
+Let me lay out the words as absolute-positioned elements:
+
+Canvas margins: 100px minimum. Use 160px left margin.
+
+Line 1 at top: 380px, font-size 160px:
+- "LOCAL" at left:160px. Width: 5 letters * 106 ≈ 530px. Give width 560px.
+- "AI," at left: 160+560+? Need spacing. Hmm, but I don't know the exact font metrics. The display font is wide. Risk: words might overlap or leave gaps. Safer: use a single line container div (absolute, class a) with inline-block spans, and animate the spans with x. The spans are inline, so no absolute positioning needed — the rule says position everything with class a… "position everything with position:absolute (class a) and explicit left/top/width in px on the 1920x1080 canvas". I think this applies to layout elements. Inline spans inside a text block are normal. The example has a span inside #t1 (the .hl span). So spans inside an absolute-positioned text block are OK.
+
+So:
+- #line1: absolute, left:160, top:360, width:1600, font-size:160px, contains spans: "LOCAL" "AI,"
+- #line2: absolute, left:160, top:540, width:1600, font-size:160px, contains spans: "REAL" (with .hl band) "VIDEO"
+
+Wait, 160px font, line height… line 1 top 360, line 2 top 540 → 180px gap, OK with 160px font (line-height is about 1.15 → about 184px). Hmm, might slightly overlap. Let me use font-size 150px and line spacing 175px. Line 1 top:380, line 2 top:555. Cap height at 150px is about 105px; line box is about 172px. Top 380 → line 1 bottom about 552, line 2 starts at 555. Tight but OK. Let me give more room: font 140px? "Huge" — 150px is fine.
+
+Let me actually calculate: font-size 150px, default line-height probably 1.1 or 1.2 (unknown from gw.css). To be safe, set line-height:1 on the line divs. Then line 1 height ≈ 150px (actually cap height is about 105, but the box is 150). Line 1 top:370 → bottom 520. Line 2 top:530 → bottom 680. Rule below at about 730.
+
+Eyebrow above: top around 300? "EP05 / Experiment" monospace 28px, left:160, top:290. Then title line 1 at 370. Hmm, 80px gap, fine.
+
+Vertical center: content block from 290 to about 760 → center about 525, close to 540. Good.
+
+Yellow band behind "REAL": the .hl class is already defined in gw.css (band behind #111 text). The example uses `<span class="hl">world</span>`. So .hl probably has a yellow background. But I need the band to "wipe in from the left" — animate scaleX from 0 to 1 with transform-origin left center. But .hl is a span with background; GSAP animating scaleX of the span would scale the text too. Better: a separate band div behind the text.
+
+Approach: make the word "REAL" a relatively positioned span? Rule: no CSS transform on elements GSAP animates. I can make a wrapper:
+
+```html
+<div class="a" id="wReal" style="left:160px;top:530px;font-size:150px">
+  <span class="band" id="band"></span>
+  <span class="w">REAL</span>
+</div>
+```
+
+Hmm, but I decided to use line containers. Let me restructure: line 2 contains a .wReal wrapper (position:relative, display:inline-block) with the band absolutely positioned inside it (left:-16px; top:8px; right:-16px; bottom:12px; background:var(--y); transform-origin:left center). Band is inside the word wrapper, so its size matches the text. Then GSAP animates the band's scaleX 0→1. The band is absolutely positioned inside a relative wrapper — but the rule says position everything with class a… I think the intent is that the canvas layout elements are absolutely positioned; internal decoration is OK. The example has a .hl span that's probably styled with background in gw.css. To be safe, I'll add class "a" to the band with explicit left/top/width? Width in px is tricky since it depends on text width. I can estimate: "REAL" at 150px ≈ 4 letters * 100 = 400px. Band width 420px, left:-14px, top:10px, height:110px. Hmm, risky if font metrics differ.
+
+Alternative: make the band an absolutely-positioned sibling with a fixed width matched to the estimated word width. Since I'm placing words as absolute-positioned divs with explicit widths, I can control everything:
+
+Word boxes (font-size 150px, letter width about 100px, display font is wide — 0.66em):
+- "LOCAL": 5 letters → about 500px. Box width 520px.
+- "AI,": about 2.5 letters → about 250px. Box 260px.
+- "REAL": 4 letters → about 400px. Box 420px.
+- "VIDEO": 5 letters → about 500px. Box 520px.
+
+Line 1: LOCAL at left:160 (width 520). AI, at left: 160+520+40 (gap) = 720? But the box width is 520, and the text is about 500, so the text ends around 660; gap 40 → AI, at 700. Let me use a gap of about 36px between boxes: AI, left = 160 + 520 + 40 = 720.
+
+Line 2: REAL at left:160 (width 420). VIDEO at left: 160+420+40 = 620 (width 520).
+
+Band behind REAL: left:146 (160-14), top: line 2 top + offset, width: 448 (420+28), height about 112. If line 2 top:545, font 150, cap height about 108, baseline is near the bottom of the box. Band top: 545 + 18 = 563, height: 118? Let me think: font-size 150, line-height 1 → box height 150. Glyph cap height is about 0.72em ≈ 108. Ascender space above cap is about (150-108)/2… actually, in a 150px line box, the cap top is about 15px from the top (depending on the font). The marker band should cover the caps with a little padding: top offset about 12px, height about 120px (covering caps + a bit). Let me set band top = line 2 top + 14, height = 118.
+
+Since I'm not 100% sure about the font, I'll make the band a bit generous: top offset 8, height 126, left -16, width +32. Since the band is behind the text (z-index lower), the text stays #111 on yellow.
+
+Wait — the band is a separate div behind the word div. Both absolutely positioned. Band z-index 1, word z-index 2. Band animates scaleX 0→1, transform-origin left center.
+
+Also the word "REAL" itself: text color must be #111 over the yellow band (per brand: .hl text is #111). But the word slides in before/with the band… if the word is #111 and slides in over the dark background before the band wipes, it'll be nearly invisible. Sequence: word slides in (stagger), then band wipes in behind it, changing its appearance from dark-on-dark… hmm.
+
+Better sequence:
+1. Eyebrow fades in (0.2–0.6)
+2. Words stagger in: LOCAL (0.5), AI, (0.7), REAL (0.9), VIDEO (1.1), each slides from x:-60, opacity 0→1, duration 0.5.
+3. Band wipes in behind REAL at about 1.5 (scaleX 0→1, 0.45s, power2.inOut). At that point REAL is #111 on yellow — visible. Before the band, REAL is dark #111 on #0E0E0E — nearly invisible. That's bad.
+
+Fix: make REAL's text #111 from the start, but the band arrives quickly right after the word lands, or animate the word's color? Color animation isn't in the allow list (only opacity/x/y/scale/rotation/width/height). Hmm, "animate only opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height". No color.
+
+Alternative: keep REAL in ink color (#F4F4F1) and let the yellow band wipe behind it, and the band itself has #111 text? No — the text is a separate element.
+
+Alternative: the .hl class in gw.css probably sets the background to yellow and the color to #111. The brief says "the word 'real' gets a yellow marker band that wipes in from the left". Classic kinetic type: the text is dark (#111), and the yellow band wipes in behind it, revealing it. So the intended look: REAL is #111, initially invisible (dark on dark), and the band wipes to reveal it. That's actually a nice effect! The band wipe reveals the word. So the sequence:
+
+- LOCAL, AI, slide in (ink)
+- REAL: don't pre-reveal; the band wipes in (scaleX 0→1), revealing the #111 REAL as it passes. The word is already in place (opacity 1, no slide) — or slides in with the band. Simpler: REAL sits in place (opacity 1 from the start? no — it needs to be animated in per rule 7… it's visible at the end; rule 7 says everything visible at the end must have been animated in. If REAL is static at opacity 1 from t=0, it's "visible" (dark on dark, essentially invisible) — technically present. But the linter might not care; the requirement is that it's at opacity 1 at the hold frame. To be safe, let me fade REAL in with the band: tl.fromTo REAL opacity 0→1 at the same time as the band wipe? If the band is wiping from left to right and the text fades in simultaneously, the left part appears on yellow and the right part appears on dark — inconsistent.
+
+Cleaner: the band wipes in and reveals the already-placed #111 text. To satisfy "animated in", I can set REAL to opacity 1 via tl.set at the band start time (0.9s) — a set is animation. Or the band itself is the reveal. Let me do this: tl.set("#wReal", {opacity:1}, 1.35) and the band's fromTo scaleX 0→1 at 1.35, duration 0.5. Before 1.35, REAL is hidden (opacity 0). So REAL "animates in" at 1.35 as the band reveals it.
+
+But wait — the word stagger: LOCAL, AI,, VIDEO slide in; REAL pops in with the band. Order: LOCAL (0.5), AI, (0.7), then band+REAL (1.0), then VIDEO (1.3)? Or all 4 words stagger then the band. The brief: "words slide/stagger in one by one; the word 'real' gets a yellow marker band that wipes in from the left". So the words stagger in one by one (including real), then the band wipes in. If REAL is #111 and slides in over the dark background, it's invisible until the band arrives. The band wipe then "reveals" it. That's acceptable and stylish: 4 words stagger (0.5, 0.75, 1.0, 1.25), band wipes at 1.6. Between 1.0 and 1.6, REAL is dark on dark — invisible. Hmm, that 0.6s gap where a word is missing might look like a bug.
+
+Better: make the band wipe happen right after REAL lands: REAL lands at about 1.0 (duration 0.45, done by 1.45), band wipes at 1.45. Gap is small. Or overlap: band starts at 1.2 while REAL is still sliding. Let me time it:
+
+- 0.15: eyebrow fades in (0.4)
+- 0.45: LOCAL slides in (x:-70→0, opacity 0→1, 0.5, power3.out)
+- 0.65: AI, (0.5)
+- 0.85: REAL (0.5) — lands at 1.35
+- 1.05: VIDEO (0.5) — lands at 1.55
+- 1.45: band scaleX 0→1 (0.5, power2.inOut) — overlaps the end of VIDEO, REAL is already in place.
+- 1.9: rule draws (scaleX 0→1, 0.6)
+- 2.5–5.0: hold. Last 1 second (4.0–5.0) is a pure hold.
+
+Total 5s. Everything visible at the end: eyebrow, 4 words, band, rule — all at final state by about 2.5s. Hold from 2.5 to 5.0 (last 1s is a hold, actually 2.5s hold — the brief says "hold for the last 1 second", meaning at least the last 1s is a hold; more is fine).
+
+Wait, but REAL is #111 (near-black) on #0E0E0E background from 0.85 to 1.45 — invisible for about 0.6s. During that time, the line reads "____ VIDEO" with a gap where REAL should be. Actually, the gap is where REAL is (left side of line 2). Line 2: REAL (160–580) VIDEO (620–1140). Between 0.85–1.05, REAL is sliding in (invisible), VIDEO is sliding in (visible). So line 2 shows "… VIDEO" with an empty left portion until the band at 1.45. Hmm.
+
+Alternative: keep REAL in ink color and put the yellow band behind it, with the band having #111 text? No.
+
+Alternative: keep REAL in ink color and the band wipes in behind it; the band is yellow and the text remains ink — but the brand says .hl text is #111. The brief says "the word 'real' gets a yellow marker band" — the marker band is the yellow highlight. If the text stays ink (#F4F4F1) on yellow, that's low contrast (white on yellow) — ugly and against brand (hl text is #111).
+
+I think the reveal effect is intended and fine. To reduce the "missing word" feel, I can make REAL slide in together with the band: the band and the word both come in as a unit — the word slides in with x from -70, and the band wipes. Actually, a classic effect: the whole marker (band + dark text) slides in as a unit. But the brief explicitly says the band "wipes in from the left" (scaleX), not slides.
+
+Compromise: REAL fades/slides in quickly at 0.85 (0.35s, lands at 1.2), band wipes at 1.25 (0.45s, lands at 1.7). Missing window is 0.85–1.25, and during that time the word is partially sliding (still dark on dark). Honestly, in the final video, the viewer sees: LOCAL, AI, pop in; VIDEO pops in; then a yellow band sweeps and REAL appears. That reads as intentional kinetic type. Let's go with that.
+
+Actually, another thought: make REAL's color #111 only after the band? Not possible (no color animation). Or make REAL ink, and the band is a yellow bar that wipes in, and the band has its own #111 "REAL" text on top of it… no, duplicate text is messy.
+
+Simplest and robust: REAL is #111, and the band reveals it. Good.
+
+Now, the .hl class in gw.css: "yellow #FFD400 only as a band behind #111 text (class hl, its text is #111)". So .hl probably applies a yellow background + #111 color to the element. If I use .hl on a span, the background is a static yellow (no wipe). I need a wipe, so I use a separate band div with background var(--y) (or #FFD400). Is there a --y token? "Fonts via CSS variables" — the brand tokens are in gw.css: probably --c (cyan), --m (magenta), --y (yellow), --ink, etc. The example uses var(--c) and var(--m). I'll use var(--y) for the yellow band. Risk: if --y isn't defined, the band will be transparent. Safer: use the hex #FFD400 directly? The rules say "no gradients" etc. but hex is fine. But the brand says tokens… the example only uses var(--c) and var(--m). Let me use var(--y) — hmm. Let me hedge: `background:var(--y,#FFD400)` — CSS variable with fallback. That's safe and valid. Similarly for text color #111 directly (the brand specifies #111 for hl text).
+
+Actually, wait: I should probably check whether the .hl class exists and what it does — I can't. I'll just not use .hl and build my own band. That's fine; the brand rule mentions .hl as the pattern, but a custom band div achieves the same look.
+
+Also for the band: no rounded corners, no box-shadow — fine, flat rectangle.
+
+Rule below: thin rule that draws across. Position: left:160, top: about 740, width:1600, height:4px, background:var(--ink) or cyan? "Thin rule" — let me use ink (#F4F4F1) at 40% opacity? No, no gradients; a solid color is fine. Use var(--c) cyan for an accent? Brand: cyan is an accent. A cyan thin rule is nice. Or ink. Let me go with ink, 4px, full width 1600. Actually, a full-width 1600px rule "draws across" — scaleX 0→1, origin left.
+
+Eyebrow: "EP05 / Experiment" — monospace, uppercase (the .m class is uppercase labels). 28px, color: cyan or ink? Let me go with cyan var(--c). With a small square bullet? Keep it simple.
+
+Should I add a subtle secondary element? The brief is specific; I'll stick to it, but I could add a small monospace label in the bottom right like "1080P / 24FPS"? Not requested — better to keep it clean per the brief. A small footer monospace line "EXPERIMENT 05 — LOCAL MODELS" might be overkill. The brief lists exactly: eyebrow, title, band, rule, hold. Let me just add a small monospace tag in the bottom left? No — I'll stick to the brief. Actually, a small detail: a small square in the bottom right? Skip. Clean.
+
+Hmm, but a bit more life would be nice: an offset cyan square or a small "LOCAL AI" monospace in the bottom right? The brief says title card; let me add a small monospace "GW STUDIO" in the bottom right? Not requested; risk of clutter. Let me add a small monospace "1920 × 1080 / 24 FPS" bottom right — no, weird for a title card. Let me add nothing extra. Actually, let me reconsider: the composition is 5s, mostly the title. A small detail like a cyan tick before the eyebrow would be nice: a 12x12 cyan square before the eyebrow text. That's tasteful.
+
+Let me finalize the layout coordinates:
+
+- Eyebrow: left:160, top:292, font-size:28px, letter-spacing probably 4px (monospace). Text "EP05 / EXPERIMENT". Add a cyan square: left:160, top:292… let me put the square at left:160, top:298, 14x14, and the eyebrow text at left:190. Both animate: square fades in, text fades in.
+
+Actually simpler: eyebrow text with a leading "▮"? No emoji/symbols… "▮" is a geometric character, might be OK but risky. Use a separate square div.
+
+- Line 1 (LOCAL AI,): top:360, font-size:150px, line-height:1.
+  - LOCAL: left:160, width:540
+  - AI,: left:730, width:280
+- Line 2 (REAL VIDEO): top:540, font-size:150px.
+  - REAL: left:160, width:440
+  - VIDEO: left:640, width:540
+- Band: left:144, top:556, width:472, height:124. (Line 2 top 540 + 16; covers caps.)
+
+Wait, let me verify vertical: font 150, line-height 1 → box 150px. Cap height about 105px, baseline about 127px from top of box (approx). Cap top ≈ 127-105 = 22px from box top. So band top = 540 + 8 = 548, height = 105 + 24 = about 130 → covers 548–678; box bottom = 690. Band bottom 678 is 12px above box bottom — good, band sits on the text like a marker. Let me set band top:548, height:126.
+
+Rule: top:730 (line 2 bottom 690 + 40), left:160, width:1600, height:4px.
+
+Vertical center check: content 292–734 → center 513. Canvas center 540. Slightly high; shift everything down by about 25px: eyebrow 315, line 1 385, line 2 565, band 573, rule 755. Content 315–759, center 537.
+
+Let me redo:
+- Square: left:160, top:320, 14x14 (eyebrow text at 28px, top:314, text baseline… monospace 28px, box height about 32. Square 14px, top:322 to align with text center (314+16=330; square center 322+7=329). Good: square top:322.
+- Eyebrow text: left:192, top:312, font-size:28px.
+- Line 1: top:382, font 150.
+- Line 2: top:562.
+- Band: top:570, height:126, left:144, width:472.
+- Rule: top:752, height:4, width:1600.
+
+Content: 312–756, center 534. Good.
+
+Word widths: display font 150px, uppercase letter about 100px wide (per rule 5 note). "LOCAL" 5 letters = 500 → width 520. "AI," = A(100)+I(about 60)+,(about 50) ≈ 210 → width 240. "REAL" ≈ 400 → width 420. "VIDEO" ≈ 500 → width 520.
+
+Line 1: LOCAL left:160 w:520 → ends at 680. AI, left:720 w:240 → ends at 960.
+Line 2: REAL left:160 w:420 → ends at 580. VIDEO left:620 w:520 → ends at 1140.
+
+Band: left:144, width: 420+32=452 → 144–596. VIDEO starts at 620 — 24px gap. Good.
+
+Hmm wait, letter-spacing: display fonts are often tracked. If gw.css adds letter-spacing to .h, the widths increase. "Wide" font. If I add letter-spacing 0.02em, at 150px that's 3px/letter → +15px per word. My box has about 20-40px slack. OK.
+
+But risk: if the actual font is wider than estimated, "AI," might overlap "LOCAL"? LOCAL box 520, text about 500-515; AI, starts at 720 → gap ≥ 205. Safe. VIDEO starts at 620, REAL text ends at about 580 max. Safe.
+
+If the font is narrower, there'll be gaps between words — acceptable (kerning gaps are fine).
+
+Now the animation timeline:
+
+```js
+const tl = gsap.timeline({ paused: true });
+
+// Eyebrow
+tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+tl.fromTo("#tick", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" }, 0.15);
+
+// Words
+tl.fromTo("#wLocal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.45);
+tl.fromTo("#wAi", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.65);
+tl.fromTo("#wReal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.85);
+tl.fromTo("#wVideo", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.05);
+
+// Band wipe
+tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.45);
+
+// Rule draw
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.95);
+
+window.__timelines["main"] = tl;
+```
+
+Band needs initial state: scaleX 0 is set by fromTo at 1.45 — but before 1.45, at t=0, the band is at its default scaleX 1 (visible!) because fromTo only applies when the playhead reaches it… actually, in GSAP, a fromTo with an absolute start time: before that time, the element is in its natural state (scaleX 1). When the timeline is rendered at t=0 (paused, seek to 0), GSAP applies… hmm, actually, when you seek a timeline to 0, tweens that start later are in "not started" state and don't affect the target. So the band would be visible at full width at t=0. That's wrong.
+
+Fix: tl.set("#band", { scaleX: 0 }, 0); or include the fromTo with an immediateRender-like behavior. Simplest: add tl.set for the initial hidden state at time 0:
+
+```js
+tl.set("#band", { scaleX: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+```
+
+And the words: fromTo at 0.45 — before 0.45, the words are at opacity 1 (visible)! Same problem. The example uses `opacity:0` in the CSS style of the element to handle the initial hidden state: `style="...opacity:0"`. Right — the example sets opacity:0 in inline CSS. And rule 4 says "set the initial hidden state with tl.set or fromTo, not with CSS transform" — opacity in CSS is fine (only transform in CSS is forbidden).
+
+So: set `opacity:0` inline on all words, eyebrow, tick. The band and rule use transform — must not be set in CSS; use tl.set at 0. Good:
+
+```js
+tl.set("#band", { scaleX: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+```
+
+And the fromTo at 1.45/1.95 animates from 0→1. Between 0 and 1.45, the set holds scaleX 0. Good.
+
+Also, the words' fromTo: with CSS opacity 0, the "from" opacity 0 matches; even if the playhead is before the tween, the element is hidden. Good.
+
+transform-origin: band needs `transform-origin:left center` in CSS (allowed). Rule: `transform-origin:left center`.
+
+z-index: band behind wReal: band z-index:1, wReal z-index:2. Both absolutely positioned.
+
+Wait, one more consideration: the band's scaleX wipe — the band is a yellow rectangle behind the #111 REAL text. As it wipes left→right, the text appears over the yellow. Before the wipe, REAL is #111 on #0E0E0E (nearly invisible).
+
+But wait — should REAL be #111 from the start, or should it be ink and only become #111 after the band? No color animation. #111 from the start. OK.
+
+Actually, hmm, let me reconsider making REAL ink (#F4F4F1) and having the band wipe behind it, with the band being… if the text is ink on yellow, contrast is bad. No. #111 it is.
+
+Or — a clever alternative: make the band the reveal, but also make the word slide in with the band (band scaleX + word x together). Brief: "words slide/stagger in one by one; the word 'real' gets a yellow marker band that wipes in from the left". So the word slides in with the others, and the band wipes separately. My plan matches.
+
+Hold: everything settles by about 2.65s; hold until 5.0s. "Hold for the last 1 second" ✓ (actually 2.35s hold).
+
+Duration: data-duration="5".
+
+Font classes: .h for headings (uppercase, heavy, wide), .m for monospace labels. Word divs: class "a h". Eyebrow: class "a m".
+
+Text content: "LOCAL" "AI," "REAL" "VIDEO". Eyebrow: "EP05 / EXPERIMENT" (m class is uppercase anyway).
+
+Colors: words ink #F4F4F1 (default body color? body background is #0E0E0E; text color is probably default ink). To be safe, set color:var(--ink)? Token name unknown. The example doesn't set a color on #t1 — so the default text color is probably ink. Let me not set a color on the words (inherit). REAL: color:#111 explicitly. Band: background:var(--y,#FFD400). Eyebrow: color:var(--c) (cyan) — example uses var(--c) on the eyebrow. Rule: background:var(--ink)? Unknown token. Use #F4F4F1 directly? The brand says ink #F4F4F1. I could use var(--ink,#F4F4F1) with fallback. Or make the rule cyan for an accent: var(--c). A cyan thin rule under the title — nice accent. Hmm, or ink. Let me go with ink (#F4F4F1) at full width — a strong baseline. Actually, cyan adds brand pop; the eyebrow is already cyan. A cyan rule + cyan eyebrow might be too much. Let me make the rule ink.
+
+Tick square: cyan var(--c).
+
+Let me double-check rule 5: "keep all text inside the canvas with at least 100px margins" — left margin 160 ✓, top 312 ✓, bottom: rule 756, canvas 1080 → 324 margin ✓. Right: max text end 1140 ✓.
+
+"Size boxes so text fits on one line" — boxes: LOCAL 520 (text about 500) ✓; AI, 240 (about 210) ✓; REAL 420 (about 400) ✓; VIDEO 520 (about 500) ✓. With letter-spacing it might be +10-20px, still fits.
+
+But wait — will the display font at 150px have letters about 100px wide? The rule note says so. "LOCAL" 5 letters: L, O, C, A, L — all wide. About 500px. Box 520 is tight if spacing is added. Let me bump the boxes: LOCAL 540, AI, 260, REAL 440, VIDEO 540. And adjust positions:
+
+Line 1: LOCAL left:160 w:540 → ends at 700. AI, left:740 w:260 → ends at 1000.
+Line 2: REAL left:160 w:440 → ends at 600. VIDEO left:640 w:540 → ends at 1180.
+Band: left:144 w:472 → ends at 616. VIDEO at 640, gap 24 ✓.
+
+If the font is narrower (say 90px/letter), the text is shorter and the gap widens — fine.
+
+One concern: .h class might have line-height or letter-spacing that shifts things. I'll set line-height:1 on the word divs to control vertical.
+
+Also, word divs have explicit height? Not required; height is determined by the font. The rule says "explicit left/top/width in px" — height is optional. I'll include width.
+
+Let me also add `white-space:nowrap` just in case.
+
+GSAP selectors: IDs.
+
+Let me also consider the "AI," comma — fine.
+
+Full HTML:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Local AI, real video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="tick" style="left:160px;top:322px;width:14px;height:14px;background:var(--c,#12A9E6);opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:192px;top:310px;width:600px;font-size:28px;letter-spacing:6px;color:var(--c,#12A9E6);opacity:0">EP05 / Experiment</div>
+
+  <div class="a h" id="wLocal" style="left:160px;top:382px;width:540px;font-size:150px;line-height:1;opacity:0">LOCAL</div>
+  <div class="a h" id="wAi"    style="left:740px;top:382px;width:260px;font-size:150px;line-height:1;opacity:0">AI,</div>
+
+  <div class="a" id="band" style="left:144px;top:570px;width:472px;height:126px;background:var(--y,#FFD400);transform-origin:left center;z-index:1"></div>
+  <div class="a h" id="wReal"  style="left:160px;top:562px;width:440px;font-size:150px;line-height:1;color:#111;opacity:0;z-index:2">REAL</div>
+  <div class="a h" id="wVideo" style="left:640px;top:562px;width:540px;font-size:150px;line-height:1;opacity:0">VIDEO</div>
+
+  <div class="a" id="rule" style="left:160px;top:752px;width:1600px;height:4px;background:#F4F4F1;transform-origin:left center"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set("#band", { scaleX: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  tl.fromTo("#tick", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" }, 0.15);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+
+  tl.fromTo("#wLocal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+  tl.fromTo("#wAi", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.72);
+  tl.fromTo("#wReal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.94);
+  tl.fromTo("#wVideo", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.16);
+
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 2.0);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait — the tick has a CSS opacity:0, and fromTo animates opacity — fine (opacity in CSS is allowed). The tick also animates scale — no CSS transform on the tick ✓ (I removed the scale from CSS; fromTo sets it).
+
+Hmm, the tick's fromTo: `{ opacity: 0, scale: 0 }` → `{ opacity: 1, scale: 1 }`. Before 0.15s, the tick is at CSS opacity 0 → invisible ✓.
+
+Band: no CSS opacity (visible if scaleX 1), but tl.set scaleX 0 at 0 → invisible ✓.
+
+Rule: same ✓.
+
+Check rule 3: only tl.set/fromTo with absolute starts ✓. No repeat, no random, no CSS animation ✓.
+
+Rule 4: no CSS transform on GSAP-animated elements: band has transform-origin (OK), rule has transform-origin (OK), no `transform:` anywhere ✓.
+
+Rule 5: absolute positioning with left/top/width ✓. Text margins ✓. No overlap: eyebrow (310–342) vs line 1 top 382 ✓. Line 1 (382–532) vs line 2 (562–712) ✓ 30px gap. Band (570–696) is within the line 2 area, behind the text ✓. Rule 752 ✓ below line 2 (712) with 40px gap.
+
+Wait, line 2 box: top 562 + 150 = 712. Band top 570 = 562+8, height 126 → 570–696. Cap top ≈ 562+22=584, baseline ≈ 562+127=689. Band covers 570–696: 14px above cap top, 7px below baseline ✓ nice marker look.
+
+Eyebrow width 600: "EP05 / EXPERIMENT" = 17 chars, monospace 28px → char about 16.8px + letter-spacing 6 → about 23px/char → about 390px. Fits in 600 ✓.
+
+Timeline end: 2.0+0.7 = 2.7s. Hold 2.7→5.0 ✓ (last 1s is a hold ✓).
+
+One more check: "AI," — the comma in the display font. Fine.
+
+Should I include a logo? assets/logo-negative.png exists but the brief doesn't mention it. Skip — the brief is specific.
+
+Also, the `m` class is uppercase labels — the eyebrow text "EP05 / Experiment" will be rendered uppercase by the class ✓.
+
+Potential issue: `.h` class might already set a font-size; my inline font-size overrides ✓.
+
+Also, the word divs' width — if the display font is wider than 100px/letter (e.g., 110px), "VIDEO" = 550 > box 540 → overflow/wrap? white-space nowrap prevents wrapping; the text visually overflows the box (no clipping since overflow is visible by default). It might encroach on the right margin: 640+550=1190, still < 1820 ✓. LOCAL 550 → ends at 710, AI, starts at 740 ✓ still no overlap. REAL 440 box, text 440 → ends at 600; band 616; VIDEO 640 ✓. OK, robust enough.
+
+If the font is much wider (120px/letter): LOCAL 600 → ends at 760 > AI, at 740 → 20px overlap. Hmm. The rule note says about 100px at 150px, so 120 is unlikely. Accept.
+
+Also, the .h letter-spacing might be 0.05em = 7.5px → "VIDEO" 500+4*7.5=530 ✓ fits in 540. LOCAL 500+30=530 ✓ fits in 540. REAL 400+22=422 ✓ fits in 440. Good.
+
+Let me reconsider the band width vs REAL with letter-spacing: text 422 → box 440 → text ends at 600. Band 144–616 covers ✓.
+
+I think this is solid. Let me also add a subtle extra: a small monospace "24 FPS / 1080" in the bottom right? Not in the brief. Skip.
+
+Actually, let me reconsider adding a small monospace line in the bottom left "LOCAL MODELS / NO CLOUD" — no, the brief is precise; extra text risks clutter and overlap rules. Keep it minimal.
+
+Final check on data-duration: 5 ✓.
+
+One more: the example registers `window.__timelines["main"] = tl;` after building ✓.
+
+Title tag: fine.
+
+Let me write the final file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Local AI, real video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <!-- eyebrow -->
+  <div class="a" id="tick" style="left:160px;top:322px;width:14px;height:14px;background:var(--c,#12A9E6);opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:194px;top:310px;width:640px;font-size:28px;letter-spacing:6px;color:var(--c,#12A9E6);opacity:0">EP05 / Experiment</div>
+
+  <!-- title line 1 -->
+  <div class="a h" id="wLocal" style="left:160px;top:382px;width:540px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">LOCAL</div>
+  <div class="a h" id="wAi"    style="left:740px;top:382px;width:260px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">AI,</div>
+
+  <!-- title line 2 : yellow marker band behind REAL -->
+  <div class="a" id="band" style="left:144px;top:570px;width:472px;height:126px;background:var(--y,#FFD400);transform-origin:left center;z-index:1"></div>
+  <div class="a h" id="wReal"  style="left:160px;top:562px;width:440px;font-size:150px;line-height:1;white-space:nowrap;color:#111;opacity:0;z-index:2">REAL</div>
+  <div class="a h" id="wVideo" style="left:640px;top:562px;width:540px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">VIDEO</div>
+
+  <!-- rule -->
+  <div class="a" id="rule" style="left:160px;top:752px;width:1600px;height:4px;background:#F4F4F1;transform-origin:left center"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states (transforms must not live in CSS)
+  tl.set("#band", { scaleX: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  // eyebrow
+  tl.fromTo("#tick",    { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3,  ease: "power2.out" }, 0.15);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -24 },  { opacity: 1, x: 0,   duration: 0.45, ease: "power2.out" }, 0.2);
+
+  // words stagger in one by one
+  tl.fromTo("#wLocal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+  tl.fromTo("#wAi",    { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.72);
+  tl.fromTo("#wReal",  { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.94);
+  tl.fromTo("#wVideo", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.16);
+
+  // yellow marker band wipes in from the left, revealing REAL
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+  // thin rule draws across below
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 2.0);
+
+  // hold until 5s
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card (s)</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:160px;top:104px;width:800px;font-size:24px;letter-spacing:4px;color:var(--c);opacity:0">BUILD TELEMETRY / CHART REVEAL</div>
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="" style="left:1480px;top:100px;width:280px;height:56px;object-fit:contain;object-position:right center;opacity:0" />
+  <div class="a h" id="title" style="left:160px;top:148px;width:1500px;font-size:72px;white-space:nowrap;color:var(--ink);opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:160px;top:258px;width:640px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- Row 1 : Title 42 -->
+  <div class="a m" id="l1" style="left:160px;top:420px;width:280px;height:112px;font-size:28px;color:var(--ink);display:flex;align-items:center;justify-content:flex-end;opacity:0">Title</div>
+  <div class="a" id="track1" style="left:480px;top:446px;width:1000px;height:60px;background:#161616"></div>
+  <div class="a" id="bar1" style="left:480px;top:446px;width:0px;height:60px;background:var(--c)"></div>
+  <div class="a m" id="v1" style="left:480px;top:446px;width:150px;height:60px;font-size:34px;color:var(--ink);display:flex;align-items:center;justify-content:center;opacity:0">0 s</div>
+
+  <!-- Row 2 : Explainer 58 (largest) -->
+  <div class="a m" id="l2" style="left:160px;top:532px;width:280px;height:112px;font-size:28px;color:var(--ink);display:flex;align-items:center;justify-content:flex-end;opacity:0">Explainer</div>
+  <div class="a" id="track2" style="left:480px;top:558px;width:1000px;height:60px;background:#161616"></div>
+  <div class="a" id="bar2" style="left:480px;top:558px;width:0px;height:60px;background:var(--c)"></div>
+  <div class="a m hl" id="v2" style="left:480px;top:558px;width:150px;height:60px;font-size:34px;display:flex;align-items:center;justify-content:center;opacity:0">0 s</div>
+
+  <!-- Row 3 : Chart 51 -->
+  <div class="a m" id="l3" style="left:160px;top:644px;width:280px;height:112px;font-size:28px;color:var(--ink);display:flex;align-items:center;justify-content:flex-end;opacity:0">Chart</div>
+  <div class="a" id="track3" style="left:480px;top:670px;width:1000px;height:60px;background:#161616"></div>
+  <div class="a" id="bar3" style="left:480px;top:670px;width:0px;height:60px;background:var(--c)"></div>
+  <div class="a m" id="v3" style="left:480px;top:670px;width:150px;height:60px;font-size:34px;color:var(--ink);display:flex;align-items:center;justify-content:center;opacity:0">0 s</div>
+
+  <!-- Row 4 : Lower third 23 -->
+  <div class="a m" id="l4" style="left:160px;top:756px;width:280px;height:112px;font-size:28px;color:var(--ink);display:flex;align-items:center;justify-content:flex-end;opacity:0">Lower third</div>
+  <div class="a" id="track4" style="left:480px;top:782px;width:1000px;height:60px;background:#161616"></div>
+  <div class="a" id="bar4" style="left:480px;top:782px;width:0px;height:60px;background:var(--c)"></div>
+  <div class="a m" id="v4" style="left:480px;top:782px;width:150px;height:60px;font-size:34px;color:var(--ink);display:flex;align-items:center;justify-content:center;opacity:0">0 s</div>
+
+  <!-- Axis -->
+  <div class="a axis-part" style="left:480px;top:872px;width:1000px;height:2px;background:#333333;opacity:0"></div>
+  <div class="a axis-part" style="left:479px;top:872px;width:2px;height:12px;background:#444444;opacity:0"></div>
+  <div class="a axis-part m" style="left:440px;top:890px;width:80px;font-size:20px;color:#888888;text-align:center;opacity:0">0 s</div>
+  <div class="a axis-part" style="left:824px;top:872px;width:2px;height:12px;background:#444444;opacity:0"></div>
+  <div class="a axis-part m" style="left:785px;top:890px;width:80px;font-size:20px;color:#888888;text-align:center;opacity:0">20 s</div>
+  <div class="a axis-part" style="left:1169px;top:872px;width:2px;height:12px;background:#444444;opacity:0"></div>
+  <div class="a axis-part m" style="left:1130px;top:890px;width:80px;font-size:20px;color:#888888;text-align:center;opacity:0">40 s</div>
+  <div class="a axis-part" style="left:1514px;top:872px;width:2px;height:12px;background:#444444;opacity:0"></div>
+  <div class="a axis-part m" style="left:1475px;top:890px;width:80px;font-size:20px;color:#888888;text-align:center;opacity:0">60 s</div>
+
+  <div class="a m" id="footL" style="left:160px;top:950px;width:600px;font-size:20px;letter-spacing:3px;color:#666666;opacity:0">HYPERFRAMES / B3</div>
+  <div class="a m" id="footR" style="left:1180px;top:950px;width:580px;font-size:20px;letter-spacing:3px;color:var(--c);text-align:right;opacity:0">MAX 58 s — EXPLAINER</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.to("#logo", { opacity: 1, duration: 0.5 }, 0.2);
+  tl.fromTo("#title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.75);
+  tl.fromTo(".axis-part", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.9);
+
+  // Rows (label, bar, value ride the tip, counter)
+  const counters = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
+  const widths = [724, 1000, 879, 397];
+  const values = [42, 58, 51, 23];
+  const starts = [1.0, 1.45, 1.9, 2.35];
+  const labelStarts = [0.8, 1.25, 1.7, 2.15];
+
+  for (let i = 0; i < 4; i++) {
+    const n = i + 1;
+    tl.fromTo("#l" + n, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, labelStarts[i]);
+    tl.fromTo("#bar" + n, { width: 0 }, { width: widths[i], duration: 1.2, ease: "power3.out" }, starts[i]);
+    tl.to("#v" + n, { opacity: 1, x: widths[i] + 20, duration: 1.2, ease: "power3.out" }, starts[i]);
+    tl.to(counters[i], {
+      v: values[i], duration: 1.2, ease: "power3.out",
+      onUpdate: () => { document.getElementById("v" + n).textContent = Math.round(counters[i].v) + " s"; }
+    }, starts[i]);
+  }
+
+  // Footer
+  tl.to("#footL", { opacity: 1, duration: 0.5 }, 4.0);
+  tl.to("#footR", { opacity: 1, duration: 0.5 }, 4.2);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+[REASONING]
+The previous response got cut off partway through. I need to output the complete file. Let me carefully reconstruct the entire HTML file, make sure it's complete and valid, and then output it in a single ```html code block.
+
+Let me design the composition:
+
+- 1920x1080, 9 seconds, 24fps.
+- Heading "How it works" with a yellow band (hl) behind part of the text.
+- Three columns: numbers 01/02/03, inline SVG icons, labels "Write a brief" (pencil/document), "Model writes the code" (brackets </>), "Render the video" (play triangle).
+- Steps appear in sequence with connector lines between them.
+
+Layout plan:
+- Logo top-right: left 1620, top 112, width 140.
+- Eyebrow: "PROCESS / 03 STEPS", left 160, top 150, mono 26px, cyan.
+- Heading: "HOW IT WORKS" — display font, uppercase, heavy. At 130px, uppercase letters are about 87px wide... the brief says at 150px, uppercase letters are about 100px wide, so at 130px about 87px. "HOW IT WORKS" = 12 chars including space. 12 × ~80 = ~960px + width of hl. Fits within 1920-320=1600. Good. Actually let me count: H-O-W (3) space I-T (2) space W-O-R-K-S (5) = 10 letters + 2 spaces. At 130px, letters ~87px → 870px + spaces ~60px each → ~990px. No problem.
+
+Heading top 196, font 130px. Cap height probably ~95px. So it occupies roughly 196–291. Rule at 372. Sub at 408.
+
+Column area: numbers at top 548, icons at 604 (130px tall, so 604–734), labels at 772.
+
+Columns:
+- Col 1: x=160. Number width 200. Icon at left 295? Hmm, let me think about the column layout. Column width ~400px.
+  - Col 1: left 160, width 400 (160–560)
+  - Col 2: left 760, width 400 (760–1160)
+  - Col 3: left 1360, width 400 (1360–1760)
+- Connector 1: between 560 and 760 → left 560, width 200.
+- Connector 2: between 1160 and 1360 → left 1160, width 200.
+
+Icons: 130x130. Centered in each column: col 1 icon left = 160 + (400-130)/2 = 160+135 = 295. Col 2: 760+135 = 895. Col 3: 1360+135 = 1495.
+
+Icons at top 604, height 130 → 604–734.
+Numbers at top 548, height ~30px → 548–578. Gap to icon 26px. Good.
+Labels at top 772. Font 40px, 2 lines → 772–872.
+
+Connector vertical center: icon center = 604+65 = 669. Connector svg height 12, top 663 → center 669. Good.
+
+Footer: small mono text at the bottom? Maybe "BRIEF → CODE → VIDEO" at the bottom. Let me add a bottom bar: left 160, top 980, mono 22px, "BRIEF → CODE → VIDEO" — wait, no emojis; the arrow "→" is a text character, not an emoji, so it's fine. But the rule is no emojis; arrows are OK. Or use "/". Let me use "BRIEF / CODE / VIDEO — 9S LOOP" or something. Keep it simple: "BRIEF → CODE → VIDEO". Actually, to be safe, use "BRIEF / CODE / VIDEO".
+
+Timeline (9 seconds):
+- 0.0–0.4: Logo fade in.
+- 0.2: Eyebrow fade in (0.4s).
+- 0.4: Heading fromTo y 40→0, opacity (0.6s).
+- 0.9: Rule scaleX 0→1 (0.6s).
+- 1.1: Sub fade in (0.5s).
+- Step 1: 1.5
+  - num1 fade in 0.3
+  - icon1 fromTo scale 0.6→1, opacity 0→1, 0.5, ease power2.out
+  - label1 fromTo y 20→0 opacity, 0.4, start 1.7
+- Connector 1: 2.2, scaleX 0→1, 0.5, power2.inOut
+- Step 2: 2.8
+  - num2 fade 0.3
+  - icon2 scale 0.5→1 opacity 0.5
+  - label2 3.0
+- Connector 2: 3.6, scaleX 0.5
+- Step 3: 4.2
+  - num3 fade
+  - icon3 scale
+  - label3 4.4
+- Footer: 5.2 fade in.
+- Hold: everything visible from about 5.5 to 9.
+
+Colors: identity C dark. Ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class hl). Icons: stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill.
+
+Icon 1: pencil/document. Document rectangle + lines + diagonal pencil. Stroke #F4F4F1, pencil in cyan.
+Icon 2: </> brackets, magenta.
+Icon 3: play triangle — flat fill? "No fill or flat fill" — a play triangle can be a flat-filled triangle or an outline. Let me do an outline triangle with stroke #F4F4F1, stroke-width 6, no fill, plus a circle? Keep it simple: just an outline play triangle. Maybe add a small "frame" rectangle around it to suggest video. A rounded rectangle? No, no rounded corners. Rectangle frame + play triangle inside, triangle in yellow? Yellow is only allowed as a band behind #111 text. So no yellow for icons. Use cyan or magenta. Play triangle in cyan.
+
+Wait — "yellow #FFD400 only as a band behind #111 text (class hl)". So the only yellow usage is the hl band. OK.
+
+Number colors: 01 cyan, 02 magenta, 03... maybe ink or cyan. Let me do 01 cyan, 02 magenta, 03 ink (#F4F4F1). Or all cyan. Let me give each step an accent: 01 cyan, 02 magenta, 03 ink. Icon strokes: document is ink + pencil cyan; brackets magenta + slash ink; play triangle cyan? Hmm, let me make step 3's accent ink: triangle filled? Flat fill allowed. Triangle flat-filled #F4F4F1. Good.
+
+Actually, for visual consistency: each step has an accent color: 01 cyan, 02 magenta, 03 ink. Icon strokes: document is ink + pencil cyan; brackets magenta + slash ink; play triangle cyan? Hmm, let me make step 3's accent ink: triangle filled? Flat fill allowed. Triangle flat-filled #F4F4F1. Good.
+
+The hl band behind "WORKS" — the class hl probably handles the band (yellow background, #111 text). In the example: `<span class="hl">world</span>`. So I'll use `<span class="hl">WORKS</span>`.
+
+Rules: never put CSS transform on elements GSAP animates. I use transform-origin in CSS (that's fine). For the rule and connectors, set transform-origin: left center in CSS, and animate scaleX with fromTo. Initial hidden state: connectors start with scaleX 0 via fromTo — but before the timeline plays (at time 0), does the element show with scaleX 1? The renderer probably plays the timeline from 0; fromTo sets the state at its start time. Before the start time, the element is in its CSS state (scaleX 1, visible). To be safe, use tl.set to set initial state at time 0, or use fromTo with immediateRender. GSAP's fromTo has immediateRender true by default when the tween is at timeline position 0... actually, for from/from tweens, immediateRender defaults to true, so the starting state is applied immediately when the timeline is created. But to be safe, I'll add tl.set calls at 0 for all elements that should start hidden.
+
+Let me set initial state with tl.set at 0:
+- #rule: scaleX 0
+- #conn1, #conn2: scaleX 0
+- Icons: opacity 0 (already opacity 0 in CSS)
+- Others: opacity 0 in CSS.
+
+The example sets opacity:0 in CSS for text elements and animates with tl.to. That's fine. For scale elements, use fromTo + tl.set.
+
+Let me also double-check text overlap:
+- Heading at top 196, 130px font. Cap height ~0.72em ≈ 94px. Text baseline... text box top 196; glyphs occupy roughly 196–290.
+- Rule at 372. Sub at 408, 34px → 408–442.
+- Numbers at 548. Good spacing.
+- Labels at 772, 2 lines at 40px, line-height 1.25 → line height 50px, 2 lines = 100px → 772–872.
+- Footer at 960, 22px → 960–982. Within 1080, margin 100px? Bottom margin: 1080-982 = 98. Hmm, "keep all text within the canvas with at least 100px margin". 98 < 100. Move footer to top 950 → 950–972, bottom margin 108. OK. Actually the margin rule is probably about the left/right edges, but let me be safe: footer at top 950.
+
+Left margin 160 ≥ 100. Right: logo at 1620+140=1760, margin 160. Col 3 label at 1360, width 400 → ends at 1760. Good.
+
+Label text: "Write a brief" — 2 lines: "Write a" / "brief". "Model writes the code" → "Model writes" / "the code". "Render the video" → "Render the" / "video". Body font 40px: "Model writes" = 12 chars × ~22px = ~264px < 400. Good.
+
+Eyebrow: "PROCESS / 03 STEPS" mono 26px, letter-spacing 6px. 18 chars × (16+6) ≈ 396px < 600. Good.
+
+Heading width: let me estimate more carefully. Display font 130px, uppercase ~87px wide per letter. "HOW IT WORKS": 10 letters × 87 = 870 + 2 spaces × ~45 = 960. Plus "WORKS" inside the hl band — the band has padding so it's a bit wider. Total ~1050px. Left 160 → ends ~1210. Logo at 1620, top 112, height ~50 → logo occupies 112–162; heading at 196+. No overlap. Good.
+
+Now icons:
+
+Icon 1 (130x130 viewBox), document + pencil:
+- Document: rect x=16 y=14 width=70 height=94, stroke #F4F4F1, sw 6.
+- Lines: (34,40)-(68,40), (34,58)-(68,58), (34,76)-(56,76), stroke #F4F4F1 sw 6.
+- Pencil: diagonal from bottom-left to top-right. Pencil shape: rotated rectangle. Simpler: path of pencil body: M56 124 L62 108 L108 62 L118 72 L72 118 Z — stroke cyan, sw 6, no fill. Let me check the geometry: tip at (56,124), body goes up to (108,62)/(118,72), back to (72,118). That's a pencil pointing to the lower-left. Looks fine.
+
+Icon 2: brackets:
+- Left bracket: M44 32 L16 65 L44 98 (stroke magenta, sw 6)
+- Right bracket: M86 32 L114 65 L86 98
+- Slash: line 74,24 → 56,106, stroke #F4F4F1 sw 6.
+
+Icon 3: play triangle inside a frame:
+- Frame: rect x=14 y=24 width=102 height=82, stroke #F4F4F1 sw 6.
+- Triangle: polygon points "52,44 52,86 92,65" fill #F4F4F1? Flat fill allowed. Or stroke. Let me flat-fill with ink: <polygon points="54,42 54,88 94,65" fill="#F4F4F1"/>. Hmm, "no fill or flat fill" — flat fill is allowed. Good.
+
+Actually, for consistency with the other icons (stroke-based), maybe an outline triangle: path M54 42 L94 65 L54 88 Z, stroke #F4F4F1 sw 6, no fill. That's cleaner and consistent. Let me go with an outline triangle.
+
+Connector: svg width 200 height 12, line x1=2 x2=170 stroke rgba(244,244,241,0.35) sw 4, arrowhead polygon points "170,0 198,6 170,12" fill #F4F4F1. Animate the whole svg with scaleX from 0. Transform-origin left center.
+
+Footer: "BRIEF / CODE / VIDEO — 24 FPS" mono 22px, color rgba(244,244,241,0.5). Position left 160 top 950. Maybe also a right-aligned one? Keep to one.
+
+Also add a small "step dot" or progress? Keep it clean.
+
+Timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// initial hidden states
+tl.set("#rule", { scaleX: 0 }, 0);
+tl.set("#conn1", { scaleX: 0 }, 0);
+tl.set("#conn2", { scaleX: 0 }, 0);
+
+// header
+tl.to("#logo", { opacity: 1, duration: 0.5 }, 0.1);
+tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.25);
+tl.fromTo("#t1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.45);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.9);
+tl.to("#sub", { opacity: 1, duration: 0.5 }, 1.1);
+
+// step 1
+tl.to("#num1", { opacity: 1, duration: 0.3 }, 1.5);
+tl.fromTo("#icon1", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.6);
+tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.8);
+
+// connector 1
+tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.35);
+
+// step 2
+tl.to("#num2", { opacity: 1, duration: 0.3 }, 2.9);
+tl.fromTo("#icon2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.0);
+tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.2);
+
+// connector 2
+tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.85);
+
+// step 3
+tl.to("#num3", { opacity: 1, duration: 0.3 }, 4.4);
+tl.fromTo("#icon3", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 4.5);
+tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.7);
+
+// footer
+tl.to("#foot", { opacity: 1, duration: 0.5 }, 5.4);
+
+window.__timelines["main"] = tl;
+```
+
+Wait: the icons have opacity:0 in CSS. fromTo with immediateRender true (default for from-type) will apply opacity 0 at creation time — fine, consistent.
+
+One concern: `tl.set("#rule", {scaleX:0}, 0)` plus fromTo("#rule", {scaleX:0}, ...) — redundant but fine.
+
+Also, the icon scale animation: transform-origin 50% 50% set in CSS via the .icn class. Good, no CSS transform property.
+
+The rule has transform-origin left center in inline style — fine.
+
+Connectors: .conn class with transform-origin left center.
+
+Check "never repeat:-1, no Math.random, no Date.now, no setTimeout, no requestAnimationFrame, no CSS animations or transitions" — none used.
+
+"Only use tl.set / tl.to / tl.from / tl.fromTo with absolute start time as the third argument" — yes.
+
+Duration = 9. Root data-duration="9".
+
+Everything visible at the end: logo, eyebrow, t1, rule, sub, all steps, connectors, footer — all at opacity 1 by ~5.9s and held until 9s. Good.
+
+Fonts: class h for the heading (uppercase, heavy, wide) — text is already uppercase. Class m for mono labels. Body labels use .lbl with var(--body).
+
+hl band: `<span class="hl">WORKS</span>` — gw.css presumably styles .hl with a yellow background and #111 text.
+
+Also, make sure there are no external icon files — inline SVG only. Logo is assets/logo-negative.png, which is allowed (the project has it).
+
+Let me also double-check the icon 1 pencil path fits within 130: points (56,124), (62,108), (108,62), (118,72), (72,118). Max x 118, max y 124. OK.
+
+Document rect: x16 y14 w70 h94 → 16–86, 14–108. Pencil overlaps the lower-right of the document — good, looks like it's writing on it.
+
+Icon 2: brackets at x 16–114, y 32–98; slash from (74,24) to (56,106). Fits.
+
+Icon 3: frame rect 14–116, 24–106. Triangle 54–94 x, 42–88 y. Centered-ish: frame center x = 65; triangle spans 54–94, center 74 — a bit right, but a play triangle is typically offset slightly right within a frame; fine. Actually, let me center it: triangle points "50,44 50,86 90,65": center x = 70. Frame center 65. Slight optical offset is standard. Keep "52,44 52,86 92,65"? Center 72. Hmm. Play buttons are often centered by centroid: centroid x = (52+52+92)/3 = 65.3. That's exactly the frame center.
+
+So triangle: M52 44 L92 65 L52 86 Z. Centroid (65.3, 65) = frame center (65, 65).
+
+Now, label positions: 2-line labels. "Write a / brief", "Model writes / the code", "Render the / video".
+
+Number letter-spacing 8px, 30px mono. "01" is fine.
+
+Also add a small accent square before the number? Keep it simple.
+
+Footer text: "BRIEF / CODE / VIDEO — 24 FPS". The em dash is fine. Or "BRIEF → CODE → VIDEO". Let me use "BRIEF / CODE / VIDEO / 24 FPS". Hmm, let me go with "BRIEF → CODE → VIDEO" — the arrow is a standard glyph, not an emoji. To be safe, use slashes.
+
+Also, should I add a step index at the bottom-right? Not needed.
+
+One more check: "size the boxes so text fits on one line" — labels are 2 lines with <br/>, box width 400px. Fine.
+
+Heading font size 130px — per the brief, the display font is wide: at 150px, uppercase letters are about 100px wide. So at 130px, about 87px. "HOW IT WORKS" is 10 letters → 870 + spaces. Total ~980–1050px. Fine.
+
+Eyebrow top 150, heading top 196: eyebrow is 26px → 150–176. Heading glyphs start at ~196 + (ascent offset). Might be tight but OK — 20px gap. Actually, the top of the heading box is 196, but the glyphs start a bit lower due to line-height. Fine.
+
+Let me finalize and output the complete file. Also, make sure the script is at the end of the body, after the root div.
+
+Let me write out the full HTML.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — three steps</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a { position: absolute; }
+  .lbl { font-family: var(--body); font-size: 40px; line-height: 1.25; color: #F4F4F1; }
+  .icn { transform-origin: 50% 50%; }
+  .conn { transform-origin: left center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <img class="a" id="logo" src="assets/logo-negative.png" style="left:1620px;top:112px;width:140px;opacity:0" />
+
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;width:600px;font-size:26px;letter-spacing:6px;color:var(--c);opacity:0">PROCESS / 03 STEPS</div>
+
+  <div class="a h" id="t1" style="left:160px;top:196px;font-size:130px;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+
+  <div class="a" id="rule" style="left:160px;top:372px;width:260px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <div class="a" id="sub" style="left:160px;top:408px;width:1100px;font-family:var(--body);font-size:34px;color:rgba(244,244,241,0.78);opacity:0">Three moves from brief to finished video.</div>
+
+  <!-- STEP 01 -->
+  <div class="a m" id="num1" style="left:160px;top:548px;width:200px;font-size:30px;letter-spacing:8px;color:var(--c);opacity:0">01</div>
+  <svg class="a icn" id="icon1" style="left:295px;top:604px;width:130px" viewBox="0 0 130 130" fill="none" opacity="0">
+    <rect x="16" y="14" width="70" height="94" stroke="#F4F4F1" stroke-width="6"/>
+    <line x1="34" y1="40" x2="68" y2="40" stroke="#F4F4F1" stroke-width="6"/>
+    <line x1="34" y1="58" x2="68" y2="58" stroke="#F4F4F1" stroke-width="6"/>
+    <line x1="34" y1="76" x2="56" y2="76" stroke="#F4F4F1" stroke-width="6"/>
+    <path d="M56 124 L62 108 L108 62 L118 72 L72 118 Z" stroke="#12A9E6" stroke-width="6"/>
+  </svg>
+  <div class="a lbl" id="label1" style="left:160px;top:772px;width:400px;opacity:0">Write a<br/>brief</div>
+
+  <!-- CONNECTOR 1 -->
+  <svg class="a conn" id="conn1" style="left:560px;top:663px;width:200px" viewBox="0 0 200 12">
+    <line x1="2" y1="6" x2="170" y2="6" stroke="rgba(244,244,241,0.35)" stroke-width="4"/>
+    <polygon points="170,0 198,6 170,12" fill="#F4F4F1"/>
+  </svg>
+
+  <!-- STEP 02 -->
+  <div class="a m" id="num2" style="left:760px;top:548px;width:200px;font-size:30px;letter-spacing:8px;color:var(--m);opacity:0">02</div>
+  <svg class="a icn" id="icon2" style="left:895px;top:604px;width:130px" viewBox="0 0 130 130" fill="none" opacity="0">
+    <path d="M44 32 L16 65 L44 98" stroke="#FF2D92" stroke-width="6"/>
+    <path d="M86 32 L114 65 L86 98" stroke="#FF2D92" stroke-width="6"/>
+    <line x1="74" y1="24" x2="56" y2="106" stroke="#F4F4F1" stroke-width="6"/>
+  </svg>
+  <div class="a lbl" id="label2" style="left:760px;top:772px;width:400px;opacity:0">Model writes<br/>the code</div>
+
+  <!-- CONNECTOR 2 -->
+  <svg class="a conn" id="conn2" style="left:1160px;top:663px;width:200px" viewBox="0 0 200 12">
+    <line x1="2" y1="6" x2="170" y2="6" stroke="rgba(244,244,241,0.35)" stroke-width="4"/>
+    <polygon points="170,0 198,6 170,12" fill="#F4F4F1"/>
+  </svg>
+
+  <!-- STEP 03 -->
+  <div class="a m" id="num3" style="left:1360px;top:548px;width:200px;font-size:30px;letter-spacing:8px;color:#F4F4F1;opacity:0">03</div>
+  <svg class="a icn" id="icon3" style="left:1495px;top:604px;width:130px" viewBox="0 0 130 130" fill="none" opacity="0">
+    <rect x="14" y="24" width="102" height="82" stroke="#F4F4F1" stroke-width="6"/>
+    <path d="M52 44 L92 65 L52 86 Z" stroke="#F4F4F1" stroke-width="6"/>
+  </svg>
+  <div class="a lbl" id="label3" style="left:1360px;top:772px;width:400px;opacity:0">Render the<br/>video</div>
+
+  <div class="a m" id="foot" style="left:160px;top:950px;width:900px;font-size:22px;letter-spacing:4px;color:rgba(244,244,241,0.5);opacity:0">BRIEF / CODE / VIDEO — 24 FPS</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states
+  tl.set("#rule", { scaleX: 0 }, 0);
+  tl.set("#conn1", { scaleX: 0 }, 0);
+  tl.set("#conn2", { scaleX: 0 }, 0);
+
+  // header
+  tl.to("#logo", { opacity: 1, duration: 0.5 }, 0.1);
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.25);
+  tl.fromTo("#t1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.45);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.9);
+  tl.to("#sub", { opacity: 1, duration: 0.5 }, 1.1);
+
+  // step 01
+  tl.to("#num1", { opacity: 1, duration: 0.3 }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.6);
+  tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.8);
+
+  // connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.35);
+
+  // step 02
+  tl.to("#num2", { opacity: 1, duration: 0.3 }, 2.9);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.0);
+  tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.2);
+
+  // connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.85);
+
+  // step 03
+  tl.to("#num3", { opacity: 1, duration: 0.3 }, 4.4);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 4.5);
+  tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.7);
+
+  // footer
+  tl.to("#foot", { opacity: 1, duration: 0.5 }, 5.4);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

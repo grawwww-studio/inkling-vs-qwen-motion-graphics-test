@@ -1,0 +1,26 @@
+{
+ "brief": "B1",
+ "name": "Title card with kinetic type (5 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 165.6,
+   "prompt_tokens": 1461,
+   "completion_tokens": 10135,
+   "finish": "stop",
+   "check_s": 1.9,
+   "check_errors": [],
+   "render_s": 5.7
+  }
+ ],
+ "model": "inkling",
+ "seed": "1",
+ "t0": 1795355588.0905387,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 165.6,
+ "prompt_tokens": 1461,
+ "completion_tokens": 10135,
+ "t1": 1795355761.2864175,
+ "wall_s": 173.2
+}

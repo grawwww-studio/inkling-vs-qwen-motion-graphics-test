@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B1 — Local AI, real video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #0E0E0E; }
+  .a { position: absolute; }
+  .h { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92; color: #F4F4F1; }
+  .m { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.28em; }
+  .band { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--y); transform-origin: left center; }
+  .bandtxt { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="mark" style="left:100px;top:100px;width:64px;height:64px;opacity:0">
+    <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 4 L58 50 L6 50 Z" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="32" cy="38" r="4" fill="#12A9E6"/>
+    </svg>
+  </div>
+
+  <div class="a m" id="eyebrow" style="left:100px;top:300px;font-size:26px;color:var(--c);opacity:0">EP05 / Experiment</div>
+
+  <div class="a h" id="word1" style="left:100px;top:372px;font-size:150px;opacity:0">Local</div>
+  <div class="a h" id="word2" style="left:636px;top:372px;font-size:150px;opacity:0">AI,</div>
+  <div class="a h" id="word3" style="left:100px;top:522px;font-size:150px;opacity:0">
+    <span id="realwrap" style="position:relative;display:inline-block;overflow:hidden">
+      <span class="band" id="band"></span>
+      <span class="bandtxt" id="realtxt" style="color:#111">Real</span>
+    </span>
+  </div>
+  <div class="a h" id="word4" style="left:440px;top:522px;font-size:150px;opacity:0">Video</div>
+
+  <div class="a" id="rule" style="left:100px;top:742px;width:1720px;height:6px;background:#F4F4F1;transform-origin:left center"></div>
+
+  <div class="a m" id="foot" style="left:100px;top:788px;font-size:20px;color:#F4F4F1;opacity:0">On-device generation — no cloud, no queue</div>
+  <div class="a m" id="foot2" style="left:1560px;top:788px;width:260px;text-align:right;font-size:20px;color:var(--c);opacity:0">00:00 — 00:47</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states
+  tl.set("#band", { scaleX: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  // mark + eyebrow
+  tl.fromTo("#mark", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 0.1);
+  tl.fromTo("#eyebrow", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.35);
+
+  // words slide in one by one
+  tl.fromTo("#word1", { opacity: 0, x: 90 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.7);
+  tl.fromTo("#word2", { opacity: 0, x: 90 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.0);
+  tl.fromTo("#word3", { opacity: 0, x: 90 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.3);
+  tl.fromTo("#word4", { opacity: 0, x: 90 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.6);
+
+  // yellow marker band wipes in from the left over "Real"
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, 1.9);
+
+  // thin rule draws across below
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 2.5);
+
+  // footer
+  tl.fromTo("#foot", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.0);
+  tl.fromTo("#foot2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.1);
+
+  // hold for the last second (4.0 -> 5.0) with everything at opacity 1
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

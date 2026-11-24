@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Three-step explainer</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; }
+  h1 { margin: 0; }
+  #heading { line-height: 1; }
+  .step { width: 440px; }
+  .num { font-family: var(--mono); font-weight: 700; font-size: 44px; letter-spacing: 6px; }
+  .iconwrap { width: 150px; height: 150px; margin-top: 18px; transform-origin: center center; }
+  .lbl { margin-top: 22px; font-family: var(--mono); font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: #F4F4F1; }
+  .conn { transform-origin: left center; }
+  #rule { transform-origin: left center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:160px;top:118px;width:700px;font-size:24px;letter-spacing:6px;color:#12A9E6;opacity:0">PROCESS / EXPLAINER</div>
+  <div class="a m" id="tag" style="left:1240px;top:118px;width:520px;text-align:right;font-size:20px;letter-spacing:4px;color:rgba(244,244,241,0.55);opacity:0">BRIEF &rarr; CODE &rarr; VIDEO</div>
+
+  <h1 class="a h" id="heading" style="left:158px;top:150px;width:1300px;font-size:92px;color:#F4F4F1;opacity:0">How it works</h1>
+  <div class="a" id="rule" style="left:160px;top:288px;width:140px;height:6px;background:#12A9E6"></div>
+
+  <!-- Step 1 -->
+  <div class="a step" id="step1" style="left:160px;top:370px;opacity:0">
+    <div class="num" style="color:#12A9E6">01</div>
+    <div class="iconwrap" id="icon1" style="opacity:0">
+      <svg viewBox="0 0 120 120" width="150" height="150" fill="none" stroke="#12A9E6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 12 h42 l20 20 v76 h-62 z"/>
+        <path d="M72 12 v20 h20"/>
+        <line x1="42" y1="52" x2="76" y2="52"/>
+        <line x1="42" y1="68" x2="76" y2="68"/>
+        <path d="M78 82 l16 -16 l8 8 l-16 16 l-10 2 z"/>
+      </svg>
+    </div>
+    <div class="lbl">Write a brief</div>
+  </div>
+
+  <!-- Connector 1 -->
+  <svg class="a conn" id="conn1" style="left:606px;top:508px;width:128px;height:18px" viewBox="0 0 128 18">
+    <line x1="0" y1="9" x2="104" y2="9" stroke="#12A9E6" stroke-width="4"/>
+    <path d="M104 2 L124 9 L104 16 Z" fill="#12A9E6"/>
+  </svg>
+
+  <!-- Step 2 -->
+  <div class="a step" id="step2" style="left:740px;top:370px;opacity:0">
+    <div class="num" style="color:#FF2D92">02</div>
+    <div class="iconwrap" id="icon2" style="opacity:0">
+      <svg viewBox="0 0 120 120" width="150" height="150" fill="none" stroke="#FF2D92" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M44 32 L20 60 L44 88"/>
+        <path d="M76 32 L100 60 L76 88"/>
+        <line x1="66" y1="26" x2="54" y2="94"/>
+      </svg>
+    </div>
+    <div class="lbl">Model writes the code</div>
+  </div>
+
+  <!-- Connector 2 -->
+  <svg class="a conn" id="conn2" style="left:1186px;top:508px;width:128px;height:18px" viewBox="0 0 128 18">
+    <line x1="0" y1="9" x2="104" y2="9" stroke="#FF2D92" stroke-width="4"/>
+    <path d="M104 2 L124 9 L104 16 Z" fill="#FF2D92"/>
+  </svg>
+
+  <!-- Step 3 -->
+  <div class="a step" id="step3" style="left:1320px;top:370px;opacity:0">
+    <div class="num" style="color:#F4F4F1">03</div>
+    <div class="iconwrap" id="icon3" style="opacity:0">
+      <svg viewBox="0 0 120 120" width="150" height="150" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="60" cy="60" r="46"/>
+        <path d="M50 42 L84 60 L50 78 Z" fill="#F4F4F1" stroke="none"/>
+      </svg>
+    </div>
+    <div class="lbl">Render the video</div>
+  </div>
+
+  <div class="a hl" id="band" style="left:160px;top:806px;width:480px;height:72px;background:#FFD400;color:#111;display:flex;align-items:center;padding:0 28px;opacity:0">
+    <span style="font-family:var(--mono);font-size:26px;letter-spacing:2px;text-transform:uppercase;color:#111">Brief in. Video out.</span>
+  </div>
+
+  <div class="a m" id="foot" style="left:160px;top:910px;width:1100px;font-size:20px;letter-spacing:2px;color:rgba(244,244,241,0.55);opacity:0">From a single brief to a rendered video — no manual steps.</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.to("#tag", { opacity: 1, duration: 0.4 }, 0.35);
+  tl.fromTo("#heading", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.4);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.95);
+
+  tl.fromTo("#step1", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 1.25);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 1.5);
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.2);
+
+  tl.fromTo("#step2", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 2.65);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 2.9);
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.6);
+
+  tl.fromTo("#step3", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 4.05);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 4.3);
+
+  tl.fromTo("#band", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.2);
+  tl.to("#foot", { opacity: 1, duration: 0.5 }, 5.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

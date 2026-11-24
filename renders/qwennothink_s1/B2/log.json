@@ -1,0 +1,48 @@
+{
+ "brief": "B2",
+ "name": "Three-step explainer with icons (9 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 51.1,
+   "prompt_tokens": 1300,
+   "completion_tokens": 1930,
+   "finish": "stop",
+   "check_s": 1.6,
+   "check_errors": [
+    "  \u2717 t=5.25, 5.375, 5.5, 5.625, 5.75, 5.875, 6, 6.125, 6.25, 6.375, 6.5, 6.625, 6.75, 6.875, 7, 7.125, 7.25, 7.375, 7.5, 7.625, 7.75, 7.875, 8, 8.125, 8.25, 8.375, 8.5, 8.625, 8.75, 8.875, 9s content_overlap #lab2 inside #lab3 \"MODEL WRITES THE CODE\" \u2014 Two text blocks overlap and may render unreadable."
+   ]
+  },
+  {
+   "round": 1,
+   "llm_s": 49.1,
+   "prompt_tokens": 3694,
+   "completion_tokens": 1889,
+   "finish": "stop",
+   "check_s": 1.9,
+   "check_errors": [
+    "  \u2717 t=5.5, 6.5, 7.5, 8.5s text_box_overflow #num3 inside #root overflowed bottom 11px \"03\" \u2014 Text extends outside its nearest visual/container box."
+   ]
+  },
+  {
+   "round": 2,
+   "llm_s": 49.5,
+   "prompt_tokens": 6098,
+   "completion_tokens": 1891,
+   "finish": "stop",
+   "check_s": 1.8,
+   "check_errors": [],
+   "render_s": 8.1
+  }
+ ],
+ "model": "qwennothink",
+ "seed": "1",
+ "t0": 1795394374.8695147,
+ "render_ok": true,
+ "fix_rounds": 2,
+ "llm_s": 149.7,
+ "prompt_tokens": 11092,
+ "completion_tokens": 5710,
+ "t1": 1795394537.9794862,
+ "wall_s": 163.1
+}

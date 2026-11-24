@@ -1,0 +1,126 @@
+{
+ "Y01": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y02": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y03": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y04": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y05": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost; L of REAL clipped by band"
+ },
+ "Y06": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y07": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y08": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost"
+ },
+ "Y09": {
+  "verdict": "FAIL",
+  "note": "logo horizontally squeezed"
+ },
+ "Y10": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y11": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y12": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y13": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y14": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y15": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y16": {
+  "verdict": "FAIL",
+  "note": "REAL set white on yellow band, unreadable; last L spills out of band"
+ },
+ "Y17": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y18": {
+  "verdict": "FAIL",
+  "note": "value label 58 missing in yellow band at hold"
+ },
+ "Y19": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y20": {
+  "verdict": "PASS",
+  "note": "58 label sits mid-bar"
+ },
+ "Y21": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y22": {
+  "verdict": "PASS",
+  "note": "role line in cyan"
+ },
+ "Y23": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y24": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y25": {
+  "verdict": "FAIL",
+  "note": "logo squeezed; first chip has no icon"
+ },
+ "Y26": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost; word REAL missing"
+ },
+ "Y27": {
+  "verdict": "FAIL",
+  "note": "bars not proportional (42 vs 51 vs 23 lengths inconsistent)"
+ },
+ "Y28": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y29": {
+  "verdict": "FAIL",
+  "note": "band empty, word REAL missing; LOCAL AI gap"
+ },
+ "Y30": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "Y31": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost"
+ }
+}

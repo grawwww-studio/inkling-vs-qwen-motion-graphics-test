@@ -1,0 +1,144 @@
+{
+ "inkling": {
+  "n": 20,
+  "pass_": 17,
+  "render_ok": 20,
+  "fix_rounds_total": 2,
+  "wall_mean": 209.67000000000002,
+  "wall_median": 192.75,
+  "wall_total": 4193.4,
+  "tok_mean": 12176.05,
+  "tok_median": 11145.5,
+  "vram_peak": 21824,
+  "perbrief": {
+   "B1": [
+    3,
+    4
+   ],
+   "B2": [
+    4,
+    4
+   ],
+   "B3": [
+    4,
+    4
+   ],
+   "B4": [
+    4,
+    4
+   ],
+   "B5": [
+    2,
+    4
+   ]
+  },
+  "best": [
+   [
+    "renders/inkling_s1/B4/B4.mp4",
+    "B4",
+    59.6
+   ],
+   [
+    "renders/inkling_s2/B4/B4.mp4",
+    "B4",
+    78.7
+   ],
+   [
+    "renders/inkling_s4/B4/B4.mp4",
+    "B4",
+    84.5
+   ]
+  ],
+  "worst": [
+   [
+    "renders/inkling_s2/B5/",
+    "B5",
+    235.0,
+    "logo scaled far larger than the canvas, GRAWWW cut off at bo"
+   ],
+   [
+    "renders/inkling_s3/B1/",
+    "B1",
+    228.8,
+    "LOCALAI, space lost (R2 text)"
+   ],
+   [
+    "renders/inkling_s1/B5/",
+    "B5",
+    195.1,
+    "logo horizontally squeezed (distorted) and VIDEO band overla"
+   ]
+  ]
+ },
+ "qwen": {
+  "n": 20,
+  "pass_": 13,
+  "render_ok": 15,
+  "fix_rounds_total": 18,
+  "wall_mean": 850.445,
+  "wall_median": 780.3,
+  "wall_total": 17008.9,
+  "tok_mean": 32044.95,
+  "tok_median": 29320.5,
+  "vram_peak": 20640,
+  "perbrief": {
+   "B1": [
+    0,
+    4
+   ],
+   "B2": [
+    4,
+    4
+   ],
+   "B3": [
+    3,
+    4
+   ],
+   "B4": [
+    4,
+    4
+   ],
+   "B5": [
+    2,
+    4
+   ]
+  },
+  "best": [
+   [
+    "renders/qwen_s2/B4/B4.mp4",
+    "B4",
+    115.9
+   ],
+   [
+    "renders/qwen_s1/B4/B4.mp4",
+    "B4",
+    131.7
+   ],
+   [
+    "renders/qwen_s4/B4/B4.mp4",
+    "B4",
+    138.3
+   ]
+  ],
+  "worst": [
+   [
+    "renders/qwen_s2/B1/",
+    "B1",
+    1590.8,
+    "R1: no HTML in 3 rounds (every round hit the 20k output cap,"
+   ],
+   [
+    "renders/qwen_s3/B1/",
+    "B1",
+    1583.4,
+    "R1: no HTML in 3 rounds (every round hit the 20k output cap,"
+   ],
+   [
+    "renders/qwen_s2/B5/",
+    "B5",
+    1583.2,
+    "R1: no HTML in 3 rounds (every round hit the 20k output cap,"
+   ]
+  ]
+ }
+}

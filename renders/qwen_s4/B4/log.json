@@ -1,0 +1,26 @@
+{
+ "brief": "B4",
+ "name": "Lower third (4 s, transparent-looking over a dark plate)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 131.1,
+   "prompt_tokens": 1318,
+   "completion_tokens": 5056,
+   "finish": "stop",
+   "check_s": 1.4,
+   "check_errors": [],
+   "render_s": 5.8
+  }
+ ],
+ "model": "qwen",
+ "seed": "4",
+ "t0": 1795375799.3600442,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 131.1,
+ "prompt_tokens": 1318,
+ "completion_tokens": 5056,
+ "t1": 1795375937.6892626,
+ "wall_s": 138.3
+}

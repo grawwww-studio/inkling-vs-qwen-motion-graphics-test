@@ -1,0 +1,806 @@
+[REASONING]
+Brief: 8-second chart reveal from JSON. Horizontal bars, cyan, grow from zero with staggered timing, value labels count up or fade in at the end of the bar, the largest bar highlighted with a yellow band behind its value. Chart title from the JSON. Bars must be proportional to the values.
+
+Data:
+- Title: "Render time per card (s)"
+- Unit: "s"
+- Rows: Title 42, Explainer 58, Chart 51, Lower third 23
+
+Largest value: Explainer 58.
+
+Design: dark background #0E0E0E, ink #F4F4F1, cyan #12A9E6 bars, yellow band #FFD400 behind value 58 (text #111).
+
+Layout at 1920x1080, 100px margin.
+
+Let me plan the composition:
+
+- Top: eyebrow label (mono), e.g. "PERF / 04" or "Bench / per card". The brief says "chart title from the JSON" — the title is "Render time per card (s)". Use it as the heading.
+- Chart area: 4 horizontal bars.
+
+Bar scale: max value 58. Let's say bar track width is 1000px. Scale: 58 → 1000px? Or scale so max is about 900px. Let's do px per unit = 16. Therefore:
+- Title 42 → 672px
+- Explainer 58 → 928px
+- Chart 51 → 816px
+- Lower third 23 → 368px
+
+Layout:
+- Left margin 160px.
+- Row labels on the left (mono, uppercase), right-aligned? More simply: label above each bar, or label on the left in a fixed column.
+
+Design decision: each row: label (mono, about 24px) in a 320px-wide left column, then the bar. Bar area starts at left: 560px, max width 928px → ends at 1488. Value label after the end of the bar: e.g. "42 s".
+
+Vertical: chart area from y about 380 to about 950. 4 rows, each row height about 100px, bar height 56px.
+
+Let me calculate:
+- Row 1 (Title): label baseline around y 420, bar top 400
+- Row spacing 130px.
+
+Rows:
+- Row 1 bar top: 400
+- Row 2 bar top: 530
+- Row 3 bar top: 660
+- Row 4 bar top: 790
+Bar height 56. Last bar bottom 846. Bottom margin no problem (1080-846=234).
+
+Title block: eyebrow top 160, heading top 210 (font about 84px). Rule below it.
+
+Actually, heading "RENDER TIME PER CARD (S)" — display font is wide: at 150px, uppercase letters are about 100px wide. At 80px, about 53px per letter. "RENDER TIME PER CARD (S)" = 24 chars including spaces → 24 × 53 ≈ 1272px. Fits in 1920-320=1600. Good. Use font size 80px.
+
+Or split: "RENDER TIME" large, "PER CARD (S)" smaller? Keep it on one line at 80px.
+
+Eyebrow: "Bench / 04 — card pipeline" mono 26px cyan.
+
+Value labels: "count up or fade in at the end of the bar". Count up with GSAP: animate an object with tl.to and onUpdate? The rules say "use only tl.set / tl.fromTo / tl.from with absolute start times as the 3rd argument". Hmm, onUpdate callback — is that allowed? The rules constrain the types of tween methods and their arguments, but don't forbid callbacks. But to be safe, maybe use a proxy object with gsap and onUpdate to do the count-up — onUpdate is a tween property, not a separate method. I think it's fine: tl.fromTo(obj, {v:0}, {v:58, duration:1, onUpdate: ...}, t). The rule says "use only tl.set / tl.from / tl.fromTo with absolute start times as the 3rd argument" — I'm using tl.fromTo with an absolute start time; onUpdate is a property of the tween vars. Should be fine. But a strict linter might check the tween vars? Unlikely. Alternatively, fade in the value labels — simpler and safer. The brief says "count up or fade in" — either is acceptable. Count up is more fun. Let's do count up with an onUpdate that writes to the textContent. Risk: does the linter forbid Math.random? No, we're not using it. No setTimeout. OK.
+
+Actually, to be extra safe I could do both: count up the numbers. Let's implement with a proxy object:
+
+const counters = { a: 0, b: 0, c: 0, d: 0 };
+tl.fromTo(counters, {a:0}, {a:42, duration:0.9, ease:"power2.out", onUpdate:()=>{ elA.textContent = Math.round(counters.a) + " s"; }}, 1.6);
+
+Hmm, but Math.round is fine (Math.random is forbidden, Math.round is not).
+
+Actually, maybe simpler and fully deterministic: fade in the value labels at the bar's end. But count up is more engaging. Let's do count up — it's deterministic (no randomness).
+
+Yellow band behind the largest value (58): a yellow rectangle behind the text "58 s", text color #111. Class `hl` is "yellow band behind #111 text". So the value label for Explainer: <span class="hl">58 s</span>. The band needs padding. In CSS, .hl { background: var(--y); color:#111; padding: 0 12px; }. No rounded corners — fine, sharp.
+
+But wait: the value label is positioned after the end of the bar. The bar animates in width; the label should be positioned at the final bar end + offset. Animate the label to slide in from the left (x: -20 → 0) or fade in.
+
+Positioning: bar area left = 560px. Final bar widths: 672, 928, 816, 368. Label positions: left = 560 + width + 24:
+- Title: 560+672+24 = 1256
+- Explainer: 560+928+24 = 1512 → label "58 s" width about 110px → ends at 1622. Within 1820 (1920-100). OK.
+- Chart: 560+816+24 = 1400
+- Lower third: 560+368+24 = 952
+
+Each bar animates width from 0 to final value, transform-origin left. Actually, animating width is allowed (the list includes width). Use tl.fromTo(bar, {width:0}, {width:672, duration:0.9, ease:"power3.out"}, t).
+
+Row labels: "TITLE", "EXPLAINER", "CHART", "LOWER THIRD" in mono, right-aligned in a 320px column, left:160, width:340, text-align:right. Vertically centered with the bar: bar top + (56-28)/2 ≈ bar top + 14. Font 26px mono → line height about 26px; top = barTop + 15.
+
+Add a subtle grid: vertical grid lines at 0, 25, 50, 75, 100% of the bar area? Could add axis ticks: 0, 20, 40, 60 s. Scale: 16px per unit → 20s = 320px, 40s = 640px, 60s = 960px. Bar area starts at 560. Tick x positions: 560, 880, 1200, 1520. Tick labels below the chart: "0" "20" "40" "60 s" at bottom y about 880. Grid lines: thin 1px lines from y 380 to 860, color rgba(244,244,241,0.08). Nice touch. Animate with scaleX or opacity fade.
+
+Also a baseline (axis) at x=560, stronger.
+
+Animation timeline (8s total):
+- 0.0–0.4: background fade? The body background is already dark.
+- 0.2: eyebrow fades in (opacity 0→1, y 10→0)
+- 0.35: heading fromTo opacity 0, y 30 → 1 (0.6s)
+- 0.7: rule scaleX 0→1 (0.6s)
+- 0.9: grid lines fade in (opacity 0→0.1, 0.8s) + tick labels fade
+- Bars staggered: start 1.3, 1.55, 1.8, 2.05, each 0.9s, ease power3.out
+- Row labels: fade in slightly before each bar (staggered 0.25s) — or all at once at 1.1. Staggered per row feels better: label i at 1.15 + i*0.25, bar i at 1.3 + i*0.25.
+- Value labels: count up starting when each bar is almost done: bar i start + 0.55. Count duration 0.7s.
+- Yellow band behind 58: scale from 0 with the label? Band is part of the span; can animate the span's opacity/scale. tl.fromTo with scaleX 0→1 on the span? transform-origin left center. But the count-up text changes width... animating scaleX on a span whose text width changes is fine.
+
+Actually, simpler: fade in the entire value label (including the band) with opacity, and count up the number. For the highlighted one, the band is the background of the .hl span.
+
+- End: a small footnote? "n = 4 cards · median run" at bottom left? Could add a mono footer at bottom: "unit: s · source: bench.json". Fade in at 3.2. Keep it minimal.
+
+- Hold until 8s. Everything at opacity 1 at the end.
+
+Also a small logo? assets/logo-negative.png exists. Could place it top right. Brief doesn't require. Could add a small logo top right as brand polish. Use <img class="a" src="assets/logo-negative.png" ...> with width 120px. Fade in at 0.2. That's fine — the asset exists locally. Include it, top right at left:1640, top:150, width 160. Hmm, make sure it doesn't overlap the heading (heading at left 160, width about 1272 → ends at 1432). Logo at 1640 is fine.
+
+Wait, heading font 80px "RENDER TIME PER CARD (S)": 24 chars × about 53px = 1272. Ends at 1432. Logo at 1640 width 160 → 1640–1800. OK, no overlap.
+
+Actually, let me reconsider the heading: the brief says "chart title from the JSON". JSON title is "Render time per card (s)". The .h class uppercases it. Good.
+
+Unit: value labels show "42 s" etc. Unit from JSON is "s".
+
+Now, count-up implementation details:
+
+Elements:
+<span class="v" id="v1">0 s</span> etc. For #v2 (Explainer), the inner span class hl: <span class="hl" id="v2">0 s</span>.
+
+Counter:
+const c = {a:0,b:0,c:0,d:0};
+function fmt(el, val){ el.textContent = Math.round(val) + " s"; }
+tl.fromTo(c, {a:0}, {a:42, duration:0.8, ease:"power1.out", onUpdate:()=>fmt(v1, c.a)}, 1.85);
+...
+
+Hmm, but tl.fromTo(c, ...) — c is an object; GSAP can tween properties of plain objects. Yes.
+
+But the linter: "use only tl.set / tl.from / tl.fromTo with absolute start times as the 3rd argument" — I'm using tl.fromTo with an absolute start time. The vars include onUpdate — a standard GSAP property. I'll take the risk; it's a common pattern. Alternatively, avoid count up and just fade in. The brief explicitly allows "or fade in". For safety against the linter, maybe fade in the labels? The instructions are strict about the API. onUpdate is part of tween vars, not a separate API call. I think it's fine. Many similar tasks accept count up with onUpdate. Let's go with count up — it's more engaging and the brief lists it first.
+
+Hmm, but one concern: "no Math.random" — Math.round is fine.
+
+Also, the value label should be at the end of the bar. Since the bar animates width, if the label is positioned at the final end, the label appears in the final position while the bar is still growing — with a slight delay, it looks like the number "lands" at the end. Good.
+
+Alternatively, the label could follow the bar tip. That requires the label's x to be animated in sync with the width. I could animate the label's x from -width+something to 0 with the same duration/ease as the bar, so it rides the tip, then count up. That's slick: label starts at x = -(final width) (i.e., at the origin, hidden behind the bar start?) hmm, at t=0 the bar width is 0 and the label is at x=0 offset... Let me think: label final position left = 560 + W + 24. If I set the label's left to 560+24 and animate x from 0 to W with the same duration/ease as the bar, the label rides exactly at the bar's tip (+24 offset). Then, after the bar completes, count up the number. Before counting, show "0 s" or empty? Show "0 s" while riding, then count. Actually, the number counting while riding is even better.
+
+But the label rides over the bar tip area — the label is to the right of the tip, in the dark background, so no overlap issues. During growth, the label is in the dark area to the right of the tip.
+
+For the highlighted one (Explainer), the yellow band rides along too — the band is the background of the span; no problem.
+
+Let's do that:
+- Label element: left: 584px (560+24), top: barTop + (56 - labelH)/2. Label font 30px mono → line height about 30. top = barTop + 13.
+- Animate x: from 0 to W (final width), duration 0.9, same ease as bar, same start time.
+- Count up: start at barStart + 0.3, duration 0.7.
+
+Wait, but the label's initial state: opacity 0 at start, fade in quickly (0.2s) at bar start, then ride. Sequence:
+- t0 = 1.3 + i*0.25
+- bar: fromTo width 0→W, 0.9s, power3.out, at t0
+- label: set opacity 0; to opacity 1 0.25s at t0; fromTo x 0→W 0.9s power3.out at t0
+- count: fromTo counter 0→value, 0.8s, power1.out at t0+0.25
+
+Label final opacity 1. Good.
+
+Row label (left column): fromTo opacity 0, x -12 → 0, 0.4s at t0-0.15.
+
+Grid: 4 vertical lines at x = 560, 880, 1200, 1520, y 370 to 870 (height 500). 1px wide, background rgba(244,244,241,0.10). The x=560 line is the axis — make it 2px, opacity 0.35. Tick labels below at y 880: "0" "20" "40" "60 s" mono 22px, centered on each grid line (left = x - 15, width 30, text-align center). Fade in at 1.0.
+
+Hmm wait, the bar area: bar top 400 to 846. Grid lines from 380 to 860. Tick labels at 880. Footer at 980? Let me check the bottom margin: tick labels at y 880, height about 22 → 902. Footer at 960, within 1080-100=980... 960+26=986, slightly over the 100px margin line (text should be within 100px margin → bottom edge ≤ 980). Move footer to 940? Or drop the footer. Let's skip the footer, or place the unit note at the top right below the logo. Keep it clean: no footer. Actually, a small mono note under the ticks: "seconds per card · bench.json" at y 930, left 160. Bottom edge about 956 ≤ 980. OK, include it, fade in at 3.4.
+
+Hmm, actually let me recompute the vertical layout for balance:
+
+- Eyebrow: top 150
+- Heading: top 195, font 80 → occupies about 195–285
+- Rule: top 310, width 900? Or a short 240px accent. Use width 240, height 6, cyan.
+- Grid top: 380
+- Rows: bar top 400, 530, 660, 790 (height 56)
+- Grid bottom: 860
+- Ticks: 880
+- Note: 935
+
+Total bottom 935+26=961 ≤ 980. Good. Top margin: eyebrow 150 ≥ 100. Good.
+
+Left column labels: left 160, width 340, right-aligned. Bar starts at 560. Gap of 60px between label and bar. Good.
+
+Bar colors: cyan #12A9E6. All bars cyan per the brief. The largest (Explainer) is also cyan — the highlight is just the yellow band behind the value. Maybe make the largest bar slightly brighter? The brief says bars are cyan, and the largest bar is highlighted with a yellow band behind its value. Keep all bars cyan; the band is the highlight.
+
+Value label font: mono 30px, ink color. For the hl span: background var(--y), color #111, padding 2px 10px.
+
+Now the heading: "Render time per card (s)" → uppercased via .h class. Keep the "(s)" — it's part of the title. Fine.
+
+Eyebrow text: "Bench / 04 — card pipeline" or "Performance / card pipeline". Let's use "Bench / 04 · card pipeline". Mono 26px, cyan.
+
+Logo top right: img width 150, left 1610, top 148. Fade in.
+
+Also consider a subtle "MAX" tag near the Explainer row? The yellow band is the highlight; that's enough.
+
+Now let me write the CSS. The file references lib/gw.css which defines the tokens: --c (cyan?), --m (magenta?), --y (yellow), --display, --body, --mono, classes .a (absolute), .h (display heading), .m (mono), .hl (yellow band). The example uses `color:var(--c)` for the cyan eyebrow and `background:var(--m)` for the magenta rule. So the tokens: --c cyan, --m magenta, --y yellow, --ink probably. I'll use var(--c) for cyan, var(--y) for yellow, var(--ink) for ink? The example uses explicit hex in the brand section: ink #F4F4F1. I could use #F4F4F1 directly to be safe, but the tokens probably exist. The brand section says "fonts via CSS variables: var(--display)..." and mentions the .hl class. For colors, the example uses var(--c) and var(--m). Use var(--c), var(--y), var(--m), and #F4F4F1 for ink (safe), or var(--ink) — risky if undefined. Use #F4F4F1 for ink.
+
+Wait, the example rule uses background var(--m) (magenta). For my rule accent, use cyan var(--c) — fine.
+
+Grid line color: rgba(244,244,241,0.10) — fine (not a gradient).
+
+Now the GSAP timeline. Elements and IDs:
+
+- #eyebrow (m)
+- #title (h)
+- #rule
+- #logo (img)
+- Grid lines: #g1..#g4 (axis g0 is separate?) let's do 4 lines: x=560 (axis, class axis), 880, 1200, 1520. IDs g0..g3.
+- Ticks: #t0..#t3 (labels "0" "20" "40" "60 s")
+- Rows: for i 1..4: #rl1..#rl4 (row labels), #bar1..#bar4, #vl1..#vl4 (value labels)
+- #note
+
+Bar widths: W = value * 16:
+- 42 → 672
+- 58 → 928
+- 51 → 816
+- 23 → 368
+
+Bar element: position absolute, left 560, top as above, height 56, width set via GSAP (initial width 0 via tl.set or fromTo). Set style width:0? Rule 4: don't put a CSS transform on elements GSAP animates; width is fine. Set initial width:0 in CSS? "Set initial hidden state with tl.set or fromTo, not with CSS transform" — width 0 is not a transform; but for safety, use tl.fromTo(bar, {width:0}, {width:W...}). CSS width can be 0 or unset. Let me set width:0 in CSS as a fallback and also fromTo.
+
+Value label initial: opacity 0 via tl.set (or fromTo). Set opacity:0 in CSS? The rule says set initial hidden state with tl.set or fromTo, not CSS transform — opacity 0 in CSS is definitely fine, but the example uses opacity:0 in CSS. The example itself sets opacity:0 in the style attribute. OK, I'll do the same.
+
+Timeline:
+
+tl.set initial states are mostly covered by CSS opacity 0.
+
+- 0.15: eyebrow: fromTo {opacity:0,y:12} → {opacity:1,y:0} 0.4
+- 0.3: title: fromTo {opacity:0,y:36} → 1,0 0.6 power2.out
+- 0.55: logo: fromTo {opacity:0} → 1 0.5
+- 0.7: rule: fromTo {scaleX:0} → {scaleX:1} 0.6 power2.inOut (transform-origin left center in CSS)
+- 0.9: grid lines g0..g3: to opacity 1 (final opacity in CSS? Set the final opacity in CSS, e.g. 0.10, and animate from 0). Use fromTo {opacity:0} → {opacity:1, duration:0.6} — but the element's CSS opacity is 1 and color is rgba .10. Simpler: element's CSS opacity 1 with rgba background; animate element opacity 0→1. Ticks: fromTo {opacity:0, y:8} → 1,0 0.5, stagger 0.06 at 1.0.
+- Rows: t0(i) = 1.35 + i*0.28 (i=0..3) → 1.35, 1.63, 1.91, 2.19
+  - Row label: fromTo {opacity:0, x:-14} → {opacity:1, x:0} 0.35 at t0-0.12
+  - Bar: fromTo {width:0} → {width:W} 0.85 power3.out at t0
+  - Value label: set opacity 0 (CSS). to {opacity:1} 0.2 at t0. fromTo {x:0} → {x:W} 0.85 power3.out at t0.
+  - Count: fromTo proxy {v:0} → {v:val} 0.8 power1.out at t0+0.2, onUpdate sets text.
+- 3.6: note: fromTo {opacity:0, y:10} → 1,0 0.5
+- Hold until 8.
+
+Last bar ends at 2.19+0.85=3.04; count ends at 2.39+0.8=3.19. Note at 3.6. Total 8s — hold 4.8s. A bit long but fine; maybe add a subtle pulse to the yellow band at about 4.2? A gentle scale pulse: fromTo band scaleX 1→1.06→1? Keep it simple: a single subtle pulse: tl.to("#vl2", {scale:1.04, duration:0.3, yoyo? no repeat...}) — no repeat allowed. Use two tweens: to scale 1.05 at 4.2 (0.25s), to scale 1 at 4.5 (0.4s). Ends at scale 1, opacity 1. Safe. Actually, the value label has an x animation; animating scale on the same element is fine (GSAP handles x and scale together). transform-origin left center.
+
+Hmm, but the label rides with x; after the ride, x is at final W. Scaling from left center keeps the left edge fixed. Fine.
+
+Or skip the pulse. Let's include a small pulse for life.
+
+Also, an "axis" baseline at the bottom? Not needed.
+
+Counter proxy: single object with a,b,c,d.
+
+const c = {a:0,b:0,c:0,d:0};
+const $ = id => document.getElementById(id);
+const v1=$("vl1"), v2=$("vl2"), v3=$("vl3"), v4=$("vl4");
+
+Wait, the value label element: for the highlighted one, the text is inside the .hl span. If I animate the outer span's x, the inner hl rides along. The count-up text is inside the inner span. So:
+
+<div class="a" id="vl2" style="left:584px; top:543px; opacity:0"><span class="hl" id="v2t">0 s</span></div>
+
+Count-up updates #v2t.
+
+The others: <div class="a m" id="vl1" ...>0 s</div> — update textContent directly.
+
+Font for values: mono 30px. .m class is probably uppercase labels; mono font. Fine.
+
+Row label text: "Title" → uppercased via .m? The .m class is "uppercase labels" per the brand section. So .m uppercases. So I can write "Title" and it displays as TITLE. But for safety, write uppercase text directly? If .m applies text-transform:uppercase, either works. Let me write the label text as given (Title, Explainer, Chart, Lower third) and let .m uppercase it. Hmm, risk: if .m doesn't uppercase, the mixed-case display is still fine. Write the labels in the case as given in the JSON.
+
+Heading: .h class uppercases. Write "Render time per card (s)".
+
+Eyebrow: "Bench / 04 · card pipeline" — .m uppercases.
+
+Now the exact top positions:
+
+Bar tops: 400, 530, 660, 790. Bar height 56.
+Row label top = barTop + 14 (26px mono → center: (56-26)/2=15). Use 15.
+Value label top = barTop + 13 (30px → (56-30)/2=13).
+
+Grid lines: top 380, height 480 (380→860).
+Ticks: top 878.
+Note: top 940, left 560? Note about the unit: "unit: s · bench.json". Place at left 560, top 935. Bottom edge about 961. OK.
+
+Actually, the note might be better at the bottom left (160). But it aligns with the chart at 560. Either works. Let me use left 160: "unit: s · source: bench.json".
+
+Hmm, the note text is mono 22px.
+
+Tick label positions: grid x: 560, 880, 1200, 1520. Label center: left = x-20, width 40, text-align:center. "60 s" might be wider than 40px at 22px mono (about 13px per char → "60 s" = 4 chars ≈ 52px). Width 60, left = x-30.
+
+Check overlap: tick "60 s" at 1490–1550. Fine.
+
+Logo: assets/logo-negative.png, width 150. top 150, left 1620. 1620+150=1770 ≤ 1820. Good.
+
+Now the heading width check at 80px: "RENDER TIME PER CARD (S)" — 24 chars. At 80px display, uppercase about 53px/char → 1272px → ends at 1432 < 1620 (logo). Good.
+
+Eyebrow at 160, top 150. Logo at 1620, top 150. No overlap.
+
+Rule: left 160, top 312, width 240, height 6, background var(--c).
+
+Wait, heading top 195, font 80 → cap height about 58, baseline about 195+58=253, descender to about 265. Rule at 312. Spacing fine.
+
+Grid top 380 — gap from rule 312+6=318 to 380 = 62. Fine.
+
+Now let me write the timeline code.
+
+const tl = gsap.timeline({ paused: true });
+
+// header
+tl.fromTo("#eyebrow", {opacity:0, y:12}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 0.15);
+tl.fromTo("#title", {opacity:0, y:36}, {opacity:1, y:0, duration:0.6, ease:"power2.out"}, 0.3);
+tl.fromTo("#logo", {opacity:0}, {opacity:1, duration:0.5}, 0.55);
+tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.6, ease:"power2.inOut"}, 0.7);
+
+// grid
+tl.fromTo("#g0", {opacity:0}, {opacity:1, duration:0.5}, 0.9);
+tl.fromTo("#g1", {opacity:0}, {opacity:1, duration:0.5}, 0.95);
+tl.fromTo("#g2", {opacity:0}, {opacity:1, duration:0.5}, 1.0);
+tl.fromTo("#g3", {opacity:0}, {opacity:1, duration:0.5}, 1.05);
+tl.fromTo("#ticks", {opacity:0, y:8}, {opacity:1, y:0, duration:0.5, ease:"power2.out"}, 1.0);
+
+Wait, #ticks would be a container? I said the ticks are separate elements. Group them in a wrapper div (position absolute, no transform on children... the wrapper's transform is fine, the wrapper isn't otherwise animated). Wrapper #ticks at left 0 top 0 with 4 absolutely-positioned children. Animate the wrapper's opacity/y. Good.
+
+Similarly, the grid lines can be individual.
+
+// rows
+const rows = [
+  {label:"#rl1", bar:"#bar1", val:"#vl1", txt:"#v1t", w:672, v:42, t:1.35},
+  ...
+];
+
+But the rules say use only tl.set/to/from/fromTo with absolute start times — a loop that calls tl.fromTo with computed absolute times is fine (the times are absolute numbers). But maybe the linter is static? "Use only tl.set / tl.from / tl.fromTo with absolute start times as the 3rd argument" — a loop still calls those methods with absolute start times (computed constants). To be maximally safe against a static linter, write it out explicitly without a loop? A static linter can't easily check loop contents anyway. Let me write it out explicitly — clearer and safer.
+
+Row 1 (Title, 42, W=672, t=1.35):
+tl.fromTo("#rl1", {opacity:0, x:-14}, {opacity:1, x:0, duration:0.35, ease:"power2.out"}, 1.23);
+tl.fromTo("#bar1", {width:0}, {width:672, duration:0.85, ease:"power3.out"}, 1.35);
+tl.to("#vl1", {opacity:1, duration:0.2}, 1.35);
+tl.fromTo("#vl1", {x:0}, {x:672, duration:0.85, ease:"power3.out"}, 1.35);
+tl.fromTo(cnt, {a:0}, {a:42, duration:0.8, ease:"power1.out", onUpdate:()=>{v1t.textContent = Math.round(cnt.a)+" s";}}, 1.55);
+
+Wait — two tweens on #vl1: to opacity and fromTo x. Both fine.
+
+Hmm, but the count-up: the text "0 s" is already there. When the ride starts, the label fades in at x=0 (near the bar origin, left of the bar start... actually, the label's left is 584 = bar start +24. At x=0, the label is at 584, just to the right of the bar's origin, and the bar is just starting to grow from 560. The label sits right at the tip. Nice.
+
+But wait: the label at x=0 is at 584–584+width. The bar at that moment is about 0 wide. The label is visible over the dark background. Good.
+
+Row 2 (Explainer, 58, W=928, t=1.63):
+tl.fromTo("#rl2", ..., 1.51);
+tl.fromTo("#bar2", {width:0}, {width:928, duration:0.85, ease:"power3.out"}, 1.63);
+tl.to("#vl2", {opacity:1, duration:0.2}, 1.63);
+tl.fromTo("#vl2", {x:0}, {x:928, duration:0.85, ease:"power3.out"}, 1.63);
+tl.fromTo(cnt, {b:0}, {b:58, duration:0.8, ease:"power1.out", onUpdate:()=>{v2t.textContent = Math.round(cnt.b)+" s";}}, 1.83);
+
+Row 3 (Chart, 51, W=816, t=1.91):
+... 1.79, 1.91, 1.91, 1.91, 2.11
+
+Row 4 (Lower third, 23, W=368, t=2.19):
+... 2.07, 2.19, 2.19, 2.19, 2.39
+
+Note: tl.fromTo(cnt, ...) — cnt is an object, not a selector. Fine.
+
+Pulse on the highlight:
+tl.to("#vl2", {scale:1.06, duration:0.25, ease:"power2.out"}, 4.2);
+tl.to("#vl2", {scale:1, duration:0.45, ease:"power2.inOut"}, 4.45);
+
+Note:
+tl.fromTo("#note", {opacity:0, y:10}, {opacity:1, y:0, duration:0.5, ease:"power2.out"}, 3.6);
+
+End: everything at opacity 1 by about 4.9, hold until 8.
+
+Duration: 8. data-duration="8".
+
+One concern: the count-up's onUpdate writes textContent — deterministic, no randomness. Good.
+
+Another concern: the value label's x animation and the count-up changing text width — the label grows to the right, no problem.
+
+The .hl band: padding 2px 12px, background var(--y), color #111, display inline-block. The outer #vl2 is a div with mono font 30px.
+
+Wait: the .hl class is defined in gw.css as "yellow band behind #111 text (class hl, text is #111)". So .hl probably already has the background and color. I'll rely on it, but should I also add padding? If gw.css's .hl has no padding, the text touches the edges. I can add a small CSS rule in the file: .hl { padding: 2px 12px; } — does that override/extend? A later stylesheet rule with the same specificity overrides. gw.css is linked in the head before my inline <style>, so my .hl padding rule wins for padding. Safe.
+
+Also, make sure the .hl span is inline-block so the background hugs the text.
+
+Now, the CSS for the bars: background var(--c). Sharp corners.
+
+Grid line style: width 1px (axis 2px), background rgba(244,244,241,0.12); axis: rgba(244,244,241,0.35).
+
+Tick text: mono 22px, color rgba(244,244,241,0.55).
+
+Row label: mono 26px, color #F4F4F1, right-aligned. Maybe a dimmer color for the labels: rgba(244,244,241,0.85).
+
+Value label: mono 30px, color #F4F4F1.
+
+Heading: font-size 80px. .h class handles family/weight/uppercase/letter-spacing.
+
+Eyebrow: mono 26px, color var(--c).
+
+Note: mono 22px, color rgba(244,244,241,0.5).
+
+Let me double-check the top positions:
+
+- eyebrow top 150 (26px → bottom 176)
+- title top 195 (80px → bottom about 275)
+- rule top 312 (6px)
+- grid top 380
+- bar1 top 400 (bottom 456)
+- bar2 top 530 (bottom 586)
+- bar3 top 660 (bottom 716)
+- bar4 top 790 (bottom 846)
+- grid bottom 860
+- ticks top 878 (bottom about 900)
+- note top 935 (bottom about 957)
+
+Spacing between bars: 530-456=74. Consistent. Good.
+
+Row label tops: 415, 545, 675, 805 (barTop+15).
+Value label tops: 413, 543, 673, 803 (barTop+13).
+
+Left column: labels at left 160, width 340, text-align right. "LOWER THIRD" at 26px mono: 11 chars × about 15.6px ≈ 172px. Fits in 340.
+
+Bar left 560.
+
+Value label left 584 (560+24).
+
+Final x of value labels: 672, 928, 816, 368 → final left edges: 1256, 1512, 1400, 952. "58 s" at 30px mono ≈ 4 chars × 18 = 72 + padding 24 = about 96 → 1512+96=1608 ≤ 1820. Good.
+
+Grid x positions: 560 (axis), 880 (20s), 1200 (40s), 1520 (60s). Max bar 928 → ends at 1488 < 1520 (60s line). Good, 58 < 60. ✓
+
+Tick labels: "0" at 560, "20" at 880, "40" at 1200, "60 s" at 1520.
+Wrapper #ticks: children at left x-30, width 60, text-align center, top 878.
+
+Logo img: left 1620, top 150, width 150, height auto. Opacity 0 initially.
+
+Now, is there a risk that the logo overlaps the tick "60 s" (1490–1550, y 878)? Logo at y 150–about 210. No.
+
+Does the logo overlap the heading? Heading ends at about 1432. Logo at 1620. No.
+
+Everything within margins: left 160 ≥ 100 ✓; right max 1800 (logo) ≤ 1820 ✓; top 150 ≥ 100 ✓; bottom 957 ≤ 980 ✓.
+
+Now let me write the HTML.
+
+Also: "every visible element is a child of it" — the logo img is a child of root. Good.
+
+Script:
+
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+const cnt = { a: 0, b: 0, c: 0, d: 0 };
+const v1t = document.getElementById("v1t");
+const v2t = document.getElementById("v2t");
+const v3t = document.getElementById("v3t");
+const v4t = document.getElementById("v4t");
+
+Then the tweens.
+
+For the value label divs, give the inner span an id for the count-up:
+<div class="a m" id="vl1" style="left:584px;top:413px;font-size:30px;color:#F4F4F1;opacity:0"><span id="v1t">0 s</span></div>
+
+Hmm, .m on the value label: uppercase — "0 s" becomes "0 S". Hmm, the unit "s" uppercased → "S". That's fine/typical. Or drop .m and use font-family var(--mono) directly. Use .m for consistency; "42 S" is fine. Actually, mono uppercase "S" is fine.
+
+Wait, .m might set letter-spacing etc. Fine.
+
+Row label divs:
+<div class="a m" id="rl1" style="left:160px;top:415px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Title</div>
+
+Bar divs:
+<div class="a" id="bar1" style="left:560px;top:400px;width:0;height:56px;background:var(--c)"></div>
+
+Grid:
+<div class="a" id="g0" style="left:560px;top:380px;width:2px;height:480px;background:rgba(244,244,241,0.35);opacity:0"></div>
+<div class="a" id="g1" style="left:880px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+<div class="a" id="g2" style="left:1200px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+<div class="a" id="g3" style="left:1520px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+
+Ticks wrapper:
+<div class="a" id="ticks" style="left:0;top:0;width:1920px;height:1080px;opacity:0">
+  <div class="a m" style="left:530px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">0</div>
+  ... 850, 1170, 1490
+</div>
+
+Note: children of #ticks are absolute within it (position absolute relative to the nearest positioned ancestor — #ticks is .a (absolute), so children are positioned relative to it. left 530 = 560-30. Good.
+
+Wait, the tick "0" at 560-30=530. "20" at 880-30=850. "40" at 1200-30=1170. "60 s" at 1520-30=1490.
+
+Note element:
+<div class="a m" id="note" style="left:160px;top:935px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">unit: s · source: bench.json</div>
+
+Eyebrow:
+<div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:26px;color:var(--c);opacity:0">Bench / 04 · card pipeline</div>
+
+Title:
+<div class="a h" id="title" style="left:160px;top:195px;font-size:80px;opacity:0">Render time per card (s)</div>
+
+Rule:
+<div class="a" id="rule" style="left:160px;top:312px;width:240px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+Logo:
+<img class="a" id="logo" src="assets/logo-negative.png" style="left:1620px;top:150px;width:150px;opacity:0" alt="" />
+
+hl span:
+<div class="a m" id="vl2" style="left:584px;top:543px;font-size:30px;opacity:0"><span class="hl" id="v2t">0 s</span></div>
+
+CSS additions:
+.hl { display:inline-block; padding:2px 14px; }
+img { display:block; }
+
+Now the full timeline code:
+
+tl.fromTo("#eyebrow", {opacity:0, y:12}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 0.15);
+tl.fromTo("#title", {opacity:0, y:36}, {opacity:1, y:0, duration:0.6, ease:"power2.out"}, 0.3);
+tl.fromTo("#logo", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.out"}, 0.55);
+tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.6, ease:"power2.inOut"}, 0.7);
+tl.fromTo("#g0", {opacity:0}, {opacity:1, duration:0.5}, 0.9);
+tl.fromTo("#g1", {opacity:0}, {opacity:1, duration:0.5}, 0.95);
+tl.fromTo("#g2", {opacity:0}, {opacity:1, duration:0.5}, 1.0);
+tl.fromTo("#g3", {opacity:0}, {opacity:1, duration:0.5}, 1.05);
+tl.fromTo("#ticks", {opacity:0, y:8}, {opacity:1, y:0, duration:0.5, ease:"power2.out"}, 1.05);
+
+Row 1:
+tl.fromTo("#rl1", {opacity:0, x:-14}, {opacity:1, x:0, duration:0.35, ease:"power2.out"}, 1.23);
+tl.fromTo("#bar1", {width:0}, {width:672, duration:0.85, ease:"power3.out"}, 1.35);
+tl.fromTo("#vl1", {opacity:0, x:0}, {opacity:1, x:672, duration:0.85, ease:"power3.out"}, 1.35);
+
+Hmm — combining opacity 0.2 fade with the 0.85 x ride in a single fromTo: opacity would reach 1 at 0.85s, not 0.2. I want a quick fade + ride. Use two tweens:
+tl.to("#vl1", {opacity:1, duration:0.2, ease:"power1.out"}, 1.35);
+tl.fromTo("#vl1", {x:0}, {x:672, duration:0.85, ease:"power3.out"}, 1.35);
+
+Both allowed.
+
+tl.fromTo(cnt, {a:0}, {a:42, duration:0.8, ease:"power1.out", onUpdate:()=>{ v1t.textContent = Math.round(cnt.a) + " s"; }}, 1.55);
+
+Row 2 (t=1.63):
+tl.fromTo("#rl2", {opacity:0, x:-14}, {opacity:1, x:0, duration:0.35, ease:"power2.out"}, 1.51);
+tl.fromTo("#bar2", {width:0}, {width:928, duration:0.85, ease:"power3.out"}, 1.63);
+tl.to("#vl2", {opacity:1, duration:0.2, ease:"power1.out"}, 1.63);
+tl.fromTo("#vl2", {x:0}, {x:928, duration:0.85, ease:"power3.out"}, 1.63);
+tl.fromTo(cnt, {b:0}, {b:58, duration:0.8, ease:"power1.out", onUpdate:()=>{ v2t.textContent = Math.round(cnt.b) + " s"; }}, 1.83);
+
+Row 3 (t=1.91):
+tl.fromTo("#rl3", ..., 1.79);
+tl.fromTo("#bar3", {width:0}, {width:816, duration:0.85, ease:"power3.out"}, 1.91);
+tl.to("#vl3", {opacity:1, duration:0.2, ease:"power1.out"}, 1.91);
+tl.fromTo("#vl3", {x:0}, {x:816, duration:0.85, ease:"power3.out"}, 1.91);
+tl.fromTo(cnt, {c:0}, {c:51, duration:0.8, ease:"power1.out", onUpdate:()=>{ v3t.textContent = Math.round(cnt.c) + " s"; }}, 2.11);
+
+Row 4 (t=2.19):
+tl.fromTo("#rl4", ..., 2.07);
+tl.fromTo("#bar4", {width:0}, {width:368, duration:0.85, ease:"power3.out"}, 2.19);
+tl.to("#vl4", {opacity:1, duration:0.2, ease:"power1.out"}, 2.19);
+tl.fromTo("#vl4", {x:0}, {x:368, duration:0.85, ease:"power3.out"}, 2.19);
+tl.fromTo(cnt, {d:0}, {d:23, duration:0.8, ease:"power1.out", onUpdate:()=>{ v4t.textContent = Math.round(cnt.d) + " s"; }}, 2.39);
+
+Note:
+tl.fromTo("#note", {opacity:0, y:10}, {opacity:1, y:0, duration:0.5, ease:"power2.out"}, 3.6);
+
+Pulse:
+tl.to("#vl2", {scale:1.06, duration:0.25, ease:"power2.out"}, 4.3);
+tl.to("#vl2", {scale:1, duration:0.5, ease:"power2.inOut"}, 4.55);
+
+window.__timelines["main"] = tl;
+
+Wait — one issue: the initial state of #vl1..#vl4 is opacity 0 in CSS; the first tween is `tl.to(..., {opacity:1})` — fine.
+
+Another check: rule 3 says "use only tl.set / tl.from / tl.fromTo" — I'm using tl.to. Is tl.to allowed? "Use only tl.set / tl.from / tl.fromTo with absolute start times as the 3rd argument." Hmm — tl.to is not in the list! The example uses tl.to for the eyebrow: `tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);`. So the example itself uses tl.to. The list probably means "tween methods" (set/from/to/fromTo). Since the example uses tl.to, it's allowed. Good.
+
+But to be safe, I could replace `tl.to("#vl1", {opacity:1...})` with `tl.fromTo("#vl1", {opacity:0}, {opacity:1, duration:0.2}, 1.35)`. That's cleaner and strictly within the listed set (set/from/to/fromTo — to is used in the example anyway). Let me use fromTo for the opacity fades to stay within the strictest reading.
+
+Also, the pulse uses tl.to — the example uses tl.to, fine. But I could write the pulse as fromTo: tl.fromTo("#vl2", {scale:1}, {scale:1.06, duration:0.25...}, 4.3); tl.to("#vl2", {scale:1, ...}, 4.55). Keep tl.to there (allowed by the example).
+
+Actually, for maximum safety, use fromTo everywhere except where tl.to is demonstrated in the example. The pulse return could be fromTo {scale:1.06} → {scale:1}. Either way. Let me use fromTo for the pulse too. Fine.
+
+Another consideration: the count-up's onUpdate — the linter's forbidden list: repeat:-1, Math.random, Date.now, setTimeout, requestAnimationFrame, CSS animations/transitions. onUpdate is not forbidden. Good.
+
+Also "no CSS transitions" — I haven't added any.
+
+Font check: heading .h is probably font-family var(--display). Fine.
+
+Edge: `tl.fromTo(cnt, {a:0}, ...)` — cnt is an object reference; GSAP tweens its property. Works.
+
+Also, make sure the initial text "0 s" is present so the label has width before the count-up.
+
+Bar color: all cyan var(--c). The largest bar could be slightly different — the brief says cyan bars, and the highlight is the band. Keep them all cyan.
+
+Title text: "Render time per card (s)" — includes "(s)". .h uppercases → "RENDER TIME PER CARD (S)". Good.
+
+Eyebrow: "Bench / 04 · card pipeline" — the middle dot is fine (not an emoji).
+
+Note: "unit: s · source: bench.json".
+
+Hmm, "bench.json" — the data is "a small JSON". Fine.
+
+Now, the .hl padding override: gw.css defines .hl (background var(--y), color #111). My inline <style> after the link adds .hl { display:inline-block; padding:2px 14px; }. Since my style tag comes after the link, it wins for those properties. Good.
+
+Also, make sure the body has no default margin? gw.css probably resets it. Add body { margin:0; } to my style for safety.
+
+Also, #root is probably positioned by gw.css? The example doesn't style #root beyond the class. Children are absolute — relative to root if root is positioned, otherwise to the viewport. The example relies on this working; gw.css probably sets #root{position:relative}. To be safe, add #root { position:relative; width:1920px; height:1080px; overflow:hidden; } to my style. That's safe and doesn't conflict.
+
+Let me also double-check the value label vertical alignment with the 30px font: top = barTop + 13. Bar 1: 413. OK.
+
+Also, the "60 s" tick: at 22px mono, "60 s" is about 4 chars × 13.2 = 53px, width 60 — fits.
+
+Let me reconsider the heading size: 80px might be small for a 1920 canvas; 96px? 24 chars × 64 = 1536 → ends at 1696 > 1620 (logo left). Overlaps the logo. Keep 80px. Or move the logo higher? Logo at top 150, heading at 195 — different rows, but the heading's line box at 80px is about 195–275; the logo is 150–210 and x 1620–1770. The heading text ends at 1432 < 1620. No overlap even at 96px (ends at 1696 > 1620 → overlap). So 80px. Good.
+
+Actually, wait: at 80px, uppercase width about 53px/char is an estimate (150px → 100px/char, so 80px → 53.3px). "RENDER TIME PER CARD (S)": let me count: R-E-N-D-E-R(6) space(7) T-I-M-E(11) space(12) P-E-R(15) space(16) C-A-R-D(20) space(21) ((22) S(23) )(24). 24 chars. Spaces and parens are narrower. About 20 full chars × 53 + 4 narrow × 25 ≈ 1060+100 = 1160. Ends at about 1320. Plenty of room.
+
+Now, is the logo needed? It adds brand polish. assets/logo-negative.png exists. Include it.
+
+Final check of the rules:
+
+1. Link gw.css and gsap exactly. ✓ No CDN.
+2. One root div with data attributes, duration 8. ✓
+3. One paused timeline registered. Only set/fromTo/to (to is used in the example). Absolute start times. No repeat, no random, no Date, no setTimeout, no rAF, no CSS animations. ✓
+4. No CSS transform on GSAP-animated elements: #rule has transform-origin (allowed). #vl2 is animated with x and scale — no CSS transform on it. #ticks is animated with y — no CSS transform. ✓
+5. .a absolute with left/top/width in px. Text within 100px margin. No overlap. ✓ (row labels and bars: labels end at 500, bars start at 560.)
+6. Icons inline SVG — I have no icons; the logo is a PNG asset (allowed since the project has it). The rule says don't load external icons — the logo is a local asset, fine.
+7. Everything visible at the end is at opacity 1 at the hold frame. ✓ (all fades complete by about 5.1s.)
+
+One more: the value label's x ride — at the end, #vl1's x=672, etc. Final left edge = 584+672=1256. ✓.
+
+Also, the bar width is animated — width is in the allowed list. ✓
+
+Potential issue: `tl.fromTo(cnt, {a:0}, {a:42, ...})` — the from vars {a:0} set the property; fine.
+
+The onUpdate arrow function references v1t etc. defined earlier. ✓
+
+Let me also consider that the value label rides at the bar tip during the bar's growth: the label is at x = current bar width, so the label's left edge is at 584 + w(t). The bar's right edge is at 560 + w(t). The gap is 24px. The label rides just to the right of the tip.
+
+During the ride, the label is over the grid lines — fine, the text is over thin lines.
+
+The label "0 s" during the count-up starts at 1.55 (bar 1) — the bar is still growing until 2.2. The label rides while counting.
+
+Now, the note: "unit: s · source: bench.json" — hmm, "source: bench.json" is invented. Maybe "unit: s · n = 4 cards". That's derived from the data (4 rows). Use "unit: s · n = 4 cards". Good, grounded in the data.
+
+Eyebrow: "Bench / 04 · card pipeline" — "04" refers to 4 cards. Fine.
+
+Let me write the final file.
+
+Also, set the html/body background to #0E0E0E? "background #0E0E0E (body already)" — the body is already dark per the brief. Don't override; but adding body{background:#0E0E0E} is harmless and safe. gw.css probably sets it. Add margin:0 to body.
+
+Font sizes: eyebrow 26, heading 80, row label 26, value 30, tick 22, note 22.
+
+Colors: ink #F4F4F1, cyan var(--c), yellow var(--y) via .hl.
+
+Write the code.
+
+One more consideration on the linter: "use only tl.set / tl.from / tl.fromTo with absolute start times as the 3rd argument" — my tl.to calls: the example uses them, so it's fine. But I converted the vl opacity to fromTo. The pulse uses tl.to → let me make it fromTo:
+
+tl.fromTo("#vl2", {scale:1}, {scale:1.06, duration:0.25, ease:"power2.out"}, 4.3);
+tl.fromTo("#vl2", {scale:1.06}, {scale:1, duration:0.5, ease:"power2.inOut"}, 4.55);
+
+Now I'm using only fromTo everywhere.
+
+Double-check: no CSS transition/animation. ✓
+
+Final HTML:
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  body { margin: 0; }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+  .hl { display: inline-block; padding: 2px 14px; }
+  img { display: block; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="" style="left:1620px;top:150px;width:150px;opacity:0" />
+
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:26px;color:var(--c);opacity:0">Bench / 04 · card pipeline</div>
+  <div class="a h" id="title" style="left:160px;top:195px;font-size:80px;opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:160px;top:312px;width:240px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a" id="g0" style="left:560px;top:380px;width:2px;height:480px;background:rgba(244,244,241,0.35);opacity:0"></div>
+  <div class="a" id="g1" style="left:880px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="g2" style="left:1200px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="g3" style="left:1520px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+
+  <div class="a" id="ticks" style="left:0;top:0;width:1920px;height:1080px;opacity:0">
+    <div class="a m" style="left:530px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">0</div>
+    <div class="a m" style="left:850px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">20</div>
+    <div class="a m" style="left:1170px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">40</div>
+    <div class="a m" style="left:1490px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">60 s</div>
+  </div>
+
+  <div class="a m" id="rl1" style="left:160px;top:415px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Title</div>
+  <div class="a" id="bar1" style="left:560px;top:400px;width:0;height:56px;background:var(--c)"></div>
+  <div class="a m" id="vl1" style="left:584px;top:413px;font-size:30px;color:#F4F4F1;opacity:0"><span id="v1t">0 s</span></div>
+
+  <div class="a m" id="rl2" style="left:160px;top:545px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Explainer</div>
+  <div class="a" id="bar2" style="left:560px;top:530px;width:0;height:56px;background:var(--c)"></div>
+  <div class="a m" id="vl2" style="left:584px;top:543px;font-size:30px;opacity:0"><span class="hl" id="v2t">0 s</span></div>
+
+  <div class="a m" id="rl3" style="left:160px;top:675px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Chart</div>
+  <div class="a" id="bar3" style="left:560px;top:660px;width:0;height:56px;background:var(--c)"></div>
+  <div class="a m" id="vl3" style="left:584px;top:673px;font-size:30px;color:#F4F4F1;opacity:0"><span id="v3t">0 s</span></div>
+
+  <div class="a m" id="rl4" style="left:160px;top:805px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Lower third</div>
+  <div class="a" id="bar4" style="left:560px;top:790px;width:0;height:56px;background:var(--c)"></div>
+  <div class="a m" id="vl4" style="left:584px;top:803px;font-size:30px;color:#F4F4F1;opacity:0"><span id="v4t">0 s</span></div>
+
+  <div class="a m" id="note" style="left:160px;top:935px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">unit: s · n = 4 cards</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  const cnt = { a: 0, b: 0, c: 0, d: 0 };
+  const v1t = document.getElementById("v1t");
+  const v2t = document.getElementById("v2t");
+  const v3t = document.getElementById("v3t");
+  const v4t = document.getElementById("v4t");
+
+  // header
+  tl.fromTo("#eyebrow", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+  tl.fromTo("#title", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.3);
+  tl.fromTo("#logo", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.55);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.7);
+
+  // grid
+  tl.fromTo("#g0", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.9);
+  tl.fromTo("#g1", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.95);
+  tl.fromTo("#g2", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 1.0);
+  tl.fromTo("#g3", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 1.05);
+  tl.fromTo("#ticks", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.05);
+
+  // row 1 — Title 42 s (672px)
+  tl.fromTo("#rl1", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.23);
+  tl.fromTo("#bar1", { width: 0 }, { width: 672, duration: 0.85, ease: "power3.out" }, 1.35);
+  tl.fromTo("#vl1", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, 1.35);
+  tl.fromTo("#vl1", { x: 0 }, { x: 672, duration: 0.85, ease: "power3.out" }, 1.35);
+  tl.fromTo(cnt, { a: 0 }, { a: 42, duration: 0.8, ease: "power1.out", onUpdate: function () { v1t.textContent = Math.round(cnt.a) + " s"; } }, 1.55);
+
+  // row 2 — Explainer 58 s (928px) — max, yellow band
+  tl.fromTo("#rl2", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.51);
+  tl.fromTo("#bar2", { width: 0 }, { width: 928, duration: 0.85, ease: "power3.out" }, 1.63);
+  tl.fromTo("#vl2", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, 1.63);
+  tl.fromTo("#vl2", { x: 0 }, { x: 928, duration: 0.85, ease: "power3.out" }, 1.63);
+  tl.fromTo(cnt, { b: 0 }, { b: 58, duration: 0.8, ease: "power1.out", onUpdate: function () { v2t.textContent = Math.round(cnt.b) + " s"; } }, 1.83);
+
+  // row 3 — Chart 51 s (816px)
+  tl.fromTo("#rl3", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.79);
+  tl.fromTo("#bar3", { width: 0 }, { width: 816, duration: 0.85, ease: "power3.out" }, 1.91);
+  tl.fromTo("#vl3", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, 1.91);
+  tl.fromTo("#vl3", { x: 0 }, { x: 816, duration: 0.85, ease: "power3.out" }, 1.91);
+  tl.fromTo(cnt, { c: 0 }, { c: 51, duration: 0.8, ease: "power1.out", onUpdate: function () { v3t.textContent = Math.round(cnt.c) + " s"; } }, 2.11);
+
+  // row 4 — Lower third 23 s (368px)
+  tl.fromTo("#rl4", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.07);
+  tl.fromTo("#bar4", { width: 0 }, { width: 368, duration: 0.85, ease: "power3.out" }, 2.19);
+  tl.fromTo("#vl4", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, 2.19);
+  tl.fromTo("#vl4", { x: 0 }, { x: 368, duration: 0.85, ease: "power3.out" }, 2.19);
+  tl.fromTo(cnt, { d: 0 }, { d: 23, duration: 0.8, ease: "power1.out", onUpdate: function () { v4t.textContent = Math.round(cnt.d) + " s"; } }, 2.39);
+
+  // footnote + highlight pulse
+  tl.fromTo("#note", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.6);
+  tl.fromTo("#vl2", { scale: 1 }, { scale: 1.06, duration: 0.25, ease: "power2.out" }, 4.3);
+  tl.fromTo("#vl2", { scale: 1.06 }, { scale: 1, duration: 0.5, ease: "power2.inOut" }, 4.55);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+
+Wait: two fromTo tweens on #vl1 at the same time (opacity and x) — GSAP handles multiple tweens on different properties of the same element fine.
+
+One subtle thing: #vl2's pulse fromTo {scale:1.06} — at 4.55, the previous tween ended at 4.55 with scale 1.06. Continuous. Good.
+
+Check: the value labels' .m class uppercases "0 s" → "0 S". Fine.
+
+Also, the row label "Lower third" → "LOWER THIRD". At 26px mono, 11 chars ≈ 11×15.6=172px < 340. ✓
+
+The heading's .h class: uppercase, heavy, wide. ✓
+
+All within 8 seconds; the timeline's last event ends at 5.05; the hold until 8 keeps everything at the final state. ✓
+
+I think this is complete. Let me double-check rule 5: "size the boxes so the text fits on the line" — the value labels have no width constraint (auto). The row labels have width 340 with right-align. The ticks have width 60. Fine.
+
+Also, "keep all text within the canvas with at least 100px margin" — the ticks are at y 878–900, x 530–1550, fine. The note's bottom edge about 957. The logo's right edge 1770. ✓
+
+Done. I'll write the final answer as a single html code block with no extra text.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  body { margin: 0; }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+  .hl { display: inline-block; padding: 2px 14px; }
+  img { display: block; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="" style="left:1620px;top:150px;width:150px;opacity:0" />
+
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:26px;color:var(--c);opacity:0">Bench / 04 · card pipeline</div>
+  <div class="a h" id="title" style="left:160px;top:195px;font-size:80px;opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:160px;top:312px;width:240px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a" id="g0" style="left:560px;top:380px;width:2px;height:480px;background:rgba(244,244,241,0.35);opacity:0"></div>
+  <div class="a" id="g1" style="left:880px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="g2" style="left:1200px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="g3" style="left:1520px;top:380px;width:1px;height:480px;background:rgba(244,244,241,0.12);opacity:0"></div>
+
+  <div class="a" id="ticks" style="left:0px;top:0px;width:1920px;height:1080px;opacity:0">
+    <div class="a m" style="left:530px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">0</div>
+    <div class="a m" style="left:850px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">20</div>
+    <div class="a m" style="left:1170px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">40</div>
+    <div class="a m" style="left:1490px;top:878px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.55)">60 s</div>
+  </div>
+
+  <div class="a m" id="rl1" style="left:160px;top:415px;width:340px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Title</div>
+  <div class="a" id="bar1" style="left:560px;top:400px;width:0px;height:56px;background:var(--c)"></div>
+  <div class="a m" id="vl1" style="left:584px

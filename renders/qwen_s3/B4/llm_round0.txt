@@ -1,0 +1,312 @@
+[REASONING]
+Let's design a 4-second lower-third composition.
+
+Requirements:
+- 4 seconds, 1920x1080
+- Lower third at bottom-left on a plain dark plate (no gradient) — the background is already #0E0E0E, so we can place a slightly different dark plate behind the lower third to make it "look transparent." In practice, "transparent-looking on a dark plate" means the lower third is designed to overlay video, but here it's rendered on a plain dark plate. So we just place the lower-third block at bottom-left.
+- Name "Lara Quinn" in display typeface (class h, uppercase, heavy)
+- Role line "Presenter, Grawwww" in monospace (class m)
+- A cyan accent bar wipes in first, then the text slides in, holds, and in the final 0.5 seconds everything wipes out (i.e., from t=3.5 to t=4.0)
+
+Timeline:
+- 0.0–0.5: cyan accent bar wipes in (scaleX 0 -> 1, transform-origin left)
+- 0.35–0.9: text slides in (x from -60 to 0, opacity 0->1)
+- Hold until 3.5
+- 3.5–4.0: everything wipes out — "wipe out" suggests scaleX to 0 or a clip. Since we can only animate transform/opacity, we can do a wipe with scaleX 0 with transform-origin right, or slide out with x. "Everything wipes out" — let's do a wipe: name and role scaleX to 0 with origin left (a wipe), and the bar also scaleX 0. Or slide out to the left. Wipe = scaleX. Let's do this:
+
+tl.set initial states.
+
+Elements:
+- Plate: the background is already dark; but "on a plain dark plate" — we could add a subtle plate rectangle behind the lower third, e.g., a slightly lighter/darker panel #141414 with no rounded corners. This makes it look like a lower-third card. Actually "transparent-looking on a dark plate" might mean the lower third has no solid background (transparent) and sits on a dark plate (the canvas). To be safe, we could add a very subtle panel: a dark panel #141414 with a 1px border? No, no gradients. A flat panel is fine. Hmm, the brand says no rounded corners, no box-shadow, no gradients. A flat panel is fine.
+
+Actually, let's keep it clean: a thin cyan accent bar (vertical or horizontal) and text. Classic lower third: a vertical accent bar to the left of the text, or a horizontal bar above the name. "A cyan accent bar wipes in first, then the text slides in."
+
+Design:
+- Position: bottom-left, with at least 100px margin from the edges. Canvas 1920x1080. Bottom margin 100px → bottom edge of content at y=980.
+- Layout:
+  - Cyan accent bar: horizontal bar, e.g., width 120px, height 10px, at the top of the block? Or a vertical bar 10px wide, height ~140px to the left of the text. A vertical bar reads more as a lower-third accent. Wipe in: scaleY 0 -> 1 with origin top.
+
+Let's do this:
+- Left margin 100px.
+- Vertical cyan bar: left 100, width 12, height 150.
+- Name "LARA QUINN" display, font-size ~92px, left 140, baseline aligned with the bar.
+- Role "PRESENTER, GRAWWWW" monospace, font-size ~28px, below the name.
+
+Wait, "Presenter, Grawwww" — class m is uppercase via CSS. The text can be written in normal case; the CSS uppercases it. Write "Presenter, Grawwww" and let the CSS uppercase it.
+
+Sizing: display font at 92px: uppercase letters are about 0.66em wide? The prompt says at 150px, uppercase letters are ~100px wide (0.667 ratio). "LARA QUINN" = 10 chars including space. At 92px: ~61px per char → ~610px wide. Fits comfortably.
+
+Role monospace 28px: "PRESENTER, GRAWWWW" = 18 chars, monospace char ~0.6em = 16.8px → ~300px. Fine.
+
+Vertical layout:
+- Bar: top 800, height 150 (800–950).
+- Name: top ~795, font 92px → cap height ~66px; the text box top is 795, text is ~795–887.
+- Role: top ~905, font 28px → 905–943.
+- Bottom edge 950, margin 1080-950 = 130 ≥ 100. Good.
+
+Add a thin rule below the role too? Keep it simple.
+
+Maybe add a subtle panel behind: left 80, top 780, width ~800, height 190, background #141414 (slightly lighter than #0E0E0E) — flat, no rounded corners. This makes it "look transparent" — hmm, "transparent-looking on a dark plate" — I think the intent is: the lower third is transparent (no background), and the plate is dark. So no panel; just text on the dark background. That's simplest and matches "transparent-looking." Skip the panel, or add a very subtle one? Let's skip the panel — text directly on the #0E0E0E background.
+
+Actually, to make it look more like a designed lower third, we could add a thin horizontal rule under the role, or a small yellow hl accent? The brief only mentions the cyan accent bar. Keep it minimal: cyan bar + name + role.
+
+Add a small monospace kicker? No, stick to the brief.
+
+Animation timeline (4s):
+- 0.00–0.05: set initial states (opacity 0, transforms).
+- 0.15: bar scaleY 0→1, duration 0.45, ease power3.out. transform-origin top center.
+- 0.45: name fromTo x -80→0, opacity 0→1, duration 0.5, ease power2.out.
+- 0.6: role fromTo x -60→0, opacity 0→1, duration 0.45.
+- Hold until 3.5.
+- 3.5–4.0: wipe out. "Everything wipes out" — use scaleX 0 with origin left on name and role (wipe), and scaleY 0 with origin bottom on the bar. Duration 0.5, ending exactly at 4.0.
+
+Wipe out with scaleX 0: text collapses leftward — reads as a wipe. Good. The bar's scaleY to 0 with origin bottom makes it retract.
+
+Or slide everything out to the left with x -100 + opacity 0. "Wipes out" strongly suggests a wipe (scale). Let's do scaleX with origin left on the text elements. But note: the name contains a span; that's fine, we animate the parent.
+
+transform-origin in CSS: bar is `transform-origin: top center;` — but the bar's out animation is scaleY to 0 with origin bottom. Changing transform-origin mid-animation: we can set transformOrigin via tl.set at 3.5. GSAP can animate/set transformOrigin. Setting it via tl.set is allowed (tl.set). Yes.
+
+Actually, simpler: bar's in is scaleY origin top; bar's out is scaleY to 0 origin bottom. tl.set("#bar", { transformOrigin: "bottom center" }, 3.5) then tl.to("#bar", { scaleY: 0, duration: 0.5 }, 3.5).
+
+Text: tl.set to set origin left, then scaleX to 0.
+
+But wait: rule 4 says don't put CSS transform on elements GSAP animates; transform-origin in CSS is fine. For the bar, the initial transform-origin top center in CSS is fine; then tl.set to change it.
+
+Name/role initial: x offset via fromTo. On out, scaleX with origin left — default origin is center; set via tl.set at 3.5: transformOrigin "left center".
+
+Also, ensure the final frame (t=4.0) is fully out — opacity 0 or scale 0. At scaleX 0, visually gone. Fine.
+
+Also, "everything visible at the end of the clip must be animated in and at opacity 1 at the hold frame" — at the end it's wiped out, so nothing is visible; that's fine.
+
+Let's also add a small detail: a thin yellow underline? No — brand: yellow only as a band behind #111 text. Skip.
+
+Maybe add a small monospace label above the name like an index "01 —"? Not in the brief; keep it clean.
+
+Actually, a small touch: a thin horizontal rule under the role that wipes in after the text (0.7–1.0) and wipes out with everything. Adds design polish. The brief says "then the text slides in, holds, then everything wipes out." A rule is part of "everything." Let's add a subtle rule: left 140, top 955? Hmm, bottom margin: role ends at 943; a rule at 955 with height 4 → bottom 959, margin 121. OK. Width 640. Color: ink #F4F4F1 or cyan? Use a low-opacity ink? Opacity is fine (not a gradient). Use var(--ink) at 0.35? The color token is probably var(--ink). gw.css tokens: per the brief, ink #F4F4F1. Variable names are probably --ink, --c (cyan), --m (magenta), --y? The example uses var(--c) for cyan and var(--m) for magenta. For ink, the example uses color: #F4F4F1 directly? The example's eyebrow uses var(--c). The rule uses var(--m). For ink, let's use #F4F4F1 directly to be safe, or var(--ink) — risk: the variable name is unknown. The brief says "ink #F4F4F1" and the example hardcodes nothing for ink. To be safe, hardcode #F4F4F1 where needed.
+
+Hmm, but the brand says fonts via CSS variables; the color tokens are probably also variables, but hardcoding the exact hex is safe.
+
+Rule: width 640, height 4, background #F4F4F1, opacity 0.3. Animate scaleX 0→1 at 0.75, duration 0.5. Out: scaleX to 0 at 3.5.
+
+Actually, let's reconsider the layout for a stronger design:
+
+Alternative: a horizontal cyan bar above the name, width 120, height 8. The name is below it, then the role. Classic. Wipe in: scaleX left→right. Then the text slides in from the left. This is also good.
+
+Vertical bar to the left of the text is a very common lower-third style. Let's go vertical.
+
+Final coordinates:
+- Bar: left 100, top 795, width 12, height 160. (795–955)
+- Name: left 148, top 788, font-size 96px. Cap height ~0.72*96 ≈ 69 → text visually ~788–857.
+- Role: left 152, top 880, font-size 30px → ~880–910.
+- Rule: left 152, top 930, width 560, height 4.
+- Bottom edge 934 → margin 146. Bar bottom 955 → margin 125. Good.
+
+Hmm, name font 96px: "LARA QUINN" 10 chars * ~64px = 640px wide → ends at 148+640=788 < 1920-100. Fine.
+
+Actually, let's bump the name up to 110px for impact: 10 chars * ~73 = 730 → ends at 878. Fine. Role 30px.
+
+Recompute vertical: name 110px, cap ~79px. Bar height 170: top 780, bottom 950 (margin 130). Name top 772 → visual 772–851. Role top 872 → 872–902. Rule top 924, height 4 → 928. Bar 780–950.
+
+Hmm, name top 772, bar top 780 — roughly aligned, fine. Let's align: name top 775, bar top 780.
+
+Simplify:
+- Bar: left 100, top 780, w 12, h 170 (→950)
+- Name: left 148, top 770, font 110
+- Role: left 152, top 878, font 30
+- Rule: left 152, top 926, w 560, h 4
+
+Bottom margin: 1080-950=130 ✓. Left margin 100 ✓.
+
+Timeline:
+- t=0: tl.set for initial states: bar scaleY 0 (origin top center), name opacity 0 x -70, role opacity 0 x -50, rule scaleX 0 (origin left center).
+- 0.15: bar scaleY→1, dur 0.5, ease "power3.out"
+- 0.5: name x -70→0, opacity→1, dur 0.55, ease "power2.out"
+- 0.65: role x -50→0, opacity→1, dur 0.5
+- 0.85: rule scaleX→1, dur 0.5, ease "power2.inOut"
+- Hold until 3.5
+- 3.5: set transformOrigin for bar to "bottom center", name/role to "left center"
+- 3.5: bar scaleY→0 dur 0.5 ease "power2.in"; name scaleX→0 dur 0.5; role scaleX→0; rule scaleX→0. All end at 4.0.
+
+Wait — the name has an x offset of 0 at that point; the scaleX wipe with origin left works.
+
+One nuance: tl.fromTo for the name's in: from {opacity 0, x -70} to {opacity 1, x 0}. Then out: tl.to(name, {scaleX 0}) — GSAP composes transforms fine.
+
+Also, ensure the timeline duration is exactly 4. data-duration="4".
+
+The last animation ends at 4.0. Good.
+
+Let's write the HTML.
+
+Also, the "plate": the background is the body #0E0E0E. "On a plain dark plate" — the canvas itself is the plate. We could add a subtle full-canvas plate div with background #0E0E0E — redundant. Skip.
+
+Maybe add a small monospace tag to the right of the rule? No.
+
+Let's write the file.
+
+Check the linter rules:
+- Link gw.css and gsap exactly. ✓
+- One root with data-composition-id="main", data-start 0, data-duration 4, 1920x1080. ✓
+- One paused timeline registered. ✓ Only tl.set/to/fromTo with absolute start times. ✓ No repeat, no random, no setTimeout, no CSS animations. ✓
+- No CSS transform on animated elements; transform-origin in CSS is OK. Bar: transform-origin top center in CSS — but we tl.set to bottom center at 3.5. That's fine. Rule: transform-origin left center in CSS. Name/role: no CSS transform; the origin is set via tl.set at 3.5. Actually, tl.set with transformOrigin — is transformOrigin allowed? The rule says "use only tl.set / tl.to / tl.from / tl.fromTo" for animations — tl.set with transformOrigin is a set, which is allowed. The property list (opacity, x, y, ...) is for animation; setting transformOrigin should be fine. Alternatively, we could avoid it: for the text out, use xPercent -100? That's a slide, not a wipe. Or animate scaleX with the default origin center — the text collapses toward the center, which also reads as a wipe (a pinch). Hmm, a left-origin wipe looks cleaner.
+
+Safer alternative: give the name/role a CSS transform-origin: left center (allowed — only `transform:` is prohibited). Then no tl.set needed. Yes! Rule 4: "Use tl.fromTo for the initial state, e.g., scaleX 0 -> 1 with transform-origin in CSS (that's fine; only transform: is not)." So transform-origin in CSS is explicitly fine. Put transform-origin: left center on name/role/rule, and top center on the bar.
+
+For the bar's out with origin bottom: we can't have both origins in CSS. Options: bar's out is scaleY→0 with origin top (retracts upward) — that's fine, still a wipe. Or tl.set the origin. Let's just use origin top for both in and out: the bar grows downward from the top, and shrinks upward toward the top. That's a consistent wipe. Simpler, no set needed. Actually, on out, shrinking upward toward the top edge looks a bit odd (it retracts in the same direction it came from). That's fine — it's a "wipe out."
+
+Alternatively, bar's out: scaleY→0 with origin top, same as retracting. Fine.
+
+So no tl.set for origins at all. Initial states via tl.set at 0 (or fromTo). Use tl.set at 0 for the bar's scaleY 0, the rule's scaleX 0, and the name/role's opacity 0 (x handled by fromTo). Actually, fromTo sets the start state at the animation start time, so before 0.5 the name is at the from state? No — fromTo applies the from state immediately at timeline creation? GSAP's fromTo: the from values are applied when the tween starts (or at render time if the timeline is at that position). If the timeline is at time 0 and the tween starts at 0.5, the from state is not applied at time 0 (unless immediateRender, which is default true for from tweens — for fromTo, immediateRender defaults to true, so the from state is applied at render time when the timeline is at 0). Hmm, GSAP: from tweens default to immediateRender true; fromTo defaults to immediateRender true as well. So the from state is applied immediately → the name is at opacity 0 from the start. Good. But to be safe and explicit, use tl.set at 0 for the initial hidden state, and tl.to for the in animation. That's cleanest:
+
+tl.set("#bar", { scaleY: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+tl.set("#name", { opacity: 0, x: -70 }, 0);
+tl.set("#role", { opacity: 0, x: -50 }, 0);
+
+Then:
+tl.to("#bar", { scaleY: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+tl.to("#name", { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.5);
+tl.to("#role", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.65);
+tl.to("#rule", { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 0.85);
+
+Out (3.5–4.0):
+tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#name", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#role", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#rule", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+
+All end at 4.0. ✓
+
+CSS classes: .a { position:absolute } — wait, does gw.css define .a? The example uses class "a m" with inline style position... The example's inline style is `left:160px;top:300px;font-size:26px;...` with no position:absolute — so .a probably defines position:absolute in gw.css. The brief says "position everything with position:absolute (class a)." So class "a" = position absolute, defined in gw.css. Use class "a" and inline left/top/width. Good.
+
+Class h: uppercase heavy wide display. Class m: uppercase monospace label.
+
+Name: class "a h", font-size 110px, color #F4F4F1 (ink).
+Role: class "a m", font-size 30px, color #F4F4F1, maybe opacity 0.75 via color? Use color rgba? Keep it #F4F4F1 but smaller; or color #8A8A86? The brand's ink is #F4F4F1; a muted tone isn't specified. Use #F4F4F1 at opacity 0.7 as a static style? But the element's opacity is animated 0→1; a static opacity 0.7 would conflict with the opacity animation (tl.to opacity 1 would override to 1). Instead, use a lighter color: #BDBDB8? Not in the brand. Simpler: full ink. Fine — the monospace role in full ink, 30px, is readable.
+
+Actually, we could wrap the role's text in a span with opacity 0.75 (animating the parent's opacity). That works: parent opacity animates 0→1, the inner span has a static 0.75 → final 0.75. Nice subtlety. Let's do that: <div class="a m" id="role" ...>Presenter, <span style="color:#8f8f8a">Grawwww</span></div>? Hmm, keep it simple: whole line in ink, but slightly smaller. Or make "GRAWWWW" cyan? The brand's cyan is an accent; the bar is cyan. Making the company name cyan might be a nice accent: "Presenter, " in ink + "Grawwww" in cyan. That's classy. Let's do it: <span style="color:#12A9E6">Grawwww</span>. Hmm, but the brief says the role line is monospace — the color accent is fine.
+
+Actually, let's keep the whole role in ink and let the cyan bar be the sole accent — cleaner and matches the brief ("cyan accent bar"). But a small cyan on the brand name adds identity. The brief: 'role line "Presenter, Grawwww" (monospace).' Keep it plain ink. Decision: plain ink, opacity handled by parent.
+
+Rule color: #F4F4F1 at opacity 0.25? Static opacity on the rule element conflicts with the scaleX animation? No — the rule only animates scaleX, not opacity. A static opacity 0.25 is fine. But rule 7: "everything visible at the end must be at opacity 1 at the hold frame" — the rule is wiped out at the end, so it's not visible at the end; the opacity 0.25 at the hold frame might violate the "at opacity 1 at the hold frame" rule? That rule is about things visible at the end. The rule is not visible at the end. But the linter might check opacity at the hold frame... Risky. Use a solid color instead: a muted gray #3A3A38 for the rule? Not in the brand. Or make the rule cyan? A cyan rule below the role + a cyan bar might be too much cyan. Or a magenta rule? Brand magenta #FF2D92 — a thin 4px magenta rule could be a nice secondary accent. Hmm, the brief only mentions the cyan accent. A 4px magenta hairline is tasteful and on-brand (identity C dark uses cyan + magenta). Let's use magenta for the rule. Solid, opacity 1.
+
+Actually, wait — is the rule even necessary? The brief: "a cyan accent bar wipes in first, then the text slides in, holds, then everything wipes out." Adding a rule is extra, but "everything wipes out" suggests multiple elements. A rule adds polish. Keep the magenta hairline. Or make it ink #F4F4F1 solid — a strong white hairline. Magenta is more brand-forward. Let's go magenta.
+
+Hmm, actually, let me reconsider: too many accents (cyan bar + magenta rule) might look busy for a 4-second lower third. But it's fine — it's a brand system. Keep it.
+
+Font sizes: name 110px display. Check width: "LARA QUINN" — L,A,R,A,space,Q,U,I,N,N = 10 glyphs. At 110px, uppercase ~73px → ~730px. From left 148 → ends at ~878. Fine.
+
+Role 30px monospace: "PRESENTER, GRAWWWW" 18 chars × 18px = 324px. Fine.
+
+Vertical alignment: name top 770, font 110 → the line box is ~110*1.1=121? The visual cap top is ~770+ (ascent-cap). Roughly text occupies 770–890. Role top 878 might collide with the name's descender? Uppercase has no descenders; the name's bottom edge is around 770+110*0.9 ≈ 869. Role top 878 → 9px gap. A bit tight. Let's move the role to 886. Rule to 934. Bar: 780–950.
+
+Recompute:
+- Name top 768, font 110 → bottom ~872 (cap height 0.72*110=79 → visual bottom 768+79=847; line-box bottom ~889).
+- Role top 890, font 30 → bottom ~920.
+- Rule top 936, h 4 → 940.
+- Bar top 776, h 172 → 948.
+
+Bottom margin: 1080-948 = 132 ✓.
+
+Left: bar left 100; name left 148; role/rule left 152.
+
+Let's finalize the numbers:
+- #bar: left 100, top 776, width 12, height 172, background #12A9E6, transform-origin top center.
+- #name: left 148, top 768, font-size 110, color #F4F4F1, transform-origin left center.
+- #role: left 152, top 890, font-size 30, color #F4F4F1, transform-origin left center.
+- #rule: left 152, top 936, width 560, height 4, background #FF2D92, transform-origin left center.
+
+Letter-spacing on .m? Probably defined in gw.css. Fine.
+
+Title: "B4 — Lower Third."
+
+Let's write the final HTML. Ensure no CSS `transform` property anywhere. transform-origin is fine.
+
+Also, the initial opacity of #name/#role is set via tl.set at 0 — but before the script runs, the elements are visible for one frame? The renderer probably renders at t=0 after the script runs. To be safe, add opacity:0 in the inline style? Rule 4 says "set the initial hidden state with tl.set or fromTo, not with a CSS transform" — CSS opacity 0 is not a transform; but the rule says to set the initial hidden state with tl.set. The example sets opacity:0 inline in the CSS style AND animates with tl.to. The example: `<div ... style="...opacity:0">` and `tl.to("#eyebrow", {opacity:1...})`. So inline opacity:0 is an accepted pattern. For the bar/rule, the example used scaleX in fromTo without inline. Let's follow the example: inline opacity:0 on name/role, and tl.set for scaleY 0 on the bar and scaleX 0 on the rule at 0. Actually, the example's rule used fromTo with scaleX 0→1. Let's use tl.set at 0 for the bar/rule — that's allowed ("set the initial hidden state with tl.set or fromTo").
+
+Hmm, one subtle point: if we use tl.set at 0 and then tl.to at 0.15, that's fine.
+
+Let's write it.
+
+Script:
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+tl.set("#bar", { scaleY: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+tl.to("#bar", { scaleY: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+tl.to("#name", { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.5);
+tl.to("#role", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.65);
+tl.to("#rule", { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 0.85);
+
+tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#name", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#role", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+tl.to("#rule", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+
+window.__timelines["main"] = tl;
+
+Wait: the name's in animation is x -70 → 0, but the initial x is... we need to set x -70 initially. The example's t1 used fromTo for x. Let's use fromTo for name/role:
+tl.fromTo("#name", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.5);
+But before 0.5, is the name visible? fromTo defaults to immediateRender true → the from state is applied at render time. Since the timeline is paused at 0 and the renderer seeks, at t=0 the tween at 0.5 with immediateRender applies the from values when the timeline is first rendered. GSAP's immediateRender for fromTo: yes, defaults to true. So the name is at opacity 0 from the start. To be extra safe, also inline opacity:0 in the style. Both are fine.
+
+Then out: tl.to("#name", { scaleX: 0, ... }) — the name's x is 0, opacity 1. Good.
+
+The role similarly with x -50.
+
+All good. Duration check: the last tween ends at 4.0. data-duration="4".
+
+Also, ensure the text doesn't overlap: name 768–~889 (line box), role 890–920, rule 936. OK.
+
+One more consideration: "keep all text within the canvas with at least 100px margin" — the name's top 768 is fine; the left margin 100 for the bar (non-text), the text's left 148. Bottom: role bottom ~920, rule 940, bar 948 → margin ≥100 ✓ (948 → 132).
+
+Let's write the final file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <div class="a" id="bar" style="left:100px;top:776px;width:12px;height:172px;background:#12A9E6;transform-origin:top center"></div>
+
+  <div class="a h" id="name" style="left:148px;top:768px;font-size:110px;color:#F4F4F1;opacity:0;transform-origin:left center">Lara Quinn</div>
+
+  <div class="a m" id="role" style="left:152px;top:890px;font-size:30px;color:#F4F4F1;opacity:0;transform-origin:left center">Presenter, Grawwww</div>
+
+  <div class="a" id="rule" style="left:152px;top:936px;width:560px;height:4px;background:#FF2D92;transform-origin:left center"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states
+  tl.set("#bar", { scaleY: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  // accent bar wipes in first
+  tl.to("#bar", { scaleY: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+
+  // text slides in, staggered
+  tl.fromTo("#name", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.5);
+  tl.fromTo("#role", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.65);
+  tl.to("#rule", { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 0.85);
+
+  // hold until 3.5s, then everything wipes out in the last 0.5s
+  tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#name", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#role", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#rule", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

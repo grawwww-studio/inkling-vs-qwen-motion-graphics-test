@@ -1,0 +1,203 @@
+[REASONING]
+The user wants a lower third graphic for a 4-second clip. Requirements:
+
+- Bottom-left over a plain dark plate (dark background, no gradients)
+- Name "Lara Quinn" in display type
+- Role line "Presenter, Grawwww" in mono
+- Cyan accent bar that wipes in first
+- Then text slides in
+- Hold
+- Then everything wipes out in the last 0.5 s
+
+Duration: 4 seconds. 24 fps, 1920x1080.
+
+Design:
+- Background: #0E0E0E (already body). Maybe a slightly different plate color? "plain dark gradient-free plate" — so keep it flat #0E0E0E.
+- Lower third at bottom-left: cyan accent bar (vertical or horizontal?). Classic lower third: a horizontal cyan bar wipes in, then name + role text slides in.
+
+Let me design:
+- Cyan accent bar: horizontal bar, e.g., left:160px, bottom area. Let's place at left:160, top: ~760. Width ~ 900px, height ~8px. It wipes in via scaleX 0→1 with transform-origin left.
+- Actually "cyan accent bar that wipes in first" — could be a vertical bar on the left of the text block. Let's do a vertical cyan bar that wipes in (scaleY 0→1) at left of the text block, then text slides in from left.
+
+Better classic lower third: horizontal cyan bar on top of the text block, or a vertical bar. Let me do:
+
+- A dark plate rectangle? "transparent-looking over a dark plate" — meaning the lower third is transparent-ish, no box background, just text over the dark plate. So no background box. Just:
+  - Cyan accent bar (horizontal, above name)
+  - Name "LARA QUINN" in display font, big
+  - Role "PRESENTER, GRAWWW" in mono, smaller, cyan or gray
+
+Layout (bottom-left):
+- left: 160px
+- cyan bar: left:160, top: 780, width: 640, height: 10, scaleX wipe in
+- name: left:160, top: 810, font-size ~96px, display
+- role: left:160, top: 930, font-size ~30px, mono, letter-spacing
+
+Text margins: keep 100px margin — left 160 is fine. Bottom: role at top 930 with font-size 30, height ~40 → ends at 970, leaving 110px margin. Good.
+
+Animation timeline (4s):
+- 0.0–0.4: cyan bar wipes in (scaleX 0→1)
+- 0.35–0.9: name slides in (x from -60, opacity 0→1)
+- 0.55–1.1: role slides in
+- hold until 3.5
+- 3.5–4.0: everything wipes out (reverse): bar scaleX → 0, texts slide out / fade.
+
+"everything wipes out in the last 0.5 s" — so from 3.5 to 4.0, animate out. Bar wipes out (scaleX 1→0, origin right? or left). Texts slide out (x → -40, opacity → 0).
+
+Initial states: set with tl.set or fromTo. Use fromTo for bar and texts.
+
+Text: "Lara Quinn" — display uppercase? Class `h` is uppercase heavy wide. "LARA QUINN" at 150px would be about 100px per letter * 10 chars = 1000px wide. Canvas 1920, left 160 → 160+1000 = 1160, fine. But maybe 120px is safer. Actually the brief says display type; let's use ~110px. "LARA QUINN" = 10 characters including space. At 110px, ~73px per letter → ~730px wide. Fine.
+
+Role line: "PRESENTER, GRAWWW" mono at ~28px, letter-spacing, color cyan or #F4F4F1 dimmed. Mono class `m`. Color: cyan #12A9E6 for the role? Or gray. Let's make role in cyan to tie with bar, or ink with cyan accent. I'll do role in cyan #12A9E6.
+
+Also maybe a small "GRAWWW" logo/wordmark? Keep it minimal. Maybe add a small mono label above the bar like "LOWER THIRD"? No — keep to brief. Maybe add a subtle mono kicker "GRAWWW / LIVE" — brief doesn't ask; keep minimal but a small kicker could add polish. The brief says: name, role line, cyan accent bar. Keep it clean: just those. Maybe a tiny mono tag "LIVE" — no, don't add unrequested elements. Keep clean.
+
+Also maybe add the logo-negative.png? The project has assets/logo-negative.png. Could place small logo bottom-right? Brief doesn't ask. Keep it minimal but a small brand mark could be nice. Hmm, "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." The hold frame is 3.5s. The out-animation ends at 4.0 with everything at opacity 0 — that's fine since it's the end.
+
+Wait — "everything wipes out in the last 0.5 s" — at the end of the clip everything is gone (transparent over dark plate). That's the intended design (lower thirds typically enter and exit). So final frame: dark plate only. That's fine.
+
+Let me also consider adding a subtle plate distinction: "over a plain dark gradient-free plate" — the plate is the background itself. Keep body #0E0E0E. Maybe add a very subtle vignette? No — gradient-free. Keep flat.
+
+Maybe add a faint horizontal baseline rule? Not needed.
+
+Structure:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Lara Quinn — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="bar" style="left:160px;top:742px;width:560px;height:12px;background:var(--c);transform-origin:left center"></div>
+  <div class="a h" id="name" style="left:160px;top:786px;font-size:104px;color:var(--ink)">Lara Quinn</div>
+  <div class="a m" id="role" style="left:160px;top:920px;font-size:28px;color:var(--c);letter-spacing:4px">Presenter, Grawwww</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.set("#bar", { scaleX: 0 }, 0);
+  tl.set("#name", { x: -70, opacity: 0 }, 0);
+  tl.set("#role", { x: -70, opacity: 0 }, 0);
+  tl.to("#bar", { scaleX: 1, duration: 0.45, ease: "power3.inOut" }, 0.1);
+  tl.to("#name", { x: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 0.45);
+  tl.to("#role", { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.62);
+  // hold
+  tl.to("#role", { x: -50, opacity: 0, duration: 0.35, ease: "power2.in" }, 3.45);
+  tl.to("#name", { x: -50, opacity: 0, duration: 0.35, ease: "power2.in" }, 3.5);
+  tl.to("#bar", { scaleX: 0, duration: 0.4, ease: "power3.inOut" }, 3.55);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait — the bar wipes out: scaleX 1→0 with origin left means it shrinks toward left. Alternatively origin right so it wipes to the right. Either fine. Could also animate transformOrigin — keep left.
+
+Timing: last 0.5s = 3.5→4.0. My out-animations: role at 3.45 (slightly before 3.5 — brief says "in the last 0.5 s", so start at 3.5). Let's start out at 3.5:
+- role: 3.5 → 3.85
+- name: 3.55 → 3.9
+- bar: 3.5 → 3.95
+
+Ends at 4.0. Good.
+
+Also check name font-size: class `h` is uppercase heavy wide. "LARA QUINN" at 104px → roughly 70px/char × 10 = 700px. left 160 → 860. Fine.
+
+Role: "PRESENTER, GRAWWW" mono 28px letter-spacing 4px: ~17 chars × (17+4) ≈ 350px. Fine.
+
+Positions: bar top 742, name top 786 (height ~110px for 104px font), role top 920. Name at 104px line-height maybe ~1.0 → occupies 786–900. Role at 920–955. Bottom margin 1080-955 = 125. Good.
+
+Actually let me reconsider the layout — maybe a vertical cyan bar on the left of the text block is more "lower third"-like and distinctive. Classic lower thirds have a horizontal accent. I'll do horizontal bar above the name — clean.
+
+Maybe also add a small mono kicker above the bar like "GRAWWW / ON AIR"? Not requested; skip. Actually a tiny detail could add craft: a small square dot? Skip. Keep to brief.
+
+Also should the name have a highlight `hl` span? Brief doesn't ask; keep plain ink. Maybe make "Quinn" in cyan? Keep simple: all ink. Actually a nice touch: name in ink, and the comma/role in cyan. Fine.
+
+One more consideration: "transparent-looking over a dark plate" — no background box behind the lower third. Good, no plate.
+
+Duration 4. data-duration="4".
+
+Check the linter rules: exactly one root element — yes. All visible elements children of root — yes. Animation: one paused GSAP timeline, registered as window.__timelines["main"] — yes. Only tl.set/to/from/fromTo with absolute start times — yes. No repeat:-1, no Math.random, no setTimeout — yes. No CSS transform on animated elements — I use transform-origin in CSS (allowed) and GSAP animates scaleX/x/opacity — fine. Position with position:absolute via class `a` and explicit left/top/width — yes. Text inside canvas with ≥100px margins — left 160 ✓, bottom ~125px ✓, top 742 ✓, right: name ~860 ✓.
+
+Wait: `.a` class — does gw.css define `.a { position:absolute }`? The example uses class "a" with inline styles. Presumably gw.css defines it. I'll use it as in the example.
+
+Font classes: `h` for headings (uppercase, heavy, wide), `m` for mono labels. The `h` class likely already sets uppercase + display font. I'll still write text in normal case; CSS uppercases it.
+
+Let me double check the out-animation end times: role at 3.5 duration 0.35 → ends 3.85. name at 3.55 duration 0.35 → 3.9. bar at 3.5 duration 0.45 → 3.95. All within 4.0. Good.
+
+Also initial set: I set name x:-70 opacity 0 at time 0 — but then tl.to animates to x:0. That's fine. Actually could use fromTo, but set + to is fine per rules.
+
+One nuance: GSAP `x` transform on the name — the name has no CSS transform, so GSAP will set transform. Good.
+
+Bar: transform-origin left center in CSS, animated scaleX. Good.
+
+Maybe add subtle stagger: role slides slightly after name. Done.
+
+Should I also animate a tiny "dot" or the cyan bar with a second thin bar? Keep minimal.
+
+Let me also consider adding the logo-negative.png small at top-right or bottom-right as a brand mark — brief doesn't ask; the lower third is the subject. Skip to avoid clutter. Actually, a small logo could make it feel like a real lower third... but rules say everything visible at end must be animated in and at opacity 1 at hold frame. If I add it, I'd animate it too. The brief is specific; I'll keep it clean and minimal.
+
+Hmm, one more idea: give the lower third a thin full-width baseline at the very bottom? No — gradient-free, minimal.
+
+Also: should the out-wipe of the bar use origin right so it wipes toward right? scaleX 1→0 with origin left shrinks leftward (bar disappears from right edge inward). Either reads as a wipe. Fine.
+
+Let me write final HTML. Also ensure `data-duration="4"`.
+
+Font sizes: name 104px display — "display font is wide: at 150 px an uppercase letter is about 100 px wide" → at 104px, ~70px per letter. "LARA QUINN" = 10 glyphs incl space ≈ 640-700px. Box width: give width 1000px to be safe.
+
+Role 28px mono with letter-spacing 4px: 17 chars × ~20px = 340px. Width 800px fine.
+
+Also add letter-spacing to name? The `h` class presumably handles it. Leave.
+
+Edge: name top 786, font 104 → line height maybe 1.0 → bottom ~890. Role top 920. Good gap.
+
+Bar width 560 — maybe match name width ~700? Bar 640. Fine.
+
+Let me finalize.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Lara Quinn — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="bar" style="left:160px;top:742px;width:640px;height:12px;background:var(--c);transform-origin:left center"></div>
+  <div class="a h" id="name" style="left:160px;top:782px;width:1100px;font-size:104px;color:var(--ink)">Lara Quinn</div>
+  <div class="a m" id="role" style="left:160px;top:922px;width:900px;font-size:28px;color:var(--c);letter-spacing:4px">Presenter, Grawwww</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial states
+  tl.set("#bar", { scaleX: 0 }, 0);
+  tl.set("#name", { x: -70, opacity: 0 }, 0);
+  tl.set("#role", { x: -70, opacity: 0 }, 0);
+
+  // entrance: cyan bar wipes in first, then text slides in
+  tl.to("#bar", { scaleX: 1, duration: 0.45, ease: "power3.inOut" }, 0.1);
+  tl.to("#name", { x: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 0.45);
+  tl.to("#role", { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.62);
+
+  // hold (through 3.5s)
+
+  // exit: everything wipes out in the last 0.5s
+  tl.to("#bar", { scaleX: 0, duration: 0.45, ease: "power3.inOut" }, 3.5);
+  tl.to("#role", { x: -50, opacity: 0, duration: 0.32, ease: "power2.in" }, 3.5);
+  tl.to("#name", { x: -50, opacity: 0, duration: 0.35, ease: "power2.in" }, 3.55);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

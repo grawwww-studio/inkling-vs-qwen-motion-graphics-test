@@ -1,0 +1,142 @@
+{
+ "X01": {
+  "verdict": "PASS",
+  "note": "content huddled left in step columns"
+ },
+ "X02": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X03": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X04": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X05": {
+  "verdict": "PASS",
+  "note": "font changes to a condensed face in the wipe-out frame"
+ },
+ "X06": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost (R2 text)"
+ },
+ "X07": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X08": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X09": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X10": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X11": {
+  "verdict": "PASS",
+  "note": "name set in a light sans, not the display face"
+ },
+ "X12": {
+  "verdict": "PASS",
+  "note": "tagline far below the logo (large gap)"
+ },
+ "X13": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X14": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X15": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X16": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X17": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X18": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X19": {
+  "verdict": "FAIL",
+  "note": "logo horizontally squeezed (distorted) and VIDEO band overlaps AUTOMATIONS during the slam (R3)"
+ },
+ "X20": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X21": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X22": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X23": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X24": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost (R2 text)"
+ },
+ "X25": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X26": {
+  "verdict": "FAIL",
+  "note": "LOCALAI, space lost and the L of REAL clipped by the yellow band (R2/R3)"
+ },
+ "X27": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X28": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X29": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X30": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X31": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X32": {
+  "verdict": "FAIL",
+  "note": "logo scaled far larger than the canvas, GRAWWW cut off at both edges at the hold frame (R3)"
+ },
+ "X33": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X34": {
+  "verdict": "PASS",
+  "note": ""
+ },
+ "X35": {
+  "verdict": "PASS",
+  "note": ""
+ }
+}

@@ -1,0 +1,99 @@
+Here is the complete `index.html` for Brief B3.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card (s)</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root{position:absolute;left:0;top:0;width:1920px;height:1080px;background:#0E0E0E;overflow:hidden;}
+  .a{position:absolute;box-sizing:border-box;}
+  .h{font-family:var(--display);text-transform:uppercase;font-weight:800;letter-spacing:.01em;line-height:.92;color:#F4F4F1;}
+  .m{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;line-height:1;color:#F4F4F1;}
+  .hl{background:#FFD400;color:#111;padding:0 16px;display:inline-block;}
+  .lbl{font-family:var(--body);font-size:30px;color:#F4F4F1;letter-spacing:.02em;white-space:nowrap;}
+  .val{font-family:var(--mono);font-size:34px;font-weight:700;color:#F4F4F1;letter-spacing:.02em;white-space:nowrap;}
+  .valh{font-family:var(--mono);font-size:34px;font-weight:800;color:#111;letter-spacing:.02em;white-space:nowrap;
+        background:#FFD400;padding:0 16px;display:inline-block;}
+  .bar{height:54px;background:#12A9E6;}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <!-- eyebrow -->
+  <div class="a m" id="eyebrow" style="left:120px;top:150px;font-size:24px;color:var(--c);opacity:0">Performance / Render cost</div>
+
+  <!-- chart title -->
+  <div class="a h" id="title" style="left:120px;top:196px;font-size:64px;opacity:0">Render time per card <span class="hl">s</span></div>
+
+  <!-- rule under title -->
+  <div class="a" id="rule" style="left:120px;top:298px;width:1680px;height:4px;background:#262626;transform-origin:left center"></div>
+
+  <!-- axis -->
+  <div class="a" id="axis" style="left:440px;top:340px;width:2px;height:500px;background:#262626"></div>
+
+  <!-- row 1 : Title 42 -->
+  <div class="a lbl" id="l1" style="left:120px;top:358px;width:300px;text-align:right;opacity:0">Title</div>
+  <div class="a bar" id="b1" style="left:440px;top:350px;width:0px"></div>
+  <div class="a val" id="v1" style="left:778px;top:358px;opacity:0">0</div>
+
+  <!-- row 2 : Explainer 58 (max) -->
+  <div class="a lbl" id="l2" style="left:120px;top:478px;width:300px;text-align:right;opacity:0">Explainer</div>
+  <div class="a bar" id="b2" style="left:440px;top:470px;width:0px"></div>
+  <div class="a valh" id="v2" style="left:1053px;top:478px;opacity:0">0</div>
+
+  <!-- row 3 : Chart 51 -->
+  <div class="a lbl" id="l3" style="left:120px;top:598px;width:300px;text-align:right;opacity:0">Chart</div>
+  <div class="a bar" id="b3" style="left:440px;top:590px;width:0px"></div>
+  <div class="a val" id="v3" style="left:949px;top:598px;opacity:0">0</div>
+
+  <!-- row 4 : Lower third 23 -->
+  <div class="a lbl" id="l4" style="left:120px;top:718px;width:300px;text-align:right;opacity:0">Lower third</div>
+  <div class="a bar" id="b4" style="left:440px;top:710px;width:0px"></div>
+  <div class="a val" id="v4" style="left:640px;top:718px;opacity:0">0</div>
+
+  <!-- footer -->
+  <div class="a m" id="foot" style="left:120px;top:878px;font-size:20px;color:#6b6b6b;opacity:0">Render time per card · unit s · 4 cards</div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // header
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.45);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.8);
+  tl.fromTo("#axis", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.0);
+
+  // rows: labels fade, bars grow from zero, value counts up
+  const rows = [
+    { l:"#l1", b:"#b1", v:"#v1", w:338, val:42, t:1.35 },
+    { l:"#l2", b:"#b2", v:"#v2", w:613, val:58, t:1.55 },
+    { l:"#l3", b:"#b3", v:"#v3", w:539, val:51, t:1.75 },
+    { l:"#l4", b:"#b4", v:"#v4", w:200, val:23, t:1.95 }
+  ];
+
+  rows.forEach(function(r){
+    tl.to(r.l, { opacity: 1, duration: 0.4 }, r.t);
+    tl.fromTo(r.b, { width: 0 }, { width: r.w, duration: 1.15, ease: "power3.out" }, r.t + 0.15);
+    const o = { n: 0 };
+    tl.to(o, { n: r.val, duration: 1.15, ease: "power3.out",
+      onUpdate: function(){ gsap.set(r.v, { textContent: Math.round(o.n) }); } }, r.t + 0.15);
+    tl.to(r.v, { opacity: 1, duration: 0.2 }, r.t + 0.15);
+  });
+
+  // footer
+  tl.to("#foot", { opacity: 1, duration: 0.5 }, 3.4);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

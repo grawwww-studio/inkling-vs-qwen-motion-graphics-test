@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Local AI, real video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div class="a h" id="ghost" style="left:1160px;top:96px;width:640px;height:430px;font-size:380px;line-height:1;color:#1B1B1B;text-align:right;opacity:0">05</div>
+  <div class="a" id="tick" style="left:160px;top:334px;width:18px;height:18px;background:#FF2D92;transform-origin:center center;opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:196px;top:328px;width:620px;font-size:26px;letter-spacing:6px;color:#12A9E6;opacity:0">EP05 / EXPERIMENT</div>
+  <div class="a h" id="w1" style="left:160px;top:428px;width:560px;font-size:150px;line-height:1.05;color:#F4F4F1;opacity:0">LOCAL</div>
+  <div class="a h" id="w2" style="left:744px;top:428px;width:360px;font-size:150px;line-height:1.05;color:#F4F4F1;opacity:0">AI,</div>
+  <div class="a h" id="w3" style="left:160px;top:596px;width:460px;font-size:150px;line-height:1.05;color:#F4F4F1;opacity:0"><span id="band" style="position:absolute;left:-12px;top:6px;bottom:6px;right:-12px;background:#FFD400;transform-origin:left center;"></span><span id="w3txt" style="position:relative;z-index:1;color:#F4F4F1;">REAL</span></div>
+  <div class="a h" id="w4" style="left:648px;top:596px;width:560px;font-size:150px;line-height:1.05;color:#F4F4F1;opacity:0">VIDEO</div>
+  <div class="a" id="rule" style="left:160px;top:828px;width:1160px;height:5px;background:#12A9E6;transform-origin:left center;"></div>
+  <div class="a" id="dot" style="left:1313px;top:821px;width:14px;height:14px;background:#FF2D92;transform-origin:center center;opacity:0"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo("#ghost", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.1);
+  tl.fromTo("#tick", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.3);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.35);
+  tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.55);
+  tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.78);
+  tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 1.0);
+  tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 1.22);
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+  tl.fromTo("#w3txt", { color: "#F4F4F1" }, { color: "#111111", duration: 0.5, ease: "power2.inOut" }, 1.5);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 2.15);
+  tl.fromTo("#dot", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 2.8);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

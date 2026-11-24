@@ -1,0 +1,403 @@
+[REASONING]
+I need to build a complete HTML file that animates a horizontal bar chart in 8 seconds. The data is a JSON with the title "Render time per card (s)", unit "s", and 4 rows: Title 42, Explainer 58, Chart 51, Lower third 23. The bars are cyan, and they grow from zero with staggered timing. The value labels count up or fade in at the end of the bars. The largest bar (Explainer 58) is highlighted with a yellow band behind its value. The chart title is taken from the JSON.
+
+Design plan:
+- Canvas is 1920x1080, dark background #0E0E0E.
+- Header: eyebrow (mono label), title (display, large), rule line.
+- Chart area: 4 rows. Each row: label (right-aligned, mono or body), bar (cyan), value label (mono, large).
+- Bars proportional: max value 58. Scale: bar area width. Set chart left edge to x=460 (labels 100–440), bar max width for 60 seconds. Let's say 10px per second → 60s = 600px. So bar width: 42s = 420px, 58s = 580px, 51s = 510px, 23s = 230px. Bar area goes from x=460 to 460+600=1060. Value labels placed at bar end + 24px.
+
+Actually, I could add a scale/grid for a bit of flavor, but I'll keep it clean. Might add a baseline (vertical line) at the chart left edge.
+
+Row layout: 4 rows, each row height about 120px, bar height 64px. Chart top starts at about 380. Rows at y = 380, 500, 620, 740. Bar height 60.
+
+Labels: right-aligned at x=100..430 (width 330). Font mono 28px uppercase.
+
+Value labels: mono or display, 40px, placed at bar end. For the largest (Explainer 58), a yellow band behind the value: a div with background var(--y) (#FFD400), text #111, class hl. Actually, the rules say the yellow band is behind #111 text (class `hl`, its text is #111). So the value label for Explainer is a span with class hl.
+
+Value labels count up: use a GSAP tween on an object with an onUpdate that updates textContent. But the rules say only tl.set/tl.to/tl.from/tl.fromTo with absolute start times. Tweening an object with onUpdate — is that allowed? The rules say "use only tl.set / tl.to / tl.from / tl.fromTo with absolute start times as the third argument." tl.to on a proxy object with onUpdate should be fine — it's still tl.to. But "no Math.random, no Date.now" — onUpdate with a counter is fine. Let's do a count-up: create an object {v:0}, tl.to(obj, {v:42, duration:0.9, ease:"power2.out", onUpdate: ...}, t). That's tl.to with an absolute start time. Should be acceptable.
+
+Alternatively, fade in the values at the bar end. Count-up is nicer. Let's do count-up with a proxy object.
+
+Timing (8 seconds total):
+- 0.0–0.6: eyebrow fade in, title slide up, rule scaleX.
+- 0.5: baseline/grid fade in.
+- Bars start growing: staggered. Row 1 at 0.9, row 2 at 1.2, row 3 at 1.5, row 4 at 1.8, each duration 0.9, ease power3.out.
+- Labels fade in slightly before each bar.
+- Value count-up starts with the bar, duration about 0.9, ending at 1.8, 2.1, 2.4, 2.7.
+- Largest bar highlight: yellow band behind Explainer's value — appears when the bar completes, around 2.4, with a pop (scaleX from 0).
+- Also, a "PEAK" tag or a marker on the largest bar? Keep it minimal: yellow band + a small "MAX" mono label or an arrow. Might add a small caption at the bottom: "Explainer is the slowest card" — but the brief doesn't ask for it. Keep it clean, but might add a footer note with unit "s" and a legend. Add a footer: mono text "unit: s — bars scaled 10 px / s" or something. Keep it simple: bottom-left footer "n = 4 cards · unit s".
+
+Also, a subtle background: faint gridlines? No gradients. Could add a very low-opacity faint vertical gridline at the 20/40/60s scale positions. Adds a chart-like feel. Gridlines: vertical lines at x corresponding to 20s (460+200=660), 40s (860), 60s (1060), faint #F4F4F1 at 8% opacity, with scale labels 20/40/60 below. Nice touch, fits the chart.
+
+Wait — the bars: Title 42 → 420px, ends at 980. Explainer 580 → ends at 1040. Chart 510 → 970. Lower third 230 → 790. Gridlines at 660 (20), 860 (40), 1060 (60). Good.
+
+Value label positions: bar end + 20px. Title: 560+420+20 = 1000. Explainer: 560+580+20 = 1160. Chart: 560+510+20 = 1090. Lower third: 560+230+20 = 810. These are static final positions; labels appear at the final position and count up (brief: "value labels count up or fade in at the bar end"). Placing them at the final bar end is correct.
+
+Hmm, but should the value labels ride the growing bar end? "Count up or fade in at the bar end" — final position is fine.
+
+Yellow band: a div behind the value text, background #FFD400, padding, text #111. Value for Explainer: "58". Band width about 110px, height 56, aligned with the bar. Animate the band with scaleX 0→1 before/when the value appears.
+
+Also, emphasize the largest bar: keep it cyan but make the value label yellow. The brief says "the largest bar is highlighted with a yellow band behind its value" — so the band is behind the value label only. Good.
+
+Font sizes: title 88px display. Eyebrow 24px mono. Row labels 28px mono. Values 44px mono? Display font is wide; mono is safer for numbers. Values in var(--mono), maybe 40px.
+
+Layout with 100px margins: left margin 100. Chart labels start at x=100. Right margin: max value label end about 1160+100=1260, fine.
+
+Let me actually expand the chart: bar scale 10px/s with max 600px feels small on a 1920 canvas. Let's do 12px/s: 60s = 720px. Bar area 460 → 1180. Values: Title 504 → ends 964, label 984. Explainer 696 → ends 1156, label 1176, band width about 120 → ends about 1300. Fine, within margins.
+
+Gridlines: 20s → 460+240=700; 40s → 940; 60s → 1180.
+
+Rows: top area: eyebrow 120, title about 170 (size 90), rule about 300. Chart rows start at 400. Row spacing 140: rows at 400, 540, 680, 820. Bar height 64. Last bar bottom 884. Scale labels at 910. Footer at 1000? Height 1080, bottom margin 100 → footer at about 960. Let me compute: row 4 is 820+64=884 bottom. Scale labels at 905 (height 30). Footer at 990. OK.
+
+Bar height 64, value label 40px mono vertically centered: top = barTop + (64-40)/2 ≈ barTop+12.
+
+Labels: right-aligned, width 320, left 100 → ends 420. Bar left 460, gap 40. Good.
+
+Row label tops: barTop + (64-28)/2 ≈ +18.
+
+Animation timeline:
+- 0.1: eyebrow opacity 0→1 (0.4)
+- 0.25: title fromTo y 30→0, opacity
+- 0.5: rule scaleX 0→1 (0.6)
+- 0.6: gridlines + scale labels fade in (0.5)
+- Row 1: label 0.9 (0.3), bar 1.0 (0.9, power3.out), value count 1.0 (0.9)
+- Row 2: label 1.25, bar 1.35, value 1.35
+- Row 3: label 1.6, bar 1.7, value 1.7
+- Row 4: label 1.95, bar 2.05, value 2.05 (duration 0.8)
+- Yellow band: 2.5 → scaleX 0→1 (0.35, power2.out), transform-origin left center. Value text for Explainer: count-up 1.35–2.25. Band appears at 2.5.
+- Also, a small "MAX" tag above the band? Might add a small mono "MAX" label above the band. Nice: a small mono "MAX" at 22px above the band, fades in at 2.55.
+- Footer: 3.0 fade in.
+- Hold to 8.0.
+
+Count-up implementation:
+```js
+function countUp(el, target, start, dur){
+  const o = {v:0};
+  tl.to(o, {v: target, duration: dur, ease:"power2.out", onUpdate:()=>{ el.textContent = Math.round(o.v); }}, start);
+}
+```
+This is tl.to with absolute start — allowed. The proxy object isn't an element, so no transform issues.
+
+But wait: "value labels count up or fade in at the bar end" — count-up is fine.
+
+Bar animation: width 0 → final value. Animating width is allowed (width is in the list). Good, no transform issues.
+
+Bar initial state: set width 0 in CSS (style width:0px), then tl.to width. Or fromTo. Use tl.fromTo(bar, {width:0}, {width: final, ...}).
+
+Gridlines: vertical lines, height from 380 to 890 (about 510). Faint color rgba(244,244,241,0.10). Scale labels mono 22px, faint.
+
+Also, a vertical baseline line at x=460, slightly brighter, with a small axis. Add a horizontal baseline? For horizontal bars, the axis is the vertical line at x=460. Add it.
+
+Title: "Render time per card (s)" — display font, uppercase, 90px. Width check: display 90px, uppercase letter about 60px wide. "RENDER TIME PER CARD (S)" is 24 characters including spaces → about 24*55 = 1320px. From left 100 → ends 1420. Fits within 1820. OK. Could be 84px to be safe. The example says at 150px uppercase is about 100px wide → so at 90px about 60px per letter. 24*60=1440 → ends 1540. Still fits. Use 84px → about 56/letter → 1344 → ends 1444. Fine.
+
+Eyebrow: "Bench / 04 · card pipeline" — hmm, brief B3. "B3 / Chart reveal" or "Render bench — 4 cards". Let's do "Render bench · 4 cards". Mono 24px.
+
+Footer: "unit: s · scale 12 px / s · largest highlighted" — maybe simpler: "n = 4 · unit s". And a "MAX" tag. Let's do footer: "unit s — bars to scale".
+
+Logo: assets/logo-negative.png — include at top right? The brief doesn't mention a logo. The file exists; not required. Could add a small logo at top right for polish. The rules say the project has these assets; linking is allowed. Add a small logo at top right, width 120. Actually, to be safe with unknown aspect ratio, width 140, height auto. Fine.
+
+Hmm, but "no other files" — the logo is provided, so it's fine.
+
+GSAP transform-origin for the band: set in CSS (allowed). Band: position absolute, left = value label position - padding. Band for Explainer: value text "58" mono 40px → width about 2 chars*24 = 48 + padding 2*16 = 80. Band left 1176-16=1160, width 84? Let's define: value label div at left 1176, top 552 (bar top 540 + 12). Band behind: left 1160, top 544, width 116, height 56. Text #111, font 40px mono, padding-left 16 → text starts at 1176.
+
+Simpler: put the text inside the band div. Band div: left 1160, top 544, width 116, height 56, background var(--y). Inner span with class hl? The rules say class hl is the yellow band with #111 text. So: `<div class="a" id="band"><span class="hl m">58</span></div>`? Actually, class hl is the band itself. Let's do: `<div class="a hl m" id="band" style="...background:var(--y);color:#111...">58</div>`. Hmm, the rules say "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So the element with class hl has yellow background and #111 text. Let's do:
+
+`<div class="a m hl" id="band" style="left:1160px;top:544px;width:112px;height:56px;line-height:56px;text-align:center;font-size:40px">58</div>`
+
+And animate the band itself with scaleX — but the text will be squashed. Better: wrap: outer div animates scaleX, inner has the text. But the outer's transform will squash the text during animation... acceptable if quick (0.35s). Or animate the band with opacity + a slight x. Simpler: fade in the band with opacity 0→1 and x 10→0. Avoids the squash. Let's do that.
+
+Other value labels: plain mono, cyan? Ink #F4F4F1. Use ink for the numbers, maybe cyan for the unit. Keep numbers ink, add a small "s"? The title already has (s). Numbers only.
+
+Value label positions (left):
+- Title: bar end 460+504=964 → label 984, top 412 (row 1 top 400 + 12)
+- Explainer: 460+696=1156 → band 1160 (slight overlap? bar ends 1156, band starts 1160, gap 4 — fine, tight). Actually, let's give a gap: band left 1176, text centered. Bar end 1156, band 1176, gap 20. Band width 112 → ends 1288. Fine.
+- Chart: 460+612=1072 → label 1092, top 692
+- Lower third: 460+276=736 → label 756, top 832
+
+Wait, recompute with 12px/s: 42*12=504, 58*12=696, 51*12=612, 23*12=276. Yes.
+
+Gridlines at 20/40/60 → x = 460+240=700, 460+480=940, 460+720=1180.
+
+Scale labels below: at y 900, centered on those x's, mono 22px, color rgba(244,244,241,0.5). "20" "40" "60 s".
+
+Baseline: vertical line at x=460, from 380 to 895, width 2px, rgba(244,244,241,0.3).
+
+Also, a faint full-width rule below the chart at y 900? Not needed.
+
+Row labels: "TITLE" "EXPLAINER" "CHART" "LOWER THIRD" — mono 26px, right-aligned, left 100, width 320 (ends 420).
+
+Wait — "Lower third" is 11 chars, mono 26px → about 11*16=176px. Fits in 320.
+
+"MAX" tag: above the band, left 1176, top 505, mono 20px, color var(--y). Fades in at 2.55.
+
+Footer: left 100, top 985, mono 22px, faint: "unit s · bars to scale · n = 4". And maybe a legend on the right: a small cyan square + "render time", a yellow square + "max". Nice touch. Legend right: left 1300, top 985: [cyan 18x18] "render time" [yellow 18x18] "max". Let me place: swatch 1 at 1240, text 1266; swatch 2 at 1480, text 1506. Widths: "RENDER TIME" 11 chars *13 = 143. OK.
+
+Actually, footer + legend at the same y, fine.
+
+Timing details:
+
+```
+const tl = gsap.timeline({paused:true});
+// header
+tl.fromTo("#eyebrow",{opacity:0},{opacity:1,duration:0.4},0.1);
+tl.fromTo("#title",{opacity:0,y:30},{opacity:1,y:0,duration:0.6,ease:"power2.out"},0.25);
+tl.fromTo("#rule",{scaleX:0},{scaleX:1,duration:0.6,ease:"power2.inOut"},0.5);
+tl.fromTo("#logo",{opacity:0},{opacity:1,duration:0.5},0.4);
+tl.fromTo("#grid",{opacity:0},{opacity:1,duration:0.5},0.6);
+tl.fromTo("#baseline",{scaleY:0},{scaleY:1,duration:0.5,ease:"power2.out"},0.6); // transform-origin top
+```
+
+Rows: label, bar, value.
+
+```
+const rows = [
+ {l:"#rl1", b:"#bar1", v:"#vl1", val:42, w:504, t:0.9},
+ {l:"#rl2", b:"#bar2", v:"#vl2", val:58, w:696, t:1.25},
+ {l:"#rl3", b:"#bar3", v:"#vl3", val:51, w:612, t:1.6},
+ {l:"#rl4", b:"#bar4", v:"#vl4", val:23, w:276, t:1.95},
+];
+rows.forEach(r=>{
+  tl.fromTo(r.l,{opacity:0,x:-12},{opacity:1,x:0,duration:0.35,ease:"power2.out"},r.t);
+  tl.fromTo(r.b,{width:0},{width:r.w,duration:0.9,ease:"power3.out"},r.t+0.1);
+  const o={v:0};
+  tl.set(r.v,{opacity:1},r.t+0.1);
+  tl.to(o,{v:r.val,duration:0.9,ease:"power2.out",onUpdate:()=>{document.querySelector(r.v).textContent=Math.round(o.v);}},r.t+0.1);
+});
+```
+
+Hmm, value label opacity: set to 1 at the start of the count (count starts from 0, so the text "0" appears and grows). Good.
+
+Band + MAX:
+```
+tl.fromTo("#band",{opacity:0,x:14},{opacity:1,x:0,duration:0.4,ease:"power2.out"},2.5);
+tl.fromTo("#maxtag",{opacity:0,y:8},{opacity:1,y:0,duration:0.35},2.6);
+```
+
+Footer/legend:
+```
+tl.fromTo("#foot",{opacity:0},{opacity:1,duration:0.5},3.0);
+tl.fromTo("#legend",{opacity:0},{opacity:1,duration:0.5},3.1);
+```
+
+Hold to 8.
+
+Initial hidden states: everything that fades in is handled by fromTo, so initial state is set by GSAP at the timeline start... but before the timeline plays (frame 0), the renderer seeks to time 0; fromTo sets the from state at its start time; before that, the element shows its CSS state. To be safe, set opacity:0 in CSS for elements that fade in, and bars with width 0. The example does that (opacity:0 in style). Set opacity:0 in CSS for: eyebrow, title, logo, grid, baseline, row labels, values, band, maxtag, foot, legend. Bars: width:0 in CSS.
+
+Rule: "set the initial hidden state with tl.set or fromTo, not with CSS transform" — CSS opacity:0 is fine (the example does it).
+
+Baseline scaleY with transform-origin top center in CSS — fine (only `transform:` is forbidden; transform-origin is OK).
+
+Grid group: wrap gridlines + scale labels in a container? The container is position absolute, full size, with children absolute. Animate the container's opacity. Children have absolute positions relative to the container (container at left 0 top 0, 1920x1080). Fine.
+
+Text overflow check: title 84px "RENDER TIME PER CARD (S)" — 24 chars * about 56 = 1344, from 100 → 1444 < 1820 ✓.
+
+Value font 40px mono: "58" is fine.
+
+Band: width 112, text 40px mono centered — "58" is about 48px wide, fits.
+
+One more check: row 2 bar (Explainer) ends at 1156; gridline 60 is at 1180; band 1176–1288 overlaps the gridline at 1180 — the band is drawn on top (later in DOM), fine, actually the band covers part of the gridline; visually fine.
+
+Bar 2 top 540, height 64. Band top 544, height 56 → centered.
+
+MAX tag top: band top 544 - 34 = 510. Row 1 bar bottom 464. 510 > 464 ✓ no overlap.
+
+Row label vertical: row 1 label top 418 (400+18).
+
+Let me finalize the coordinates:
+
+Header:
+- eyebrow: left 100, top 118, 24px mono, cyan.
+- title: left 100, top 158, 84px display.
+- rule: left 100, top 288, width 220, height 6, cyan.
+- logo: right 100 → left 1920-100-140=1680, top 120, width 140.
+
+Chart:
+- baseline: left 459, top 372, width 2, height 528 (372→900).
+- gridlines: top 372, height 528.
+- scale labels: top 908, 22px, centered on x: 700→left 670 width 60; 940→910; 1180→1150.
+- rows: tops 400, 540, 680, 820. Bar height 64.
+- row labels: left 100, width 320, right-aligned, top = barTop+18, 26px.
+- values: 40px mono, top = barTop+12.
+  - v1: left 984, top 412
+  - band: left 1176, top 544, w 112, h 56
+  - v3: left 1092, top 692
+  - v4: left 756, top 832
+
+Footer:
+- foot: left 100, top 985, 22px mono, color rgba(...,0.55): "unit s · bars to scale · n = 4"
+- legend: swatch cyan left 1240 top 985 18x18; text left 1268 top 985 "RENDER TIME"; swatch yellow left 1470; text 1498 "MAX". Check width: "RENDER TIME" 26px? Use 22px mono → 11*13=143 → ends 1411 < 1470 ✓. "MAX" ends about 1540 < 1820 ✓.
+
+Wait, legend swatch top 985, height 18; text 22px top 985 — baseline alignment roughly OK.
+
+All within 100px margins: top 118 ✓, bottom: footer 985+22=1007 < 980? 1080-100=980. 1007 > 980. Hmm, bottom margin: keep text at least 100px from edge → bottom edge ≤ 980. Footer top 985 violates. Move footer to top 950, height 22 → bottom 972 ✓. Scale labels top 908 + 22 = 930 ✓. Gap to footer 20px. OK: footer/legend top 950.
+
+Baseline bottom 900; scale labels 908–930; footer 950–972. Good.
+
+Row 4 bar bottom 884 < 900 ✓.
+
+Now let me write the count-up: need element references. Use document.querySelector inside onUpdate. Fine.
+
+Also, confirm "no CSS animation or transition" ✓. "No repeat:-1" ✓.
+
+Ease strings are fine.
+
+The band is class "hl m" with inline background var(--y)? The rules say class hl is the yellow band. gw.css might already define .hl with a yellow background. To be safe, add inline background:var(--y); color:#111. Actually, if gw.css defines it, inline is redundant but harmless. Add inline styles: background:#FFD400; color:#111. Hmm, "yellow #FFD400 ... (class hl, its text is #111)" — safest to rely on the class and also set inline. Set both.
+
+Display font class h: uppercase heavy wide — does gw.css handle it? The example uses class "h" and "m". Use those.
+
+Let me write the final HTML.
+
+Also, the root must be the only root element, and all visible elements must be its children ✓.
+
+Double-check the bar fromTo width: initial CSS width 0; fromTo {width:0} → {width:504}. Good.
+
+Value label initial opacity 0 in CSS; tl.set to opacity 1 at bar start; then count. Actually, simpler: tl.fromTo(v,{opacity:0},{opacity:1,duration:0.2},t+0.1). Use fromTo (allowed).
+
+Let me write the code.
+
+One concern: `tl.to(o, {...})` with o being a plain object — the linter might check that tl methods only target elements? The rules say "use only tl.set / tl.to / tl.from / tl.fromTo" — it doesn't forbid proxy objects. Count-up is explicitly suggested by the brief ("count up or fade in"). To reduce risk, I could fade in the values instead. But count-up is nicer, and the brief allows either. Risk: the linter might parse the selector string. A proxy object is a plain object, not a selector — a strict linter that expects a selector string might flag it. Hmm. "Use only tl.set / tl.to / tl.from / tl.fromTo with absolute start times as the third argument" — the constraint is on the method and start time, not the target type. I'll go with count-up, but keep it clean.
+
+Alternatively, count-up via tl.fromTo on a proxy — same thing.
+
+Let me write it.
+
+Font sizes: value 40px mono. Row labels 26px.
+
+Also, add a subtle "s" unit after the numbers? The title covers the unit. Keep the numbers plain.
+
+Final timeline order and durations:
+
+0.10 eyebrow (0.4)
+0.25 title (0.6)
+0.40 logo (0.5)
+0.50 rule (0.6)
+0.60 grid (0.5), baseline (0.5)
+Row t: 0.90, 1.25, 1.60, 1.95
+  label: t (0.35)
+  bar: t+0.10 (0.9)
+  value: t+0.10 (0.9 count)
+Bar end: 1.9, 2.25, 2.6, 2.95
+Band: 2.50 (0.4)
+MAX: 2.62 (0.35)
+Foot: 3.05 (0.5)
+Legend: 3.15 (0.5)
+Hold to 8.0.
+
+All visible at the end ✓ (opacity 1).
+
+Let me write the file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  body { margin: 0; }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+  img { display: block; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <!-- header -->
+  <div class="a m" id="eyebrow" style="left:100px;top:118px;font-size:24px;color:var(--c);opacity:0">Render bench · 4 cards</div>
+  <div class="a h" id="title" style="left:100px;top:158px;font-size:84px;opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:100px;top:290px;width:220px;height:6px;background:var(--c);transform-origin:left center"></div>
+  <img id="logo" src="assets/logo-negative.png" alt="" class="a" style="left:1680px;top:120px;width:140px;opacity:0" />
+
+  <!-- grid + axis -->
+  <div class="a" id="grid" style="left:0px;top:0px;width:1920px;height:1080px;opacity:0">
+    <div class="a" style="left:700px;top:372px;width:1px;height:528px;background:rgba(244,244,241,0.10)"></div>
+    <div class="a" style="left:940px;top:372px;width:1px;height:528px;background:rgba(244,244,241,0.10)"></div>
+    <div class="a" style="left:1180px;top:372px;width:1px;height:528px;background:rgba(244,244,241,0.10)"></div>
+    <div class="a m" style="left:670px;top:908px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.5)">20</div>
+    <div class="a m" style="left:910px;top:908px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.5)">40</div>
+    <div class="a m" style="left:1150px;top:908px;width:60px;text-align:center;font-size:22px;color:rgba(244,244,241,0.5)">60 s</div>
+  </div>
+  <div class="a" id="baseline" style="left:459px;top:372px;width:2px;height:528px;background:rgba(244,244,241,0.30);transform-origin:center top"></div>
+
+  <!-- row 1 : Title 42 -->
+  <div class="a m" id="rl1" style="left:100px;top:418px;width:320px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Title</div>
+  <div class="a" id="bar1" style="left:460px;top:400px;width:0px;height:64px;background:var(--c)"></div>
+  <div class="a m" id="vl1" style="left:984px;top:412px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+
+  <!-- row 2 : Explainer 58 (max) -->
+  <div class="a m" id="rl2" style="left:100px;top:558px;width:320px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Explainer</div>
+  <div class="a" id="bar2" style="left:460px;top:540px;width:0px;height:64px;background:var(--c)"></div>
+  <div class="a" id="maxtag" style="left:1176px;top:508px;font-size:20px;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;color:var(--y);opacity:0">Max</div>
+  <div class="a m hl" id="band" style="left:1176px;top:544px;width:112px;height:56px;line-height:56px;text-align:center;font-size:40px;background:#FFD400;color:#111;opacity:0">0</div>
+
+  <!-- row 3 : Chart 51 -->
+  <div class="a m" id="rl3" style="left:100px;top:698px;width:320px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Chart</div>
+  <div class="a" id="bar3" style="left:460px;top:680px;width:0px;height:64px;background:var(--c)"></div>
+  <div class="a m" id="vl3" style="left:1092px;top:692px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+
+  <!-- row 4 : Lower third 23 -->
+  <div class="a m" id="rl4" style="left:100px;top:838px;width:320px;text-align:right;font-size:26px;color:rgba(244,244,241,0.85);opacity:0">Lower third</div>
+  <div class="a" id="bar4" style="left:460px;top:820px;width:0px;height:64px;background:var(--c)"></div>
+  <div class="a m" id="vl4" style="left:756px;top:832px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+
+  <!-- footer + legend -->
+  <div class="a m" id="foot" style="left:100px;top:950px;font-size:22px;color:rgba(244,244,241,0.55);opacity:0">Unit s · bars to scale · n = 4</div>
+  <div id="legend" style="position:absolute;left:1240px;top:950px;width:600px;height:30px;opacity:0">
+    <div class="a" style="left:0px;top:2px;width:18px;height:18px;background:var(--c)"></div>
+    <div class="a m" style="left:28px;top:0px;font-size:22px;color:rgba(244,244,241,0.75)">Render time</div>
+    <div class="a" style="left:230px;top:2px;width:18px;height:18px;background:#FFD400"></div>
+    <div class="a m" style="left:258px;top:0px;font-size:22px;color:rgba(244,244,241,0.75)">Max</div>
+  </div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // header
+  tl.fromTo("#eyebrow", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.1);
+  tl.fromTo("#title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.25);
+  tl.fromTo("#logo", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.4);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.5);
+
+  // axis + grid
+  tl.fromTo("#grid", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6);
+  tl.fromTo("#baseline", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power2.out" }, 0.6);
+
+  // rows: label in, bar grows from zero, value counts up at bar end
+  // scale: 12 px per second -> widths 504 / 696 / 612 / 276 (proportional to 42 / 58 / 51 / 23)
+  const rows = [
+    { l: "#rl1", b: "#bar1", v: "#vl1", val: 42, w: 504, t: 0.90 },
+    { l: "#rl2", b: "#bar2", v: "#band", val: 58, w: 696, t: 1.25 },
+    { l: "#rl3", b: "#bar3", v: "#vl3", val: 51, w: 612, t: 1.60 },
+    { l: "#rl4", b: "#bar4", v: "#vl4", val: 23, w: 276, t: 1.95 }
+  ];
+  rows.forEach(function (r) {
+    const el = document.querySelector(r.v);
+    tl.fromTo(r.l, { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, r.t);
+    tl.fromTo(r.b, { width: 0 }, { width: r.w, duration: 0.9, ease: "power3.out" }, r.t + 0.1);
+    tl.fromTo(r.v, { opacity: 0 }, { opacity: 1, duration: 0.2 }, r.t + 0.1);
+    const proxy = { v: 0 };
+    tl.to(proxy, {
+      v: r.val, duration: 0.9, ease: "power2.out",
+      onUpdate: function () { el.textContent = Math.round(proxy.v); }
+    }, r.t + 0.1);
+  });
+
+  // highlight the largest bar's value with the yellow band
+  tl.fromTo("#band", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+  tl.fromTo("#maxtag", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 2.62);
+
+  // footer + legend
+  tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 3.05);
+  tl.fromTo("#legend", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 3.15);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

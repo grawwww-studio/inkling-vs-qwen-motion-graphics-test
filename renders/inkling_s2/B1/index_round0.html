@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Title Card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a { position: absolute; }
+  .band {
+    position: absolute;
+    left: -16px;
+    top: 4%;
+    width: calc(100% + 32px);
+    height: 92%;
+    background: #FFD400;
+    z-index: 0;
+    transform-origin: left center;
+  }
+  .rt { position: relative; z-index: 1; color: #111; }
+  .word { display: inline-block; margin-right: 0.34em; }
+  .word:last-child { margin-right: 0; }
+  .line { display: block; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="frame" style="left:40px;top:40px;width:1840px;height:1000px;border:2px solid #242424;opacity:0"></div>
+
+  <div class="a m" id="eyebrow" style="left:160px;top:268px;width:1200px;font-size:26px;letter-spacing:10px;color:var(--c);opacity:0;display:flex;align-items:center;gap:20px">
+    <span style="display:inline-block;width:16px;height:16px;background:var(--c)"></span>
+    <span>EP05 / EXPERIMENT</span>
+  </div>
+
+  <div class="a h" id="title" style="left:160px;top:330px;width:1600px;font-size:160px;line-height:1.04;text-transform:uppercase;letter-spacing:-2px;color:var(--ink)">
+    <span class="line">
+      <span class="word" id="w1" style="opacity:0">LOCAL</span><span class="word" id="w2" style="opacity:0">AI,</span>
+    </span>
+    <span class="line">
+      <span class="word" id="w3" style="opacity:0"><span class="band" id="real-band"></span><span class="rt">REAL</span></span><span class="word" id="w4" style="opacity:0">VIDEO</span>
+    </span>
+  </div>
+
+  <div class="a" id="rule" style="left:160px;top:748px;width:1150px;height:5px;background:var(--m);transform-origin:left center"></div>
+
+  <div class="a m" id="bl-left" style="left:160px;top:940px;width:500px;font-size:20px;letter-spacing:6px;color:#7d7d78;opacity:0">GW / CHANNEL</div>
+  <div class="a m" id="bl-right" style="left:1160px;top:940px;width:600px;font-size:20px;letter-spacing:6px;color:#7d7d78;text-align:right;opacity:0">TITLE CARD</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set("#rule", { scaleX: 0 }, 0);
+  tl.set("#real-band", { scaleX: 0 }, 0);
+
+  tl.to("#frame", { opacity: 1, duration: 0.5, ease: "power1.out" }, 0.1);
+
+  tl.fromTo("#eyebrow", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 0.3);
+
+  tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.5);
+  tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.7);
+  tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.9);
+  tl.to("#real-band", { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, 1.2);
+  tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 1.15);
+
+  tl.to("#rule", { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.7);
+
+  tl.to("#bl-left", { opacity: 1, duration: 0.4, ease: "power1.out" }, 2.2);
+  tl.to("#bl-right", { opacity: 1, duration: 0.4, ease: "power1.out" }, 2.3);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

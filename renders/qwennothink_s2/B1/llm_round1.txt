@@ -1,0 +1,45 @@
+The overlaps were caused by the words being too close together at 150px (the wide display font made "LOCAL" and "REAL" spill into the next word's zone). I widened the spacing to give each word its own zone.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B1 / Title Card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div class="a m" id="eyebrow" style="left:160px;top:300px;font-size:28px;letter-spacing:3px;color:var(--c);opacity:0">EP05 / Experiment</div>
+
+  <div class="a h" id="w1" style="left:160px;top:360px;font-size:150px;opacity:0">Local</div>
+  <div class="a h" id="w2" style="left:560px;top:360px;font-size:150px;opacity:0">AI,</div>
+  <div class="a h" id="w3" style="left:840px;top:360px;font-size:150px;opacity:0">real</div>
+  <div class="a h" id="w4" style="left:1180px;top:360px;font-size:150px;opacity:0">video</div>
+
+  <div class="a" id="band" style="left:830px;top:428px;width:230px;height:64px;background:var(--y);transform-origin:left center"></div>
+
+  <div class="a" id="rule" style="left:160px;top:590px;width:1600px;height:4px;background:var(--m);transform-origin:left center"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#eyebrow", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+
+  tl.fromTo("#w1", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.4);
+  tl.fromTo("#w2", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.6);
+  tl.fromTo("#w3", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.8);
+  tl.fromTo("#w4", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 1.0);
+
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 1.2);
+
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, 1.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

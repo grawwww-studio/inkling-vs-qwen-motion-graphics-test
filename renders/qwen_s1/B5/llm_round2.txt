@@ -1,0 +1,284 @@
+[REASONING]
+I'll write one complete HTML file in a single ```html block. I need to be careful that the output is complete and doesn't get cut off midway. I'll keep it at a moderate size while making it complete.
+
+Structure:
+- head: meta, title, link to gw.css, gsap script.
+- root div: data-composition-id="main", data-start="0", data-duration="10", data-width="1920", data-height="1080".
+- Elements:
+  - Corner ticks (4 of them)
+  - Header: icon + "Grawwww Studio" + "Teaser — 10 Sec"
+  - Beat 1: 3 rows (number + word) that slam in
+  - Beat 2: label + 3 chips (accent bar, inline SVG icon, text)
+  - Beat 3: logo image + tagline "Local AI, delivered." + yellow hl band behind part of it? The tagline is under the logo. Maybe put a yellow hl band behind "delivered" — the tagline is "Local AI, delivered." — could also style "delivered." with a yellow hl. The hl class has a yellow band behind #111 text. That's a nice accent.
+  - Progress bar at the bottom.
+  - Footer label at bottom-left "grawwww.studio" or something? Keep it simple.
+
+Timeline:
+- 0.0: ticks fade in (0.4), header fades in.
+- 0.3-2.6: rows slam in: fromTo x: -80, opacity 0, scale 1.06 → x 0, opacity 1, scale 1, quick power4.out. Stagger: row1 at 0.4, row2 at 0.9, row3 at 1.4. Each duration 0.45.
+- 2.7: hold.
+- 3.0: Beat 1 exits (y: -30, opacity 0, 0.35), label + chips enter: label at 3.1, chips at 3.2/3.5/3.8, fromTo y: 40 → 0, opacity 0→1. Accent bar scaleX 0→1.
+- 7.0: everything clears: header, chips, label fade out (0.3).
+- 7.3: logo fromTo opacity 0, scale 0.9 → 1, 0.9s power2.out. Tagline at 7.9 fromTo y: 30 → 0, opacity.
+- 8.5: progress bar scaleX 0→1? Actually the progress bar should run the whole time: fromTo scaleX 0 → 1, duration 10, linear, at 0. That's fine.
+- End: hold through 10.
+
+Text sizes: "Automations." at 132px display — wide font, 12 chars uppercase ~100px each at 150px... "Automations." is 12 chars including the period. At 132px, uppercase ~88px each → about 1050px. Row width 1200 with left offset 110 → 1090px available. Cutting it close. Let me make the word font 120px: uppercase ~80px × 11 chars + period ≈ 900px. Fits in 1090. OK, use 120px for rows.
+
+Actually, the rule says "at 150px, uppercase letters are about 100px wide" — so at 120px about 80px. "AUTOMATIONS." = 12 glyphs, period is narrower. About 11×80 + 30 = 910px. Fits.
+
+Chips: 3 chips in a row. Canvas width 1920, margin 100. Total available: 1720. 3 chips with 40px gap: chip width = (1720 - 80)/3 ≈ 546. Let's use width 540, gap 40: total 540×3+80 = 1700, starting at 160. Chip 1 left: 160, chip 2: 740, chip 3: 1320. Text "RUNS ON YOUR HARDWARE" at 26px mono uppercase: 21 chars × ~16px = 336px. Icon 44 + gap. Chip padding: icon at left 34, text at left 104, text width up to 430. Fits in 540.
+
+Chip 2: "NO PER-TOKEN BILL" 17 chars ≈ 272px. No problem.
+Chip 3: "YOUR DATA STAYS PUT" 19 chars ≈ 304px. No problem.
+
+Logo: assets/logo-negative.png centered, at the end. Position: left 610, top 300, width 700, height 280 (object-fit contain). Tagline below: "Local AI, delivered." — display font, 90px, centered at left 460, top 640, width 1000, text-align center. "Local AI, delivered." — 20 chars mixed case. At 90px, average ~55px → about 1100px. Hmm, too wide for 1000. Let's use 80px → about 980px. Set width 1200, left 360, top 640. Or split: put a yellow hl band behind "delivered." — the hl class is presumably a yellow background band with #111 text. So tagline: `Local AI, <span class="hl">delivered.</span>` — hl handles the band.
+
+Wait — the brand says yellow is only used as a band behind #111 text (class hl). So use it.
+
+Logo top: logo 700×260, top 300 → bottom 560. Tagline at 640. Good spacing.
+
+Progress bar: left 160, bottom area top 980, width 1600, height 4px, background #2E2E2E, inner bar #12A9E6 scaleX 0→1.
+
+Footer: bottom-left "grawwww.studio" mono 24px, bottom-right "Local AI, delivered."? No, tagline is in the center. Footer left: "© Grawwww Studio". Keep it minimal: maybe a bottom-left label "Product teaser / B5". Let's put a small mono "grawwww.studio" at bottom-left, and the progress bar spans the bottom.
+
+Timeline details:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// frame
+tl.to("#ticks", {opacity:1, duration:0.4}, 0.1);
+tl.to("#hdr", {opacity:1, duration:0.4}, 0.15);
+tl.fromTo("#prog", {scaleX:0}, {scaleX:1, duration:10, ease:"none"}, 0);
+
+// beat 1 slams
+tl.fromTo("#row1", {opacity:0, x:-90, scale:1.08}, {opacity:1, x:0, scale:1, duration:0.4, ease:"power4.out"}, 0.35);
+tl.fromTo("#row2", {opacity:0, x:-90, scale:1.08}, {opacity:1, x:0, scale:1, duration:0.4, ease:"power4.out"}, 0.85);
+tl.fromTo("#row3", {opacity:0, x:-90, scale:1.08}, {opacity:1, x:0, scale:1, duration:0.4, ease:"power4.out"}, 1.35);
+
+// beat 1 out
+tl.to("#row1", {opacity:0, y:-40, duration:0.3, ease:"power2.in"}, 2.85);
+tl.to("#row2", {opacity:0, y:-40, duration:0.3, ease:"power2.in"}, 2.95);
+tl.to("#row3", {opacity:0, y:-40, duration:0.3, ease:"power2.in"}, 3.05);
+
+// beat 2 in
+tl.to("#clabel", {opacity:1, duration:0.3}, 3.15);
+tl.fromTo("#chip1", {opacity:0, y:44}, {opacity:1, y:0, duration:0.45, ease:"power3.out"}, 3.3);
+tl.fromTo("#acc1", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 3.4);
+tl.fromTo("#chip2", {opacity:0, y:44}, {opacity:1, y:0, duration:0.45, ease:"power3.out"}, 3.6);
+tl.fromTo("#acc2", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 3.7);
+tl.fromTo("#chip3", {opacity:0, y:44}, {opacity:1, y:0, duration:0.45, ease:"power3.out"}, 3.9);
+tl.fromTo("#acc3", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 4.0);
+
+// clear
+tl.to("#hdr", {opacity:0, duration:0.3}, 6.9);
+tl.to("#clabel", {opacity:0, duration:0.3}, 6.9);
+tl.to("#chip1", {opacity:0, y:30, duration:0.3, ease:"power2.in"}, 6.95);
+tl.to("#chip2", {opacity:0, y:30, duration:0.3, ease:"power2.in"}, 7.0);
+tl.to("#chip3", {opacity:0, y:30, duration:0.3, ease:"power2.in"}, 7.05);
+
+// beat 3
+tl.fromTo("#logo", {opacity:0, scale:0.88}, {opacity:1, scale:1, duration:0.9, ease:"power2.out"}, 7.25);
+tl.fromTo("#tag", {opacity:0, y:36}, {opacity:1, y:0, duration:0.6, ease:"power3.out"}, 7.9);
+tl.to("#ticks", {opacity:1, duration:0.01}, 7.2); // keep ticks
+```
+
+Wait — ticks are still visible at the end, that's fine. Footer "grawwww.studio" — should it be visible at the end? It's a persistent footer, but the brief says "everything clears" at 7s. The footer is part of the frame so keep it, or fade it along with the header? The brief says "everything clears, and the logo fades/scales in." Let's fade out the footer text along with the header, and keep the ticks + progress bar as a frame. Actually the progress bar at the bottom is fine to keep.
+
+Hmm, "everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." So the end state: ticks, progress bar (scaleX 1), logo, tagline. Good.
+
+Initial hidden states: use tl.set for elements with opacity 0 in CSS? Rule 4: "Set initial hidden states with tl.set or fromTo, not with CSS transforms." Setting opacity:0 in CSS is fine (it's not a transform). The example uses opacity:0 in CSS. I'll set opacity:0 via inline styles for elements animated with tl.to (hdr, ticks), and use fromTo for the others.
+
+transform-origin in CSS is fine.
+
+Logo: `<img id="logo" class="a logo" src="assets/logo-negative.png" style="left:610px;top:300px;width:700px;height:260px;opacity:0">`. transform-origin center center in CSS.
+
+Tagline: `<div id="tag" class="a h" style="left:360px;top:630px;width:1200px;text-align:center;font-size:84px;color:#F4F4F1;opacity:0">Local AI, <span class="hl">delivered.</span></div>`
+
+hl class is probably inline with background. No problem.
+
+Also add a small mono label above the tagline? Like "grawwww.studio" at the bottom? Let's put a footer at the bottom: `<div id="ftr" class="a m" style="left:160px;top:956px;font-size:24px;color:#8F8F8F;opacity:0">grawwww.studio — local ai, delivered</div>`. Fade it in with the header, out at 6.9.
+
+Progress bar: track `<div id="ptrack" class="a" style="left:160px;top:1010px;width:1600px;height:4px;background:#262626">` and bar `<div id="prog" class="a" style="left:160px;top:1010px;width:1600px;height:4px;background:#12A9E6;transform-origin:left center">`. Animate prog fromTo scaleX 0→1, duration 10.
+
+Wait — ticks at top 100 and footer at 956, progress at 1010. Ticks bottom 952+28=980. OK.
+
+Chip accent: `<div id="acc1" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#12A9E6;transform-origin:center top">`.
+
+Icon SVGs:
+- Chip 1 (chip): CPU icon, stroke #12A9E6.
+- Chip 2 (no per-token billing): receipt / crossed-out coin — let's go with a crossed-out circle with a slash: circle + diagonal line, stroke #FF2D92.
+- Chip 3 (data stays put): lock icon, stroke #F4F4F1.
+
+Lock: rect x10 y22 w28 h18; path M16 22 v-6 a8 8 0 0 1 16 0 v6; keyhole line.
+
+Crossed-out coin: circle cx24 cy24 r14, line 14 14 → 34 34.
+
+CPU: rect 12,12,24,24; inner rect 20,20,8,8; pins.
+
+Header icon: assets/icon.svg 52px.
+
+Row numbers: mono 26px.
+
+Also, to satisfy "text must not overlap other text" — check the rows: row1 top 205 h170 → 205-375; row2 375-545; row3 545-715. clabel 730. Chips 778-890. Footer 956. Header text 116. Ticks 100. OK, no overlap.
+
+Word font size 120px, line height ~170. Row height 170, text top 0 — display font cap height fits.
+
+Row width: 1200. "Automations." at 120px: about 910px + 110 offset = 1020 < 1200. Good.
+
+Duration 10.
+
+One concern: `tl.to("#ticks", ...)` — group selector for 4 elements; GSAP handles multiple selectors fine. But the rule says use tl.set/to/from/fromTo with absolute start times — fine.
+
+Also, no CSS animations/transitions — I only have static styles. Good.
+
+Let me write the final file carefully and completely.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, Delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a{position:absolute;box-sizing:border-box}
+  #row1,#row2,#row3{transform-origin:left center}
+  #acc1,#acc2,#acc3{transform-origin:center top}
+  #logo{transform-origin:center center;object-fit:contain}
+  #prog{transform-origin:left center}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- frame ticks -->
+  <div id="ticks">
+    <div class="a" style="left:100px;top:100px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-top:4px solid #3D3D3D"></div>
+    <div class="a" style="left:1792px;top:100px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-top:4px solid #3D3D3D"></div>
+    <div class="a" style="left:100px;top:952px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D"></div>
+    <div class="a" style="left:1792px;top:952px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D"></div>
+  </div>
+
+  <!-- header -->
+  <div id="hdr" class="a" style="left:0px;top:0px;width:1920px;height:220px;opacity:0">
+    <img class="a" src="assets/icon.svg" style="left:160px;top:104px;width:52px;height:52px" />
+    <div class="a m" style="left:236px;top:116px;font-size:26px;color:#F4F4F1">Grawwww Studio</div>
+    <div class="a m" style="left:1520px;top:116px;width:240px;text-align:right;font-size:26px;color:#8F8F8F">Teaser — 10 Sec</div>
+  </div>
+
+  <!-- beat 1 : slams -->
+  <div id="row1" class="a" style="left:160px;top:205px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:52px;font-size:26px;color:#12A9E6">01</div>
+    <div class="a h" style="left:110px;top:0px;font-size:120px;color:#F4F4F1">Agents<span style="color:#12A9E6">.</span></div>
+  </div>
+  <div id="row2" class="a" style="left:160px;top:375px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:52px;font-size:26px;color:#FF2D92">02</div>
+    <div class="a h" style="left:110px;top:0px;font-size:120px;color:#F4F4F1">Automations<span style="color:#FF2D92">.</span></div>
+  </div>
+  <div id="row3" class="a" style="left:160px;top:545px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:52px;font-size:26px;color:#F4F4F1">03</div>
+    <div class="a h" style="left:110px;top:0px;font-size:120px;color:#F4F4F1">Video<span style="color:#12A9E6">.</span></div>
+  </div>
+
+  <!-- beat 2 : chips -->
+  <div id="clabel" class="a m" style="left:218px;top:730px;font-size:24px;color:#12A9E6;opacity:0">Why it matters</div>
+
+  <div id="chip1" class="a" style="left:218px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc1" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#12A9E6"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <rect x="12" y="12" width="24" height="24" stroke="#12A9E6" stroke-width="6"></rect>
+      <rect x="20" y="20" width="8" height="8" stroke="#12A9E6" stroke-width="6"></rect>
+      <line x1="18" y1="4" x2="18" y2="12" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="30" y1="4" x2="30" y2="12" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="18" y1="36" x2="18" y2="44" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="30" y1="36" x2="30" y2="44" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="4" y1="18" x2="12" y2="18" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="4" y1="30" x2="12" y2="30" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="36" y1="18" x2="44" y2="18" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="36" y1="30" x2="44" y2="30" stroke="#12A9E6" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">Runs on your hardware</div>
+  </div>
+
+  <div id="chip2" class="a" style="left:740px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc2" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#FF2D92"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="15" stroke="#FF2D92" stroke-width="6"></circle>
+      <line x1="13" y1="13" x2="35" y2="35" stroke="#FF2D92" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">No per-token bill</div>
+  </div>
+
+  <div id="chip3" class="a" style="left:1262px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc3" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#F4F4F1"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <rect x="10" y="22" width="28" height="18" stroke="#F4F4F1" stroke-width="6"></rect>
+      <path d="M16 22 v-5 a8 8 0 0 1 16 0 v5" stroke="#F4F4F1" stroke-width="6"></path>
+      <line x1="24" y1="28" x2="24" y2="34" stroke="#F4F4F1" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">Your data stays put</div>
+  </div>
+
+  <!-- footer -->
+  <div id="ftr" class="a m" style="left:160px;top:956px;font-size:24px;color:#8F8F8F;opacity:0">grawwww.studio — local ai, delivered</div>
+
+  <!-- progress -->
+  <div class="a" style="left:160px;top:1010px;width:1600px;height:4px;background:#262626"></div>
+  <div id="prog" class="a" style="left:160px;top:1010px;width:1600px;height:4px;background:#12A9E6"></div>
+
+  <!-- beat 3 : logo -->
+  <img id="logo" class="a" src="assets/logo-negative.png" style="left:610px;top:300px;width:700px;height:260px;opacity:0" />
+  <div id="tag" class="a h" style="left:360px;top:630px;width:1200px;text-align:center;font-size:84px;color:#F4F4F1;opacity:0">Local AI, <span class="hl">delivered.</span></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // frame + header in
+  tl.to("#ticks", { opacity: 1, duration: 0.4 }, 0.1);
+  tl.to("#hdr", { opacity: 1, duration: 0.4 }, 0.15);
+  tl.to("#ftr", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#prog", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+
+  // beat 1 : slams in
+  tl.fromTo("#row1", { opacity: 0, x: -90, scale: 1.08 }, { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power4.out" }, 0.35);
+  tl.fromTo("#row2", { opacity: 0, x: -90, scale: 1.08 }, { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power4.out" }, 0.85);
+  tl.fromTo("#row3", { opacity: 0, x: -90, scale: 1.08 }, { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power4.out" }, 1.35);
+
+  // beat 1 out
+  tl.to("#row1", { opacity: 0, y: -40, duration: 0.3, ease: "power2.in" }, 2.85);
+  tl.to("#row2", { opacity: 0, y: -40, duration: 0.3, ease: "power2.in" }, 2.95);
+  tl.to("#row3", { opacity: 0, y: -40, duration: 0.3, ease: "power2.in" }, 3.05);
+
+  // beat 2 : chips stagger
+  tl.to("#clabel", { opacity: 1, duration: 0.3 }, 3.15);
+  tl.fromTo("#chip1", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.3);
+  tl.fromTo("#acc1", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 3.4);
+  tl.fromTo("#chip2", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.6);
+  tl.fromTo("#acc2", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 3.7);
+  tl.fromTo("#chip3", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.9);
+  tl.fromTo("#acc3", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 4.0);
+
+  // clear
+  tl.to("#hdr", { opacity: 0, duration: 0.3 }, 6.9);
+  tl.to("#ftr", { opacity: 0, duration: 0.3 }, 6.9);
+  tl.to("#clabel", { opacity: 0, duration: 0.3 }, 6.9);
+  tl.to("#chip1", { opacity: 0, y: 30, duration: 0.3, ease: "power2.in" }, 6.95);
+  tl.to("#chip2", { opacity: 0, y: 30, duration: 0.3, ease: "power2.in" }, 7.0);
+  tl.to("#chip3", { opacity: 0, y: 30, duration: 0.3, ease: "power2.in" }, 7.05);
+
+  // beat 3 : logo + tagline
+  tl.fromTo("#logo", { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.9, ease: "power2.out" }, 7.25);
+  tl.fromTo("#tag", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 7.9);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

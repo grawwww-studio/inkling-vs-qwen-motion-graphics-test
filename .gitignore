@@ -1,0 +1,6 @@
+*.gguf
+*.safetensors
+*.bak*
+node_modules/
+.home/
+*.pid

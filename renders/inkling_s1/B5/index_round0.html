@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered.</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <div class="a" id="bar" style="left:0;top:0;width:1920px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a" id="chrome" style="left:100px;top:66px;display:flex;align-items:center;gap:20px;opacity:0">
+    <img src="assets/icon.svg" alt="Grawwww icon" style="width:52px;height:52px;display:block" />
+    <div class="m" style="font-size:24px;letter-spacing:6px;color:var(--ink)">GRAWWW STUDIO</div>
+  </div>
+  <div class="a m" id="tag-corner" style="left:1360px;top:80px;width:460px;text-align:right;font-size:20px;letter-spacing:4px;color:rgba(244,244,241,0.45);opacity:0">TEASER / B5</div>
+
+  <div class="a h" id="line1" style="left:0;top:218px;width:1920px;text-align:center;font-size:118px;color:var(--c);opacity:0">Agents.</div>
+  <div class="a h" id="line2" style="left:0;top:372px;width:1920px;text-align:center;font-size:118px;color:var(--m);opacity:0">Automations.</div>
+  <div class="a h" id="line3" style="left:0;top:526px;width:1920px;text-align:center;font-size:118px;opacity:0"><span class="hl">Video.</span></div>
+
+  <div class="a" id="chip1" style="left:120px;top:455px;width:520px;height:150px;border:3px solid var(--c);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--c);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">Runs on your hardware</span>
+  </div>
+  <div class="a" id="chip2" style="left:680px;top:455px;width:520px;height:150px;border:3px solid var(--m);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--m);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">No per-token bill</span>
+  </div>
+  <div class="a" id="chip3" style="left:1240px;top:455px;width:520px;height:150px;border:3px solid var(--ink);display:flex;align-items:center;gap:22px;padding:0 34px;opacity:0">
+    <span style="width:16px;height:16px;background:var(--ink);flex:none"></span>
+    <span class="m" style="font-size:26px;letter-spacing:1px;color:var(--ink)">Your data stays put</span>
+  </div>
+
+  <div class="a" id="logoWrap" style="left:0;top:250px;width:1920px;height:350px;display:flex;align-items:center;justify-content:center;opacity:0">
+    <img src="assets/logo-negative.png" alt="Grawwww Studio logo" style="height:100%;width:auto;max-width:660px;display:block" />
+  </div>
+  <div class="a" id="tagline" style="left:0;top:630px;width:1920px;text-align:center;font-family:var(--display);font-size:52px;letter-spacing:2px;color:var(--ink);opacity:0">Local AI, delivered<span style="color:var(--c)">.</span></div>
+  <div class="a" id="rule" style="left:860px;top:726px;width:200px;height:6px;background:var(--c);transform-origin:center center;opacity:0"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // progress hairline
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+
+  // corner chrome
+  tl.fromTo("#chrome", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.15);
+  tl.fromTo("#tag-corner", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.3);
+
+  // beat 1: three lines slam in
+  tl.fromTo("#line1", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 0.35);
+  tl.fromTo("#line2", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 1.25);
+  tl.fromTo("#line3", { opacity: 0, scale: 2.6, y: -50 }, { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out" }, 2.15);
+
+  // lines clear
+  tl.to("#line1", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.05);
+  tl.to("#line2", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.13);
+  tl.to("#line3", { opacity: 0, y: -46, scale: 0.92, duration: 0.32, ease: "power2.in" }, 3.21);
+
+  // beat 2: feature chips stagger in
+  tl.fromTo("#chip1", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.55);
+  tl.fromTo("#chip2", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 3.9);
+  tl.fromTo("#chip3", { opacity: 0, y: 80, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" }, 4.25);
+
+  // everything clears
+  tl.to("#chrome", { opacity: 0, duration: 0.35 }, 6.85);
+  tl.to("#tag-corner", { opacity: 0, duration: 0.35 }, 6.85);
+  tl.to("#chip1", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.9);
+  tl.to("#chip2", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 6.98);
+  tl.to("#chip3", { opacity: 0, y: -60, scale: 0.94, duration: 0.42, ease: "power2.in" }, 7.06);
+
+  // beat 3: logo + tagline
+  tl.fromTo("#logoWrap", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.75, ease: "power3.out" }, 7.35);
+  tl.fromTo("#tagline", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 7.85);
+  tl.fromTo("#rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.inOut" }, 8.15);
+  tl.to("#chrome", { opacity: 1, duration: 0.5 }, 8.6);
+  tl.to("#tag-corner", { opacity: 1, duration: 0.5 }, 8.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

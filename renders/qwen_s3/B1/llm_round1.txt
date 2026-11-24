@@ -1,0 +1,863 @@
+[REASONING]
+The user wants a complete index.html file in a single ```html code block. Let me carefully follow all the rules:
+
+1. Link `lib/gw.css` and `vendor/gsap.min.js` exactly as shown
+2. One root element: `<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">`
+3. One paused GSAP timeline registered as `window.__timelines["main"] = tl;`
+4. Never put CSS `transform` on elements that GSAP animates. Use `tl.set` or `fromTo` for initial hidden states. `transform-origin` in CSS is fine.
+5. Position everything with `position:absolute` (class `a`) and explicit left/top/width in px. Keep text inside canvas with 100px margin. Text must not overlap. Size boxes so text fits.
+6. Icons as inline SVG if needed (stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill)
+7. Everything visible at end must be at opacity 1 at hold frame.
+
+Brand identity C dark:
+- Background #0E0E0E (already body)
+- Ink #F4F4F1
+- Cyan #12A9E6
+- Magenta #FF2D92
+- Yellow #FFD400 only as band behind #111 text (class `hl`, text is #111)
+- Fonts: `var(--display)` for headings (class `h`: uppercase, heavy, wide), `var(--body)`, `var(--mono)` (class `m`: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emojis
+
+Brief B1: Title card with kinetic type (5s)
+- Title "Local AI, real video" in huge uppercase display type
+- Words slide/stagger in one by one
+- The word "real" gets a yellow marker band that wipes in from the left
+- Small mono eyebrow "EP05 / Experiment" above
+- A thin rule that draws across below
+- Hold for the last second
+
+Duration = 5s. Hold for last second means the animation should complete by ~4s and hold from 4s to 5s.
+
+Let me plan the layout:
+- Canvas 1920x1080
+- 100px margin on all sides → content area from x=100 to x=1820, y=100 to y=980
+
+Title "LOCAL AI, REAL VIDEO" — let me think about the layout. That's 4 words: "LOCAL", "AI,", "REAL", "VIDEO". 
+
+Huge uppercase display type. Let me think about sizing. The display font is wide: at 150px an uppercase letter is about 100px wide.
+
+"LOCAL AI, REAL VIDEO" — if I put it on multiple lines that would be better for "huge" type.
+
+Let me think:
+- Line 1: "LOCAL AI,"
+- Line 2: "REAL VIDEO"
+
+Or maybe:
+- Line 1: "LOCAL"
+- Line 2: "AI, REAL"
+- Line 3: "VIDEO"
+
+Hmm, "words slide/stagger in one by one" — so each word is a separate element that animates in with stagger.
+
+Let me think about the width constraint. Content width = 1920 - 200 = 1720px.
+
+If font-size is 150px, each uppercase letter ~100px wide. 
+- "LOCAL" = 5 letters ≈ 500px
+- "AI," = 3 chars ≈ 300px (comma narrower)
+- "REAL" = 4 letters ≈ 400px
+- "VIDEO" = 5 letters ≈ 500px
+
+Line 1: "LOCAL AI," = 500 + space + 300 ≈ 850px
+Line 2: "REAL VIDEO" = 400 + space + 500 ≈ 950px
+
+Both fit within 1720px. Good.
+
+Actually, let me make it bigger. If font-size is 180px, each letter ~120px.
+- "LOCAL" = 5 × 120 = 600px
+- "AI," = 3 × 120 = 360px (comma narrower, say 300px)
+- Line 1: "LOCAL AI," ≈ 600 + 60 + 300 = 960px
+- "REAL" = 4 × 120 = 480px
+- "VIDEO" = 5 × 120 = 600px
+- Line 2: "REAL VIDEO" ≈ 480 + 60 + 600 = 1140px
+
+Both fit. Let me use 180px. Actually let me be careful with the width. Let me use a slightly conservative size.
+
+Actually, I need to think about how to structure the words so they slide in one by one. Each word should be its own element (or span) that I can animate.
+
+Let me structure:
+```html
+<div class="a h" id="title" style="left:120px;top:400px;font-size:180px;">
+  <div class="w" id="w1">LOCAL</div>
+  <div class="w" id="w2">AI,</div>
+  <div class="w" id="w3"><span class="hl">REAL</span></div>
+  <div class="w" id="w4">VIDEO</div>
+</div>
+```
+
+Wait, but I need to position words. If I use inline-block spans, they'll flow naturally. But the rule says "Position everything with position:absolute (class a) and explicit left/top/width in px". Hmm, that's for the main elements. For the words within the title, I could use inline-block spans that flow. But the linter might want explicit positioning.
+
+Actually, re-reading rule 5: "Position everything with `position:absolute` (class `a`) and explicit left/top/width in px on the 1920x1080 canvas." This is a general guideline. For words that need to flow together, using inline-block is more practical. But to be safe and avoid overlap issues, maybe I should position each word absolutely.
+
+Hmm, but positioning each word absolutely requires me to know exact x positions, which depends on font metrics. That's risky. Let me think.
+
+Actually, a cleaner approach: use a flex container or just let words flow with inline-block. The title container is positioned absolutely with left/top. The words inside flow naturally. This avoids overlap and is robust.
+
+But wait — the rule says no CSS transform on elements GSAP animates. If I animate the words (x, opacity), I must not have CSS transform on them. That's fine, I won't.
+
+Let me reconsider. The concern with inline-block words is that when I animate x (translate), they'll move from their natural position. That's fine.
+
+Let me use inline-block spans for words. Each word starts at opacity 0, x offset, and animates in.
+
+Actually, let me reconsider the layout more carefully to make it look good and be "huge".
+
+Let me go with a two-line title:
+- Line 1: "LOCAL AI,"
+- Line 2: "REAL VIDEO"
+
+With the yellow band behind "REAL".
+
+Let me set font-size to 170px for a good balance.
+
+Actually, let me reconsider. The `hl` class is the yellow band behind #111 text. So "REAL" would be `<span class="hl">REAL</span>` and it gets the yellow background. The band "wipes in from the left" — so I animate the yellow band's scaleX from 0 to 1 with transform-origin left.
+
+But if "REAL" is a span with class hl that has a background, and I want the band to wipe in separately from the word sliding in... Let me think.
+
+Option A: The word "REAL" slides in with the other words (opacity + x). The yellow band is a separate element behind it that wipes in (scaleX 0→1, origin left).
+
+Option B: The whole word "REAL" (with its yellow band) slides in.
+
+The brief says: "the word 'real' gets a yellow marker band that wipes in from the left." This suggests the band wipes in independently — like a marker highlight being drawn. So I'll make the band a separate element.
+
+Let me structure:
+```html
+<div class="a h" id="title" style="left:120px;top:420px;font-size:170px;line-height:1.05;">
+  <div class="line">
+    <span class="w" id="w1">LOCAL</span>
+    <span class="w" id="w2">AI,</span>
+  </div>
+  <div class="line">
+    <span class="w real" id="w3">REAL</span>
+    <span class="w" id="w4">VIDEO</span>
+  </div>
+</div>
+```
+
+And the yellow band as a separate absolutely positioned element behind "REAL". But positioning it exactly behind "REAL" is tricky without knowing exact metrics.
+
+Alternative: put the band as a `::before` or a child span inside the "REAL" word, positioned absolutely within it. Since the word is inline-block, I can position the band relative to it.
+
+Let me make "REAL" a position:relative inline-block span, and inside it put the band as an absolutely positioned element (inset 0 or with some padding), and the text on top.
+
+```html
+<span class="w real" id="w3">
+  <span class="band" id="band"></span>
+  <span class="realtext">REAL</span>
+</span>
+```
+
+Where `.real` is position:relative inline-block, `.band` is position:absolute covering the text with yellow bg, transform-origin left, and `.realtext` is position:relative z-index 1 with color #111.
+
+Wait, but the `hl` class already does the yellow band thing. Let me re-read: "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So the `hl` class makes the text #111 and presumably gives it a yellow background. But I want the band to wipe in independently.
+
+Hmm, if I use `hl` class directly on the word, the background would appear immediately with the word (or when word becomes visible). To make it wipe, I need the band as a separate layer.
+
+Let me do this:
+- "REAL" word: `<span class="w" id="w3" style="position:relative;">` containing:
+  - `<span class="band" id="band"></span>` — absolutely positioned, yellow bg, behind text
+  - `<span class="hl">REAL</span>` — the text with #111 color (but no background, or I override)
+
+Actually, the `hl` class might set a background. Let me not rely on it for the band. Let me define my own structure.
+
+Let me just make:
+- `.band` — position:absolute, left:0, top:0, right:0, bottom:0 (or with padding), background:var(--y) (#FFD400), transform-origin:left center, initial scaleX 0.
+- The text "REAL" — position:relative, z-index:1, color:#111.
+
+But I need the band to be slightly larger than the text for a nice marker effect (like padding). Let me add some padding to the band: left:-10px; right:-10px; top:-8px; bottom:-8px. Or use inset with negative values. Actually simpler: give the band padding via making it bigger.
+
+Hmm, but the word "REAL" is inline-block. Its width is determined by the text. The band as a child with position:absolute and inset:0 would match the word's box. Let me add a bit of padding to the word and let the band fill it. Actually, let me give the band explicit offsets.
+
+Let me structure the "REAL" word:
+```html
+<span class="w realword" id="w3">
+  <span class="band" id="band"></span>
+  <span class="realtext">REAL</span>
+</span>
+```
+
+CSS:
+```css
+.realword { position: relative; display: inline-block; padding: 0 14px; }
+.band { position: absolute; left: 0; top: 8%; width: 100%; height: 84%; background: var(--y); transform-origin: left center; }
+.realtext { position: relative; z-index: 1; color: #111; }
+```
+
+Wait, but the brief says the band is behind #111 text and the class is `hl`. Let me use the `hl` class on the realtext to get #111 color, and use my own band element for the wipe. Actually the `hl` class might also add a background which I don't want (I want my band). Let me check — I don't have the actual gw.css, so I'll assume `hl` gives yellow bg + #111 text. To be safe, I'll define my own colors and not rely on `hl` for the band, but I can use `hl` for the text color if it just sets color. Hmm.
+
+Actually, the safest: define my own. The text "REAL" should be #111. I'll set color:#111 directly. The band is a separate element with #FFD400. I won't use the `hl` class to avoid unexpected background. But the brief explicitly mentions "class hl". Let me use `hl` on the realtext span — it likely sets color:#111 and background:var(--y). If it sets background, then the band would be redundant but fine (both yellow). Actually if hl sets background:var(--y), then the text box itself has yellow bg, and my band behind it... the band would be hidden behind the text's own bg. That's messy.
+
+Let me just be explicit and not use `hl` for the band. I'll create the band element and the text with color #111. To honor the "class hl" mention, I could apply `hl` to the text but that might add bg. 
+
+You know what, I'll take a cleaner approach: I'll make the "REAL" word use the `hl` class (which gives it the yellow band + #111 text as the brand intends), and for the wipe effect, I'll animate a separate overlay. Hmm, that's overcomplicating.
+
+Let me reconsider. The simplest robust approach that satisfies "yellow marker band that wipes in from the left":
+
+Make "REAL" a position:relative inline-block. Inside:
+1. A `.band` span: position absolute, covering the word box (with slight padding), background #FFD400, transform-origin left center, scaleX 0 → 1.
+2. The text "REAL" in #111, position relative, z-index 1.
+
+This gives a clean marker wipe. I'll define `.band` myself with `background: var(--y)` (assuming --y is #FFD400) or just `#FFD400`. Let me use `#FFD400` directly to be safe, or `var(--y)`. The brand tokens are in gw.css. I'll use `var(--y)` but fall back... actually I can't easily fallback in the same declaration without knowing the var name. Let me use the hex `#FFD400` directly to be safe, since I know the exact color. Actually, using brand tokens is cleaner and the brief lists them. But I don't know the exact var names (--c, --m, --y, --ink?). The example uses `var(--c)` for cyan and `var(--m)` for magenta. So likely `--y` for yellow, `--ink` for #F4F4F1. Let me use `var(--y)` for yellow and `var(--ink)` for ink, `var(--c)` for cyan, `var(--m)` for magenta. These match the example's usage.
+
+OK here's my plan. Let me also think about the overall composition and make it visually strong, not generic.
+
+Composition (1920x1080, dark #0E0E0E):
+- Top-left area: eyebrow "EP05 / EXPERIMENT" in mono, cyan color, small.
+- A thin rule that draws across below the eyebrow (or below the title).
+- The big title in the center-ish, two lines.
+- Maybe a small detail element: a corner mark, a frame number, a "REC" dot or a small icon (inline SVG) to add craft. The brief is minimal though — title card. Let me add subtle supporting elements: a small logo (there's assets/logo-negative.png) maybe top-right, and a small mono detail bottom. But I should be careful not to overdo it. The brief is specific: eyebrow, title, rule, hold. Let me add a couple of tasteful supporting elements to make it feel designed: 
+  - A small logo top-right (assets/logo-negative.png).
+  - A small mono detail bottom-left like "LOCAL MODE / NO CLOUD" or a frame indicator.
+  - Maybe a subtle corner bracket or a small cyan square as a "record" indicator.
+
+Actually, let me keep it focused but crafted. I'll add:
+- Eyebrow top-left: "EP05 / EXPERIMENT" (mono, cyan)
+- A small index/label top-right: "TITLE CARD" or the logo
+- The big title (two lines) with staggered words and the yellow band on "REAL"
+- A thin rule that draws across below the title
+- A small bottom detail: maybe a mono line "LOCAL MODE — NO CLOUD" or a small SVG icon + text
+
+Let me think about vertical layout:
+- y=140: eyebrow (top-left), and top-right logo
+- y=200: rule below eyebrow? Or rule below title. The brief says "a thin rule that draws across below." Below what? "Small mono eyebrow above, a thin rule that draws across below." I think the rule is below the title (or below the eyebrow). Let me put the rule below the title, spanning a good width. Actually "below" likely refers to below the title block. Let me draw a rule below the title.
+
+Hmm, "Small mono eyebrow 'EP05 / Experiment' above, a thin rule that draws across below." — The eyebrow is above [the title], and a thin rule draws across below [the title]. So:
+- Eyebrow above title
+- Title (big)
+- Rule below title
+
+Let me lay out:
+- Eyebrow at y=250 (left:120)
+- Title line 1 at y=340
+- Title line 2 at y=560
+- Rule at y=800 (below title)
+- Bottom detail at y=900
+
+Let me compute title size. Two lines. If font-size 170px, line-height ~1.1 → line height ~187px. 
+
+Line 1 top at 340, line 2 top at 340 + 187 = 527. Let me set them.
+
+Actually, let me reconsider sizes to ensure fit and "huge".
+
+Content area: x from 120 to 1800 (width 1680), y from 120 to 960.
+
+Title left: 120.
+
+Line 1 "LOCAL AI,":
+At 170px, letter width ~113px.
+- LOCAL = 5 × 113 = 565
+- space ~ 50
+- AI, = A(113) + I(60) + ,(40) ≈ 213... let me just estimate AI, ≈ 250
+- Total ≈ 565 + 50 + 250 = 865px. Fits in 1680. Good, room to spare.
+
+Line 2 "REAL VIDEO":
+- REAL = 4 × 113 = 452 (plus band padding ~28) ≈ 480
+- space ~ 50
+- VIDEO = 5 × 113 = 565
+- Total ≈ 480 + 50 + 565 = 1095px. Fits. Good.
+
+So 170px works with comfortable margins. Could even go bigger. Let me try 180px:
+Line 1: LOCAL=5×120=600, AI,≈270, space 55 → ~925. Fits.
+Line 2: REAL=4×120=480+28=508, VIDEO=5×120=600, space 55 → ~1163. Fits.
+
+Let me use 180px for "huge". Actually, let me be a bit conservative to avoid overflow with the wide display font. The rule says "at 150 px an uppercase letter is about 100 px wide" — so ratio is 0.67 (letter width = 0.67 × font-size). At 180px, letter ≈ 120px. My estimates used that. Line 2 at ~1163px is well within 1680. Good. Let me use 180px.
+
+Hmm, but "AI," — the comma. And "REAL" has the band. Let me just go with 180px and it should be fine. Actually, to be safe against the wide display font, let me use 168px. Eh, let me use 172px. I'll go with 170px — clean number, safe.
+
+Wait, I want it to feel "huge". Let me reconsider making it 3 lines for more impact? "LOCAL" / "AI, REAL" / "VIDEO"? That could be bigger per word. But "AI, REAL" on one line with the band on REAL is nice. Let me think:
+
+Option: 
+- Line 1: "LOCAL"
+- Line 2: "AI, REAL"
+- Line 3: "VIDEO"
+
+At font-size 200px, letter ~133px:
+- LOCAL = 5×133 = 665
+- AI, REAL = A(133)+I(75)+,(50)+space(60)+R(133)+E(133)+A(133)+L(133) = 133+75+50+60+133+133+133+133 = 850, +band padding ≈ 878
+- VIDEO = 5×133 = 665
+All fit in 1680. This gives a big, stacked, editorial look. But the words slide in one by one: LOCAL, AI, REAL, VIDEO — 4 words across 3 lines. That works.
+
+Hmm, but "AI," and "REAL" on the same line, with REAL having the band. That's fine.
+
+Actually, I think a 2-line layout is cleaner and more like a title card. Let me go with 2 lines:
+- Line 1: "LOCAL AI,"
+- Line 2: "REAL VIDEO"
+
+This is a natural phrase break and reads well. Let me go with 2 lines at 170px.
+
+Actually, you know, let me reconsider for maximum "huge" impact and good composition. A common strong title card: two lines, left-aligned, big. Let me commit to:
+- Line 1: "LOCAL AI,"
+- Line 2: "REAL VIDEO"
+- Font-size: 170px
+- Left: 120px
+
+Let me now think about the animation timeline (5s total, hold last 1s → animations done by 4s).
+
+Timeline:
+- t=0.0: everything hidden (set initial states)
+- t=0.2: eyebrow fades/slides in (opacity 0→1, y 20→0 or x -20→0). Duration 0.5.
+- t=0.5: rule draws? Or words first. Let me sequence: eyebrow → words → band → rule. Actually the rule "draws across below" — could come after or with the title. Let me do: eyebrow (0.2), then words stagger (0.5, 0.75, 1.0, 1.25), then band wipe (1.5), then rule draw (1.8). Then hold.
+
+Wait, but the band should probably come right after "REAL" appears, like the marker is applied. Let me sequence:
+- Eyebrow: 0.2–0.7
+- Word 1 "LOCAL": 0.5
+- Word 2 "AI,": 0.75
+- Word 3 "REAL": 1.0
+- Word 4 "VIDEO": 1.25
+- Band wipe on REAL: 1.5–2.1 (scaleX 0→1)
+- Rule draw: 2.0–2.9
+- Maybe a small detail (bottom line / logo): 2.5
+- Hold from ~3.2 to 5.0
+
+That leaves hold from ~3.2 to 5.0, which is ~1.8s. The brief says "hold for the last second" — so at least the last second (4.0–5.0) is a hold. Having the last animation finish around 3.2 gives a comfortable hold. Good. Actually let me make sure animations are done by ~4.0 to guarantee the last second is a clean hold. Let me finish everything by 3.5.
+
+Let me refine timings:
+- t=0.15: eyebrow in (0.5s) → done 0.65
+- t=0.45: word1 in (0.5s)
+- t=0.70: word2 in (0.5s)
+- t=0.95: word3 in (0.5s)
+- t=1.20: word4 in (0.5s) → done 1.70
+- t=1.55: band wipe (0.6s) → done 2.15
+- t=1.90: rule draw (0.8s) → done 2.70
+- t=2.40: bottom detail in (0.5s) → done 2.90
+- t=2.70: logo in (0.4s) → done 3.10
+- Hold 3.1 → 5.0 (1.9s hold, last second clean)
+
+Good.
+
+Now, "words slide in one by one" — slide means x movement. Let me have each word slide from left (x: -60) to 0 with opacity 0→1. Or from below (y). "Slide" typically horizontal. Let me do x: -50 → 0 with a slight opacity. Actually a nice kinetic type effect: words slide up from slightly below and fade, or slide in from left. Let me do a horizontal slide-in from the left (x: -60 → 0) with opacity, using power3.out for a snappy feel. Actually for kinetic type, a slight overshoot (back ease) could be nice but might look janky on a title. Let me use power3.out for a clean slide.
+
+Hmm, "kinetic type" often implies bold motion. Let me give the words a slide from left with a strong ease. Let me use ease "power3.out" and x from -70 to 0, opacity 0 to 1, duration 0.5.
+
+Actually, to make it feel more kinetic, let me have them slide in with a bit more distance and a punchy ease. x: -80 → 0, duration 0.55, ease "power3.out". And stagger by 0.22s.
+
+Wait, I'm animating each word individually with absolute start times (not stagger in one call, because the rule says use absolute start time as 3rd argument — I can still use one call per word). Let me do individual tl.fromTo calls with absolute times.
+
+Let me also consider: the words are inline-block spans. When I animate x (translateX), GSAP sets transform. That's fine as long as I don't have CSS transform on them. Good.
+
+But there's a subtlety: if words are inline-block and I translate them, they'll move but leave their space (the layout box stays). So the final position is correct (x:0 = natural position). Good.
+
+Now the band: it's inside the "REAL" word. When the word slides in (x: -80 → 0), the band (child) moves with it. Then after the word settles, the band wipes (scaleX 0→1). Good. But the band is a child of the word which has a transform (translateX). GSAP animates the word's transform, and the band's transform separately (scaleX). These are on different elements, so no conflict. Good.
+
+Wait, rule 4: "Never put a CSS transform on an element that GSAP animates." The band has transform-origin in CSS (that's allowed) but no CSS transform property. GSAP sets its transform (scaleX). Good. The word has no CSS transform; GSAP sets it. Good.
+
+Let me also make sure the band's initial state is scaleX 0 (hidden). I'll set it with tl.set at t=0 or use fromTo. Let me use tl.fromTo for the band: scaleX 0 → 1. But before it starts (at t=1.55), it should be scaleX 0. If I use fromTo with the from state, GSAP sets it at the start time. But from t=0 to t=1.55, the band would be at its default (scaleX 1) unless I set it. Actually, fromTo with a start time — GSAP applies the "from" values only when the tween starts? No. With a timeline, a fromTo tween: before its start time, the element is at its natural CSS state (not the "from" state), UNLESS the timeline has rendered that point. Actually, GSAP renders the timeline from 0. At t=0, the fromTo tween hasn't started, so the element is at its natural state (scaleX 1, visible). That's a problem — the band would be visible before the wipe.
+
+To fix: use tl.set("#band", {scaleX: 0}, 0) to set initial hidden state, then tl.to("#band", {scaleX: 1, ...}, 1.55). Or use fromTo but also set at 0. The rule says "Set initial hidden state with tl.set or fromTo, not by CSS transform." So I should use tl.set for initial states.
+
+Let me use tl.set for all initial hidden states (opacity 0, x offsets, scaleX 0) at t=0, then tl.to for the animations. That's clean and avoids the "visible before start" issue.
+
+Actually, using fromTo also works if I understand GSAP: a fromTo tween in a timeline, when you render the timeline at time 0 (before the tween's start), GSAP does NOT apply the from state (the from state is applied at the tween's start). So the element shows at its natural state until the tween starts. So I do need tl.set for initial states. Let me use tl.set for everything at t=0.
+
+Wait, actually there's nuance: GSAP's fromTo with immediateRender. By default, from tweens have immediateRender true, which means the "from" values are applied immediately when the tween is created (at timeline build time), not at the start time. For fromTo, immediateRender is also true by default I think. Hmm. Let me just be safe and use tl.set for initial states. That's the most reliable and matches the rule's suggestion.
+
+So:
+```js
+tl.set("#eyebrow", {opacity: 0, y: 20}, 0);
+tl.set("#w1", {opacity: 0, x: -80}, 0);
+tl.set("#w2", {opacity: 0, x: -80}, 0);
+tl.set("#w3", {opacity: 0, x: -80}, 0);
+tl.set("#w4", {opacity: 0, x: -80}, 0);
+tl.set("#band", {scaleX: 0}, 0);
+tl.set("#rule", {scaleX: 0}, 0);
+tl.set("#detail", {opacity: 0, y: 20}, 0);
+tl.set("#logo", {opacity: 0, scale: 0.9}, 0);
+```
+
+Then animations:
+```js
+tl.to("#eyebrow", {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}, 0.15);
+tl.to("#w1", {opacity: 1, x: 0, duration: 0.55, ease: "power3.out"}, 0.45);
+tl.to("#w2", {opacity: 1, x: 0, duration: 0.55, ease: "power3.out"}, 0.68);
+tl.to("#w3", {opacity: 1, x: 0, duration: 0.55, ease: "power3.out"}, 0.91);
+tl.to("#w4", {opacity: 1, x: 0, duration: 0.55, ease: "power3.out"}, 1.14);
+tl.to("#band", {scaleX: 1, duration: 0.6, ease: "power2.inOut"}, 1.55);
+tl.to("#rule", {scaleX: 1, duration: 0.8, ease: "power2.inOut"}, 1.95);
+tl.to("#detail", {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}, 2.4);
+tl.to("#logo", {opacity: 1, scale: 1, duration: 0.4, ease: "power2.out"}, 2.7);
+```
+
+All done by ~3.1. Hold to 5.0. 
+
+Now, the rule "draws across below" — I'll use scaleX 0→1 with transform-origin left center. Set in CSS: `transform-origin: left center;`. Good.
+
+Now let me think about additional supporting elements to make it crafted:
+1. Eyebrow: "EP05 / EXPERIMENT" — mono, cyan, top-left.
+2. Logo top-right: assets/logo-negative.png. Small, like 90px wide.
+3. Title (two lines).
+4. Rule below title.
+5. Bottom detail: a small mono line + maybe a small SVG icon. Like a "record" dot or a small chip icon. Let me add a small inline SVG (e.g., a chip/CPU icon representing local AI) plus text "LOCAL MODE / NO CLOUD" in mono. That ties to the theme (local AI). Nice touch.
+
+Actually, let me add a subtle background element for depth: maybe a faint large "05" or a grid? The brief is a title card, keep it clean. Let me add a very subtle element: a thin cyan vertical line or a small square accent near the eyebrow. And maybe a faint oversized "EP05" watermark? That could be nice but risky (overlap). Let me keep it clean.
+
+Let me add:
+- A small cyan square (accent) before the eyebrow.
+- The eyebrow text.
+- Logo top-right.
+- Title.
+- Rule.
+- Bottom: SVG chip icon + "LOCAL MODE — NO CLOUD" mono text. And maybe on the bottom-right a small "24 FPS / 1920×1080" or "REC" indicator. Hmm, that might be too much. Let me do bottom-left: chip icon + "LOCAL MODE — NO CLOUD". Bottom-right: a small mono "05" or "TITLE / 01". 
+
+Actually, let me not overcrowd. Let me do:
+- Top-left: cyan accent square + eyebrow "EP05 / EXPERIMENT"
+- Top-right: logo
+- Center: title (2 lines) with band
+- Below title: rule
+- Bottom-left: chip SVG icon + "LOCAL MODE — NO CLOUD"
+- Bottom-right: "TITLE CARD — 01" mono (small)
+
+That's a balanced, designed frame. Let me make sure nothing overlaps and everything's within margins.
+
+Layout coordinates (1920x1080, 100px+ margins):
+- Accent square: left 120, top 130, 18x18, cyan
+- Eyebrow: left 155, top 130, font 26px, cyan. (text baseline aligns with square) — actually let me put square at top 138 (to center with 26px text). Let me set eyebrow top:132, square top:140, both height ~18. Eh, let me just position eyebrow at left 120, top 130, and the square as part of it or separate at left 120 top 138. Let me put square left 120 top 140 (18px), eyebrow left 152 top 132.
+
+Hmm, let me simplify: eyebrow is a single element with the text. I'll add a small square as a separate accent to its left.
+
+Let me define:
+- #accent: left 120, top 140, width 16, height 16, background cyan.
+- #eyebrow: left 152, top 130, font-size 26, color cyan, mono. Text "EP05 / EXPERIMENT".
+
+Wait, the eyebrow in the brief is "EP05 / Experiment". The mono class makes it uppercase. So it'll show "EP05 / EXPERIMENT". That's fine (mono labels are uppercase per brand). Actually the brief wrote "Experiment" with capital E. The mono class uppercases. So it becomes "EXPERIMENT". That's consistent with the brand (mono = uppercase labels). Good.
+
+- #logo: top-right. left ~1660, top 120, width 140 (the logo-negative.png). Let me set width 140, height auto. But I need explicit... the rule says explicit left/top/width. Height can be auto for an image. Let me set width 140. Actually let me check aspect ratio — I don't know the logo's aspect ratio. Let me set width 150 and let height be auto. Or set both. To be safe, width 150, height auto. Hmm, but "explicit left/top/width in px" — width is there. Height auto is OK for an image.
+
+Actually, I'm not 100% sure the logo will look good at 150px or its aspect ratio. Let me set width 140 and it should be fine. Position: right side. left 1920 - 120 - 140 = 1660. top 130.
+
+- Title container #title: left 120, top 320, font-size 170, line-height 1.08.
+  - Line 1: "LOCAL AI,"
+  - Line 2: "REAL VIDEO"
+  
+  Let me compute: at 170px, line-height 1.08 → ~184px per line. Line 1 top ~320, line 2 top ~504. Title block spans 320 to ~504+184 = 688. 
+
+- #rule: below title. left 120, top 730, width 1680, height 6, background ink or cyan. Let me make it ink (#F4F4F1) or a brand color. The example uses magenta for the rule. Let me use cyan for a techy feel, or ink. Let me use ink (#F4F4F1) as a clean divider, or a mix. Actually, let me make the rule cyan to tie with the eyebrow accent. Hmm, or ink. Let me use ink for the main rule (clean) — actually a thin cyan rule is more "brand". Let me use cyan. Wait, but the title is ink. A cyan rule below could look like an underline accent. Let me use ink for the rule to keep it neutral, and use cyan for small accents. Actually, let me make the rule a solid ink line — it's the "draws across" element, a strong divider. Ink it is. Hmm, but a full-width ink line might be heavy. Let me make it ink but only 6px tall. Fine.
+
+Actually, let me reconsider: a thin rule "draws across below" the title. A 6px ink line from left 120 to right 1800 (width 1680) is a strong editorial divider. Good. Let me use ink.
+
+- Bottom-left detail: 
+  - #chip icon (SVG): left 120, top 880, 44x44.
+  - #detail text: left 180, top 890, mono, 24px, ink. "LOCAL MODE — NO CLOUD".
+- Bottom-right: #meta: right-aligned. left 1400, top 890, mono, 24px, cyan or ink. "TITLE CARD — 01". Let me position with left and width, text-align right. left 1400, width 400, text-align right.
+
+Wait, I need to keep text within 100px margin. Right margin: content should end by x=1820. So bottom-right text right edge at 1800. Let me set #meta left 1400, width 400, text-align right → right edge at 1800. Good.
+
+Let me reconsider vertical: bottom details at top 880-900. Bottom margin 100 → content should be above 980. 880+44=924 for the icon, text at 890. Fine, within 980.
+
+Let me also double check the title doesn't overlap the rule. Title line 2 bottom ~688. Rule at 730. Gap of 42px. Good.
+
+And eyebrow at top 130, title at 320. Gap fine.
+
+Now, the "hold for the last second" — everything is static from ~3.1 to 5.0. Good.
+
+Let me also add a subtle entrance for the whole composition? No, individual elements animate in. Good.
+
+Let me reconsider the band positioning within "REAL". The word "REAL" is inline-block with some padding. The band is absolute inside it. Let me define:
+```css
+.w { display: inline-block; }
+.realword { position: relative; padding: 0 16px; margin: 0 -8px; } /* to keep spacing tight */
+```
+Hmm, padding + negative margin to keep the line spacing consistent. Actually, let me not overthink. Let me give "REAL" a bit of padding so the band has room, and accept slightly more space. The band covers the padding box.
+
+Actually, for a marker band effect, I want the band to be a bit taller than the text (like a highlighter). Let me make the band: position absolute, left -6px, right -6px, top 12%, bottom 8% (so it's inset vertically a bit, like a marker stroke). Or top 15%, height 70%. Let me do: top: 18%, height: 64%, left: -8px, right: -8px. That gives a marker band that doesn't cover the full cap height — looks like a highlighter swipe. 
+
+Hmm, but I want it to clearly read as a "band behind the text". Let me make it cover most of the text height: top 10%, bottom 10%, left -10px, right -10px. The text is #111 on top. Good.
+
+Wait, but if the band is behind the text and the text is #111 (near black), and the band is yellow, that reads as a yellow highlight with dark text. 
+
+Let me set:
+```css
+.realword { position: relative; display: inline-block; padding: 0 10px; }
+.band { position: absolute; left: -10px; top: 12%; width: calc(100% + 20px); height: 76%; background: #FFD400; transform-origin: left center; }
+.realtext { position: relative; z-index: 1; color: #111; }
+```
+
+Wait, width calc(100% + 20px) with left -10px → extends 10px on each side. Good. Or I can use right: -10px and left: -10px (no width). Let me use left: -10px; right: -10px; (no width needed). That's cleaner.
+
+```css
+.band { position: absolute; left: -10px; right: -10px; top: 12%; height: 76%; background: #FFD400; transform-origin: left center; }
+```
+
+Good.
+
+Now, the "REAL" word slides in (x: -80 → 0) as part of the word stagger. The band is a child, so it moves with the word. Initially band scaleX 0 (hidden). After word settles (~1.46s), band wipes at 1.55s. Good.
+
+But wait — when the word "REAL" slides in from x:-80, the band (scaleX 0) is also there but invisible. As the word slides to x:0, the band is still scaleX 0. Then band wipes. Good, no conflict.
+
+One concern: the band's transform-origin is "left center" in CSS. GSAP animates scaleX. When GSAP sets transform: scaleX(0), it uses the CSS transform-origin. Good. But does GSAP override transform-origin? No, GSAP sets the transform property, and transform-origin is separate. Good.
+
+Another concern: the word "REAL" has GSAP animating its transform (x). The band is a child with its own transform (scaleX). These are independent. Good.
+
+Now let me also make sure the title words don't have CSS transform. They don't. Good.
+
+Let me also handle the rule: #rule has transform-origin left center in CSS, GSAP animates scaleX. Good.
+
+Let me write the CSS. I'll add a `<style>` block for the specific classes (band, realword, w, line). The `a`, `h`, `m`, `hl` classes come from gw.css. Let me define my own helper classes.
+
+Wait, I should be careful: gw.css defines `.h` (uppercase, heavy, wide display), `.m` (uppercase mono labels), `.a` (position absolute). I'll use those. For the title, class `h`. For eyebrow and meta, class `m`. For absolute positioning, class `a`.
+
+Let me define in my `<style>`:
+```css
+.w { display: inline-block; }
+.line { line-height: 1.05; }
+.realword { position: relative; padding: 0 12px; }
+.band { position: absolute; left: -12px; right: -12px; top: 12%; height: 74%; background: #FFD400; transform-origin: left center; }
+.realtext { position: relative; z-index: 1; color: #111; }
+```
+
+Hmm, `.line` with line-height — but I'm putting two `.line` divs inside `#title`. Each is a block, so they stack. Good. The `#title` has font-size 170px, and the lines inherit it.
+
+Actually, wait. If I put the words as inline-block spans inside a `.line` div, and the `.line` is a block div, then line 1 and line 2 stack vertically. Good.
+
+Let me reconsider: do I need `.line` divs, or can I just use `<br>`? Using divs is cleaner for potential per-line styling. Let me use two divs.
+
+Let me now also think: the title font-size 170px. The `.h` class sets font-family var(--display), uppercase, heavy, wide (letter-spacing). The letter-spacing might add width. Let me account: "wide" display type likely has letter-spacing. That could push the width. Let me be a bit conservative with font-size. Let me use 160px to be safe with letter-spacing. Hmm.
+
+Actually, the example uses 150px for "HELLO WORLD" (with hl on "world"). And notes "at 150 px an uppercase letter is about 100 px wide". So 150px is a reference. My longest line "REAL VIDEO" (10 chars incl space) at 150px ≈ 10 × 100 = 1000px (rough, space is narrower). With letter-spacing maybe +10%. ~1100px. Fits in 1680. 
+
+At 170px: 10 × 113 = 1130, +10% = 1243. Still fits. At 180px: 10 × 120 = 1200 + 10% = 1320. Fits.
+
+Let me go with 170px for good "huge" impact while safe. Actually, let me reconsider the letter-spacing. "wide" could mean significant letter-spacing. If letter-spacing is like 0.05em, at 170px that's 8.5px per letter, × 10 = 85px extra. So "REAL VIDEO" ≈ 1243 + 85 = 1328. Still fits in 1680 (margin 120 left, 120 right → 1680 available). 1328 < 1680. Good, ~350px to spare.
+
+Line 1 "LOCAL AI," (9 chars incl space and comma): ≈ 9 × 113 = 1017 + letter-spacing ~75 = 1092. Fits easily.
+
+OK 170px it is. Let me maybe go 175 for extra punch. Eh, 170 is fine.
+
+Hmm, let me reconsider the whole vertical centering. Title at top 320, two lines to ~688. Center of title ~504. Canvas center is 540. Close enough. The eyebrow at top 130 and bottom details at ~890 frame it. Good balance.
+
+Actually, let me shift the title down a touch for better optical centering given the eyebrow is at top. Let me set title top 340. Then lines at 340 and ~524, bottom ~708. Rule at 750. Bottom details at 890. Let me finalize:
+
+- #accent: left 120, top 142, 16x16
+- #eyebrow: left 152, top 132, 26px
+- #logo: left 1660, top 128, width 140
+- #title: left 120, top 330, 170px
+- #rule: left 120, top 760, width 1680, height 6
+- #chip: left 120, top 878, 46x46
+- #detail: left 182, top 888, 24px
+- #meta: left 1400, top 888, width 400, 24px, text-align right
+
+Let me verify rule position vs title bottom. Title line 2 at top 330 + 184 (line 1 height) = 514, line 2 bottom ~514 + 184 = 698. Rule at 760. Gap 62. Good.
+
+Bottom details at 878-934. Within 980. Good.
+
+Now the chip SVG icon (CPU/local AI theme). Let me draw a simple CPU chip: a square with pins. Stroke #F4F4F1 or cyan, stroke-width 6, no fill.
+
+```svg
+<svg width="46" height="46" viewBox="0 0 46 46" fill="none">
+  <rect x="10" y="10" width="26" height="26" stroke="#12A9E6" stroke-width="4"/>
+  <rect x="18" y="18" width="10" height="10" stroke="#F4F4F1" stroke-width="4"/>
+  <!-- pins -->
+  <line x1="16" y1="10" x2="16" y2="4" stroke="#F4F4F1" stroke-width="4"/>
+  ...
+</svg>
+```
+
+Hmm, the rule says stroke-width 6. Let me use 6 but scale down for a 46px icon — 6 might be too thick. Let me use a larger viewBox and stroke 6. Let me make the icon 48px with viewBox 48x48 and stroke-width 6.
+
+Actually, let me make the chip icon a bit bigger, like 52px, for presence. And use stroke-width 6 as required.
+
+Let me draw a CPU:
+- Outer square: x=14, y=14, w=24, h=24 (in a 52 viewBox)
+- Inner square: x=22, y=22, w=8, h=8
+- Pins: 3 on each side (top, bottom, left, right), short lines.
+
+Let me set viewBox 0 0 52 52:
+- Outer rect: x=15, y=15, width=22, height=22, stroke cyan, sw 6
+- Inner rect: x=23, y=23, width=6, height=6, stroke ink, sw 6 (small)
+- Pins top: lines from (21,15) to (21,8), (26,15) to (26,8), (31,15) to (31,8) — stroke ink sw 6
+- Pins bottom: (21,37)-(21,44), (26,37)-(26,44), (31,37)-(31,44)
+- Pins left: (15,21)-(8,21), (15,26)-(8,26), (15,31)-(8,31)
+- Pins right: (37,21)-(44,21), (37,26)-(44,26), (37,31)-(44,31)
+
+That's a CPU chip. Good. Let me use cyan for outer, ink for pins and inner.
+
+Actually, to keep it clean and match "stroke #F4F4F1 or a brand colour", let me use cyan for the whole chip (outer + inner) and ink for pins, or all cyan. Let me do outer cyan, inner cyan, pins ink. Or simpler: all cyan. Let me do outer + pins cyan, inner ink. Eh, let me just do cyan for outer and inner, ink for pins. Fine.
+
+Let me simplify the SVG to reduce code. I'll draw outer square, inner square, and 4 pins (one per side) for a cleaner look. Actually 3 per side looks more CPU-like. Let me do 3 per side but keep it compact.
+
+Let me write it:
+```svg
+<svg class="a" id="chip" style="left:120px;top:876px;width:52px;height:52px" viewBox="0 0 52 52" fill="none">
+  <rect x="15" y="15" width="22" height="22" stroke="#12A9E6" stroke-width="6"/>
+  <rect x="23" y="23" width="6" height="6" stroke="#F4F4F1" stroke-width="4"/>
+  <g stroke="#F4F4F1" stroke-width="6">
+    <line x1="21" y1="15" x2="21" y2="8"/>
+    <line x1="31" y1="15" x2="31" y2="8"/>
+    <line x1="21" y1="37" x2="21" y2="44"/>
+    <line x1="31" y1="37" x2="31" y2="44"/>
+    <line x1="15" y1="21" x2="8" y2="21"/>
+    <line x1="15" y1="31" x2="8" y2="31"/>
+    <line x1="37" y1="21" x2="44" y2="21"/>
+    <line x1="37" y1="31" x2="44" y2="31"/>
+  </g>
+</svg>
+```
+
+Wait, the inner rect with stroke-width 4 — the rule says stroke-width 6. Let me use 6 for consistency, but a 6px stroke on a 6px rect would be too thick (it'd fill it). Let me make inner rect bigger: x=21, y=21, w=10, h=10, stroke 6. Hmm, 10px rect with 6px stroke → the stroke extends 3px each side, covering most of it. That'd look like a filled blob. Let me make inner rect x=20, y=20, w=12, h=12, stroke 6 → inner area 12, stroke 6 → 3px each side, leaving 6px inner. OK visible. Or just make the inner a small filled square (flat fill) — the rule allows "no fill or flat fill". Let me make the inner a filled cyan square: x=22, y=22, w=8, h=8, fill cyan, no stroke. That's a clean center dot. 
+
+Let me do:
+```svg
+<rect x="15" y="15" width="22" height="22" stroke="#12A9E6" stroke-width="6" fill="none"/>
+<rect x="22" y="22" width="8" height="8" fill="#12A9E6"/>
+<g stroke="#F4F4F1" stroke-width="6">
+  ... pins ...
+</g>
+```
+
+Good. The outer square is cyan outline, center is a cyan filled square, pins are ink. Clean CPU icon.
+
+Now, I realize the chip and detail text and meta are all bottom. Let me make sure they don't overlap. Chip at left 120, detail at left 182 (after chip which is 52 wide, ends at 172, so detail at 182 has 10px gap). Good. Meta at left 1400-1800. No overlap with detail (detail text "LOCAL MODE — NO CLOUD" at 24px mono ≈ 20 chars × 14px = 280px, ends at ~462). No overlap with meta (starts 1400). Good.
+
+Now let me also reconsider: should the logo be there? The brief doesn't mention a logo. But it's a title card, and having a brand mark top-right is standard. It adds craft. Let me include it but keep it small and subtle. If the logo image doesn't load (it should, it's in assets/), it's fine. Let me include it.
+
+Actually, wait — I should double check the logo path: `assets/logo-negative.png`. Yes, per the rules. Let me use it.
+
+Let me also reconsider whether to include the meta "TITLE CARD — 01". It's a nice detail. Let me include it.
+
+Now, let me reconsider the animation for the logo — scale 0.9 → 1 with opacity. Fine.
+
+Let me also add a subtle detail: maybe the accent square could pulse or the chip could have a small animation. But no repeat:-1 allowed. Let me keep them as simple in-animations.
+
+Actually, for a bit of life, let me have the accent square "blink" once (like a record dot) — but that might be overkill and the rule says no repeat. A single blink (opacity 1→0.3→1) could be done with two tweens. But let me keep it simple: accent square fades in with the eyebrow. 
+
+Hmm, let me add one more subtle kinetic element to make it feel alive: a thin cyan line that extends, or the accent square that "records". Let me keep it minimal and clean. The staggered words + band wipe + rule draw already provide good kinetic energy.
+
+Let me finalize the timeline with all elements:
+
+Initial sets (t=0):
+- #accent: opacity 0
+- #eyebrow: opacity 0, y 16
+- #logo: opacity 0, scale 0.92
+- #w1..#w4: opacity 0, x -80
+- #band: scaleX 0
+- #rule: scaleX 0
+- #chip: opacity 0, scale 0.85
+- #detail: opacity 0, y 16
+- #meta: opacity 0, y 16
+
+Animations:
+- #accent: to opacity 1, 0.15, dur 0.4
+- #eyebrow: to opacity 1, y 0, 0.2, dur 0.5, power2.out
+- #logo: to opacity 1, scale 1, 0.35, dur 0.5, power2.out
+- #w1: to opacity 1, x 0, 0.5, dur 0.55, power3.out
+- #w2: to opacity 1, x 0, 0.72, dur 0.55, power3.out
+- #w3: to opacity 1, x 0, 0.94, dur 0.55, power3.out
+- #w4: to opacity 1, x 0, 1.16, dur 0.55, power3.out
+- #band: to scaleX 1, 1.55, dur 0.6, power2.inOut
+- #rule: to scaleX 1, 1.95, dur 0.8, power2.inOut
+- #chip: to opacity 1, scale 1, 2.35, dur 0.45, power2.out
+- #detail: to opacity 1, y 0, 2.45, dur 0.5, power2.out
+- #meta: to opacity 1, y 0, 2.55, dur 0.5, power2.out
+
+All done by ~3.05. Hold 3.05 → 5.0 (last second clean). 
+
+Now let me reconsider: the word "REAL" (#w3) slides in at 0.94–1.49. The band wipes at 1.55–2.15. Good sequencing — the word lands, then the marker is applied. 
+
+Let me reconsider the band timing relative to the rule. Band 1.55–2.15, rule 1.95–2.75. They overlap slightly (1.95–2.15). That's fine, creates a nice flow. Actually, let me make the rule start after the band mostly completes, or overlap is fine for a dynamic feel. Let me keep slight overlap.
+
+Hmm, actually let me reconsider — maybe the rule should draw a bit earlier to feel like it's underlining as the title completes. Let me set rule at 1.85. Band 1.5–2.1. Rule 1.85–2.65. Fine.
+
+Let me also double-check: everything that should be visible at the end is at opacity 1 at the hold frame (t=5). Yes: accent, eyebrow, logo, all words, band (scaleX 1), rule (scaleX 1), chip, detail, meta — all at final visible states. Good.
+
+Now, one concern about the band: at the hold frame, band is scaleX 1 (fully wiped). Good, it's visible.
+
+Let me also make sure the title words end at x:0 (natural position). Yes.
+
+Now let me write the HTML. Let me be careful with the structure and classes.
+
+Let me reconsider the `hl` class usage. The brief says the word "real" gets a yellow marker band. The brand says yellow is "only as a band behind #111 text (class hl, its text is #111)". So the intended pattern is `<span class="hl">REAL</span>` which gives yellow bg + #111 text. But I want the band to wipe independently. 
+
+I think the cleanest is: use my own band element (not relying on hl's background) and set the text color to #111 directly. This achieves the same visual (yellow band, #111 text) with independent wipe control. I'll skip the `hl` class to avoid its background interfering. But the brief mentions "class hl"... The linter might not check for hl usage. The visual requirement is met. Let me use my own band + #111 text. Actually, to be safe and align with the brand's intent, let me apply `hl` to the realtext span AND have my band. If `hl` sets background:var(--y) on the text box, then the text box has a yellow bg that appears with the word (before the band wipe). That would show yellow before the wipe — not ideal.
+
+So I'll NOT use `hl` (to avoid premature yellow). I'll use my band element + #111 text color. This is the right call for the wipe effect.
+
+Wait, but what if `hl` only sets color:#111 and not background? Then I could use it. But I don't know. To be safe, I'll define the text color as #111 explicitly and use my band. Let me not use `hl`.
+
+Hmm, but actually, let me reconsider. What if I use `hl` on the realtext (getting #111 color and possibly yellow bg), and make the band a separate element that's IN FRONT and wipes? No, that doesn't make sense.
+
+Let me just go with: realtext has color #111 (explicit), band is the yellow element behind it. Clean. Done.
+
+Actually, wait. Let me reconsider using `hl` for the realtext to get the exact #111 and any font styling, but override background to none:
+```css
+.realtext { position: relative; z-index: 1; }
+.realtext.hl { background: none; }
+```
+But I don't know if hl sets background. If it does, `background: none` overrides it. If it doesn't, no harm. But the specificity: `.realtext.hl` (two classes) vs `.hl` (one class) — `.realtext.hl` wins. So `background: none` would override hl's background. But then I lose the yellow from hl (which I don't want on the text box; I want it on the band). Good. And hl gives me color:#111. 
+
+But this is getting complicated. Let me just set color:#111 directly on realtext and not use hl. Simplest and most predictable. Final decision.
+
+Now, let me also reconsider: the band uses `background: #FFD400`. The brand says yellow is "only as a band behind #111 text". So using #FFD400 for the band is correct. Good.
+
+Let me write the final CSS:
+```css
+#title { font-size: 170px; }
+.w { display: inline-block; }
+.ln { line-height: 1.02; }
+.realword { position: relative; display: inline-block; padding: 0 14px; }
+.band { position: absolute; left: -14px; right: -14px; top: 13%; height: 74%; background: #FFD400; transform-origin: left center; }
+.realtext { position: relative; z-index: 1; color: #111; }
+```
+
+Wait, `.realword` is also a `.w` (inline-block). Let me give it both: class="w realword". And padding 0 14px. But padding on an inline-block word affects the line spacing (adds 28px total width). That's fine, just makes "REAL" a bit wider. The band extends -14px on each side, so the band is 28px wider than the text box, and the text box is 28px wider than the text (14px padding each side). So the band covers from -14 to text+14+14 = text+28. Hmm, let me reconsider.
+
+.realword has padding 0 14px. So its content box is the text "REAL", and its border box is text + 28px (14 each side). The band is positioned relative to .realword's padding box (since .realword is position:relative, the containing block for absolute children is the padding box). So band left:-14px is 14px left of the padding box's left edge, which is 14+14=28px left of the text. Band right:-14px is 14px right of the padding box's right edge, 28px right of text. So the band extends 28px beyond the text on each side. That might be too much.
+
+Let me simplify: don't add padding to .realword. Just let the band extend a bit beyond the text:
+```css
+.realword { position: relative; display: inline-block; }
+.band { position: absolute; left: -10px; right: -10px; top: 14%; height: 72%; background: #FFD400; transform-origin: left center; }
+```
+So the band extends 10px beyond the text on each side (left -10, right -10). The containing block is .realword's padding box = text box (no padding). So band from -10 to text+10. Good, 10px margin each side. That's a nice marker band.
+
+But wait, the band's top:14% and height:72% — these are relative to .realword's height. .realword's height is the line height of the text (170px font, line-height 1.02 → ~173px). So band top at 14% = ~24px from top, height 72% = ~125px. That covers the middle 125px of the 173px. The cap height of the text is roughly the middle portion. So the band covers the text nicely, like a highlighter. Good.
+
+Actually, for a cleaner "band behind text" look, let me make it cover more: top 12%, height 76%. Let me use top: 12%, height: 76%. Fine.
+
+Hmm, let me reconsider — the display font might have different cap height. Let me just make the band cover a good portion: top 10%, height 80%. That's safer to ensure it covers the text. Let me use top: 10%, height: 80%.
+
+Actually, a marker band that's slightly shorter than the full line height looks more like a highlighter. Let me use top: 14%, height: 72%. I'll go with that. If it looks off, it's still a reasonable band.
+
+Let me reconsider the word spacing. The words are inline-block with the natural space between them (I'll put a space or a margin). Let me put a regular space between the inline-block spans in the HTML, or use margin. Inline-block elements respect whitespace. Let me put a space between them. But the space width depends on font. For a title, a normal space is fine. Let me add a small margin-right to words for consistent spacing, or just rely on the space character. Let me use a space character between words in the HTML (inline-block respects it). Actually, to control spacing precisely, let me add margin-right to .w. But the last word shouldn't have margin. Hmm. Let me just use spaces in the HTML and it'll be fine.
+
+Wait, but if I use spaces between inline-block spans, and the spans have x animation, the space is a separate text node. That's fine.
+
+Let me structure the title HTML:
+```html
+<div class="a h" id="title" style="left:120px;top:330px;">
+  <div class="ln"><span class="w" id="w1">LOCAL</span> <span class="w" id="w2">AI,</span></div>
+  <div class="ln"><span class="w realword" id="w3"><span class="band" id="band"></span><span class="realtext">REAL</span></span> <span class="w" id="w4">VIDEO</span></div>
+</div>
+```
+
+The space between `</span>` and `<span>` gives the word gap. Good.
+
+Now, the `#title` has class `h` (display font, uppercase, wide). The words inherit. Good.
+
+Let me set #title font-size 170px in the style (inline or CSS). Let me put it inline: `style="left:120px;top:330px;font-size:170px"`. Actually, let me put font-size in CSS for cleanliness. Either works. Let me put it inline to be explicit.
+
+Hmm, the rule says "explicit left/top/width in px". For the title, I have left and top. Width — I could set a width to contain it, but it's not strictly needed for a text block (it'll size to content). But to be safe with the linter, let me add a width. Let me set width:1680px on #title. That contains the text. Good.
+
+Let me add width to other text elements too where it makes sense. For the eyebrow, meta, detail — I'll add widths. For the logo, width is set. For the rule, width is set. For the chip, width/height set.
+
+Let me now also reconsider: the `.a` class is position:absolute. I'll apply it to all positioned elements. Let me make sure I use class="a ..." consistently.
+
+Let me write it all out now.
+
+Let me reconsider the meta text "TITLE CARD — 01". Using an em dash "—". That's fine (not an emoji). Actually, let me use " / " to be safe and consistent with the eyebrow style. "TITLE CARD / 01". Or "TC / 01". Let me use "TITLE CARD / 01".
+
+And the detail "LOCAL MODE / NO CLOUD". Good.
+
+Let me reconsider colors:
+- Eyebrow: cyan (#12A9E6) — matches accent square.
+- Accent square: cyan.
+- Title: ink (#F4F4F1) — default body color? The body is #0E0E0E, text default color... let me set the title color explicitly to ink. Actually the `.h` class might set color. Let me set #title color: var(--ink) or #F4F4F1. Let me use var(--ink). Hmm, I don't know if --ink is defined. The example uses var(--c) and var(--m). Let me use explicit hex #F4F4F1 for ink to be safe, or var(--ink). Let me use #F4F4F1 directly for the title and other ink text to be safe. Actually, let me use the CSS variables where I'm confident (--c, --m) and hex elsewhere. For ink, let me use #F4F4F1.
+
+Wait, the body background is #0E0E0E (per rules, "already the body"). The default text color — I don't know. Let me set text colors explicitly on each element.
+
+- Title words: color #F4F4F1 (ink). Set on #title.
+- realtext: color #111.
+- eyebrow: color #12A9E6 (cyan).
+- meta: color #F4F4F1 or cyan. Let me make meta cyan for a subtle brand touch, or ink. Let me make meta ink (#F4F4F1) and detail ink. Or make detail cyan. Let me make: detail ink, meta cyan. Hmm, let me make both ink for subtlety, and use cyan for eyebrow + accent + chip. Actually, let me make the meta cyan to add a second cyan accent balancing the composition (top-left cyan eyebrow, bottom-right cyan meta). Nice diagonal balance. And detail ink. Let me do that.
+
+Actually, let me reconsider the color palette usage:
+- Cyan: eyebrow, accent square, chip icon (outer), meta. 
+- Magenta: maybe the rule? Or a small accent. Let me use magenta for the rule to add a pop. Actually, a magenta rule below the title could look great. Let me use magenta (#FF2D92) for the rule. That adds a brand color and visual interest. 
+- Yellow: band (behind REAL).
+- Ink: title, detail.
+
+So we have cyan, magenta, yellow, ink — using the full palette purposefully. Good.
+
+Let me set:
+- #rule: background #FF2D92 (magenta), 6px tall.
+
+Hmm, a full-width magenta line might be strong. But it's thin (6px) and it's a title card, so it's fine. It adds energy. Let me keep it.
+
+Actually, let me reconsider — maybe a two-tone rule (cyan + magenta segments) is too much. Let me just do magenta. Or ink. Let me go with magenta for pop. Final.
+
+Wait, let me reconsider. The example uses magenta for the rule (`background:var(--m)`). So magenta rule is on-brand. Let me use it. Good.
+
+Now let me also reconsider the logo. If the logo is a "negative" (white/light) version, it'll show on the dark bg. Good. Let me place it top-right.
+
+Let me reconsider positions once more and write final coordinates:
+
+- #accent: left 120, top 144, width 16, height 16, bg cyan
+- #eyebrow: left 152, top 134, width 400, font 26, color cyan, class "a m"
+- #logo: left 1664, top 126, width 136, class "a" (img)
+- #title: left 120, top 330, width 1680, font 170, color ink, class "a h"
+- #rule: left 120, top 762, width 1680, height 6, bg magenta, class "a", transform-origin left center
+- #chip: left 120, top 874, width 52, height 52, class "a" (svg)
+- #detail: left 190, top 886, width 500, font 24, color ink, class "a m"
+- #meta: left 1360, top 886, width 440, font 24, color cyan, class "a m", text-align right
+
+Let me verify meta right edge: 1360 + 440 = 1800. Good (within 1820 margin... wait, margin is 100px, so content should be within x=100 to x=1820. 1800 < 1820. Good).
+
+Detail text "LOCAL MODE / NO CLOUD" at 24px mono: ~21 chars × 14px = 294px. From 190 to ~484. No overlap with meta (1360). Good.
+
+Chip at 120-172, detail at 190. Gap 18px. Good.
+
+Let me verify the logo doesn't overlap the eyebrow. Eyebrow at 152-552, logo at 1664-1800. No overlap. Good.
+
+Now, vertical: eyebrow at 134, logo at 126 (top). Title at 330. Rule at 762. Chip at 874, detail/meta at 886. All within 100-980 (980 = 1080-100). Chip bottom 874+52=926 < 980. Detail at 886, ~24px tall, bottom ~910 < 980. Good.
+
+Let me reconsider the title vertical extent. Title top 330, font 170, two lines line-height 1.02 → line height ~173px. Line 1: 330-503. Line 2: 503-676. So title bottom ~676. Rule at 762. Gap 86px. Good.
+
+Hmm, that's a big gap. Let me move the rule up a bit, to ~740. Gap 64. Or keep 762. Let me use 748. Eh, let me use 750. Actually, let me reconsider the whole vertical rhythm.
+
+Canvas 1080. Let me think of it as:
+- Top band (eyebrow/logo): y ~120-160
+- Title: y ~300-680
+- Rule: y ~720
+- Bottom band (chip/detail/meta): y ~870-920
+
+That leaves space between rule (720) and bottom band (870) — 150px gap. And between title bottom (680) and rule (720) — 40px. That's a tight title-rule relationship, which is good (rule underlines the title). Then a gap to the bottom band. Good rhythm.
+
+Let me set rule at 720. Title bottom ~676. Gap 44. Good.
+
+Let me finalize:
+- #rule: top 720
+- #chip: top 874
+- #detail, #meta: top 886
+
+Actually, let me nudge the title down slightly so there's more room between eyebrow and title, and the title is more centered. Eyebrow at 134, title at 330 → gap 196. That's fine. Let me keep title at 330.
+
+Hmm, let me reconsider — maybe center the title more. Title spans 330-676, center ~503. Canvas center 540. So title is slightly above center. With the eyebrow above and rule+bottom below, it's balanced. Good.
+
+Let me now write the final HTML.
+
+Actually, let me reconsider the word slide direction and distance. "words slide/stagger in one by one". Slide from left (x: -80 → 0). With opacity 0→1. Duration 0.55, ease power3.out. Stagger 0.22s. Let me verify the stagger: w1 at 0.5, w2 at 0.72, w3 at 0.94, w4 at 1.16. Each 0.55s. So w1 lands at 1.05, w2 at 1.27, w3 at 1.49, w4 at 1.71. Then band at 1.55 (while w4 is still landing). Hmm, band on w3 (REAL) starts at 1.55, but w3 landed at 1.49. Good, band starts right after w3 lands. w4 lands at 1.71, band finishes at 2.15. So the band wipe overlaps with w4's landing. That's fine, dynamic.
+
+Actually, let me make the band start a touch later to clearly follow w3: band at 1.6. And w4 at 1.16-1.71. Band 1.6-2.2. Slight overlap with w4 landing (1.71). Fine.
+
+Let me set band at 1.6, dur 0.6 → 1.6-2.2.
+Rule at 1.95, dur 0.8 → 1.95-2.75.
+Chip at 2.4, detail 2.5, meta 2.6.
+All done by ~3.1. Hold 3.1-5.0.
+
+Good. Let me also make the eyebrow and logo come in early (0.15-0.7) to set the scene before the title. Good.
+
+Let me reconsider: should the accent square and eyebrow come before the title words? Yes, eyebrow at 0.2, logo at 0.35, then words from 0.5. Good sequence.
+
+Now let me write it all.
+
+For the initial states, I'll use tl.set at time 0 for each. Let me list:
+- #accent: opacity 0
+- #eyebrow: opacity 0, y 16
+- #logo: opacity 0, scale 0.92
+- #w1: opacity 0, x -80
+- #w2: opacity 0, x -80
+- #w3: opacity 0, x -80
+- #w4: opacity 0, x -80
+- #band: scaleX 0
+- #rule: scaleX 0
+- #chip: opacity 0, scale 0.85
+- #detail: opacity 0, y 16
+- #meta: opacity 0, y 16
+
+Animations:
+- #accent: to opacity 1, 0.15, 0.4, power2.out
+- #eyebrow: to opacity 1, y 0, 0.2, 0.5, power2.out
+- #logo: to opacity 1, scale 1, 0.35, 0.5, power2.out
+- #w1: to opacity 1, x 0, 0.5, 0.55, power3.out
+- #w2: to opacity 1, x 0, 0.72, 0.55, power3.out
+- #w3: to opacity 1, x 0, 0.94, 0.55, power3.out
+- #w4: to opacity 1, x 0, 1.16, 0.55, power3.out
+- #band: to scaleX 1, 1.6, 0.6, power2.inOut
+- #rule: to scaleX 1, 1.95
+[CONTENT]

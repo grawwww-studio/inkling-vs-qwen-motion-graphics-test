@@ -1,0 +1,212 @@
+{
+ "X01": {
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B2",
+  "mp4": "renders/inkling_s4/B2/B2.mp4"
+ },
+ "X02": {
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B3",
+  "mp4": "renders/inkling_s1/B3/B3.mp4"
+ },
+ "X03": {
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B2",
+  "mp4": "renders/inkling_s2/B2/B2.mp4"
+ },
+ "X04": {
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B4",
+  "mp4": "renders/inkling_s4/B4/B4.mp4"
+ },
+ "X05": {
+  "model": "qwen",
+  "seed": "4",
+  "brief": "B4",
+  "mp4": "renders/qwen_s4/B4/B4.mp4"
+ },
+ "X06": {
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B1",
+  "mp4": "renders/inkling_s3/B1/B1.mp4"
+ },
+ "X07": {
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B2",
+  "mp4": "renders/qwen_s1/B2/B2.mp4"
+ },
+ "X08": {
+  "model": "qwen",
+  "seed": "2",
+  "brief": "B2",
+  "mp4": "renders/qwen_s2/B2/B2.mp4"
+ },
+ "X09": {
+  "model": "qwen",
+  "seed": "2",
+  "brief": "B3",
+  "mp4": "renders/qwen_s2/B3/B3.mp4"
+ },
+ "X10": {
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B2",
+  "mp4": "renders/inkling_s1/B2/B2.mp4"
+ },
+ "X11": {
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B4",
+  "mp4": "renders/inkling_s3/B4/B4.mp4"
+ },
+ "X12": {
+  "model": "qwen",
+  "seed": "3",
+  "brief": "B5",
+  "mp4": "renders/qwen_s3/B5/B5.mp4"
+ },
+ "X13": {
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B4",
+  "mp4": "renders/qwen_s1/B4/B4.mp4"
+ },
+ "X14": {
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B4",
+  "mp4": "renders/inkling_s1/B4/B4.mp4"
+ },
+ "X15": {
+  "model": "qwen",
+  "seed": "2",
+  "brief": "B4",
+  "mp4": "renders/qwen_s2/B4/B4.mp4"
+ },
+ "X16": {
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B1",
+  "mp4": "renders/inkling_s2/B1/B1.mp4"
+ },
+ "X17": {
+  "model": "qwen",
+  "seed": "3",
+  "brief": "B2",
+  "mp4": "renders/qwen_s3/B2/B2.mp4"
+ },
+ "X18": {
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B5",
+  "mp4": "renders/qwen_s1/B5/B5.mp4"
+ },
+ "X19": {
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B5",
+  "mp4": "renders/inkling_s1/B5/B5.mp4"
+ },
+ "X20": {
+  "model": "qwen",
+  "seed": "3",
+  "brief": "B3",
+  "mp4": "renders/qwen_s3/B3/B3.mp4"
+ },
+ "X21": {
+  "model": "qwen",
+  "seed": "4",
+  "brief": "B2",
+  "mp4": "renders/qwen_s4/B2/B2.mp4"
+ },
+ "X22": {
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B3",
+  "mp4": "renders/inkling_s2/B3/B3.mp4"
+ },
+ "X23": {
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B5",
+  "mp4": "renders/inkling_s4/B5/B5.mp4"
+ },
+ "X24": {
+  "model": "qwen",
+  "seed": "4",
+  "brief": "B1",
+  "mp4": "renders/qwen_s4/B1/B1.mp4"
+ },
+ "X25": {
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B5",
+  "mp4": "renders/inkling_s3/B5/B5.mp4"
+ },
+ "X26": {
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B1",
+  "mp4": "renders/qwen_s1/B1/B1.mp4"
+ },
+ "X27": {
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B4",
+  "mp4": "renders/inkling_s2/B4/B4.mp4"
+ },
+ "X28": {
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B1",
+  "mp4": "renders/inkling_s4/B1/B1.mp4"
+ },
+ "X29": {
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B2",
+  "mp4": "renders/inkling_s3/B2/B2.mp4"
+ },
+ "X30": {
+  "model": "inkling",
+  "seed": "1",
+  "brief": "B1",
+  "mp4": "renders/inkling_s1/B1/B1.mp4"
+ },
+ "X31": {
+  "model": "inkling",
+  "seed": "3",
+  "brief": "B3",
+  "mp4": "renders/inkling_s3/B3/B3.mp4"
+ },
+ "X32": {
+  "model": "inkling",
+  "seed": "2",
+  "brief": "B5",
+  "mp4": "renders/inkling_s2/B5/B5.mp4"
+ },
+ "X33": {
+  "model": "qwen",
+  "seed": "1",
+  "brief": "B3",
+  "mp4": "renders/qwen_s1/B3/B3.mp4"
+ },
+ "X34": {
+  "model": "inkling",
+  "seed": "4",
+  "brief": "B3",
+  "mp4": "renders/inkling_s4/B3/B3.mp4"
+ },
+ "X35": {
+  "model": "qwen",
+  "seed": "3",
+  "brief": "B4",
+  "mp4": "renders/qwen_s3/B4/B4.mp4"
+ }
+}

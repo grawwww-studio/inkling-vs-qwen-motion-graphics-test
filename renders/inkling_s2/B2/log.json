@@ -1,0 +1,26 @@
+{
+ "brief": "B2",
+ "name": "Three-step explainer with icons (9 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 192.7,
+   "prompt_tokens": 1487,
+   "completion_tokens": 11780,
+   "finish": "stop",
+   "check_s": 1.7,
+   "check_errors": [],
+   "render_s": 9.0
+  }
+ ],
+ "model": "inkling",
+ "seed": "2",
+ "t0": 1795356717.4963007,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 192.7,
+ "prompt_tokens": 1487,
+ "completion_tokens": 11780,
+ "t1": 1795356920.936857,
+ "wall_s": 203.4
+}

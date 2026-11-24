@@ -1,0 +1,45 @@
+{
+ "brief": "B2",
+ "name": "Three-step explainer with icons (9 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 330.3,
+   "prompt_tokens": 1487,
+   "completion_tokens": 20000,
+   "finish": "length",
+   "error": "no html block"
+  },
+  {
+   "round": 1,
+   "llm_s": 250.7,
+   "prompt_tokens": 2216,
+   "completion_tokens": 15187,
+   "finish": "stop",
+   "check_s": 0.6,
+   "check_errors": [
+    "  \u2717 gsap_cold_seek_hidden_fromto_missing_reveal: \"#topbar\" starts hidden, but its gsap.fromTo() makes it visible only in the from-vars and omits opacity/autoAlpha from the destination. Cold render workers restore the hidden authored state, so the encoded element can stay invisible even when sequential snapshots look correct."
+   ]
+  },
+  {
+   "round": 2,
+   "llm_s": 86.8,
+   "prompt_tokens": 7123,
+   "completion_tokens": 5056,
+   "finish": "stop",
+   "check_s": 2.0,
+   "check_errors": [],
+   "render_s": 9.2
+  }
+ ],
+ "model": "inkling",
+ "seed": "4",
+ "t0": 1795372301.8005784,
+ "render_ok": true,
+ "fix_rounds": 2,
+ "llm_s": 667.7,
+ "prompt_tokens": 10826,
+ "completion_tokens": 40243,
+ "t1": 1795372981.223716,
+ "wall_s": 679.4
+}

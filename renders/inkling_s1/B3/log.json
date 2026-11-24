@@ -1,0 +1,26 @@
+{
+ "brief": "B3",
+ "name": "Chart reveal from small JSON (8 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 235.3,
+   "prompt_tokens": 1552,
+   "completion_tokens": 14338,
+   "finish": "stop",
+   "check_s": 1.7,
+   "check_errors": [],
+   "render_s": 8.3
+  }
+ ],
+ "model": "inkling",
+ "seed": "1",
+ "t0": 1795356049.4237688,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 235.3,
+ "prompt_tokens": 1552,
+ "completion_tokens": 14338,
+ "t1": 1795356294.806869,
+ "wall_s": 245.4
+}

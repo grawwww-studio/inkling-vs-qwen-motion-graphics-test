@@ -1,0 +1,151 @@
+[REASONING]
+The brief: Lower third, 4 seconds, transparent-looking over a dark plate. Bottom-left: name "Lara Quinn" (display type), role line "Presenter, Grawwww" (mono), cyan accent bar that wipes in first, then text slides in, hold, then everything wipes out in the last 0.5 s.
+
+Duration 4s. Canvas 1920x1080.
+
+Design: bottom-left. A cyan accent bar (vertical or horizontal?). "cyan accent bar that wipes in first" — could be a horizontal bar that wipes in (scaleX from 0 to 1). Then text slides in (x from negative). Hold. Then everything wipes out in last 0.5s (scaleX back to 0, text slides out).
+
+"Transparent-looking over a dark plate" — the root has background? The body is #0E0E0E already. The lower third should look transparent-ish — maybe no box background, just text with accent bar, over dark plate. Keep it clean: no background panel, just cyan bar + white text.
+
+Layout: bottom-left, margin ~160px left, bottom ~140px.
+
+Structure:
+- Cyan accent bar: horizontal, e.g., left:160px, top:~800px, width: 640px, height: 10px, scaleX 0 -> 1.
+- Name "Lara Quinn" display font ~110px, uppercase, left:160px, top:~830px.
+- Role line "Presenter, Grawwww" mono, ~30px, cyan color, top:~980px? Keep within canvas with 100px margin. Bottom margin 100px: text must not go below 980. Let's compute: name at top 820, font-size 110 → height ~130px, ends ~950. Role at top ~960? Too low. Let me arrange better.
+
+Canvas 1080 tall. Bottom margin 100 → content should end by 980.
+
+Plan:
+- Accent bar: left:160, top:760, width:520, height:12.
+- Name: left:160, top:792, font-size:96px, height ~120. Ends ~912.
+- Role: left:160, top:920, font-size:28px mono, height ~40. Ends ~960. Good, within 980.
+
+Animation timeline (4s):
+- 0.2–0.7: cyan bar wipes in (scaleX 0→1, transform-origin left).
+- 0.55–1.1: name slides in (x: -60 → 0, opacity 0→1).
+- 0.75–1.25: role slides in (x: -40 → 0, opacity 0→1).
+- Hold until 3.5.
+- 3.5–4.0: everything wipes out: bar scaleX→0 (origin right? or left), name/role slide out and fade. "everything wipes out in the last 0.5 s" — bar wipes out (scaleX → 0), texts fade/slide out.
+
+At hold frame (t=3.5) everything at opacity 1. At end (t=4.0) everything wiped out — but rule 7 says "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." The hold frame here is before the wipe out. The brief explicitly says everything wipes out in the last 0.5s, so at t=4.0 elements are at opacity 0. That's per the brief — the "hold frame" is the hold. Fine.
+
+Maybe also add a small mono label above? Brief says just name + role + bar. Keep minimal. Maybe a small "LIVE" tag? No, keep to brief. Could add a thin magenta? No — keep brand: cyan accent.
+
+Maybe add a subtle second element: a small cyan square? Keep simple.
+
+Also "transparent-looking over a dark plate" — no panel background. Maybe a subtle dark backdrop? Brief says transparent-looking, so no panel. Just bar + text.
+
+Text slide in: use x from -80 to 0 with opacity 0→1.
+
+Wipe out: bar scaleX → 0 with origin left (wipes back to left) or right? Wipe out typically reverses: scaleX → 0 origin left means it shrinks toward left. Fine. Texts: x → -40, opacity → 0, or y? Slide out left and fade.
+
+Timing:
+- tl.set initial states? Use fromTo for bar and texts.
+
+Let me write:
+
+tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.inOut" }, 0.2);
+tl.fromTo("#name", { x: -70, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.6);
+tl.fromTo("#role", { x: -50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.8);
+// hold
+tl.to("#name", { x: -60, opacity: 0, duration: 0.45, ease: "power2.in" }, 3.5);
+tl.to("#role", { x: -40, opacity: 0, duration: 0.4, ease: "power2.in" }, 3.55);
+tl.to("#bar", { scaleX: 0, duration: 0.45, ease: "power3.inOut" }, 3.5);
+
+Wait — initial state: elements should be hidden at t=0. fromTo sets that. Good. But before first tween starts (t=0 to 0.2), bar scaleX from fromTo's start state — fromTo with start at 0.2: does the start state apply at time 0? In GSAP, fromTo renders the from state immediately when the tween is created? Actually fromTo tween with a start time: the from state is applied when the tween is initialized... With paused timeline, the from state is applied at time 0? Hmm. In GSAP, a fromTo tween's "from" values are applied as soon as the tween is created (immediateRender defaults true for from/fromTo). So at timeline time 0, bar scaleX=0 and name opacity 0. Good.
+
+Duration: 4. data-duration="4".
+
+Name font size: display font wide. "Lara Quinn" — 10 characters incl space. At 96px uppercase, ~ each letter ~65px wide → ~650px. Box width 900px fine.
+
+Role: mono 28px, "Presenter, Grawwww" — mono char ~0.6em → 28*0.6=17px per char, 18 chars → ~310px. Fine.
+
+Add a small mono label above the bar? Like "LOWER THIRD"? No. Maybe a tiny cyan square at left? Keep clean.
+
+Maybe add a second thin white rule? Keep minimal but polished. I'll add a small mono kicker above name? Brief: name, role, cyan bar. I'll keep exactly that, maybe plus a small mono "GR" mark? No.
+
+Actually, to make it feel like a designed lower third, I can add a thin full-width faint line? Transparent-looking means no panel. I'll add the cyan bar at top of the text block (typical lower third style: bar above name). Good.
+
+Also maybe a small magenta accent? Brand says magenta exists but brief says cyan bar. Keep cyan only.
+
+Font classes: `h` for name, `m` for role. Colors: name ink #F4F4F1, role cyan #12A9E6.
+
+Add a small avatar placeholder? Not in brief. Skip.
+
+Let me also consider adding a subtle "eyebrow" mono label like "GR" or "LIVE"? Skip — brief is minimal.
+
+One more polish: add a thin white 2px line under role? Not needed.
+
+Write the file.
+
+CSS: root has no background (body is #0E0E0E). The root div itself — should it have background? "over a plain dark gradient-free plate" — the plate is the body/background. Root can be transparent. But maybe give root a background #0E0E0E to be safe? The body is already #0E0E0E per brand. Keep root transparent so it looks like a lower third over a plate. Actually to ensure the plate is dark in the render, body background suffices.
+
+Text sizing check: display font at 96px — "display font is wide: at 150 px an uppercase letter is about 100 px wide". At 96px, ~64px per letter. "LARA QUINN" = 10 chars → 640px. Box 1000px wide, fine.
+
+Role mono: class m, font-size 30px, letter-spacing maybe 2px.
+
+Bar: left 160, top 748, width 480, height 12. Name top 780, role top 912. Name 96px line-height ~1.0 → height ~110, ends 890. Role top 906, height 40 → ends 946. Bottom margin: 1080-946 = 134 ≥ 100. Good.
+
+Hmm, maybe make the bar wider and the name bigger for presence: name 110px. 110*0.66 ≈ 73px/letter → 730px. Box 1000. Fine. Name top 776, ends ~900. Role top 916.
+
+Let me set:
+- bar: left:160, top:742, width:520, height:14
+- name: left:160, top:778, font-size:110px
+- role: left:160, top:912, font-size:30px
+
+Name height: 110px font, line-height 1 → ~110-130. ends ~900-908. Role top 916 ok.
+
+Wipe-out: bar scaleX→0 origin left. Texts x→-60 opacity→0.
+
+Also maybe stagger: role out slightly earlier? Keep same.
+
+Add slight scale on name? No.
+
+Write final HTML.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Lara Quinn — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <div class="a" id="bar" style="left:160px;top:742px;width:520px;height:14px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a h" id="name" style="left:160px;top:778px;width:1100px;font-size:110px;color:var(--ink);letter-spacing:2px">Lara Quinn</div>
+
+  <div class="a m" id="role" style="left:160px;top:918px;width:900px;font-size:30px;color:var(--c);letter-spacing:4px">Presenter, Grawwww</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Cyan accent bar wipes in first
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.inOut" }, 0.2);
+
+  // Name slides in
+  tl.fromTo("#name", { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.6);
+
+  // Role line slides in
+  tl.fromTo("#role", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.8);
+
+  // Hold
+
+  // Wipe everything out in the last 0.5 s
+  tl.to("#name", { x: -70, opacity: 0, duration: 0.45, ease: "power2.in" }, 3.5);
+  tl.to("#role", { x: -50, opacity: 0, duration: 0.4, ease: "power2.in" }, 3.55);
+  tl.to("#bar", { scaleX: 0, duration: 0.45, ease: "power3.inOut" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

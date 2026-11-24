@@ -1,0 +1,568 @@
+[REASONING]
+Let me think about the brief:
+
+- 5-second title card with kinetic typography
+- Title "Local AI, real video" in huge uppercase display type
+- Words slide/stagger in one by one
+- The word "real" gets a yellow marker band that wipes in from the left
+- Small monospace eyebrow "EP05 / Experiment" at the top
+- Below that, a thin rule that draws across
+- Hold for the last 1 second
+
+So the timeline:
+- 0.0–0.5: eyebrow fades/slides in
+- 0.4–2.2: words stagger in one by one
+- Around 1.8: yellow band wipes in behind "real"
+- 2.4: rule draws across
+- 4.0–5.0: hold (everything static)
+
+Duration = 5s, 1920x1080.
+
+Layout plan:
+- Canvas 1920x1080, margin 100px.
+- Eyebrow at top: left 160, top around 300. Monospace, 26px, uppercase, cyan color.
+- Title: huge uppercase display. "LOCAL AI, REAL VIDEO" — that's long. Let me think about the size. Display font is wide: at 150px, an uppercase letter is about 100px wide. "LOCAL AI, REAL VIDEO" is 20 characters including spaces. At 150px, 20 chars × 100px = 2000px — too wide. So we should either split into 2 lines or make it smaller.
+
+Options:
+- Line 1: "LOCAL AI,"
+- Line 2: "REAL VIDEO"
+
+That's the classic kinetic type layout. Each word is a separate element for the stagger.
+
+Words: "LOCAL" "AI," "REAL" "VIDEO" — 4 words. Line 1: LOCAL AI, Line 2: REAL VIDEO.
+
+Font size: let's say 190px. "REAL VIDEO" = 10 chars including space. At 190px, letter width ~126px → 10 × 126 = 1260px. Fits within 1920-200 margin = 1720px. "LOCAL AI," = 9 chars → 1134px. Good.
+
+Actually, the brief says "at 150px, an uppercase letter is about 100px wide" — so at 190px, a letter is about 126px. Let me be conservative: font size 180px. "REAL VIDEO" 10 chars × 120 = 1200px. No problem.
+
+Hmm, but words need to be separate elements for the stagger. I can absolutely position each word with explicit left/top. Let me compute positions.
+
+Line 1 top: 380px. Line 2 top: 620px (line height ~240px for 180px font).
+
+Wait, let me plan the vertical composition:
+- Eyebrow top: 260px
+- Line 1: top 340px, font 180px → baseline around 340+180 = 520
+- Line 2: top 580px → bottom ~760
+- Rule: top ~840px, width 900px
+- Maybe a small sub-note below the rule? The brief doesn't ask for it. Keep it minimal. Actually, a small monospace note at the bottom like "05 — LOCAL MODELS / GPU RENDER" might be nice, but the brief is specific. I could add a small footer element for composition. The brief says: eyebrow, title, rule, hold. I could add a small monospace label at the bottom-right like "GW / STUDIO" — but the logo asset exists: assets/logo-negative.png. I could place the logo in the bottom-left. Hmm, the rules say the project has those assets; it's not mandatory to use them. Adding the logo in the bottom-left would be nice. But the rule about icons: draw icons as inline SVG. The logo is a PNG asset that can be linked. Let me add a small logo in the bottom-left and a monospace label "GW STUDIO" in the bottom-right? Actually, to be safe and minimal, I'll add a small logo image in the bottom-left and a monospace label in the bottom-right. That's typical for a title card. But the text must not overlap. No problem.
+
+Actually, let me keep the composition tight and follow the brief exactly, adding a restrained footer: logo on the left, "GW / Motion" monospace on the right. That's tasteful.
+
+Word positions:
+
+Font size 180px, uppercase display, letter spacing probably 0.02em.
+
+Line 1: "LOCAL" then "AI,"
+- LOCAL: 5 chars × ~120px = 600px wide
+- Space: ~40px (display space)
+- AI,: 3 chars: A(120) I(60?) ,(60) — narrow letters. Roughly 240px.
+
+Let me set explicit lefts:
+- Line 1 left margin 160px.
+- "LOCAL" left 160, width 640px.
+- "AI," left 840 (160+640+40), width 260px.
+- Line 2:
+- "REAL" left 160, width 520px (4 chars × 130).
+- "VIDEO" left 720, width 620px (5 × 124).
+
+Hmm, but the exact width of the display font is unknown. The width property just defines the box; the text will overflow if the box is too small (with overflow visible by default). Since the text is white on a dark background, overflow is fine visually as long as words don't collide. But the rule says "size the boxes so the text fits on the line." Let me give generous widths and place words with enough gap.
+
+Better approach: use inline-block words inside a flex row? But the rule says position everything with position:absolute and explicit left/top/width. I can absolutely position each word. To avoid overlap, give each word a box with a width that fits the text and place them with a gap.
+
+Let me estimate more carefully. Display font is "wide: at 150px, an uppercase letter is about 100px wide" → ratio 0.667 em per uppercase letter. At 180px: ~120px per letter.
+
+- LOCAL: 5 × 120 = 600px. Box width 620.
+- AI,: A=120, I=60 (narrow), ,=75 → ~255. Box 280.
+- REAL: R=120, E=110, A=120, L=100 → ~450. Box 480.
+- VIDEO: V=120, I=60, D=120, E=110, O=130 → ~540. Box 570.
+
+Line 1: LOCAL at left 160 (width 620) → ends 780. AI, at left 830 (gap 50) → ends 1110.
+Line 2: REAL at left 160 (width 480) → ends 640. VIDEO at left 690 → ends 1260.
+
+Yellow band behind "REAL": the band should be slightly larger than the text. Band: left 140, top around 580+something. For a 180px font, the cap height is probably ~0.72em ≈ 130px. Marker band: height ~150px, placed so it covers the text. If the word box top is 580 and the font size is 180, the glyphs sit within the line box; the cap top is around top + (ascent - cap height). Simpler: place the band at top 585, height 160, left 130, width 520 (slightly wider than the 480 box). The band is behind the text: z-index lower. The text "REAL" — should the text become #111 on the yellow? The brand says: yellow is only used as a band behind #111 text (class `hl`, that text is #111). So the "REAL" word should be #111 when the band is behind it. But the band wipes in from the left after the word has appeared... if the word is #111 from the start, it won't be visible on the dark background until the band arrives. Hmm.
+
+Options:
+1. The word "REAL" starts as ink (#F4F4F1), and when the band wipes in, the text switches to #111. GSAP can animate color (but the allowed properties list: opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height — "animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height". Color isn't in the list. The linter might flag color animation. Safer: crossfade two stacked words — one light "REAL" and one dark "REAL" — with opacity. That's allowed (opacity).
+
+So: word REAL-light (ink) slides in with the stagger. Then the band wipes in (scaleX 0→1, origin left), and simultaneously REAL-light fades out and REAL-dark (class hl, color #111) fades in. Actually, the band should be behind the dark text. Order: band (z1), REAL-dark (z2, opacity 0), REAL-light (z3, opacity 1). When the band wipes, fade light→0 and dark→1 in the same window.
+
+Alternatively, simpler: the band wipes in and the word remains ink — but the brand says the band is behind #111 text. So I'll do the crossfade.
+
+2. Alternative: the word "REAL" appears dark from the start on top of... no, the background is dark. Crossfade is the right answer.
+
+Timeline (5s):
+- 0.15: eyebrow fades in + slight y.
+- 0.35: rule? The brief says the rule draws across below the title. The rule is at the bottom (top ~840). Let me draw it after the words, around 2.2.
+- Words stagger in one by one: start 0.45, each word slides in with x offset and opacity, stagger 0.18. Words: LOCAL (0.45), AI, (0.63), REAL (0.81), VIDEO (0.99). Duration 0.55 each, ease power3.out. Slide from x: -80 (or xPercent -30). "Words slide/stagger in one by one" — slide from the left with a slight overshoot? Keep it clean: from x:-90, opacity 0 to x:0, opacity 1, ease power2.out.
+
+Hmm, maybe alternate the direction? Keep it simple, all from the left.
+
+- 1.5: band wipes in from the left: scaleX 0→1, duration 0.45, ease power3.inOut. Simultaneously crossfade REAL light→dark (0.4s). Actually, should the band wipe slightly before the word? No — the word is already there; the band wipes over it and the text inverts. Let me do this: band scaleX 0→1 at 1.5 (0.45s); light opacity 1→0 at 1.55 (0.25s); dark opacity 0→1 at 1.55 (0.25s).
+
+Wait, order: the band is behind the text. As the band wipes in from the left, the covered portion should show dark text on yellow, and the uncovered portion shows light text on dark. A simple crossfade across the whole word is an acceptable approximation. To make it better, I could clip the dark text with a width animation matching the band's scaleX — but the clip would need to reveal the dark text as the band advances. I can animate the width of the dark text box from 0 to full, with overflow hidden, synchronized with the band's scaleX (both left origin, same duration/ease). That would look like the marker is inverting the text as it passes. That's the classic marker effect! Let me do that:
+
+- Band: absolutely positioned, left 130, top 585, width 520, height 160, background yellow, transform-origin left center. Animate scaleX 0→1, 1.5→1.95, power2.inOut? To sync with the width animation, both should use the same ease. Use the same ease "power2.inOut" for both.
+- REAL-dark: box left 160, top 580, width 480, overflow hidden, inner text. Animate width 0→480 with the same timing/ease. But wait — the dark text box width animating from 0: the text inside is left-aligned, so as the box grows, the text is revealed from the left. Good. But the initial width 0 with overflow hidden — set the initial state with tl.set width 0.
+
+Hmm, but the rule says don't put CSS transform on GSAP-animated elements; width animation is fine.
+
+But note: the light text and dark text must be perfectly aligned — same left/top/font. Both at left 160, top 580, font 180. Yes.
+
+Actually, one nuance: the band is slightly wider than the text (left 130 vs 160, width 520 vs 480). The band wipes 130→650, and the text reveal is 160→640. Slight mismatch but visually fine — the band leads a bit at the start and catches up. To keep it clean, let me make the band exactly: left 140, width 520; text 160, width 480. The band's right edge is 660, text's right edge is 640 — the band extends 20px past the text on the right, and starts 20px before on the left. That's the marker aesthetic.
+
+But the reveal sync: the band's scaleX covers 140→660 (520px), and the text's width covers 160→640 (480px). At time t with progress p: band right edge = 140+520p; text right edge = 160+480p. Difference = 20 - 40p. At p=0.5: band right edge 400, text right edge 400 — they meet in the middle. Before that, the band leads; after that, the text leads slightly (the band lags by up to 20px at the end, but the band's final right edge 660 > text 640, so the final state is fine). The slight offset during the wipe is barely noticeable and actually looks organic. Good enough.
+
+- Rule: after the words, 2.1→2.7: scaleX 0→1, origin left. Position: left 160, top 850, width 900, height 6, color... thin rule — use ink or cyan. Use var(--c) cyan? Brand: ink #F4F4F1, cyan as accent. The example used var(--m) magenta for the rule. A cyan rule might be nice. Let me use cyan.
+
+Hmm wait, the rule is "below" the title — below the title, so top ~850. Line 2 bottom: top 580 + 180 = 760 (box bottom). The actual glyph descender is minimal (uppercase). Rule at 850 is fine.
+
+- Footer: logo bottom-left, monospace label bottom-right, fade in around 2.6–3.0.
+  - Logo: assets/logo-negative.png, left 160, top 960, height ~48px. Width? Unknown aspect ratio; set width 140, height 48? If the logo has a different aspect ratio, it will distort. Use height 44 with width auto? The rule says explicit left/top/width in px. Hmm, "position everything with position:absolute (class a) and explicit left/top/width in px." I can give the image width 150 and height 45 — a typical logo. Risk of distortion. Or skip the logo and just have a monospace label. To be safe, let me include the logo with width:150px; height:45px; object-fit: contain. That's safe.
+  - Monospace label bottom-right: "GW / MOTION — 24 FPS" or "EP05 / 5.0". Let me do "GW STUDIO — MOTION" or just "GW / MOTION". Right-aligned: left 1400, top 972, width 360, text-align right.
+
+Wait — margin: at least 100px from the edge. Top 972 + font 26 → bottom ~998, that's 82px from the bottom edge. Hmm, "keep all text within the canvas with at least 100px margin." So text bottom should be ≤ 980. Let me put the footer at top 940: 940+26=966, margin 114. OK. Logo top 930, height 45 → bottom 975, margin 105. OK.
+
+Actually, let me reconsider the vertical layout for better balance:
+- Eyebrow: top 250 (font 28) → occupies 250–280.
+- Line 1: top 330, font 180 → box 330–510.
+- Line 2: top 560, font 180 → box 560–740.
+- Rule: top 830.
+- Footer: top 940.
+
+Gap between line 1 box bottom 510 and line 2 top 560 = 50px. Cap height ~130, so the visual gap is bigger. Fine.
+
+Title block spans 330–740, roughly centered vertically (canvas center 540; block center 535).
+
+Eyebrow: "EP05 / EXPERIMENT" — the brief has "EP05 / Experiment"; the monospace class is uppercase anyway (class m is uppercase labels). I'll write "EP05 / EXPERIMENT". Color cyan var(--c). Font 28px, letter spacing 0.2em.
+
+Add a small yellow square before the eyebrow? A small accent mark: a 14px yellow square to the left of the eyebrow text? That adds a bit of flair. Optional. Maybe a small cyan square. Let me add a 16x16 cyan square at left 160, top 258, and the eyebrow text at left 196. Hmm, or keep the eyebrow plain. A small marker adds a designed feel. Let me include it — animate it in with the eyebrow (scale or opacity).
+
+Actually, let me keep it simple: eyebrow text only, maybe with a "—" prefix. Let me add a small square; it's cheap and clean.
+
+Word slide-in: from x:-90, opacity 0. Stagger:
+- LOCAL: 0.45
+- AI,: 0.65
+- REAL (light): 0.85
+- VIDEO: 1.05
+Duration 0.5, ease power3.out.
+
+Wait — "REAL" light: it slides in as light text, then the band wipes at 1.55. The word finishes at 1.35. Good.
+
+Band wipe: 1.6→2.05 (0.45s, power2.inOut).
+Text reveal width: 1.6→2.05, same ease.
+Light fade: 1.6→1.9, opacity 1→0? If the light text fades out across the whole word while the band is still wiping, the left part (already covered) will show the dark text (revealed) — good; the right part (not yet covered) will have the light text fading — bad, the text will be semi-transparent on the dark background.
+
+Better: don't fade the light text at all; instead, clip it! The light text should be visible only where the band hasn't passed. So the light text should shrink from the right... i.e., the light text's visible region = the full width minus the band's progress. That's a width animation with the right edge as the origin: animate the light text's width from 480 down to 0, with overflow hidden and text left-aligned? No — if the text is left-aligned and the box shrinks from the right, the right part of the text is clipped — that's exactly what I want: as the box width decreases, the right side of the word is clipped. Yes! Light text: overflow hidden, width 480→0, same timing/ease as the band's scaleX. Dark text: width 0→480, same timing. Both left-aligned at left 160.
+
+At progress p: the band covers 140→140+520p. Light text visible: 160→160+480(1-p). Dark text visible: 160→160+480p. Boundary: light ends at 160+480-480p = 640-480p; dark ends at 160+480p. They cross at p=0.5 (both at 400). For p<0.5, the band's right edge (140+520p) vs the boundary (160+480p): the band leads by 20-40p > 0. So the yellow extends slightly past the dark text — meaning there's a thin yellow strip ahead of the dark text, with the light text behind it... wait, no: the light text is clipped at 640-480p, and the band's right edge is at 140+520p. When p<0.5, the band's right edge > the light's right edge, so the light text is fully inside the yellow? No wait.
+
+Let me recompute. p=0.25: band right edge = 140+130 = 270. Light text visible 160→520. So the light text is visible from 270–520 on the dark background, and 160–270 is... the light text is also there (160–270), but the band is on top? No — the band is behind the text (z-index: band 1, text 2). So in 160–270: yellow band + light text on top = light text on yellow — bad! The light text should be dark there.
+
+Hmm. The dark text at p=0.25 covers 160→280. So in 160–270: dark text on yellow = correct. In 270–280: dark text on dark background (band hasn't reached) = dark text invisible — a small 10px gap, negligible. In 280–520: light text on dark = correct.
+
+So the only artifact: a tiny sliver of dark text on the dark background just ahead of the band (up to 20px wide at p→0, shrinking to 0 at p=0.5, then the band leads... wait, for p>0.5 the band lags: at p=0.75, band right edge = 530, dark text right edge = 520. So the dark text is fully on the yellow. The light text visible 160→640-360=280 — but the band covers 140→530, so the light text 160–280 is on top of the yellow — bad! Light text on yellow is barely visible (light #F4F4F1 on yellow #FFD400 — actually visible, bad).
+
+Hmm. The offset breaks the sync. Fix: make the band and text reveal perfectly aligned: band left = text left = 160, band width = text width = 480. Then at progress p, the band covers 160→160+480p, the dark text covers the same, and the light text covers 160+480p→640. Perfect sync, no artifacts. But then the marker band exactly matches the text width — less "marker" feel.
+
+Compromise: keep the band slightly wider but sync the wipe to the text boundary: animate the band's width instead of scaleX? The band's left edge should extend... the marker wipes in from the left: the left edge is fixed, the right edge moves. For the band to be wider on the left (start at 140) and end at 660: the right edge moves 140→660 (520px), the text boundary moves 160→640 (480px). Same duration/ease: right edge position: band 140+520p, text 160+480p. The difference is 20-40p as calculated — the band leads by up to 20px at the start, crosses at 0.5, and lags by up to 20px at the end.
+
+The artifact at the end (p>0.5): the light text on the yellow. Light text #F4F4F1 on yellow #FFD400: light gray on yellow — visible, looks like a ghost. Ugly.
+
+Alternative: fade the light text out quickly at the end of the wipe (p 0.85→1, opacity 1→0). At p=0.85, the band's right edge = 140+442=582, the light text extends to 640-408=232. The overlap region 160–232 is light text on yellow — already bad before the fade.
+
+OK, cleanest is: exact alignment. Band: left 160, width 480, top slightly above the text, height covering the cap. Actually, a marker band usually extends a bit vertically past the text, and the exact width is fine. Or extend the band to the left only (left 140, width 500 → right edge 640 = text's right edge). Then the right edge: band 140+500p, text 160+480p. Difference = -20+20p → the band lags by up to 20px at the start (a dark text sliver on the dark background — invisible artifact, harmless!), and they match at the end. The only artifact: at p<1, the dark text's right edge exceeds the band's right edge by up to 20px → the dark text sliver on the dark background = invisible.
+
+So: band left 140, width 500 (right edge 640 = text right edge). Text reveal 160→640 (480px). Band wipe 140→640 (500px). Same duration/ease. At p: band right edge = 140+500p; text right edge = 160+480p; text - band = 20 - 20p ≥ 0. So the text always leads or matches; the leading sliver is dark on dark = invisible. The light text: visible 160+480p→640; the band's right edge 140+500p ≤ 160+480p, so the light text never sits on the yellow.
+
+But wait, the left side: the band starts at 140, 20px to the left of the text — a yellow margin on the left, nice marker feel. The right edge exactly matches the text's right edge — the text touches the band's edge. Maybe add a bit of right margin: band width 510 → right edge 650. Then at p=1, the band extends 10px past the text — but during the wipe, band right edge = 140+510p, text = 160+480p; text-band = 20-30p; at p=0.67 they cross; after that, the band leads by up to 10px → the light text on the yellow sliver is at most 10px. Hmm. Keep the exact 640: band left 140, width 500. The marker extends 20px on the left, flush on the right. Good.
+
+Actually, even simpler and totally safe: band left 140, width 500, animate scaleX (origin left) — scaleX of 500 goes from 140→640. Text width 0→480 goes from 160→640. Same duration 0.45, ease "power2.inOut".
+
+Light text: width 480→0. Both overflow hidden.
+
+Z order: band z-index 1; dark text z 2; light text z 2 (they don't overlap in the x range except at the shared boundary — the dark text ends where the light begins; at the boundary both are at the same x instantaneously; the dark text is drawn... they're siblings; the later one in the DOM is on top. The overlap is instantaneous, so it doesn't matter).
+
+Wait, one more check: the light text's width shrinks 480→0 with left-aligned text — the text is anchored left, and the right side is clipped. Yes. The dark text's width grows 0→480, text anchored left, revealed from the left. Yes. Both boxes at left 160, top 560 (line 2 top), font 180, same letter spacing.
+
+But note: the light text's initial state is width 480 (visible) — it slides in with the stagger (x animation + opacity). Then at 1.6, the width animation starts. The x animation is done by then. Fine.
+
+Hmm, actually the light text slides in with x:-90→0. The dark text should not slide in (it's hidden, width 0). At the end: the dark text is at width 480, x 0, opacity 1. The light text is at width 0, opacity 1 (irrelevant, invisible). Final frame: "REAL" is dark on the yellow band.
+
+But wait — the rule: "everything that should be visible at the end of the clip must be at opacity 1 in the hold frame and animated in." The dark text is at opacity 1 at the end. Good. The light text is at width 0 — invisible, which is intended (it's a mechanism). Fine.
+
+Edge case: overflow hidden on the .a element — no problem.
+
+Also, the rule says "don't put CSS transform on elements that GSAP animates" — the band uses transform-origin in CSS (allowed) and GSAP's scaleX. OK.
+
+Now, the "AI," word — the comma. And "VIDEO". All good.
+
+Also, should I add a subtle background element? The brand is dark #0E0E0E. Maybe a faint grid or a large ghost "05"? The brief is minimal; the linter might not care. A large ghost "05" in the background could be nice but risks overlapping the title. Skip it, or add a very subtle vertical accent line on the right? Keep it clean. Maybe add a small monospace "A LOCAL-ONLY PIPELINE" subline below the rule? The brief says the rule draws across below the title; adding a small line below the rule might be nice: "EP05 — LOCAL MODELS · NO CLOUD" in monospace 24px, top 880. Hmm, the brief doesn't ask for it. Let me add a small monospace note below the rule for composition: "A 5-SECOND FIELD TEST — NO CLOUD, NO API KEYS". Keep it short: "NO CLOUD · NO API KEYS · 24 FPS". That's a nice detail. Position left 160, top 872, font 24, color #8A8A86 (a muted ink)? The brand colors are limited: ink, cyan, magenta, yellow. Use a muted version of ink? It's better to use only the brand palette: use ink at 60%? Opacity 0.6 on the ink color. That's fine — opacity is a property, and the color stays ink.
+
+Actually, let me reconsider: does adding extra text risk "text must not overlap"? No, if positioned properly. It enriches the card. Let me include it, fading in with the rule.
+
+Footer: logo + "GW / MOTION". Let me finalize positions:
+- Logo: left 160, top 930, width 150, height 45.
+- Monospace right: left 1320, top 942, width 440, text-align right, font 24. "GW / MOTION — EP05". Bottom 966 → margin 114. Good.
+
+Hmm wait, the note below the rule is at 872 (24px → bottom 896), the footer at 930 — no overlap.
+
+Rule at top 830, height 6. Line 2 box bottom 740. Gap 90. Good.
+
+Eyebrow: square 16x16 at left 160, top 256; text at left 192, top 248, font 28 → text bottom 276, square bottom 272. Roughly aligned. Let me set the square to top 254 (254–270), text at top 248 (248–276). Center: square center 262, text center ~262.
+
+Timeline:
+- 0.1: square opacity 0→1 (0.3), maybe from scaleX 0? Keep it as opacity + x.
+- 0.15: eyebrow opacity 0→1, x -30→0 (0.4).
+- 0.45, 0.65, 0.85, 1.05: words from x:-90, opacity 0 → x:0, opacity 1, 0.5, power3.out.
+- 1.6: band scaleX 0→1 (0.45, power2.inOut); light width 480→0 (same); dark width 0→480 (same).
+
+Wait, the light text's width: I said 480→0. But the light text also had an x animation earlier (x:-90→0, done by 1.35). The width animation is at 1.6 — no conflict.
+
+Hmm, one issue: the light text's box has overflow hidden and width 480 during the slide-in — the text "REAL" is ~450px wide, fits. OK.
+
+- 2.1: rule scaleX 0→1 (0.6, power3.inOut).
+- 2.3: note opacity 0→1, y 20→0 (0.5).
+- 2.5: footer logo + label fade in (0.5).
+- 4.0–5.0: hold — everything static. Total duration 5.
+
+Add a very subtle scale settle on the whole title? No, keep it.
+
+Maybe a slight overshoot on the word slide: use ease "power3.out" with x:-90. Or back.out for a bit of pop: the rule says use tl.fromTo etc.; the ease "back.out(1.4)" is fine — the restriction is on properties, not eases. Let me use "power3.out" for the words — clean. Maybe "back.out(1.2)" for the words to feel kinetic. Let me use back.out(1.3) for the words. Hmm, back.out with x and opacity — fine.
+
+Also, the band should have a slight y offset for the marker? A real marker band is often slightly rotated. A small rotation on the band (-1deg) adds life. But rotation is in the allowed properties; I can set the rotation via fromTo (rotation -1 → -1, i.e., set it in CSS? No — don't put CSS transform on GSAP-animated elements; the band is GSAP-animated (scaleX). So set the rotation via tl.set or include it in the fromTo: fromTo(band, {scaleX:0, rotation:-1.2}, {scaleX:1, rotation:-1.2, ...}). A slight -1.2deg tilt. But then the band's edges shift slightly relative to the text sync — a 500px width with 1.2deg → ~10px vertical shift at the right edge. The band's height is 160 vs the text's cap ~130 — the vertical slack covers it. The band's top/bottom: the text's cap is ~560+25=585 to 560+155=715 (roughly). The band's top 575, height 165 → 575–740. With a tilt, the right edge shifts ~10px up — still covered. OK, let me add the tilt. Actually, keep it simpler: no tilt. Clean wipe. Hmm. A slight tilt really sells the "marker" feel. Let me add rotation -1.5 with the band's top 570, height 175 to ensure coverage.
+
+Let me compute the text's vertical extent more precisely. Font size 180. For a typical display font, cap height ~0.7em = 126px; ascent ~0.95em? The line box is 180 (line-height 1). The cap top ≈ top + (ascent - capHeight) ≈ 560 + (171-126) = 560+45 = 605? Varies. To be safe, the band should cover 560+10=570 to 560+170=730: band top 572, height 165 → 572–737. With a -1.5deg tilt over 500px: vertical shift = 500 × sin(1.5°) ≈ 13px. The right edge moves up 13px: 559–724. The text's bottom is at most ~730 (descender area, but no descender on uppercase). The cap bottom ≈ 605+126 = 731. Hmm, the band's bottom 724 < 731 — the band might clip 7px off the bottom on the right side. Let me increase the band's height: top 566, height 180 → 566–746; tilted right edge: 553–733. The text's cap 605–731 is covered. The top 553 is above the cap top 605 — a 52px yellow strip on top? That's too much. Hmm, my ascent estimate is uncertain.
+
+Let me not overthink: use line-height 1, and place the band relative to the box: band top = box top + 20, height = 140. Box 560–740. Band 580–720. The cap is probably 585–715 within that. A slight tilt is fine. If the font metrics differ, the band might be a bit high/low — acceptable for a marker.
+
+Actually, the safest is: no rotation. A straight band. The brief just says "a yellow marker band that wipes in from the left." Straight is fine and safe. Decision: straight band, left 140, top 580, width 500, height 140.
+
+Hmm, let me reconsider the font size. 180px, 4 words across 2 lines — "huge." Good. Maybe 200px? "REAL VIDEO" 10 chars × 133 = 1330, fits. "LOCAL AI," 9 × 133 = 1197. Let me go with 190px. Letter width at 190 ≈ 127.
+- LOCAL: 5×127=635 → box 660.
+- AI,: A 127 + I 64 + , 75 ≈ 266 → box 300.
+- REAL: R 127 + E 115 + A 127 + L 105 ≈ 474 → box 500.
+- VIDEO: V 127 + I 64 + D 127 + E 115 + O 135 ≈ 568 → box 600.
+
+Line 1: LOCAL left 160 (→820), AI, left 870 (→1170).
+Line 2: REAL left 160 (→660), VIDEO left 710 (→1310).
+
+Band: left 140, width 520 → right edge 660 = REAL's box right edge. Text reveal: 160→660 (500px). Band wipe 140→660 (520px). text-band = 20-20p ≥ 0.
+
+Line 1 top 320, font 190 → box 320–510. Line 2 top 555 → box 555–745. Band top 575, height 145 → 575–720. Cap estimate for 190: cap ~133; ascent ~180; cap top ≈ 555 + (180-133) = 602; cap bottom 735. Band 575–720 — the bottom 720 < 735, 15px short?? My metrics guess is shaky. Let me set the band to top 570, height 165 → 570–735. That covers 602–735. The top yellow strip 570–602 = 32px — fine for a marker.
+
+Honestly, without knowing the exact font metrics, I'll go with band top 568, height 170 (568–738). Good.
+
+Rule: top 830. Line 2 box bottom 745 → gap 85. OK.
+
+Note below the rule: top 872.
+
+Footer: logo top 928 (height 45 → 973, margin 107). Label top 940, font 24 → bottom 964, margin 116.
+
+Eyebrow: square left 160 top 252 (16px → 268); text left 194 top 246, font 28 → 246–274. Text center 260, square center 260.
+
+All within margins: left 140 (band) — the band isn't text; the text's minimum left is 160. The right edge: VIDEO ends at 1310, label right edge 1760 (1920-160). Good.
+
+Now the GSAP timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// eyebrow
+tl.fromTo("#sq", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.35, ease: "power2.out" }, 0.1);
+tl.fromTo("#eyebrow", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.18);
+
+// words
+tl.fromTo("#w1", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.45);
+tl.fromTo("#w2", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.65);
+tl.fromTo("#w3l", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.85);
+tl.fromTo("#w4", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 1.05);
+
+// marker band
+tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.6);
+tl.to("#w3l", { width: 0, duration: 0.5, ease: "power2.inOut" }, 1.6);
+tl.fromTo("#w3d", { width: 0 }, { width: 500, duration: 0.5, ease: "power2.inOut" }, 1.6);
+
+// rule
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.inOut" }, 2.15);
+
+// note
+tl.fromTo("#note", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.35);
+
+// footer
+tl.fromTo("#logo", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 2.55);
+tl.fromTo("#foot", { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 2.6);
+
+window.__timelines["main"] = tl;
+```
+
+Wait: initial states. Elements with opacity 0 in CSS? The rule says "set the initial hidden state with tl.set or fromTo, not with CSS transform." CSS opacity:0 is allowed (the example uses opacity:0 in CSS). But to be safe, since I'm using fromTo for everything that fades, the fromTo sets the start state. But before the timeline plays (at frame 0), the renderer sets the time; at t=0 the fromTo hasn't started yet — elements before their start time display the CSS state. If the CSS has no opacity 0, the word will be visible at t=0 until 0.45! The renderer probably renders from t=0; the timeline at t=0 — GSAP's fromTo only applies the "from" values when the tween starts (unless the immediateRender behavior). Actually, GSAP's fromTo tweens render the "from" state at creation time (immediateRender defaults to true for from/fromTo tweens). Since the timeline is paused at 0 and the tweens are created, GSAP will render each fromTo's from state immediately at creation... for a paused timeline at position 0, the fromTo tweens with start > 0: immediateRender renders the from values at creation time. Yes — GSAP's fromTo has immediateRender true by default, so the from values are applied immediately at creation. So the words will be at opacity 0, x -90 at load. Good.
+
+But to be extra safe, also set opacity:0 in CSS for the fading elements (the example did that). CSS opacity:0 + fromTo — no conflict. Let me add opacity:0 to the CSS for the eyebrow, words, note, logo, foot. For the band: CSS transform is not allowed on GSAP elements; the band's initial scaleX 0 is handled by fromTo's immediateRender. The band is a background element — if it appears at full width at t=0 before the JS... the JS runs before the render (synchronously). Fine. But safer: give the band CSS... I can't use transform. I could set width:0 in CSS? No — the width animation is... the band animates scaleX, not width. CSS width 0 would break it. Rely on fromTo's immediateRender — that's standard and fine.
+
+Similarly, #w3d (dark text) has CSS width 0? I'm animating its width with fromTo (immediateRender sets width 0). If I also set CSS width:0, it's consistent. But note: the light text #w3l's width is animated 480→0... wait, I changed the size: the light text's width should start at 500 (box 160→660). Let me recompute: REAL's box width is 500 (left 160, width 500 → right 660). Band left 140, width 520 → right 660. Wipe: band scaleX covers 140→660 (520px). Light width 500→0. Dark width 0→500. At p: band right edge = 140+520p; light right edge = 160+500(1-p) = 660-500p; dark right edge = 160+500p. Check light vs band: light right edge - band right edge = 660-500p - 140 - 520p = 520 - 1020p. At p=0: 520>0 (light extends past the band — good, light is on the dark background). At p=0.5098: equal. At p=0.6: 520-612 = -92 <0 → the band leads, the light text is fully inside... no wait, the light text's right edge is to the left of the band's right edge → the light text is on top of the yellow band → bad (light text on yellow).
+
+Hmm! I made an error. Let me redo: the band's right edge must never exceed the light text's right edge (the light text's visible right edge is where the light text ends). The light text's visible region: [160, 660-500p]. The band's region: [140, 140+520p]. For the light text to never sit on the yellow: the band's right edge ≤ the light's right edge → 140+520p ≤ 660-500p → 1020p ≤ 520 → p ≤ 0.51. So after p≈0.51, the band overshoots the light text → the light text sits on the yellow. Bad.
+
+I made a sign error earlier. Let me redo the geometry correctly.
+
+Goal: as the band's right edge advances from 140→660, the light text's right edge must retreat at the same speed or faster... actually, the boundary between "on yellow" and "on dark" is the band's right edge B(p) = 140 + 520p. The dark text must cover [160, B(p)], and the light text must cover [B(p), 640] (the text's right edge is 640? The text's box is 160→660, but the glyphs end around 640; let me use the box edge 660).
+
+So: dark text width = B(p) - 160 = 520p - 20. At p=0: -20 → 0 (clamp). At p=1: 500. That's not linear in p (it's 520p - 20, linear with an offset). The light text width = 660 - B(p) = 520 - 520p. At p=0: 520; at p=1: 0.
+
+So the dark text's width should animate 0→500 but with a mapping of 520p-20 — i.e., the dark text's width lags slightly relative to linear. If I animate the dark text's width 0→500 linearly (same ease as the band), the dark width = 500p, and the band = 520p - 20... the difference band - dark = 20p - 20. At p<1, the band is 20-20p < 20px behind the dark text → the dark text extends past the yellow by up to 20px → the dark text on the dark background = invisible sliver. Harmless! (Dark #111 on #0E0E0E — invisible.)
+
+And the light text's width: animate 520→0? But the light text's box is 500 wide (160→660). The light text's visible right edge should be B(p) = 140+520p → light width = 660 - (140+520p) = 520 - 520p. At p=0: 520 — but the box is only 500 wide; the text glyphs end at ~640, so the visible light text at p=0 is [160, ~640] anyway. If I animate the light width 500→0 linearly: light right edge = 160 + 500(1-p) = 660-500p. Compare with the band's right edge 140+520p: the light's right edge - the band's right edge = 520 - 1020p → negative after p=0.51 → the band leads the light's right edge → the light text sits on the yellow. Bad.
+
+So the light text must shrink faster than linear: width should be 520-520p (i.e., from 520 at p=0 to 0 at p=1, but the box is 500...). Hmm, the mismatch comes from the band starting 20px to the left of the text.
+
+Simplest robust solution: make the band exactly match the text box: left 160, width 500. Then B(p) = 160+500p. Dark width = 500p (linear 0→500, perfectly synced). Light width = 500(1-p) (linear 500→0, perfectly synced). Perfect: at every p, the dark covers [160, 160+500p] = exactly the band; the light covers [160+500p, 660]. Zero artifacts. The marker band is exactly the width of the word — a clean, modern look (like a highlight).
+
+Trade-off: no overhang on the left. That's fine — a clean highlighter style. Decision: band left 160, top 568, width 500, height 170.
+
+Hmm, but the band's left edge = the text's left edge = 160; the band's right edge = the text box's right edge 660, but the glyphs end at ~640, so there's ~20px of yellow past the last glyph — a slight right overhang, which actually looks good (the marker ends past the text). And the left edge is flush with the "R". A slight left overhang would be nicer, but flush is fine.
+
+Actually — alternative: keep the band at left 140, width 520 (a 20px overhang on both sides), and animate the light/dark widths with a custom mapping... not worth the complexity. Or: animate the light/dark widths with a slight time offset: the light's width 500→0 over the same duration but with a different ease? No.
+
+Cleanest: band left 160, width 500. Let's go with that. Actually, let me add a 10px overhang on the right: band left 160, width 510 → right edge 670. Then B(p) = 160+510p. The dark width should be 510p; the light width should be 510(1-p) - but the light box is 500... light right edge = 160+500-510(1-p)?? This is getting complicated. Keep it at exactly 500. Final: band 160/568/500/170.
+
+Wait, the band's height 170: top 568 → bottom 738. The text box is 555–745. The band is inside the box, roughly covering the cap. Good.
+
+Now, the dark text #w3d: CSS width 0, overflow hidden, left 160, top 555, font 190. The light text #w3l: width 500, overflow hidden, same position. Both contain "REAL". The dark one uses the hl class (color #111). Actually, the brand: "yellow is only used as a band behind #111 text (class hl, that text is #111)." So #w3d should have class "h hl". The band is a separate element with a yellow background. The example's .hl was used as an inline span with a yellow background — but here I'm implementing the band as a separate div, and the text is #111. The linter probably checks the hl class's color #111 — the class handles that.
+
+Hmm, does .hl in gw.css define a yellow background? The brand description says "yellow is only used as a band behind #111 text (class `hl`, that text is #111)." In the example, `<span class="hl">world</span>` — probably gw.css defines .hl as a yellow background + #111 color. If .hl already has a yellow background, I shouldn't use it on my dark text (I have a separate band). But the brand text says the hl text is #111 — I need the #111 color. If .hl also adds a background, my dark text will have its own yellow background — which is actually fine! But then the separate band + the text's background = double yellow, and the reveal effect breaks (the dark text's box has a yellow background only where the box is — the box grows with the width, so the text's own background grows with it — actually, that would make the band unnecessary!).
+
+Hmm. If .hl has a yellow background, I could simplify: just animate the width of the dark text (with the hl background) from 0→500, and shrink the light text 500→0. The yellow "band" is the dark text's background itself. But the background would be exactly the text box height (190px line box), not a tight marker. And if .hl's background is a tight inline span background, it would look like a highlighter. But I don't know gw.css's exact definition. The brand description: "yellow is only used as a band behind #111 text (class `hl`, that text is #111)" — this reads as: the hl class creates a yellow band behind #111 text. So .hl probably has background: var(--y) and color #111, maybe with padding.
+
+To be safe: use a separate band div (explicit yellow background) and give the dark text an inline style color:#111 (not relying on .hl). But the linter might want the hl class for #111 text... the brand says the hl text is #111 — it's a description of the class, not a requirement to use it. Using an explicit color:#111 satisfies the brand. But if .hl in gw.css has a yellow background and I use the class, the band doubles up. If I don't use it and the linter checks "yellow is only as a band behind #111 text" — my band is behind #111 text. Fine.
+
+Decision: a separate band div with background:var(--y) (or #FFD400 — the brand says yellow #FFD400; use var(--y) if it exists? The token name is unknown; the example used var(--c) and var(--m). So var(--y) probably exists. To be safe, use the literal #FFD400? The example used CSS variables for colors. Risk: if --y doesn't exist, the background breaks. The brand lists the colors; the tokens are probably --c (cyan), --m (magenta), --y (yellow), --ink, --bg. The example only shows var(--c) and var(--m). Let me use var(--y) — hmm, risk. Safer: literal #FFD400. The linter's rule is about structure, not tokens. Use the literal #FFD400 for the band and #111 for the dark text. Actually, the example used var(--c) for the eyebrow — cyan. Let me use var(--c) for the eyebrow and the rule (the example used var(--m) for the rule). Let me use var(--c) for the eyebrow and the rule — consistent accents. Or the rule in ink? A cyan rule ties in with the eyebrow. Go with cyan.
+
+For the dark text's color: #111 literal.
+
+Now, the font: class h (display, uppercase, heavy, wide). The .h in gw.css probably sets font-family var(--display), text-transform uppercase, font-weight 800/900, letter spacing. Good — I'll write the text in normal case and let CSS uppercase it.
+
+Letter spacing: if .h has letter spacing, my width estimates (which assumed tight spacing) might be off. "At 150px, an uppercase letter is about 100px wide" — that's the given metric; I'll trust the 0.667em ratio. With letter spacing 0.02em, add ~4px per letter at 190 — negligible against my box padding.
+
+Let me finalize the word boxes (font 190):
+- w1 "LOCAL": left 160, top 320, width 680.
+- w2 "AI,": left 890, top 320, width 320. (LOCAL ends at 840; gap 50)
+- w3l/w3d "REAL": left 160, top 555, width 500.
+- w4 "VIDEO": left 710, top 555, width 620. (REAL ends at 660; gap 50)
+
+Check right margins: w2 ends at 1210; w4 ends at 1330. Good.
+
+Vertical: line 1 box 320–510, line 2 555–745.
+
+Eyebrow at top ~246. Gap to line 1: 320-274 = 46. OK.
+
+Rule: left 160, top 830, width 900, height 6, cyan, origin left.
+
+Note: left 160, top 872, font 24, monospace, color ink, opacity via CSS 0. Text: "NO CLOUD · NO API KEYS · 24 FPS". Width 700.
+
+Footer: logo left 160, top 928, width 150, height 45. Label left 1360, top 940, width 400, right-aligned, font 24: "GW / MOTION".
+
+Hmm, the label's bottom 964, margin 116 OK. The logo's bottom 973, margin 107 OK.
+
+Total duration 5. Hold for the last 1 second: the last animation ends at 2.6+0.5=3.1. 3.1→5.0 is static = a 1.9s hold. The brief says "hold for the last 1 second" — a longer hold is fine, but let me tighten it: shift things so the content settles at ~4.0. Let me stretch the timeline a bit:
+
+- 0.1 square, 0.18 eyebrow
+- Words: 0.5, 0.72, 0.94, 1.16 (stagger 0.22, duration 0.55) → last ends at 1.71
+- Band: 1.9→2.4 (0.5)
+- Rule: 2.5→3.1 (0.6)
+- Note: 2.7→3.2
+- Footer: 2.9→3.4
+- Hold: 3.4→5.0 (1.6s). Close enough to "the last 1 second" (the final 1 second is definitely a hold).
+
+Good.
+
+Also, should I add a subtle full-frame settle? No.
+
+Let me double-check the constraints:
+- One root div with data-composition-id="main", data-start 0, data-duration 5, 1920x1080. ✓
+- All visible elements are children of the root. ✓ (The band is a child, the text is a child.)
+- One paused timeline, registered. ✓ Only tl.set/to/from/fromTo with absolute starts. ✓ No repeat, no random, no setTimeout, no CSS animations. ✓
+- No CSS transform on GSAP elements: the band (scaleX) — no CSS transform, but transform-origin in CSS is allowed. The rule (scaleX) — transform-origin left center in CSS, allowed. The square (scaleX) — transform-origin left center. Words (x) — no CSS transform. ✓
+- position absolute class a, with explicit left/top/width in px. All have class "a" and left/top/width. The logo image has width/height. ✓
+- Text within the canvas with 100px margins, no overlap. ✓
+- Icons: none needed (the logo is a PNG asset, allowed since it's in the project). Actually, the rule says draw icons as inline SVG, don't load external icons — the logo PNG is a brand asset listed in the project, not an "icon." Should be fine. Hmm, is there a risk the linter flags <img>? The rules explicitly list assets/logo-negative.png as an available project asset, implying its use is OK.
+- Visible at the end at opacity 1: eyebrow 1, words 1 (w3l is at width 0 — invisible, but it's a mechanism; the visible "REAL" is w3d at opacity 1), band 1, rule 1, note 1, logo 1, foot 1. ✓
+
+Wait — one concern: w3l's final width is 0. "Everything that should be visible at the end must be at opacity 1" — w3l shouldn't be visible at the end, so it's fine.
+
+Another concern: the light text "REAL" (w3l) slides in with x:-90→0. Its box has overflow hidden, width 500. During the slide, the box is at x -90 — the text is visible. Fine.
+
+Also, w3d's initial width 0 — set via CSS width:0? I said set the initial hidden state with tl.set or fromTo, not with CSS transform — CSS width is not transform; but to be safe, use fromTo (immediateRender). I'll also add CSS width:0 on w3d as a double safety — that's not a transform, it's allowed. Hmm, "set the initial hidden state with tl.set or fromTo, not with CSS transform" — only CSS transform is forbidden. CSS width:0 is fine. But actually, if I set CSS width:0 and the fromTo is {width:0}→{width:500}, it's consistent.
+
+For w3l: CSS width 500 (visible width), animated to 0 with tl.to. Fine.
+
+z-index: band z 1, w3l z 2, w3d z 2. The band is behind both texts. But w3l (light) is on top of the band — as established, w3l's visible region never overlaps the band. w3d is on top of the band — the dark text on the yellow. ✓
+
+The DOM order: band, then w3l, then w3d (later = on top). w3d on top of w3l — they don't overlap. Fine.
+
+Eyebrow square: class a, background var(--c), width 16, height 16, left 160, top 252. Animate scaleX 0→1, origin left.
+
+Now, let me write the HTML.
+
+Font sizes: eyebrow 28px monospace, letter spacing 0.25em? .m probably already has letter spacing. I'll add a slight letter spacing.
+
+Colors:
+- Eyebrow: var(--c) cyan.
+- Square: var(--c).
+- Title words: ink (default body color? The body text color is probably ink). Set color: var(--ink)? The token name is unknown; the example didn't set the title color — it inherited. Let the title inherit (probably ink). To be safe, set color:#F4F4F1 on the title words? The brand ink is #F4F4F1. If gw.css sets the body color to ink, inheritance works. Let me set it explicitly on the #root or the words: color:#F4F4F1. Safe.
+- w3d: #111.
+- Band: #FFD400.
+- Rule: var(--c).
+- Note: #F4F4F1 with opacity 0.65? Set color:#F4F4F1 and CSS opacity... but GSAP animates opacity 0→1; the final opacity 1. I want a muted note: use color:#8f8f8b? Off-palette. Or keep the note at full ink — fine. Actually, a muted note looks better; the brand palette is limited, but a gray is a tint of ink. The linter probably doesn't check the note's color. Use #8A8A85? Hmm, "ink #F4F4F1" is the text color; a muted variant is a design choice. To be safe, use ink at 60%... I can't animate opacity to 0.6 at the end (the rule says visible things should be at opacity 1 at the hold frame — the note should be visible at the end; opacity 0.6 might violate "at opacity 1"). Keep the note at full ink. Or make the note smaller (22px) so it reads as secondary. OK: 22px ink.
+
+Actually, wait — the note might be better in cyan? No, cyan is for the eyebrow/rule. Ink is fine.
+
+- Footer label: ink, 24px monospace.
+- Logo: negative (light) logo on dark — good.
+
+Let me also double-check the word slide: "words slide/stagger in one by one" — stagger 0.22s, each 0.55s, from x:-90 with back.out(1.4). Nice kinetic feel.
+
+Should the words slide from alternating directions? "Slide/stagger in one by one" — a uniform left slide is fine, classic.
+
+Rule drawing: 2.5→3.1, power3.inOut, scaleX 0→1.
+
+Also, the band's wipe ease: power2.inOut, 0.5s. The light/dark width animations: same ease/duration/start — perfectly synced.
+
+One more check on the width animation and letter spacing: the light text's width 500→0 clips the right side of "REAL". The dark text's width 0→500 reveals the left side. Both have the same left anchor. ✓
+
+Potential issue: animating `width` on an element with overflow hidden — GSAP handles it fine.
+
+Also, the .h class might have a line-height; the box height is auto = the font's line height. The band's height 170 vs the box ~190 — the band is slightly shorter than the line box, positioned at top 568 (box top 555 + 13). The cap is probably 555+~35=590 to 555+165=720 (cap height ~133, top offset ~35). Band 568–738 covers 590–720. ✓
+
+Now, the top margin: the eyebrow text is at top 246 — 246 > 100 ✓.
+
+Let me also make sure the text doesn't overlap: line 1 bottom 510, line 2 top 555 ✓. The note is at 872, the rule at 830–836 ✓ (a 36px gap).
+
+The data-duration="5".
+
+Title tag: "B1 — Local AI, real video".
+
+Let me write the final file.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B1 — Local AI, Real Video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <!-- eyebrow -->
+  <div class="a" id="sq" style="left:160px;top:252px;width:16px;height:16px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="eyebrow" style="left:196px;top:244px;width:600px;font-size:28px;letter-spacing:0.22em;color:var(--c);opacity:0">EP05 / EXPERIMENT</div>
+
+  <!-- line 1 -->
+  <div class="a h" id="w1" style="left:160px;top:320px;width:680px;font-size:190px;color:#F4F4F1;opacity:0">Local</div>
+  <div class="a h" id="w2" style="left:890px;top:320px;width:320px;font-size:190px;color:#F4F4F1;opacity:0">AI,</div>
+
+  <!-- line 2 : marker mechanism -->
+  <div class="a" id="band" style="left:160px;top:568px;width:500px;height:170px;background:#FFD400;transform-origin:left center"></div>
+  <div class="a h" id="w3l" style="left:160px;top:555px;width:500px;font-size:190px;color:#F4F4F1;overflow:hidden;opacity:0">Real</div>
+  <div class="a h" id="w3d" style="left:160px;top:555px;width:0px;font-size:190px;color:#111;overflow:hidden">Real</div>
+
+  <div class="a h" id="w4" style="left:710px;top:555px;width:620px;font-size:190px;color:#F4F4F1;opacity:0">Video</div>
+
+  <!-- rule + note -->
+  <div class="a" id="rule" style="left:160px;top:830px;width:900px;height:6px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="note" style="left:160px;top:872px;width:900px;font-size:22px;letter-spacing:0.18em;color:#F4F4F1;opacity:0">NO CLOUD &middot; NO API KEYS &middot; 24 FPS</div>
+
+  <!-- footer -->
+  <img id="logo" class="a" src="assets/logo-negative.png" style="left:160px;top:928px;width:150px;height:45px;opacity:0" />
+  <div class="a m" id="foot" style="left:1360px;top:940px;width:400px;font-size:24px;letter-spacing:0.2em;color:#F4F4F1;text-align:right;opacity:0">GW / MOTION</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // eyebrow
+  tl.fromTo("#sq", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.35, ease: "power2.out" }, 0.1);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.18);
+
+  // kinetic words
+  tl.fromTo("#w1", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.5);
+  tl.fromTo("#w2", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.72);
+  tl.fromTo("#w3l", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 0.94);
+  tl.fromTo("#w4", { opacity: 0, x: -90 }, { opacity: 1, x: 0, duration: 0.55, ease: "back.out(1.4)" }, 1.16);
+
+  // marker wipe (band + text inversion, perfectly synced)
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.9);
+  tl.to("#w3l", { width: 0, duration: 0.5, ease: "power2.inOut" }, 1.9);
+  tl.fromTo("#w3d", { width: 0 }, { width: 500, duration: 0.5, ease: "power2.inOut" }, 1.9);
+
+  // rule + note
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.inOut" }, 2.5);
+  tl.fromTo("#note", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.7);
+
+  // footer
+  tl.to("#logo", { opacity: 1, duration: 0.5 }, 2.9);
+  tl.fromTo("#foot", { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 2.95);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait — the band's initial state: fromTo with immediateRender sets scaleX 0 at creation. But between page load and the timeline... the renderer seeks to frame times; at t=0, the band is at scaleX 0 (immediateRender applied at creation). ✓
+
+w3d: CSS width:0 + fromTo width 0→500. ✓
+
+One issue: `tl.to("#w3l", { width: 0 ...})` — w3l's CSS width is 500. At t=0, the width is 500 (fine, it's hidden by opacity 0 anyway). At 1.9, it shrinks. ✓
+
+Another check: w3l's opacity — it slides in at 0.94 with opacity 0→1. At 1.9, the width shrinks. Final: width 0, opacity 1. Invisible. ✓
+
+The band is at opacity 1 throughout (no opacity animation) — at t=0 it's at scaleX 0, invisible. ✓
+
+Now, the "back.out(1.4)" ease — is it allowed? The rule restricts the methods (tl.set/to/from/fromTo) and the properties, not the eases. back.out is a standard GSAP ease. Fine.
+
+Hmm, one more consideration: the words have `overflow` visible (default) — the boxes are wide enough. w1 "LOCAL" 5 letters × ~127 = 635 + letter spacing ~10 = 645 < 680 ✓. w2 "AI," ≈ 266 < 320 ✓. w4 "VIDEO" ≈ 568 + spacing ~15 = 583 < 620 ✓. w3 "REAL" ≈ 474 + 12 = 486 < 500 ✓ (tight but OK; if the font is wider, the light box's overflow hidden might clip the last 14px of the "L"... risky! Let me widen w3's box to 520 and the band to 520. Then the reveal width is 520. Band left 160 width 520 → right 680. w4 is at left 710 — the band's right edge 680 vs w4's left 710: 30px gap, no overlap. ✓ Update: w3l width 520, w3d to 520, band width 520.
+
+Recheck the sync: the band's scaleX covers 160→680 (520px); the light's width 520→0 covers 160→680; the dark's width 0→520. Perfect match. ✓
+
+w1's box 680 ends at 840; w2 is at 890. If "LOCAL" renders wider (say 700), it ends at 860 — still < 890 ✓.
+
+w4 "VIDEO" box 620 ends at 1330 ✓ margin.
+
+The note's width 900, 22px monospace: "NO CLOUD · NO API KEYS · 24 FPS" = 31 chars × ~13px (monospace 22px ≈ 13.2px/char) = 410px ✓.
+
+Eyebrow: "EP05 / EXPERIMENT" 17 chars × ~17px (28px monospace ≈ 16.8 + letter spacing 0.22em ≈ 6px) ≈ 17×23 = 390 < 600 ✓.
+
+Foot: "GW / MOTION" 11 chars × ~21 = 230 < 400 ✓.
+
+The logo's height 45, width 150 with object-fit contain — add object-fit:contain to avoid distortion if the aspect ratio differs. Fine.
+
+Also, should I worry that the .h class's letter spacing makes "REAL" exceed 520? 4 letters, letter spacing 0.05em = 9.5px × 4 = 38 added → 474+38 = 512 < 520 ✓.
+
+Everything looks solid. Let me also add `line-height:1` to the .h words to keep the box predictable? gw.css probably sets it. Adding line-height:1 is safe CSS (not a transform). Let me add it to the word styles for consistency. Actually, if .h already sets the line height, my inline line-height:1 overrides it — consistent across all words, which is what matters (w3l and w3d must match — both have the same inline style ✓).
+
+The band's top 568 is relative to the box top 555: if the line height is 1 (190px box), the cap top ≈ 555 + (190×(1-0.72))/2? For line-height 1, the half-leading = (190 - 190)/2 = 0... the glyph's ascent sits within the em box: the cap top ≈ 555 + (ascent - capHeight). Ascent ~0.9em=171, cap ~0.72em=137 → cap top ≈ 555+34 = 589; cap bottom ≈ 589+137 = 726. Band 568–738 ✓ covers with ~21px top and ~12px bottom margins.
+
+The rule's top 830 vs the box bottom 745: the gap is fine.
+
+Final check of the timeline order and the 5s duration: the last tween ends at 2.95+0.5=3.45. Hold 3.45→5 = 1.55s. The brief: "hold for the last 1 second" ✓ (the final second is static).
+
+I think this is good. Let me also confirm there are no CSS transitions/animations, no external resources other than the allowed ones. The <img> uses the allowed asset.
+
+One more: the root div — "every visible element is a child of it" — all my elements are direct children ✓.
+
+Reply with just the html code block.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B1 — Local AI, Real Video</title>
+<link rel="stylesheet" href="lib/gw.css

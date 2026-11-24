@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- Heading block -->
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:26px;letter-spacing:3px;color:var(--c);opacity:0">Process / 03 steps</div>
+  <div class="a h" id="title" style="left:156px;top:188px;font-size:150px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:392px;width:760px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- Connector line -->
+  <div class="a" id="conn" style="left:442px;top:726px;width:1036px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- STEP 1 : Write a brief -->
+  <div class="a m" id="n1" style="left:160px;top:500px;width:220px;text-align:center;font-size:30px;letter-spacing:2px;color:var(--c);opacity:0">Step 01</div>
+  <svg id="ic1" class="a" style="left:170px;top:556px;width:200px;height:200px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <rect x="30" y="12" width="60" height="96" />
+    <line x1="44" y1="34" x2="76" y2="34" />
+    <line x1="44" y1="52" x2="76" y2="52" />
+    <line x1="44" y1="70" x2="64" y2="70" />
+  </svg>
+  <div class="a m" id="l1" style="left:160px;top:784px;width:220px;text-align:center;font-size:26px;letter-spacing:1px;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  <!-- STEP 2 : Model writes the code -->
+  <div class="a m" id="n2" style="left:850px;top:500px;width:220px;text-align:center;font-size:30px;letter-spacing:2px;color:var(--c);opacity:0">Step 02</div>
+  <svg id="ic2" class="a" style="left:860px;top:556px;width:200px;height:200px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <polyline points="44,34 20,60 44,86" />
+    <polyline points="76,34 100,60 76,86" />
+    <line x1="66" y1="26" x2="54" y2="94" />
+  </svg>
+  <div class="a m" id="l2" style="left:850px;top:784px;width:220px;text-align:center;font-size:26px;letter-spacing:1px;color:#F4F4F1;opacity:0">Model writes the code</div>
+
+  <!-- STEP 3 : Render the video -->
+  <div class="a m" id="n3" style="left:1540px;top:500px;width:220px;text-align:center;font-size:30px;letter-spacing:2px;color:var(--c);opacity:0">Step 03</div>
+  <svg id="ic3" class="a" style="left:1550px;top:556px;width:200px;height:200px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <rect x="14" y="24" width="92" height="72" />
+    <polygon points="52,44 52,76 82,60" />
+  </svg>
+  <div class="a m" id="l3" style="left:1540px;top:784px;width:220px;text-align:center;font-size:26px;letter-spacing:1px;color:#F4F4F1;opacity:0">Render the video</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Heading
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.5);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.0);
+
+  // Step 1
+  tl.to("#n1", { opacity: 1, duration: 0.3 }, 1.5);
+  tl.fromTo("#ic1", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.6);
+  tl.to("#l1", { opacity: 1, duration: 0.4 }, 1.9);
+
+  // Connector 1 -> 2
+  tl.fromTo("#conn", { scaleX: 0 }, { scaleX: 0.5, duration: 0.4, ease: "power2.inOut" }, 2.4);
+
+  // Step 2
+  tl.to("#n2", { opacity: 1, duration: 0.3 }, 2.8);
+  tl.fromTo("#ic2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 2.9);
+  tl.to("#l2", { opacity: 1, duration: 0.4 }, 3.2);
+
+  // Connector 2 -> 3
+  tl.to("#conn", { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, 3.8);
+
+  // Step 3
+  tl.to("#n3", { opacity: 1, duration: 0.3 }, 4.2);
+  tl.fromTo("#ic3", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 4.3);
+  tl.to("#l3", { opacity: 1, duration: 0.4 }, 4.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

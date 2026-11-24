@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+  <div class="a m" id="eyebrow" style="left:120px;top:100px;font-size:24px;color:var(--c);opacity:0">Performance / Render time</div>
+  <div class="a h" id="title" style="left:120px;top:140px;font-size:72px;opacity:0">Render time per card (s)</div>
+
+  <div id="chart" style="position:absolute;left:120px;top:300px;width:1680px;height:600px">
+    <div class="a m" id="axis" style="left:0;top:0;width:1680px;height:2px;background:#262626;opacity:0"></div>
+    <div class="a m" id="unit" style="left:1560px;top:0;font-size:22px;color:var(--ink);opacity:0">s</div>
+
+    <div class="a m" id="lab0" style="left:0;top:84px;font-size:26px;color:var(--ink);opacity:0">Title</div>
+    <div class="a" id="track0" style="left:320px;top:80px;width:1000px;height:38px;background:#1a1a1a"></div>
+    <div class="a" id="bar0" style="left:320px;top:80px;width:1000px;height:38px;background:var(--c);transform-origin:left center"></div>
+    <div class="a h" id="val0" style="left:1340px;top:72px;font-size:44px;opacity:0">0</div>
+
+    <div class="a m" id="lab1" style="left:0;top:204px;font-size:26px;color:var(--ink);opacity:0">Explainer</div>
+    <div class="a" id="track1" style="left:320px;top:200px;width:1000px;height:38px;background:#1a1a1a"></div>
+    <div class="a" id="bar1" style="left:320px;top:200px;width:1000px;height:38px;background:var(--c);transform-origin:left center"></div>
+    <div class="a h" id="val1" style="left:1340px;top:192px;font-size:44px;opacity:0">0</div>
+
+    <div class="a m" id="lab2" style="left:0;top:324px;font-size:26px;color:var(--ink);opacity:0">Chart</div>
+    <div class="a" id="track2" style="left:320px;top:320px;width:1000px;height:38px;background:#1a1a1a"></div>
+    <div class="a" id="bar2" style="left:320px;top:320px;width:1000px;height:38px;background:var(--c);transform-origin:left center"></div>
+    <div class="a h" id="val2" style="left:1340px;top:312px;font-size:44px;opacity:0">0</div>
+
+    <div class="a m" id="lab3" style="left:0;top:444px;font-size:26px;color:var(--ink);opacity:0">Lower third</div>
+    <div class="a" id="track3" style="left:320px;top:440px;width:1000px;height:38px;background:#1a1a1a"></div>
+    <div class="a" id="bar3" style="left:320px;top:440px;width:1000px;height:38px;background:var(--c);transform-origin:left center"></div>
+    <div class="a h" id="val3" style="left:1340px;top:432px;font-size:44px;opacity:0">0</div>
+
+    <div class="a" id="hl" style="left:1320px;top:184px;width:112px;height:60px;background:var(--y);transform-origin:center center"></div>
+  </div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  const data = {
+    title: "Render time per card (s)",
+    unit: "s",
+    rows: [
+      { label: "Title", value: 42 },
+      { label: "Explainer", value: 58 },
+      { label: "Chart", value: 51 },
+      { label: "Lower third", value: 23 }
+    ]
+  };
+  const maxV = Math.max.apply(null, data.rows.map(function (r) { return r.value; }));
+  const maxIdx = data.rows.indexOf(data.rows.filter(function (r) { return r.value === maxV; })[0]);
+  const barMax = 1000;
+
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.4);
+  tl.fromTo("#axis", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.7);
+  tl.to("#unit", { opacity: 1, duration: 0.3 }, 1.0);
+
+  data.rows.forEach(function (r, i) {
+    const t = 1.2 + i * 0.35;
+    const scaleX = (r.value / maxV) * barMax / barMax; // 0..1 relative
+    tl.to("#lab" + i, { opacity: 1, duration: 0.3 }, t);
+    tl.fromTo("#bar" + i, { scaleX: 0 }, { scaleX: scaleX, duration: 0.9, ease: "power3.out" }, t + 0.1);
+    const v = { n: 0 };
+    tl.to(v, { n: r.value, duration: 0.9, ease: "power3.out",
+      onUpdate: function () {
+        document.getElementById("val" + i).textContent = Math.round(v.n);
+      }
+    }, t + 0.1);
+    tl.to("#val" + i, { opacity: 1, duration: 0.2 }, t + 0.1);
+  });
+
+  tl.fromTo("#hl", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.4);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

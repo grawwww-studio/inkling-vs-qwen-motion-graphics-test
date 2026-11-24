@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Product Teaser</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+  .a { position: absolute; }
+  .line { transform-origin: center center; }
+  .chip { background: #141414; border: 2px solid #2A2A2A; }
+  .chip .strip { position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
+  #logo { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- corner frame -->
+  <div class="a frame" style="left:36px;top:36px;width:44px;height:44px;border-top:3px solid #2E2E2E;border-left:3px solid #2E2E2E"></div>
+  <div class="a frame" style="left:1840px;top:36px;width:44px;height:44px;border-top:3px solid #2E2E2E;border-right:3px solid #2E2E2E"></div>
+  <div class="a frame" style="left:36px;top:1000px;width:44px;height:44px;border-bottom:3px solid #2E2E2E;border-left:3px solid #2E2E2E"></div>
+  <div class="a frame" style="left:1840px;top:1000px;width:44px;height:44px;border-bottom:3px solid #2E2E2E;border-right:3px solid #2E2E2E"></div>
+
+  <!-- header -->
+  <div class="a" id="header" style="left:72px;top:52px;width:1776px;height:56px">
+    <img src="assets/icon.svg" style="width:46px;height:46px;vertical-align:middle" />
+    <span class="m" style="font-size:22px;color:var(--ink);letter-spacing:3px;vertical-align:middle;margin-left:18px">GRAWWWW STUDIO</span>
+    <span class="m" style="position:absolute;right:0;top:9px;font-size:20px;color:var(--c);letter-spacing:4px">PRODUCT TEASER</span>
+  </div>
+
+  <!-- beat 1: lines -->
+  <div class="a m" id="kicker" style="left:0;top:208px;width:1920px;text-align:center;font-size:22px;color:var(--c);letter-spacing:6px;opacity:0">THREE THINGS WE SHIP</div>
+  <div class="a h line" id="l1" style="left:0;top:262px;width:1920px;font-size:104px;color:var(--ink);text-align:center;opacity:0">Agents.</div>
+  <div class="a h line" id="l2" style="left:0;top:378px;width:1920px;font-size:104px;color:var(--c);text-align:center;opacity:0">Automations.</div>
+  <div class="a h line" id="l3" style="left:0;top:494px;width:1920px;font-size:104px;text-align:center;opacity:0"><span class="hl">Video.</span></div>
+
+  <!-- beat 2: chips -->
+  <div class="a chip" id="chip1" style="left:200px;top:430px;width:480px;height:210px;opacity:0">
+    <div class="strip" style="background:var(--c)"></div>
+    <div class="m" style="position:absolute;top:22px;right:22px;font-size:18px;color:var(--c);letter-spacing:2px">01</div>
+    <svg viewBox="0 0 56 56" style="position:absolute;left:212px;top:42px;width:56px;height:56px;stroke:var(--c)" fill="none" stroke-width="5" stroke-linecap="square">
+      <rect x="14" y="14" width="28" height="28"/>
+      <rect x="22" y="22" width="12" height="12"/>
+      <line x1="22" y1="6" x2="22" y2="14"/><line x1="34" y1="6" x2="34" y2="14"/>
+      <line x1="22" y1="42" x2="22" y2="50"/><line x1="34" y1="42" x2="34" y2="50"/>
+      <line x1="6" y1="22" x2="14" y2="22"/><line x1="6" y1="34" x2="14" y2="34"/>
+      <line x1="42" y1="22" x2="50" y2="22"/><line x1="42" y1="34" x2="50" y2="34"/>
+    </svg>
+    <div class="m" style="position:absolute;left:30px;top:116px;width:420px;text-align:center;font-size:21px;color:var(--ink);letter-spacing:2px">Runs on your hardware</div>
+  </div>
+
+  <div class="a chip" id="chip2" style="left:720px;top:430px;width:480px;height:210px;opacity:0">
+    <div class="strip" style="background:var(--m)"></div>
+    <div class="m" style="position:absolute;top:22px;right:22px;font-size:18px;color:var(--m);letter-spacing:2px">02</div>
+    <svg viewBox="0 0 56 56" style="position:absolute;left:212px;top:42px;width:56px;height:56px;stroke:var(--m)" fill="none" stroke-width="5" stroke-linecap="square">
+      <circle cx="28" cy="28" r="17"/>
+      <line x1="15" y1="41" x2="41" y2="15"/>
+    </svg>
+    <div class="m" style="position:absolute;left:30px;top:116px;width:420px;text-align:center;font-size:21px;color:var(--ink);letter-spacing:2px">No per-token bill</div>
+  </div>
+
+  <div class="a chip" id="chip3" style="left:1240px;top:430px;width:480px;height:210px;opacity:0">
+    <div class="strip" style="background:var(--ink)"></div>
+    <div class="m" style="position:absolute;top:22px;right:22px;font-size:18px;color:var(--ink);letter-spacing:2px">03</div>
+    <svg viewBox="0 0 56 56" style="position:absolute;left:212px;top:42px;width:56px;height:56px;stroke:var(--ink)" fill="none" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M28 6 L46 12 V27 C46 38 38 46 28 50 C18 46 10 38 10 27 V12 Z"/>
+      <path d="M20 27 L26 33 L37 21"/>
+    </svg>
+    <div class="m" style="position:absolute;left:30px;top:116px;width:420px;text-align:center;font-size:21px;color:var(--ink);letter-spacing:2px">Your data stays put</div>
+  </div>
+
+  <!-- beat 3: logo + tagline -->
+  <div class="a" id="logoWrap" style="left:0;top:288px;width:1920px;text-align:center">
+    <img id="logo" src="assets/logo-negative.png" style="height:250px" />
+  </div>
+  <div class="a h" id="tagline" style="left:0;top:596px;width:1920px;text-align:center;font-size:64px;color:var(--ink);opacity:0">Local AI, <span class="hl">delivered.</span></div>
+  <div class="a" id="rule" style="left:900px;top:716px;width:120px;height:6px;background:var(--c);transform-origin:left center"></div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set("#header", { opacity: 0 }, 0);
+  tl.set("#kicker", { opacity: 0 }, 0);
+  tl.set(".line", { opacity: 0 }, 0);
+  tl.set(".chip", { opacity: 0 }, 0);
+  tl.set("#logo", { opacity: 0 }, 0);
+  tl.set("#tagline", { opacity: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  // header + kicker in
+  tl.to("#header", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.15);
+  tl.to("#kicker", { opacity: 1, duration: 0.4 }, 0.35);
+
+  // beat 1: slam in
+  tl.fromTo(".line",
+    { opacity: 0, scale: 2.4, y: -70 },
+    { opacity: 1, scale: 1, y: 0, duration: 0.38, ease: "power4.out", stagger: 0.7 },
+    0.45);
+
+  // beat 1 clears
+  tl.to("#kicker", { opacity: 0, duration: 0.3 }, 2.85);
+  tl.to(".line", { opacity: 0, y: -36, duration: 0.32, ease: "power2.in", stagger: 0.05 }, 2.9);
+
+  // beat 2: chips stagger in
+  tl.fromTo(".chip",
+    { opacity: 0, y: 70 },
+    { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.5 },
+    3.35);
+
+  // beat 3: everything clears
+  tl.to(".chip", { opacity: 0, y: 40, duration: 0.35, ease: "power2.in", stagger: 0.06 }, 6.85);
+  tl.to("#header", { opacity: 0, duration: 0.3 }, 7.05);
+  tl.to(".frame", { opacity: 0, duration: 0.3 }, 7.05);
+
+  // logo + tagline
+  tl.fromTo("#logo",
+    { opacity: 0, scale: 0.82 },
+    { opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" },
+    7.45);
+  tl.fromTo("#tagline",
+    { opacity: 0, y: 36 },
+    { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+    8.15);
+  tl.fromTo("#rule",
+    { scaleX: 0 },
+    { scaleX: 1, duration: 0.6, ease: "power2.inOut" },
+    8.55);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

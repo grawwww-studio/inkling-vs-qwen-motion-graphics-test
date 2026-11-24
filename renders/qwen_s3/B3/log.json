@@ -1,0 +1,34 @@
+{
+ "brief": "B3",
+ "name": "Chart reveal from small JSON (8 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 526.5,
+   "prompt_tokens": 1363,
+   "completion_tokens": 20000,
+   "finish": "length",
+   "error": "no html block"
+  },
+  {
+   "round": 1,
+   "llm_s": 478.8,
+   "prompt_tokens": 1395,
+   "completion_tokens": 18235,
+   "finish": "stop",
+   "check_s": 1.6,
+   "check_errors": [],
+   "render_s": 8.0
+  }
+ ],
+ "model": "qwen",
+ "seed": "3",
+ "t0": 1795369890.9894633,
+ "render_ok": true,
+ "fix_rounds": 1,
+ "llm_s": 1005.3,
+ "prompt_tokens": 2758,
+ "completion_tokens": 38235,
+ "t1": 1795370905.955265,
+ "wall_s": 1015.0
+}

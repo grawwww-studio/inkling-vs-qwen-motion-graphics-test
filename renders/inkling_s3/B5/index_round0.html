@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- Eyebrow -->
+  <div class="a m" id="eyebrow" style="left:160px;top:100px;font-size:22px;letter-spacing:6px;color:var(--c);opacity:0;white-space:nowrap">
+    <span style="display:inline-block;width:14px;height:14px;background:var(--c);margin-right:16px;vertical-align:-2px"></span>GRAWWWW STUDIO
+  </div>
+
+  <!-- Beat 1: slam-in lines -->
+  <div class="a h" id="l1" style="left:160px;top:262px;font-size:128px;line-height:1;color:var(--ink);opacity:0;transform-origin:left center;white-space:nowrap">Agents<span style="color:var(--c)">.</span></div>
+  <div class="a h" id="l2" style="left:160px;top:404px;font-size:128px;line-height:1;color:var(--m);opacity:0;transform-origin:left center;white-space:nowrap">Automations<span style="color:var(--ink)">.</span></div>
+  <div class="a h" id="l3" style="left:160px;top:546px;font-size:128px;line-height:1;color:var(--ink);opacity:0;transform-origin:left center;white-space:nowrap"><span class="hl">Video.</span></div>
+
+  <!-- Beat 2: feature chips -->
+  <div class="a" id="chip1" style="left:160px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid var(--c);display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#12A9E6" stroke-width="5" stroke-linecap="square">
+      <rect x="13" y="13" width="22" height="22"/>
+      <rect x="20" y="20" width="8" height="8"/>
+      <line x1="18" y1="4" x2="18" y2="13"/><line x1="24" y1="4" x2="24" y2="13"/><line x1="30" y1="4" x2="30" y2="13"/>
+      <line x1="18" y1="35" x2="18" y2="44"/><line x1="24" y1="35" x2="24" y2="44"/><line x1="30" y1="35" x2="30" y2="44"/>
+      <line x1="4" y1="18" x2="13" y2="18"/><line x1="4" y1="24" x2="13" y2="24"/><line x1="4" y1="30" x2="13" y2="30"/>
+      <line x1="35" y1="18" x2="44" y2="18"/><line x1="35" y1="24" x2="44" y2="24"/><line x1="35" y1="30" x2="44" y2="30"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">Runs on your hardware</span>
+  </div>
+  <div class="a" id="chip2" style="left:704px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid var(--m);display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#FF2D92" stroke-width="5" stroke-linecap="square">
+      <circle cx="24" cy="24" r="15"/>
+      <line x1="13" y1="13" x2="35" y2="35"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">No per-token bill</span>
+  </div>
+  <div class="a" id="chip3" style="left:1248px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid #F4F4F1;display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#F4F4F1" stroke-width="5" stroke-linecap="square">
+      <rect x="12" y="21" width="24" height="17"/>
+      <path d="M17 21 v-6 a7 7 0 0 1 14 0 v6"/>
+      <line x1="24" y1="28" x2="24" y2="33"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">Your data stays put</span>
+  </div>
+
+  <!-- Beat 3: final logo scene -->
+  <img id="icon" class="a" src="assets/icon.svg" alt="Grawwww Studio icon" style="left:910px;top:292px;width:100px;height:100px;object-fit:contain;opacity:0" />
+  <img id="logo" class="a" src="assets/logo-negative.png" alt="Grawwww Studio" style="left:610px;top:424px;width:700px;height:380px;object-fit:contain;opacity:0" />
+  <div class="a h" id="tagline" style="left:0px;top:828px;width:1920px;text-align:center;font-size:58px;color:var(--ink);opacity:0;white-space:nowrap">Local AI, <span class="hl">delivered.</span></div>
+  <div class="a" id="rule" style="left:840px;top:914px;width:240px;height:6px;background:var(--c);transform-origin:center center;scaleX:0"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Eyebrow
+  tl.fromTo("#eyebrow", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+
+  // Beat 1: three lines slam in
+  tl.fromTo("#l1", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 0.35);
+  tl.fromTo("#l2", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 1.05);
+  tl.fromTo("#l3", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 1.75);
+
+  // Beat 2: chips stagger in
+  tl.fromTo("#chip1", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.25);
+  tl.fromTo("#chip2", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.80);
+  tl.fromTo("#chip3", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 4.35);
+
+  // Beat 3: everything clears
+  tl.to("#l1", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.00);
+  tl.to("#l2", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.05);
+  tl.to("#l3", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.10);
+  tl.to("#chip1", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.00);
+  tl.to("#chip2", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.05);
+  tl.to("#chip3", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.10);
+  tl.to("#eyebrow", { opacity: 0, duration: 0.35, ease: "power1.in" }, 7.00);
+
+  // Beat 3: logo scene
+  tl.fromTo("#icon", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 7.45);
+  tl.fromTo("#logo", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" }, 7.60);
+  tl.fromTo("#tagline", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 8.25);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 8.75);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

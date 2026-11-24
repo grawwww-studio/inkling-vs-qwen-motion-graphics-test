@@ -1,0 +1,569 @@
+[REASONING]
+The user says no html block found — likely because my previous response got truncated (I see the output was cut off mid-file: `style="left:160px;top:500px;width`). I need to write the complete file.
+
+Let me design the composition carefully.
+
+Canvas: 1920x1080. 9 seconds.
+
+Layout:
+- Top bar (cyan strip) across top.
+- Logo negative top right.
+- Eyebrow "WORKFLOW / 03 STEPS" at left 160, top ~130.
+- Heading "HOW IT WORKS" with hl highlight on "WORKS". Font 108px. Width check: "HOW IT " ~ 7 chars at ~72px wide each... display font uppercase heavy wide: at 108px, letter ~72px wide. "HOW IT WORKS" = 12 chars incl space ≈ 800px. Fine within 160..1600.
+- Rule under heading.
+- Three columns at y ~ 420-800. Columns:
+  - Col 1: left 160, width 460
+  - Col 2: left 730, width 460
+  - Col 3: left 1300, width 460
+- Number above each icon: "01" big, cyan; "02" magenta? Brand: cyan #12A9E6, magenta #FF2D92, yellow only as hl band. Numbers: 01 cyan, 02 magenta, 03 cyan? Or keep all cyan with magenta accents. Let's do numbers in ink with colored underline? Simpler: numbers colored cyan, magenta, cyan? Hmm. Let's do: 01 cyan, 02 magenta, 03 yellow? Yellow only as band behind #111 text — not as plain text. So avoid yellow text. Use cyan and magenta alternating, or all cyan. I'll do: 01 cyan, 02 magenta, 03 cyan.
+
+Icons (inline SVG, stroke #F4F4F1 stroke-width 6, no fill or flat fill):
+- Step 1: pencil/document. Draw a document with lines + pencil. Simple: document outline (rect with folded corner) with 3 lines, pencil diagonal across? Keep simple: document with folded corner and pencil. Let me design SVG viewBox 0 0 120 120:
+  - Document: path M30 15 H75 L95 35 V105 H30 Z with fold line M75 15 V35 H95. Lines: M42 55 H78, M42 70 H78, M42 85 H65.
+  - Pencil: maybe overlay diagonal: path M80 70 L105 95 ... could get messy. Alternative: pencil icon alone? Brief says "pencil/document". Document with lines is clean. Add small pencil: line from (78,88) to (100,110)? Might overflow. Keep document with folded corner + 3 text lines. Good.
+- Step 2: brackets </>. SVG: path M45 35 L20 60 L45 85 (left chevron), path M75 35 L100 60 L75 85 (right chevron), slash line M68 25 L52 95. Stroke 6, round caps? Keep square joins.
+- Step 3: play triangle. Rounded rect? No rounded corners allowed. Just triangle: path M40 30 L95 60 L40 90 Z, stroke 6, fill none or flat fill. Fill cyan? "no fill or flat fill" — flat fill allowed. Make triangle filled cyan with ink stroke? Keep stroke ink, fill none; or fill magenta. Let's fill with cyan flat fill and no stroke? Brand icons: stroke #F4F4F1. I'll do stroke #F4F4F1 stroke-width 6 fill none, plus maybe fill #12A9E6 for the triangle. Flat fill is allowed. I'll fill triangle with #12A9E6 and stroke none? "stroke #F4F4F1 or a brand colour, stroke-width 6, no fill or flat fill" — so stroke brand colour allowed. I'll do stroke #12A9E6, fill #12A9E6? That's both. Simpler: stroke ink, fill none for all three, consistent. Add a small circle? Keep consistent: all ink stroke.
+
+Actually to add color, numbers colored, connector lines cyan, rule cyan, top bar cyan. Icons ink. Good.
+
+Connector lines between columns: horizontal lines with arrowhead? Draw as div with height 4px background cyan, plus small triangle? Could use SVG line with marker. Simpler: div height 4px, width ~140px, background cyan, plus a small chevron at end via SVG. Or just lines that scaleX from 0. Also add small plus/arrow. I'll do a div line + a small triangle div? Triangle via CSS borders is a transform-ish... border trick is fine (no transform). Actually a small SVG arrowhead is cleaner. Let me do per connector: a group div containing line div and svg arrowhead.
+
+Connectors at y ~ 640 (icon vertical center). Col1 right edge = 160+460=620. Col2 left = 730. Gap 620..730, 110px. Connector line from x=628 to x=700 (72px), arrowhead at 700..722. Hmm tight. Make columns width 440: col1 160-600, col2 740-1180, col3 1320-1760. Gaps: 600..740 = 140; 1180..1320 = 140. Connector line x 612..700 (88px), arrowhead svg at x 700..726.
+
+Column content vertical layout:
+- number top 420 (font 54px)
+- icon box: top 500, size 140x140 (svg 140x140)
+- label: top 660, font 34px body? Label "Write a brief" — body font, maybe 30px, uppercase? Labels could be h-ish small. Use class m? m is uppercase labels. Use font-size 30px, letter-spacing 2px, color ink. "Model writes the code" is long: 21 chars at 30px uppercase ~ 21*20=420px — fits 440 width? Uppercase at 30px: letter ~20px wide → 420px. Tight. Use 28px → ~390px. OK width 440.
+
+Maybe label font-size 30px, width 440. "Render the video" 16 chars fine.
+
+Also a small caption under label? Not required. Keep clean.
+
+Add step underline accent: small bar under number? Maybe a 60px x 4px colored bar under label? Could add. Keep minimal.
+
+Animation timeline (9s):
+- 0.0: topbar scaleX 0→1 (0.6s)
+- 0.1: logo fade in
+- 0.2: eyebrow fade/slide
+- 0.4: heading from y 40 opacity 0
+- 0.9: rule scaleX 0→1
+- 1.2: step1 number+box+label reveal (number scale/fade, icon draw? icons could draw via stroke-dashoffset but that's extra complexity; animate opacity + scale)
+  - num1: opacity 0→1, y 20→0
+  - box1: scale 0.6→1, opacity 0→1
+  - label1: opacity 0→1, y 16→0
+- connector1: scaleX 0→1 at ~2.2
+- step2 reveal at ~2.6
+- connector2 at ~3.6
+- step3 reveal at ~4.0
+- 5.2: maybe a bottom footer line? Add a bottom strip: "BRIEF → CODE → VIDEO"? Not needed. Could add small caption at bottom: "From prompt to playback — three steps." Hmm, keep. Maybe add bottom bar with three small dots? Keep simple: add a footer line with mono text bottom-left "HYPERFRAMES / EXPLAINER" and bottom-right "03 STEPS". Nice brand touch.
+
+Also maybe a subtle highlight pulse on the active step? Keep sequential reveal, that's the brief.
+
+End state: everything opacity 1.
+
+Total duration 9s. Hold from ~5.5 to 9.
+
+Let me also add small colored tick under each number: e.g., 48px x 5px bar under number colored per step. Animate with box.
+
+Structure per column:
+```
+<div class="a" id="step1" style="left:160px;top:420px;width:440px">
+  <div class="a m" id="num1" style="left:0;top:0;font-size:54px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="tick1" style="left:2px;top:66px;width:56px;height:5px;background:#12A9E6;opacity:0"></div>
+  <div class="a" id="box1" style="left:0;top:96px;width:150px;height:150px;opacity:0">
+    <svg ...>...</svg>
+  </div>
+  <div class="a" id="label1" style="left:0;top:270px;width:440px;font-size:30px;letter-spacing:2px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+</div>
+```
+Wait, labels: brief says labels "Write a brief", "Model writes the code", "Render the video". Uppercase via CSS class m would uppercase. I'll use class m with text "Write a brief" — m class presumably uppercase. Let me check gw.css? Not available; assume .m is mono uppercase. I'll write text already uppercase to be safe: "WRITE A BRIEF".
+
+Icon SVG 150x150 viewBox 0 0 150 150:
+Step 1 document:
+```
+<svg viewBox="0 0 150 150" width="150" height="150">
+  <path d="M42 18 H88 L114 44 V132 H42 Z" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="miter"/>
+  <path d="M88 18 V44 H114" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="58" y1="66" x2="98" y2="66" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="58" y1="86" x2="98" y2="86" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="58" y1="106" x2="84" y2="106" stroke="#F4F4F1" stroke-width="6"/>
+</svg>
+```
+Add pencil? Maybe small pencil in corner: path M100 96 L124 120? Hmm might clutter. Actually "pencil/document" — document is fine. Maybe add pencil diagonal across bottom right:
+```
+<path d="M96 96 L122 122" ...>
+```
+Skip, document reads as brief.
+
+Hmm, actually let me add a pencil to make it clearly "write": pencil diagonal from (92,100) to (124,132): 
+```
+<path d="M98 96 L126 124" stroke="#12A9E6" stroke-width="8"/>
+<path d="M126 124 L118 132 L112 126 Z" fill="#12A9E6"/>
+```
+Getting fiddly. Keep document clean.
+
+Step 2 brackets:
+```
+<svg viewBox="0 0 150 150">
+  <path d="M58 40 L28 75 L58 110" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <path d="M92 40 L122 75 L92 110" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <line x1="82" y1="32" x2="68" y2="118" stroke="#FF2D92" stroke-width="7"/>
+</svg>
+```
+Slash magenta. 
+
+Step 3 play:
+```
+<svg viewBox="0 0 150 150">
+  <path d="M52 38 L112 75 L52 112 Z" fill="#12A9E6" stroke="#12A9E6" stroke-width="6" stroke-linejoin="miter"/>
+</svg>
+```
+Flat fill cyan. Or ink stroke + cyan fill. fill cyan, stroke ink? Let's do fill none stroke #F4F4F1 with inner small triangle? Simpler: fill #12A9E6, stroke #F4F4F1 stroke-width 5. Looks nice.
+
+Column vertical positions: number top 420 (54px), tick at 420+66=486, icon top 500? Let me recompute: step group top 420:
+- num at top:0 → occupies 420..478
+- tick at top:62 → 482..487
+- icon at top:88 → 508..658 (150px)
+- label at top:262 → 682..712
+
+Connectors at icon center y = 420+88+75 = 583. Line height 5px → top 580.5 → top:580px, height 5px. Arrowhead svg 22x22 at top 572.
+
+Connector x: col1 ends 160+440=600. col2 starts 740. Line from 612 to 694 (82px), arrowhead at 700..722.
+Col2 ends 740+440=1180. Col3 starts 1320. Line from 1192 to 1274, arrowhead 1280..1302.
+
+Connector group:
+```
+<div class="a" id="conn1" style="left:612px;top:580px;width:110px;height:5px;background:#12A9E6;transform-origin:left center;opacity:0"></div>
+<svg class="a" id="conn1a" ...>
+```
+Better: one group div with line + arrow svg positioned inside, animate group scaleX? scaleX on group would squash arrow. Instead animate line scaleX and arrow opacity separately.
+
+Simplify: line div (scaleX 0→1) + arrowhead svg (opacity 0→1, x -10→0).
+
+Arrowhead svg: `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 4 L20 12 L4 20 Z" fill="#12A9E6"/></svg>` positioned left:696px top:571px.
+
+Actually let me make connector a bit wider: line from 610 to 700 (90px), arrow at 704..728 (24px). Col2 left edge 740 — arrow ends 728, 12px gap. Good.
+
+Footer: bottom-left mono "HYPERFRAMES / EXPLAINER" at left 160 top 960; bottom-right "STEP 01—03" right aligned. Add thin rule above footer? Add line at top 940 from 160 to 1760 width 1600 height 2px background #2A2A2A? Brand colors only... a dark grey line is fine (not a brand color but neutral). Or use cyan thin. Use #262626 neutral — allowed? Brand says no gradients etc.; neutral greys fine. I'll use rgba(244,244,241,0.18).
+
+Also add big ghost numbers? Could add huge "01" background? Might clutter. Skip.
+
+Add a subtle step progress indicator at bottom? Keep footer simple.
+
+Heading check: "HOW IT WORKS" 108px display. Width: 13 chars incl spaces; display font wide ~0.72em per char → 108*0.72*13 ≈ 1010px. Fits 160..1760. With hl span on "WORKS" — hl is yellow band with #111 text. Good.
+
+Eyebrow: "WORKFLOW / 03 STEPS" 24px letter-spacing 4px mono — width ~ 19 chars * (24*0.6+4) ≈ 19*18.4 = 350px. Fine.
+
+Logo: assets/logo-negative.png right 160 top 118 height 44. Width auto — unknown aspect; fine.
+
+Animation timeline (9s):
+```
+tl.set("#topbar",{scaleX:0,opacity:1},0)
+tl.to("#topbar",{scaleX:1,duration:0.7,ease:"power2.out"},0.1)
+tl.fromTo("#logo",{opacity:0,y:-12},{opacity:1,y:0,duration:0.5},0.3)
+tl.fromTo("#eyebrow",{opacity:0,x:-24},{opacity:1,x:0,duration:0.5},0.4)
+tl.fromTo("#heading",{opacity:0,y:44},{opacity:1,y:0,duration:0.7,ease:"power3.out"},0.55)
+tl.fromTo("#rule",{scaleX:0,opacity:1},{scaleX:1,duration:0.6,ease:"power2.inOut"},1.0)
+```
+Step 1 at 1.4:
+```
+tl.fromTo("#num1",{opacity:0,y:18},{opacity:1,y:0,duration:0.4},1.4)
+tl.fromTo("#tick1",{scaleX:0,opacity:1},{scaleX:1,duration:0.4},1.55)
+tl.fromTo("#box1",{opacity:0,scale:0.5},{opacity:1,scale:1,duration:0.55,ease:"back.out(1.6)"},1.45)
+tl.fromTo("#label1",{opacity:0,y:14},{opacity:1,y:0,duration:0.4},1.75)
+```
+Connector1 at 2.35:
+```
+tl.fromTo("#conn1",{scaleX:0,opacity:1},{scaleX:1,duration:0.45,ease:"power2.inOut"},2.35)
+tl.fromTo("#conn1a",{opacity:0,x:-12},{opacity:1,x:0,duration:0.35},2.6)
+```
+Step2 at 2.9:
+```
+num2 2.9, tick2 3.05, box2 2.95, label2 3.25
+```
+Connector2 at 3.75: line 3.75, arrow 4.0
+Step3 at 4.3: num3 4.3, tick3 4.45, box3 4.35, label3 4.65
+Footer at 5.2: line scaleX, texts fade.
+Hold to 9.
+
+Also maybe a subtle pulse on step 3 at end? Not needed.
+
+Initial hidden states: set opacity 0 in CSS for all animated elements (or tl.set at 0). I'll put opacity:0 in inline styles and use fromTo/to. For scaleX elements, initial scaleX 0 via fromTo with transform-origin in CSS. Good.
+
+Note: GSAP animating opacity with fromTo — fine.
+
+One caution: `.hl` class — yellow band behind #111 text. Check gw.css defines .hl. Assume yes (example uses it).
+
+Fonts: use classes h, m, and default body font via gw.css.
+
+Labels: use class "m"? m = mono uppercase labels. Label "MODEL WRITES THE CODE" in mono 28px letter-spacing 1px — width: 21 chars * (28*0.62 + 1) ≈ 21*18.4 = 386px. Fits 440. Good.
+
+Numbers: class m, font-size 54px, letter-spacing 2px. "01" width ~ 2*(54*0.62+2)=2*35.5=71px. Fine.
+
+Heading font-size 108px — check "HOW IT WORKS": 12 chars + space. Display font wide ~0.75em avg → 108*0.75*13 = 1053px. Left 160 → ends ~1213. Logo at right 160 top 118 — heading top 172, logo height 44 at top 118 → logo bottom 162, heading top 172, no overlap. But heading width 1053 ends at 1213; logo right edge at 1760, logo width unknown (~200px) → logo left ~1560. No overlap. Good.
+
+Eyebrow at top 130, height ~30 → ends 160. Heading top 172. Good.
+
+Rule at top 336: heading 108px at top 172 → bottom ~280. Rule at 336 leaves gap. Fine. Actually maybe rule top 330.
+
+Steps at 420..712. Footer at 940. Bottom margin fine.
+
+Now, everything visible at end: all opacity 1. Set tl.set not needed beyond fromTo.
+
+Let me also add small caption under each label? Like "01 — WRITE A BRIEF"? No, keep.
+
+Maybe add per-step sub-caption in body font, small, gray: e.g. "Define the goal", "Generate the code", "Watch it play". That adds polish. Width 440, 22px body font, color rgba ink 0.6. "Generate the code" fits. Animate with label. Hmm — brief says each column with number, icon, label. Extra sub-caption is fine and adds design. I'll add it, animate opacity with label.
+
+Sub-caption at top 296 within group (label at 262, height ~36 → caption at 300). Group total height ~340 → ends 760. Footer at 940. OK.
+
+Actually let me reconsider group layout:
+- num: top 0 (54px line-height ~64)
+- tick: top 70
+- icon: top 92, 150px
+- label: top 258 (30px)
+- sub: top 300 (22px)
+Group ends ~330 → absolute 420+330=750.
+
+Connectors at icon center: 420+92+75 = 587 → line top 584.5 → top:584px; arrow top 575.
+
+Let me now also double check connector line width: from 610 to 700 = 90px. Arrow svg at left 704, width 24 → ends 728. Col2 left 740. Good.
+
+Second connector: from 1192 to 1282 (90px), arrow at 1286..1310. Col3 left 1320. Good.
+
+Footer: rule line at left 160 top 936 width 1600 height 2px background rgba(244,244,241,0.16), scaleX 0→1 at 5.3. Left text at top 958: "HYPERFRAMES / EXPLAINER" 20px mono letter-spacing 3px color rgba ink .55. Right text: "03 STEPS / 09 S" right-aligned at right 160. Use left:1300px width:360px text-align:right? Or right:160px with width 400. Use left:1200px;width:560px;text-align:right.
+
+Also small cyan square bullet before left text? Add 10px cyan square at left 160 top 966, text at 182. Nice.
+
+Let me write the full file now.
+
+SVG icons — ensure stroke widths and viewBox.
+
+Step 1 document icon (150x150):
+```
+<svg viewBox="0 0 150 150" width="150" height="150">
+  <path d="M44 16 H86 L114 44 V134 H44 Z" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="miter"/>
+  <path d="M86 16 V44 H114" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="60" y1="68" x2="100" y2="68" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="60" y1="88" x2="100" y2="88" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="60" y1="108" x2="86" y2="108" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Nice touch: last line cyan.
+
+Step 2 brackets:
+```
+<svg viewBox="0 0 150 150" width="150" height="150">
+  <path d="M56 38 L26 75 L56 112" fill="none" stroke="#F4F4F1" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M94 38 L124 75 L94 112" fill="none" stroke="#F4F4F1" stroke-width="7" stroke-linejoin="miter"/>
+  <line x1="84" y1="30" x2="66" y2="120" stroke="#FF2D92" stroke-width="7"/>
+</svg>
+```
+Check chevron geometry: path M56 38 L26 75 L56 112 — left chevron pointing left. Right: M94 38 L124 75 L94 112 — pointing right. Slash from (84,30) to (66,120). Good.
+
+Step 3 play:
+```
+<svg viewBox="0 0 150 150" width="150" height="150">
+  <path d="M50 36 L116 75 L50 114 Z" fill="#12A9E6" stroke="#F4F4F1" stroke-width="5" stroke-linejoin="miter"/>
+</svg>
+```
+Triangle points right. Good.
+
+Maybe add small circle around? Keep.
+
+Numbers colors: 01 cyan, 02 magenta, 03 cyan. Ticks match.
+
+Labels: "WRITE A BRIEF", "MODEL WRITES THE CODE", "RENDER THE VIDEO".
+Subs: "Define the goal in a few lines", "The model turns it into code", "Watch it play back". Widths: 30 chars * ~11px = 330px at 20px body. Fine.
+
+Now CSS: .a absolute. #root relative. transform-origin for scaleX elements: #topbar, #rule, #tick1..3, #conn1, #conn2, #footerline → left center. #box1..3 → center center.
+
+Inline styles: set opacity:0 initial for animated elements. For scaleX elements, opacity 1 but scaleX 0 via fromTo (fromTo sets from state at time of tween start... actually fromTo with absolute start time: the from state is applied when? With GSAP, fromTo tween at time t: the from values are applied immediately when the timeline is created? No — fromTo tweens render their from state at the start of the tween... Actually in GSAP, fromTo sets the starting values immediately upon creation (immediateRender defaults true for from/fromTo). Yes, fromTo has immediateRender: true by default, so at timeline creation the from state applies — good, but the timeline is paused and rendered at 0; rendering at 0 will apply from states of tweens that haven't started? Hmm. With immediateRender true, the from values are set when the tween is created (i.e., when tl is built), so at time 0 elements show from-state. That's the standard pattern in the example (they use opacity:0 in CSS plus fromTo). I'll also set opacity:0 in inline styles to be safe.
+
+For scaleX tweens with fromTo, if immediateRender applies scaleX:0 at creation, fine. But careful: elements with CSS opacity:0 and fromTo opacity — fine.
+
+One issue: fromTo with immediateRender sets scaleX:0 at creation — but these tweens are at absolute times later; the from state applies immediately. Good, that's what we want (hidden until their tween).
+
+But wait — for the rule/ticks/connectors I use fromTo scaleX 0→1. And opacity stays 1. Set CSS opacity:1 default. Good.
+
+Footer line: scaleX 0→1 at 5.3.
+
+Timeline total 9s; last tween ends ~5.9. Hold to 9. Good.
+
+Let me also animate the logo with fromTo y -12→0.
+
+Write the file:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width:1920px; height:1080px; overflow:hidden; background:#0E0E0E; }
+  .a { position:absolute; }
+  #topbar, #rule, #tick1, #tick2, #tick3, #conn1, #conn2, #footerline { transform-origin:left center; }
+  #box1, #box2, #box3 { transform-origin:center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+  <div class="a" id="topbar" style="left:0;top:0;width:1920px;height:6px;background:#12A9E6;opacity:0"></div>
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="logo" style="right:160px;top:118px;height:44px;opacity:0" />
+  <div class="a m" id="eyebrow" style="left:160px;top:132px;font-size:24px;letter-spacing:4px;color:#12A9E6;opacity:0">WORKFLOW / 03 STEPS</div>
+  <div class="a h" id="heading" style="left:160px;top:176px;font-size:106px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+  <div class="a" id="rule" style="left:162px;top:338px;width:420px;height:6px;background:#12A9E6;opacity:0"></div>
+
+  <!-- STEP 1 -->
+  <div class="a m" id="num1" style="left:160px;top:420px;font-size:54px;letter-spacing:2px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="tick1" style="left:162px;top:492px;width:56px;height:5px;background:#12A9E6;opacity:0"></div>
+  <div class="a" id="box1" style="left:160px;top:512px;width:150px;height:150px;opacity:0">
+    <svg ...></svg>
+  </div>
+  <div class="a m" id="label1" style="left:160px;top:688px;width:440px;font-size:28px;letter-spacing:2px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+  <div class="a" id="sub1" style="left:160px;top:730px;width:440px;font-size:21px;color:rgba(244,244,241,0.55);opacity:0">Define the goal in a few lines</div>
+  ...
+```
+
+Wait — tick at 492: num at 420 with font 54px, line-height maybe 1.2 → bottom ~485. tick at 492 good. Icon at 512..662. Label at 688. Sub at 730..756.
+
+Connectors at icon center: 512+75=587. Line top 584 (height 5). Arrow svg top 575 (24px → center 587). Good.
+
+Col2 left 740, col3 left 1320.
+
+Connector1: line left 612 top 584 width 88 (612..700). Arrow left 704 top 575 width 24 height 24.
+Connector2: line left 1192 top 584 width 88 (1192..1280). Arrow left 1284 top 575.
+
+Footer:
+```
+<div class="a" id="footerline" style="left:160px;top:936px;width:1600px;height:2px;background:rgba(244,244,241,0.16);opacity:0"></div>
+<div class="a" id="fbullet" style="left:160px;top:962px;width:12px;height:12px;background:#12A9E6;opacity:0"></div>
+<div class="a m" id="ftleft" style="left:186px;top:956px;font-size:20px;letter-spacing:3px;color:rgba(244,244,241,0.55);opacity:0">HYPERFRAMES / EXPLAINER</div>
+<div class="a m" id="ftright" style="left:1200px;top:956px;width:560px;text-align:right;font-size:20px;letter-spacing:3px;color:rgba(244,244,241,0.55);opacity:0">03 STEPS / 09 S</div>
+```
+
+Hmm "03 STEPS / 09 S" — odd. Use "STEP 01 → 03"? Arrow char → is fine (not emoji). Or "THREE STEPS / NINE SECONDS". Keep "03 STEPS / 09 S"? Let me use "BRIEF → CODE → VIDEO" as right text — nice summary. Width: 21 chars * ~13 = 273px. Fits 560.
+
+Actually the arrow → in mono font fine.
+
+Animation timeline:
+
+```
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#topbar", { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: 0.7, ease: "power2.out" }, 0.1);
+```
+Hmm topbar opacity: set CSS opacity 0? If fromTo sets opacity 1 immediately at creation, then at t=0 it's visible with scaleX 0 — fine (scaleX 0 = invisible). Simpler: CSS opacity:1, fromTo scaleX 0→1. But initial render before timeline... the timeline is created and paused; rendering at 0 applies from states. With immediateRender, from state applied at creation. OK. But to be safe set opacity:0 in CSS for topbar and animate opacity too. Let me just include opacity in fromTo for everything.
+
+tl.fromTo("#topbar", {scaleX:0, opacity:1}, {scaleX:1, duration:0.7, ease:"power2.out"}, 0.1); — topbar visible as thin line growing. Good.
+
+logo: fromTo opacity 0,y:-12 → 1,0 at 0.3.
+eyebrow: fromTo opacity 0,x:-24 → 1,0 at 0.45.
+heading: fromTo opacity 0,y:44 → 1,0 at 0.6, dur 0.7.
+rule: fromTo scaleX 0 → 1 at 1.05, dur 0.6. CSS opacity 1? Rule has opacity:0 in CSS... fromTo opacity 1 at start. Let me set rule CSS opacity:1 and only animate scaleX. But then before tween creation... timeline created at load, immediateRender sets scaleX 0 → invisible. Fine.
+
+Simplify: for scaleX elements, no CSS opacity needed; fromTo handles. For opacity elements, set CSS opacity:0 and fromTo opacity.
+
+Steps:
+```
+tl.fromTo("#num1", {opacity:0, y:18}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 1.4);
+tl.fromTo("#tick1", {scaleX:0}, {scaleX:1, duration:0.4, ease:"power2.out"}, 1.55);
+tl.fromTo("#box1", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.55, ease:"back.out(1.7)"}, 1.5);
+tl.fromTo("#label1", {opacity:0, y:14}, {opacity:1, y:0, duration:0.4}, 1.85);
+tl.fromTo("#sub1", {opacity:0, y:10}, {opacity:1, y:0, duration:0.4}, 1.95);
+tl.fromTo("#conn1", {scaleX:0}, {scaleX:1, duration:0.45, ease:"power2.inOut"}, 2.4);
+tl.fromTo("#conn1a", {opacity:0, x:-12}, {opacity:1, x:0, duration:0.3}, 2.65);
+tl.fromTo("#num2", {opacity:0, y:18}, {opacity:1, y:0, duration:0.4}, 2.95);
+tl.fromTo("#tick2", {scaleX:0}, {scaleX:1, duration:0.4}, 3.1);
+tl.fromTo("#box2", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.55, ease:"back.out(1.7)"}, 3.0);
+tl.fromTo("#label2", {opacity:0, y:14}, {opacity:1, y:0, duration:0.4}, 3.35);
+tl.fromTo("#sub2", {opacity:0, y:10}, {opacity:1, y:0, duration:0.4}, 3.45);
+tl.fromTo("#conn2", {scaleX:0}, {scaleX:1, duration:0.45, ease:"power2.inOut"}, 3.8);
+tl.fromTo("#conn2a", {opacity:0, x:-12}, {opacity:1, x:0, duration:0.3}, 4.05);
+tl.fromTo("#num3", {opacity:0, y:18}, {opacity:1, y:0, duration:0.4}, 4.35);
+tl.fromTo("#tick3", {scaleX:0}, {scaleX:1, duration:0.4}, 4.5);
+tl.fromTo("#box3", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.55, ease:"back.out(1.7)"}, 4.4);
+tl.fromTo("#label3", {opacity:0, y:14}, {opacity:1, y:0, duration:0.4}, 4.75);
+tl.fromTo("#sub3", {opacity:0, y:10}, {opacity:1, y:0, duration:0.4}, 4.85);
+tl.fromTo("#footerline", {scaleX:0}, {scaleX:1, duration:0.6, ease:"power2.inOut"}, 5.4);
+tl.fromTo("#fbullet", {opacity:0, scale:0}, {opacity:1, scale:1, duration:0.35}, 5.6);
+tl.fromTo("#ftleft", {opacity:0, y:10}, {opacity:1, y:0, duration:0.4}, 5.65);
+tl.fromTo("#ftright", {opacity:0, y:10}, {opacity:1, y:0, duration:0.4}, 5.75);
+```
+
+fbullet scale — needs transform-origin; add #fbullet to CSS transform-origin center. Add to the CSS rule.
+
+Arrowheads: svg elements #conn1a, #conn2a — set CSS opacity:0? fromTo handles opacity. x:-12 → from state sets x at creation. Fine.
+
+Note: svg as .a with position absolute — fine.
+
+Also should I add subtle hover-like emphasis? No.
+
+Check text widths again:
+- Heading 106px: "HOW IT WORKS" — with hl span on WORKS. 13 chars. Avg 0.72em → 106*0.72*13 ≈ 992px. OK.
+- Label2 "MODEL WRITES THE CODE" 21 chars at 28px mono letter-spacing 2px: mono char width ~0.6em = 16.8 + 2 = 18.8 → 21*18.8 = 395px < 440. Good.
+- Subs: "Define the goal in a few lines" 29 chars at 21px body ~0.5em = 10.5 → 305px. Good.
+
+Eyebrow: "WORKFLOW / 03 STEPS" 19 chars at 24px mono + 4px spacing: 19*(14.4+4)=351px. Good.
+
+Footer left "HYPERFRAMES / EXPLAINER" 23 chars at 20px + 3px: 23*(12+3)=345px. From 186 → ends 531. Right text from 1200 width 560 → starts 1200. No overlap.
+
+Logo: right 160 top 118 height 44. Logo negative — probably wide; width auto. Fine.
+
+One more check: heading top 176, font 106px, line-height maybe 1.0 → bottom ~282. Rule at 338. Gap fine. Actually maybe move rule to 330. Fine.
+
+Steps: num top 420, font 54 → bottom ~480. tick top 492. Icon 512..662. Label 688 (28px → bottom ~722). Sub 730..755. Footer line 936. Good.
+
+Now the hl class: yellow band behind #111 text. The heading uses it — good.
+
+Everything at end opacity 1: yes.
+
+Also add data-duration 9.
+
+Potential linter: "Never put a CSS transform on an element that GSAP animates" — I use transform-origin in CSS, allowed. No transform CSS. Good.
+
+Let me also double check the topbar: at t=0.1 scaleX 0→1. Before that, fromTo immediateRender sets scaleX 0 → invisible. Good.
+
+Also — should the heading hl span inherit? .hl has background yellow, color #111, padding maybe. Fine.
+
+Write final file. Also include title.
+
+One more consideration: gw.css might define .h with letter-spacing etc. Fine.
+
+Also ensure no rounded corners — none. No gradients — none. No emoji — none.
+
+Final answer: single html code block, nothing else.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #0E0E0E; }
+  .a { position: absolute; }
+  #topbar, #rule, #tick1, #tick2, #tick3, #conn1, #conn2, #footerline { transform-origin: left center; }
+  #box1, #box2, #box3, #fbullet { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a" id="topbar" style="left:0;top:0;width:1920px;height:6px;background:#12A9E6;opacity:0"></div>
+
+  <img class="a" id="logo" src="assets/logo-negative.png" alt="logo" style="right:160px;top:118px;height:44px;opacity:0" />
+
+  <div class="a m" id="eyebrow" style="left:160px;top:132px;font-size:24px;letter-spacing:4px;color:#12A9E6;opacity:0">WORKFLOW / 03 STEPS</div>
+
+  <div class="a h" id="heading" style="left:160px;top:176px;font-size:106px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+
+  <div class="a" id="rule" style="left:162px;top:338px;width:420px;height:6px;background:#12A9E6"></div>
+
+  <!-- STEP 1 -->
+  <div class="a m" id="num1" style="left:160px;top:420px;font-size:54px;letter-spacing:2px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="tick1" style="left:162px;top:492px;width:56px;height:5px;background:#12A9E6"></div>
+  <div class="a" id="box1" style="left:160px;top:512px;width:150px;height:150px;opacity:0">
+    <svg viewBox="0 0 150 150" width="150" height="150">
+      <path d="M44 16 H86 L114 44 V134 H44 Z" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="miter"/>
+      <path d="M86 16 V44 H114" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="60" y1="68" x2="100" y2="68" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="60" y1="88" x2="100" y2="88" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="60" y1="108" x2="86" y2="108" stroke="#12A9E6" stroke-width="6"/>
+    </svg>
+  </div>
+  <div class="a m" id="label1" style="left:160px;top:688px;width:440px;font-size:28px;letter-spacing:2px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+  <div class="a" id="sub1" style="left:160px;top:730px;width:440px;font-size:21px;color:rgba(244,244,241,0.55);opacity:0">Define the goal in a few lines</div>
+
+  <!-- CONNECTOR 1 -->
+  <div class="a" id="conn1" style="left:612px;top:584px;width:88px;height:5px;background:#12A9E6"></div>
+  <svg class="a" id="conn1a" viewBox="0 0 24 24" width="24" height="24" style="left:704px;top:575px;opacity:0">
+    <path d="M4 4 L20 12 L4 20 Z" fill="#12A9E6"/>
+  </svg>
+
+  <!-- STEP 2 -->
+  <div class="a m" id="num2" style="left:740px;top:420px;font-size:54px;letter-spacing:2px;color:#FF2D92;opacity:0">02</div>
+  <div class="a" id="tick2" style="left:742px;top:492px;width:56px;height:5px;background:#FF2D92"></div>
+  <div class="a" id="box2" style="left:740px;top:512px;width:150px;height:150px;opacity:0">
+    <svg viewBox="0 0 150 150" width="150" height="150">
+      <path d="M56 38 L26 75 L56 112" fill="none" stroke="#F4F4F1" stroke-width="7" stroke-linejoin="miter"/>
+      <path d="M94 38 L124 75 L94 112" fill="none" stroke="#F4F4F1" stroke-width="7" stroke-linejoin="miter"/>
+      <line x1="84" y1="30" x2="66" y2="120" stroke="#FF2D92" stroke-width="7"/>
+    </svg>
+  </div>
+  <div class="a m" id="label2" style="left:740px;top:688px;width:440px;font-size:28px;letter-spacing:2px;color:#F4F4F1;opacity:0">MODEL WRITES THE CODE</div>
+  <div class="a" id="sub2" style="left:740px;top:730px;width:440px;font-size:21px;color:rgba(244,244,241,0.55);opacity:0">The model turns the brief into code</div>
+
+  <!-- CONNECTOR 2 -->
+  <div class="a" id="conn2" style="left:1192px;top:584px;width:88px;height:5px;background:#12A9E6"></div>
+  <svg class="a" id="conn2a" viewBox="0 0 24 24" width="24" height="24" style="left:1284px;top:575px;opacity:0">
+    <path d="M4 4 L20 12 L4 20 Z" fill="#12A9E6"/>
+  </svg>
+
+  <!-- STEP 3 -->
+  <div class="a m" id="num3" style="left:1320px;top:420px;font-size:54px;letter-spacing:2px;color:#12A9E6;opacity:0">03</div>
+  <div class="a" id="tick3" style="left:1322px;top:492px;width:56px;height:5px;background:#12A9E6"></div>
+  <div class="a" id="box3" style="left:1320px;top:512px;width:150px;height:150px;opacity:0">
+    <svg viewBox="0 0 150 150" width="150" height="150">
+      <path d="M50 36 L116 75 L50 114 Z" fill="#12A9E6" stroke="#F4F4F1" stroke-width="5" stroke-linejoin="miter"/>
+    </svg>
+  </div>
+  <div class="a m" id="label3" style="left:1320px;top:688px;width:440px;font-size:28px;letter-spacing:2px;color:#F4F4F1;opacity:0">RENDER THE VIDEO</div>
+  <div class="a" id="sub3" style="left:1320px;top:730px;width:440px;font-size:21px;color:rgba(244,244,241,0.55);opacity:0">Watch it render and play back</div>
+
+  <!-- FOOTER -->
+  <div class="a" id="footerline" style="left:160px;top:936px;width:1600px;height:2px;background:rgba(244,244,241,0.16)"></div>
+  <div class="a" id="fbullet" style="left:160px;top:962px;width:12px;height:12px;background:#12A9E6;opacity:0"></div>
+  <div class="a m" id="ftleft" style="left:186px;top:956px;font-size:20px;letter-spacing:3px;color:rgba(244,244,241,0.55);opacity:0">HYPERFRAMES / EXPLAINER</div>
+  <div class="a m" id="ftright" style="left:1200px;top:956px;width:560px;text-align:right;font-size:20px;letter-spacing:3px;color:rgba(244,244,241,0.55);opacity:0">BRIEF &#8594; CODE &#8594; VIDEO</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#topbar", { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: 0.7, ease: "power2.out" }, 0.1);
+  tl.fromTo("#logo", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.3);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.45);
+  tl.fromTo("#heading", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.6);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 1.05);
+
+  tl.fromTo("#num1", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.4);
+  tl.fromTo("#tick1", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, 1.55);
+  tl.fromTo("#box1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.7)" }, 1.5);
+  tl.fromTo("#label1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.85);
+  tl.fromTo("#sub1", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.95);
+
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.4);
+  tl.fromTo("#conn1a", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 2.65);
+
+  tl.fromTo("#num2", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.95);
+  tl.fromTo("#tick2", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, 3.1);
+  tl.fromTo("#box2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.7)" }, 3.0);
+  tl.fromTo("#label2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.35);
+  tl.fromTo("#sub2", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.45);
+
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 3.8);
+  tl.fromTo("#conn2a", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 4.05);
+
+  tl.fromTo("#num3", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.35);
+  tl.fromTo("#tick3", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, 4.5);
+  tl.fromTo("#box3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.7)" }, 4.4);
+  tl.fromTo("#label3", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.75);
+  tl.fromTo("#sub3", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.85);
+
+  tl.fromTo("#footerline", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 5.4);
+  tl.fromTo("#fbullet", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 5.6);
+  tl.fromTo("#ftleft", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 5.65);
+  tl.fromTo("#ftright", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 5.75);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

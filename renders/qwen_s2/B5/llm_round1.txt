@@ -1,0 +1,746 @@
+[REASONING]
+The user wants a complete index.html file in a single ```html code block. Let me carefully construct this following all the hard rules.
+
+Brief B5: Product teaser with own assets (10 s)
+
+10 s teaser for "Grawwww Studio: local AI, delivered". Use `assets/logo-negative.png` (centre, appears at the end) and `assets/icon.svg`.
+
+Beat sheet:
+- 0-3 s: three short lines slam in ("Agents." "Automations." "Video.")
+- 3-7 s: a row of three feature chips ("Runs on your hardware", "No per-token bill", "Your data stays put") staggered
+- 7-10 s: everything clears and the logo fades/scales in with the tagline "Local AI, delivered." under it.
+
+Let me plan the composition carefully.
+
+Canvas: 1920x1080, 24 fps, duration 10s.
+
+Brand identity C dark:
+- background #0E0E0E (body)
+- ink #F4F4F1
+- cyan #12A9E6
+- magenta #FF2D92
+- yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)
+- Fonts via CSS variables: `var(--display)` for headings (class `h`: uppercase, heavy, wide), `var(--body)`, `var(--mono)` (class `m`: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emojis.
+
+Assets:
+- `assets/logo-negative.png` (centre, appears at the end)
+- `assets/icon.svg`
+
+Let me think about the layout.
+
+**Beat 1 (0-3s): three short lines slam in**
+"Agents." "Automations." "Video."
+
+These slam in one after another. Let me time them:
+- "Agents." at ~0.3s
+- "Automations." at ~1.0s
+- "Video." at ~1.7s
+
+They slam in — I'll use a fast ease (power4.out or back.out) with a scale from large to normal, or a y offset. "Slam in" suggests a punchy entrance. Let me use scale from 1.4 to 1 with opacity, or a quick y slide with a strong ease.
+
+Actually "slam" typically means a fast, forceful entrance. I'll do a scale from 1.3 -> 1 with opacity 0 -> 1, ease power4.out, short duration (~0.25s). Or a y from -40 with a snap. Let me combine: opacity 0->1, y 30->0, scale 1.15->1, ease power4.out, duration 0.3.
+
+Wait, I need to be careful about the "slam" — maybe a scale up is more "slammy". Let me do scale from 1.4 to 1. Actually a common "slam" is text that appears big and shrinks to size, or slides in fast. Let me use a combination.
+
+Let me position these three lines. They could be stacked vertically on the left, or centered. Given the next beat is a row of three chips, and the final is a centered logo, let me think about a coherent composition.
+
+Option: The three lines stack vertically, left-aligned, big display type. Then they clear, and the chips appear as a row. Then everything clears and logo appears centered.
+
+Let me make beat 1 lines big and centered-ish or left. Let me do left-aligned at x=160, stacked.
+
+Actually, let me reconsider. "three short lines slam in" — these are the product's capabilities. Let me make them big and bold. I'll stack them:
+- "AGENTS." at top
+- "AUTOMATIONS." 
+- "VIDEO."
+
+With the display font, uppercase, heavy, wide. At 150px, uppercase letter ~100px wide. "AUTOMATIONS." is 11 chars + period. That's wide. Let me size appropriately.
+
+Let me compute widths. At font-size F, uppercase letter width ≈ 0.66*F (roughly). The brief says "at 150 px an uppercase letter is about 100 px wide" so ratio ≈ 0.667.
+
+"AUTOMATIONS." = 12 characters (A-U-T-O-M-A-T-I-O-N-S-.). At 150px, ~12*100 = 1200px wide. That fits in 1920 with margins (160 each side = 1600 available). OK.
+
+"AGENTS." = 7 chars → 700px.
+"VIDEO." = 6 chars → 600px.
+
+Let me use font-size 150px for these. Actually let me vary or keep consistent. Let me keep them consistent at ~140px to be safe. Hmm, "AUTOMATIONS." at 140px → ~12*93 = 1116px. Fine.
+
+Let me make them stack with left margin 160.
+
+Line 1 "AGENTS." top ~ 250
+Line 2 "AUTOMATIONS." top ~ 430
+Line 3 "VIDEO." top ~ 610
+
+Each line height ~140px, so spacing of 180px between tops works.
+
+Actually, let me reconsider the whole composition to make it feel designed and intentional.
+
+Let me add some structural elements:
+- A top-left corner label (mono) like "GRAWWWW STUDIO" or "LOCAL AI / B5"
+- A top-right corner label like "TEASER — 10S" or a timecode
+- Maybe a vertical accent line or frame marks
+
+But I must keep text not overlapping and within margins.
+
+Let me design:
+
+**Persistent frame elements (subtle):**
+- Top-left: small mono label "GRAWWWW STUDIO" 
+- Top-right: small mono label "LOCAL AI / TEASER"
+- Bottom-left: a small icon.svg + label
+- Bottom-right: a frame indicator / progress
+
+Actually, let me keep it clean. Let me add:
+- Top-left corner: `assets/icon.svg` small + "GRAWWWW" wordmark (mono)
+- Top-right corner: "LOCAL AI — 10S TEASER" (mono)
+- Bottom: a thin baseline rule
+
+Hmm, but the icon.svg is meant to be used. Let me use it in the corner as a persistent brand mark, and also maybe in the chips.
+
+Let me think about the icon.svg — it's an inline SVG? No, it's a file `assets/icon.svg`. The rules say "Draw icons as inline SVG". But the brief explicitly says use `assets/icon.svg`. There's a tension. Rule 6 says draw icons as inline SVG, don't load external icons. But the brief says to use `assets/icon.svg`. 
+
+I think the safest interpretation: use `assets/icon.svg` as an `<img>` where the brief wants the icon (since it's a provided asset, like the logo), and draw any *additional* decorative icons as inline SVG. The logo-negative.png is definitely an `<img>`. The icon.svg — I could use it as `<img src="assets/icon.svg">` since it's a provided asset. That's consistent with using provided assets. Rule 6 is about not loading *external* (CDN) icons; a provided local asset is fine.
+
+Actually, re-reading rule 6: "Draw icons as inline SVG (stroke #F4F4F1 or a brand colour, stroke-width 6, no fill or flat fill). Do not load external icons." This is a general rule. But the brief overrides with specific asset usage. I'll use `assets/icon.svg` as an `<img>` for the brand mark (it's a provided asset, analogous to the logo). And I'll draw the chip icons as inline SVG to satisfy rule 6.
+
+Hmm, but that could be seen as "loading an external icon" (icon.svg). Let me be safe: I'll use `assets/icon.svg` as an `<img>` in the corner since the brief explicitly requests it. And I'll draw the three chip icons as inline SVG (a chip/CPU, a coin/no-bill, a lock/shield). This satisfies both.
+
+Actually, to be really safe and satisfy rule 6 while honoring the brief, I'll use the icon.svg as a small brand mark in the top-left corner (it's the studio's icon, a provided asset — using it is explicitly requested). The chip icons I'll draw inline.
+
+Let me now design the three beats in detail.
+
+**Beat 1 (0-3s): "Agents." "Automations." "Video."**
+
+Layout: left-aligned stack, big display type.
+
+Let me add a small eyebrow above: "WHAT IT DOES" or "CAPABILITIES". Actually let me keep the beat focused.
+
+Let me do:
+- Eyebrow (mono, cyan) at top-left: "GRAWWWW STUDIO — CAPABILITIES" appears at 0.1s
+- "AGENTS." slams at 0.35s
+- "AUTOMATIONS." slams at 1.05s
+- "VIDEO." slams at 1.75s
+- A small index number next to each? Like "01", "02", "03" in mono. Nice touch.
+
+Then these hold until 3s, then clear out (fade/slide) around 3-3.4s.
+
+**Beat 2 (3-7s): three feature chips in a row, staggered**
+
+Chips:
+1. "Runs on your hardware" — icon: CPU/chip
+2. "No per-token bill" — icon: coin with slash / no bill
+3. "Your data stays put" — icon: lock/shield
+
+Each chip: a box with a small inline SVG icon and a mono/label text. Let me design chips as bordered boxes (no rounded corners, no box-shadow). A thin border in brand color, with an icon and text.
+
+Layout: three chips in a horizontal row, centered vertically. Each chip ~ 500px wide, ~ 140px tall. Gap between them.
+
+Total width: 3*500 + 2*40 = 1580. Centered: left margin = (1920-1580)/2 = 170. So chip 1 left=170, chip 2 left=170+500+40=710, chip 3 left=710+500+40=1250. Right edge = 1250+500=1750, right margin=170. 
+
+Chip height ~ 150px, centered vertically: top = (1080-150)/2 = 465. Let me put them around top=440.
+
+Actually let me make chips a bit taller for the icon + text. Let me do height 160px, top = (1080-160)/2 = 460.
+
+Inside each chip: icon on left (SVG ~ 56px), text to the right. Or icon on top, text below. Let me do icon left, text right (vertical center). 
+
+Text: "RUNS ON YOUR HARDWARE" in mono or body. These are longer. Let me check width. "RUNS ON YOUR HARDWARE" = 21 chars. In mono at 26px, char width ~ 15px → 315px. Fits in a 500px chip with icon. Good. Let me use body font for the chip text, maybe 30px.
+
+Actually, let me make the chip text two-part: a small label + the phrase. Or just the phrase in a nice size. Let me do the phrase in body font ~30px, and maybe a small mono index "01" above.
+
+Let me design each chip:
+- Border box, 1px solid in a brand color (cyan, magenta, yellow? but yellow only as band behind #111 text... I can use yellow as a border? The rule says yellow #FFD400 only as a band behind #111 text (class hl). So I should NOT use yellow as a border. Let me use cyan and magenta and ink for borders. Or use ink borders with a colored top accent.)
+
+Let me use:
+- Chip 1: cyan accent
+- Chip 2: magenta accent
+- Chip 3: ink/white accent
+
+Each chip: a top accent bar (colored, 6px) that scales in, an icon, and text.
+
+Stagger: chip 1 at 3.3s, chip 2 at 3.6s, chip 3 at 3.9s. Each animates in with a slide up + fade, and its accent bar scales in.
+
+Hold until 7s, then clear out around 7-7.4s.
+
+**Beat 3 (7-10s): logo fades/scales in, tagline below**
+
+- Everything from beats 1&2 is gone by 7s.
+- `assets/logo-negative.png` centered, fades in and scales in (from 0.9 to 1, opacity 0 to 1) around 7.2-8.2s.
+- Tagline "Local AI, delivered." below the logo, appears around 8.2s.
+
+Wait — the tagline "Local AI, delivered." — should it be uppercase display or body? The brief says "the tagline 'Local AI, delivered.' under it." Let me render it in a nice way. Maybe display font, medium size. Or body. Let me make it a clean statement. I could make "Local AI" in ink and "delivered." with a yellow highlight band (hl). That would use the yellow band nicely! "Local AI, [delivered.]" where "delivered." sits on a yellow band with #111 text. That's a nice touch and uses the hl class appropriately.
+
+Actually the tagline is "Local AI, delivered." Let me put "Local AI," in ink and "delivered." on the yellow hl band. 
+
+Let me size the logo. The logo-negative.png is "negative" (white/light version for dark bg). I'll place it centered. Let me give it a width ~ 560px, centered horizontally. Position: left = (1920-560)/2 = 680, top ~ 380. Height depends on aspect ratio — I'll set width and let height auto, but for absolute positioning I should set a box. Let me set width 560, and place it. Since I don't know the exact aspect ratio, I'll set width and let height be auto (img). For centering the whole logo+tagline block vertically, I'll estimate.
+
+Actually for GSAP scale animation, I want transform-origin center. Let me set the img with width 560px, and position it. The tagline goes below.
+
+Let me place:
+- Logo img: left 680, top 360, width 560. (height auto)
+- Tagline: centered, top ~ 640.
+
+Hmm, I need to make sure the tagline doesn't overlap the logo. If logo is 560 wide and its height is maybe ~ 180-240px (typical wordmark aspect), then logo spans top 360 to ~600. Tagline at top 640 is fine.
+
+Let me also add a small eyebrow above the logo like "GRAWWWW STUDIO" (mono) that appears with the logo, and maybe a bottom line.
+
+Let me also add a subtle "end card" feel: a thin rule above the tagline.
+
+Let me also think: the logo "fades/scales in". I'll do opacity 0->1, scale 0.92->1, ease power3.out, duration ~0.9s, starting at 7.3s.
+
+Tagline: fade/slide up at 8.1s.
+
+Hold to 10s.
+
+Now let me also add persistent corner frame elements that stay throughout (they're the "chrome" of the composition). But wait — beat 3 says "everything clears". Does that include the corner chrome? "everything clears and the logo fades/scales in". I interpret "everything" as the beat content (lines + chips). The corner chrome could stay, but to be safe and clean, maybe the corner chrome also clears for the final logo moment, OR I keep minimal chrome. 
+
+Let me think about what looks best. A clean end card with just the logo + tagline is elegant. Let me have the corner chrome fade out at the start of beat 3 too, so the final frame is just logo + tagline (very clean, focused). Actually, keeping a tiny bottom tagline/footer might be nice. But "everything clears" — I'll clear the main content and the beat-specific elements, and fade the corner chrome out as well to give a clean end card. Then re-introduce a minimal footer for the end card (a small mono line at bottom). Hmm, but that's adding new content. Let me keep it simple: end card = logo + tagline + a small eyebrow above logo + a thin rule. All of these are "new" end-card elements that fade in, while beat content fades out.
+
+Let me structure the DOM:
+
+```
+<div id="root" ...>
+  <!-- Persistent chrome -->
+  <div id="chrome-tl">icon + GRAWWWW</div>
+  <div id="chrome-tr">LOCAL AI — 10S TEASER</div>
+  <div id="chrome-bl">...</div>
+  <div id="chrome-br">...</div>
+  
+  <!-- Beat 1 -->
+  <div id="b1-eyebrow">...</div>
+  <div id="b1-line1" class="h">AGENTS.</div>
+  <div id="b1-line2" class="h">AUTOMATIONS.</div>
+  <div id="b1-line3" class="h">VIDEO.</div>
+  <div id="b1-num1" class="m">01</div>
+  ...
+  
+  <!-- Beat 2 -->
+  <div id="b2-eyebrow">...</div>
+  <div id="chip1">...</div>
+  <div id="chip2">...</div>
+  <div id="chip3">...</div>
+  
+  <!-- Beat 3 -->
+  <div id="b3-eyebrow">GRAWWWW STUDIO</div>
+  <img id="logo" src="assets/logo-negative.png" />
+  <div id="b3-rule"></div>
+  <div id="b3-tagline" class="h">Local AI, <span class="hl">delivered.</span></div>
+</div>
+```
+
+Now let me be careful about the "slam in" for beat 1. Let me use scale + opacity. GSAP fromTo with scale 1.4 -> 1, opacity 0 -> 1, ease "power4.out", duration 0.32. transform-origin left center (so it slams from the left). Actually for a "slam", origin left center means it grows from the left edge. That looks like it's being stamped in. Good.
+
+But rule 4 says never put CSS transform on an element GSAP animates. transform-origin is fine. So I'll set `transform-origin: left center` in CSS for the beat 1 lines.
+
+For the numbers (01, 02, 03), I'll fade them in with each line.
+
+Let me also add a subtle detail: a small colored tick or the mono number before each line. Let me put the number to the left of each line, in mono, colored.
+
+Layout for beat 1:
+- Numbers at left ~ 160, lines at ~ 260.
+
+Actually, let me reconsider. Big display lines "AGENTS." "AUTOMATIONS." "VIDEO." Let me left-align at x=200, with numbers at x=100.
+
+Line font-size: let me use 130px to be safe for "AUTOMATIONS." 
+"AUTOMATIONS." = 12 chars * 0.667 * 130 = 1040px. Starting at x=200, ends at 1240. Fine, within 1820 (1920-100).
+
+Let me use 140px: 12 * 0.667 * 140 = 1120, ends at 1320. Fine.
+
+Let me use 140px for all three lines.
+
+Vertical positions (top of each line box):
+- Line 1: top 280
+- Line 2: top 450
+- Line 3: top 620
+
+Line box height ~ 150px. Spacing 170px. Good, no overlap.
+
+Numbers:
+- Num 1: top 300 (aligned with line 1 baseline-ish)
+- Num 2: top 470
+- Num 3: top 640
+
+Let me align numbers vertically centered to lines. Line 1 top 280, height ~150, center ~355. Number font 26px, so top ~ 345.
+
+Hmm, let me just place numbers at top = line top + ~95.
+
+Let me now write the CSS.
+
+I'll define classes:
+- `.a` = position:absolute
+- `.h` = display font, uppercase, heavy, wide (I'll set font-family var(--display), text-transform uppercase, font-weight 800, letter-spacing maybe)
+- `.m` = mono, uppercase
+- `.hl` = yellow band behind #111 text
+
+Wait, the example uses `class="a h"` and `class="a m"` and `class="hl"`. The gw.css presumably defines `.h`, `.m`, `.hl`, and maybe `.a`. Let me check the example: it uses `<div class="a m" ...>` and `<div class="a h" ...>` and `<span class="hl">`. So `.a`, `.h`, `.m`, `.hl` are all defined in gw.css. Good. I'll rely on those.
+
+But I should double check: does gw.css define `.a`? The example uses it, so yes. Good.
+
+Let me not redefine `.a`, `.h`, `.m`, `.hl` — they're in gw.css. But I might add extra utility classes for my specific needs (like `.chip`, `.chipbar`, etc.) in a `<style>` block. That's allowed — I can add my own styles. The rules don't forbid a `<style>` block. Let me add a `<style>` for chip borders, etc.
+
+Actually, wait — the rules say "link them exactly like the example" and "No CDN, no network, no other files." Adding a `<style>` block in the HTML is fine (it's not a separate file). Let me add a `<style>` block for my custom classes.
+
+Let me define:
+```css
+body { margin:0; background:#0E0E0E; }
+.a { position:absolute; }
+.chip { position:absolute; box-sizing:border-box; border:2px solid #F4F4F1; }
+.chipbar { position:absolute; transform-origin:left center; }
+```
+
+Hmm, but `.a` is probably already defined in gw.css. To be safe, I'll define my own classes with distinct names and set `position:absolute` on them directly, and also add class `a` where appropriate. Actually, to avoid conflicts, let me just use inline `position:absolute` via the `a` class (from gw.css) plus my own classes for specific styling.
+
+Let me be careful: I'll add a `<style>` block that defines my custom classes (chip, chipbar, etc.) but NOT redefine `.a`, `.h`, `.m`, `.hl`. For positioning, I'll use the `a` class (from gw.css) + inline left/top/width.
+
+Wait, but if I use `class="a chip"` and `.a` gives position:absolute, and `.chip` gives border, that works. Let me do that.
+
+Actually, I realize I should double-check whether `.a` is defined in gw.css. The example uses `class="a m"` and `class="a h"` and `class="a"` (the rule: `class="a"`). So `.a` is definitely in gw.css. Good.
+
+Let me now also think: do I want the chip to have `box-sizing:border-box` so the border doesn't add to width? Yes. I'll set that in the `.chip` class.
+
+Now, GSAP timeline. Let me write it carefully with absolute start times.
+
+Let me define the timeline beats:
+
+**Chrome (persistent, fades in at start, fades out at beat 3):**
+- chrome-tl: opacity 0->1 at 0.1, dur 0.4
+- chrome-tr: opacity 0->1 at 0.15, dur 0.4
+- chrome-bl: opacity 0->1 at 0.2, dur 0.4
+- chrome-br: opacity 0->1 at 0.25, dur 0.4
+- (fade out all chrome at ~7.0-7.4)
+
+Actually, let me reconsider whether chrome should persist into beat 3. "everything clears" — I'll fade chrome out at 7.0-7.3 to make a clean end card. Then the end card has its own eyebrow + logo + tagline.
+
+**Beat 1:**
+- b1-eyebrow: opacity 0->1, y 20->0 at 0.25, dur 0.4
+- b1-line1: fromTo scale 1.4->1, opacity 0->1 at 0.45, dur 0.3, ease power4.out
+- b1-num1: opacity 0->1 at 0.5, dur 0.3
+- b1-line2: fromTo scale 1.4->1, opacity 0->1 at 1.1, dur 0.3
+- b1-num2: opacity 0->1 at 1.15, dur 0.3
+- b1-line3: fromTo scale 1.4->1, opacity 0->1 at 1.75, dur 0.3
+- b1-num3: opacity 0->1 at 1.8, dur 0.3
+- (hold until 3.0)
+- beat 1 out: all b1 elements opacity 1->0, y 0->-30 at 3.0, dur 0.35, ease power2.in
+
+**Beat 2:**
+- b2-eyebrow: opacity 0->1, y 20->0 at 3.3, dur 0.4
+- chip1: fromTo y 40->0, opacity 0->1 at 3.45, dur 0.45, ease power3.out
+  - chip1bar: scaleX 0->1 at 3.45, dur 0.5
+- chip2: fromTo y 40->0, opacity 0->1 at 3.75, dur 0.45
+  - chip2bar: scaleX 0->1 at 3.75, dur 0.5
+- chip3: fromTo y 40->0, opacity 0->1 at 4.05, dur 0.45
+  - chip3bar: scaleX 0->1 at 4.05, dur 0.5
+- (hold until 7.0)
+- beat 2 out: all b2 elements opacity 1->0, y 0->40 at 7.0, dur 0.35, ease power2.in
+
+**Beat 3:**
+- b3-eyebrow: opacity 0->1, y 20->0 at 7.3, dur 0.5
+- logo: fromTo opacity 0->1, scale 0.92->1 at 7.4, dur 0.9, ease power3.out
+- b3-rule: scaleX 0->1 at 8.0, dur 0.6, ease power2.inOut
+- b3-tagline: fromTo opacity 0->1, y 30->0 at 8.15, dur 0.6, ease power3.out
+- (hold to 10)
+
+Let me verify the tagline and logo don't overlap. Logo top 360, width 560. If logo height ~ 200, bottom ~ 560. Rule at top ~ 610. Tagline at top ~ 650. Good, no overlap.
+
+Actually, I don't know the logo's exact height. Let me set the logo img to a fixed height too to be safe? If I set both width and height, it might distort. Let me set width only and use `height:auto`. For positioning the tagline below, I'll estimate the logo height. A typical wordmark logo-negative.png might be wide (e.g., 3:1 or 4:1). At width 560, height could be ~140 (if 4:1) to ~280 (if 2:1). Let me place the tagline with enough clearance, say top 680, and the rule at top 620. If the logo is taller than expected, it might overlap the rule. To be safe, let me reduce logo width to 480 and place tagline lower.
+
+Hmm, but I genuinely don't know the aspect ratio. Let me think. A "negative" logo (white version) for "Grawwww Studio" — likely a wordmark, maybe with an icon. Could be roughly 5:1 to 10:1 (wide) or maybe a squarer lockup. 
+
+To be safe, let me set the logo with a max height constraint using CSS `max-height` and `width:auto`? But I want a specific box for centering. Let me set the img width to 520 and also give it a container. Actually, let me just set width 520, height auto, and position the tagline at a safe distance (top 700). If the logo is very tall (say 300px), bottom would be 360+300=660, and tagline at 700 is still clear. If logo is short (140px), bottom 500, tagline at 700 leaves a gap (fine, the rule at 620 fills it). 
+
+Let me set:
+- logo: left 700, top 340, width 520
+- b3-rule: left 810, top 640, width 300, height 4 (centered: (1920-300)/2=810)
+- b3-tagline: left 0, width 1920, text-align center, top 680
+
+Wait, for the tagline I want it centered. I'll set left 160, width 1600, text-align center. That keeps it within margins and centered.
+
+Actually, let me reconsider the whole vertical layout of the end card to be nicely centered as a block. Block = eyebrow + logo + rule + tagline. Let me center the block vertically around 540.
+
+- eyebrow: top 300
+- logo: top 340 (height ~ 180)
+- rule: top 560
+- tagline: top 600
+
+Hmm, but logo height unknown. Let me instead anchor from a known point. Let me place:
+- eyebrow: top 320
+- logo: top 360, width 520
+- rule: top 620
+- tagline: top 660
+
+If logo height is ~180-220, bottom ~540-580, rule at 620 is clear. Good.
+
+Let me also add a small footer for the end card? Like a mono line at the very bottom "GRAWWWW.STUDIO — LOCAL AI" or a URL. That adds a nice finishing touch. Let me add:
+- b3-footer: mono, centered, top 950, "GRAWWWW.STUDIO / BUILT TO RUN ON YOUR MACHINE"
+
+Hmm, that might be too much. Let me add a subtle footer: "GRAWWWW.STUDIO" centered at bottom. Actually, let me keep the end card clean: eyebrow + logo + rule + tagline. Maybe add a small footer. I'll add a footer for polish: "GRAWWWW.STUDIO — 2025" no, avoid year maybe. Let me do "GRAWWWW.STUDIO" small mono at bottom center. It appears with the tagline.
+
+Actually, let me reconsider. The brief is specific: "the logo fades/scales in with the tagline 'Local AI, delivered.' under it." Let me keep the end card to: logo + tagline, plus a small eyebrow above (for context, "GRAWWWW STUDIO") and a thin rule. That's clean and on-brief. I'll add a subtle footer too for polish but keep it minimal.
+
+Let me finalize.
+
+Now, the icon.svg usage. Let me use it in the top-left chrome as the brand mark. `<img src="assets/icon.svg" class="a" id="chrome-icon" style="left:160px;top:150px;width:48px;height:48px">`. And next to it a mono wordmark "GRAWWWW".
+
+Wait, top-left corner: I need margins of at least 100px. So chrome at left 160, top 150 is fine (160 > 100, 150 > 100). Good.
+
+Let me lay out the chrome:
+- chrome-tl: icon (48px) at left 160, top 150; wordmark "GRAWWWW" at left 224, top 158 (mono, ~22px). Actually let me make the wordmark "GRAWWWW STUDIO" or just "GRAWWWW". Let me do "GRAWWWW" bold-ish. Since `.m` is mono uppercase, "GRAWWWW" in mono.
+
+Hmm, "Grawwww" is the brand name (with the www). Let me write "GRAWWWW" in the corner.
+
+- chrome-tr: "LOCAL AI — TEASER" at right. left 1400, top 158, mono, right-aligned. Let me set left 1440, width 320, text-align right. top 158.
+
+- chrome-bl: maybe a small status like "● RUNNING LOCAL" with a cyan dot. At left 160, top 900. Or a small mono label. Let me do "B5 / PRODUCT TEASER" at left 160, top 900.
+
+- chrome-br: a timecode or "24 FPS / 1920×1080" at right. left 1440, width 320, text-align right, top 900. Let me do "10S — 24FPS".
+
+These chrome elements give it a produced, broadcast feel. Good.
+
+But wait — I need to make sure chrome doesn't overlap beat content. Beat 1 lines are at top 280-770, left 100-1320. Chrome-tl is at top 150 (above the lines, fine). Chrome-tr at top 158 (right side, the lines end at 1320, chrome-tr starts at 1440, no overlap). chrome-bl at top 900 (below beat 1 line 3 which ends ~770, fine). chrome-br at top 900 (right, fine). Good.
+
+Beat 2 chips are at top ~440-600, left 170-1750. Chrome-tr at top 158 (above chips, fine). chrome-bl/br at top 900 (below chips, fine). Good.
+
+Now let me reconsider the chip design and text.
+
+Chip 1: "Runs on your hardware"
+Chip 2: "No per-token bill"
+Chip 3: "Your data stays put"
+
+Let me render these in title case or uppercase? The brand uses uppercase for display and mono labels. For chip text, let me use body font, maybe title case as given, or uppercase. Let me use the body font with the given casing but make it look designed. Actually, for consistency with the "heavy, wide" brand, let me use uppercase in a medium weight. But uppercase long text is wide. "RUNS ON YOUR HARDWARE" in body font at 30px... let me check width. Body font char width ~ 0.5*30 = 15px. 21 chars = 315px. Plus icon ~60px + padding. In a 500px chip: padding 30 left + icon 60 + gap 20 + text 315 = 425, + padding 30 right = 455. Fits in 500. Good.
+
+Actually, let me make the chips a bit wider to be safe and more comfortable: 520px each. 3*520 + 2*30 = 1620. left margin = (1920-1620)/2 = 150. chip1 left 150, chip2 left 150+520+30=700, chip3 left 700+520+30=1250. Right edge 1250+520=1770, right margin 150. Good.
+
+Chip height 150px, top = (1080-150)/2 = 465. Let me use top 460.
+
+Inside chip:
+- Accent bar at top: left 0 (relative to chip? No, absolute). Hmm, the accent bar is a child of the chip. But I'm using absolute positioning for everything. Let me make the chip a positioned container and its children positioned relative to it. But the rules say "Position everything with position:absolute (class a) and explicit left/top/width in px on the 1920x1080 canvas."
+
+Hmm, that suggests everything is absolutely positioned on the canvas. But I can have nested absolute positioning within a positioned parent. The chip is `position:absolute` on the canvas; its children can be `position:absolute` relative to the chip (since chip is positioned). That's standard CSS and should be fine. The rule's intent is that I don't rely on flow layout; absolute positioning is the mechanism. Nested absolute within an absolutely-positioned parent is fine.
+
+Actually, to be safe and avoid ambiguity, let me make the chip a positioned box and position its children absolutely within it (left/top relative to chip). This is clean and works. The chip itself is positioned on the canvas with explicit left/top/width/height.
+
+Let me define chip children:
+- `.chipbar`: top accent bar, position absolute, left 0, top 0, width 100%, height 6px, background (brand color), transform-origin left center.
+- `.chipicon`: the inline SVG, position absolute, left 30, top 45, width 60, height 60.
+- `.chiptext`: position absolute, left 110, top 55, width 380, font body, size 30, color ink.
+- `.chipnum`: small mono index, position absolute, left 30, top 20, size 18, color (brand).
+
+Wait, if the bar is at top 0 height 6, and chipnum at top 20, icon at top 45, text at top 55 — let me lay it out:
+- bar: top 0, height 6
+- num: top 24, left 30 (small, e.g., "01")
+- icon: left 30, top 62, 56x56
+- text: left 106, top 66, width ~ 380
+
+Hmm, let me reconsider. Let me put the icon and text vertically centered, and the number small at top-left.
+
+Chip height 150. Center ~75.
+- icon 56x56, top = 75-28 = 47, left 30.
+- text 30px, single line, top = 75-15 = 60, left 106.
+- num small 16px, top 20, left 30.
+- bar top 0 height 6.
+
+That works. Let me verify text fits: "RUNS ON YOUR HARDWARE" at 30px body. Let me be safe and use 28px. 21 chars * 14 = 294px. Width 380 available. Fits. "NO PER-TOKEN BILL" = 17 chars * 14 = 238. Fits. "YOUR DATA STAYS PUT" = 19 chars * 14 = 266. Fits. Good.
+
+Actually, let me use the body font and title-case as given ("Runs on your hardware") for a softer, more readable chip, OR uppercase for brand consistency. Let me go uppercase for the "heavy, wide" brand feel but at a moderate size. Hmm, uppercase in body font. Let me use font-family var(--body), text-transform uppercase, letter-spacing 1px, size 28px, weight 600.
+
+Wait, but the brand says `var(--display)` for headings (class h, uppercase heavy wide), `var(--body)` for body, `var(--mono)` for labels (class m, uppercase). The chip text is more like a label/feature. Let me use body font for it (readable) with uppercase. Or I could use it as a "heading-lite". Let me use body font, uppercase, 28px, weight 600, letter-spacing 0.5px. Good.
+
+Now the chip icons (inline SVG, stroke, stroke-width 6, no fill or flat fill):
+
+Chip 1 "Runs on your hardware" → CPU/chip icon. A square with pins. Let me draw a CPU: outer square, inner square, pins on sides.
+
+```svg
+<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#12A9E6" stroke-width="6">
+  <rect x="16" y="16" width="32" height="32"/>
+  <rect x="26" y="26" width="12" height="12"/>
+  <line x1="24" y1="16" x2="24" y2="8"/>
+  <line x1="40" y1="16" x2="40" y2="8"/>
+  <line x1="24" y1="48" x2="24" y2="56"/>
+  <line x1="40" y1="48" x2="40" y2="56"/>
+  <line x1="16" y1="24" x2="8" y2="24"/>
+  <line x1="16" y1="40" x2="8" y2="40"/>
+  <line x1="48" y1="24" x2="56" y2="24"/>
+  <line x1="48" y1="40" x2="56" y2="40"/>
+</svg>
+```
+
+That's a decent CPU icon. stroke-width 6. Good.
+
+Chip 2 "No per-token bill" → a coin/money with a slash, or a bill with a slash. Let me draw a circle (coin) with a slash through it, or a dollar-like symbol crossed out. Let me do a circle with a diagonal slash (prohibition) — but that reads as "no". Combined with a coin it reads "no bill". Let me do a coin (circle) with a small "¢"-ish mark and a slash. Simpler: a circle with a diagonal line (prohibition sign) in magenta. That reads "no". But "no per-token bill" — the prohibition conveys "no bill". Let me add a small bill/coin. Actually a prohibition circle alone might be too generic. Let me draw a banknote (rect) with a slash.
+
+```svg
+<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#FF2D92" stroke-width="6">
+  <rect x="8" y="20" width="48" height="24"/>
+  <circle cx="32" cy="32" r="6"/>
+  <line x1="10" y1="54" x2="54" y2="10"/>
+</svg>
+```
+
+That's a banknote with a diagonal slash (no bill). Good.
+
+Chip 3 "Your data stays put" → a lock or shield. Let me draw a padlock (lock) — conveys data stays secure/put. Or a shield with a check. Let me do a padlock.
+
+```svg
+<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#F4F4F1" stroke-width="6">
+  <rect x="16" y="28" width="32" height="24"/>
+  <path d="M22 28 V20 a10 10 0 0 1 20 0 V28"/>
+  <line x1="32" y1="38" x2="32" y2="46"/>
+</svg>
+```
+
+That's a padlock. Good. stroke ink (#F4F4F1).
+
+Wait, for chip 3 I want a distinct color. I have cyan (chip1), magenta (chip2), and for chip3 let me use ink (#F4F4F1) or... I can't use yellow as stroke (yellow only as band). So chip3 icon in ink. And chip3 accent bar in ink. That's fine — a white/ink accent.
+
+Actually, let me reconsider accent colors: chip1 cyan, chip2 magenta, chip3 ink. Good, three distinct.
+
+Now, the accent bar animation: scaleX 0->1 with transform-origin left center. I'll set that in CSS (transform-origin is fine).
+
+Now let me also think about whether to animate the chip icon/text separately or just the whole chip. Let me animate the whole chip (y + opacity) and the bar (scaleX). The icon and text are children, they inherit the chip's transform. Good.
+
+Now let me write the full HTML.
+
+Let me reconsider the "slam in" for beat 1 lines. I'll use fromTo with scale 1.35 -> 1, opacity 0 -> 1, y 0 (no y, just scale), ease "power4.out", duration 0.3. transform-origin left center. This gives a punchy stamp-in. Good.
+
+Actually, combining scale with a slight y might look better. But scale from 1.35 with origin left center makes it look like it's being stamped from the left. Let me keep just scale + opacity for a clean slam. Or add a tiny y. Let me do scale 1.3 -> 1, opacity 0 -> 1, ease power4.out, dur 0.28. Clean.
+
+Hmm, one concern: with transform-origin left center and scale 1.3, the line starts wider and shrinks to final width. That's a nice "slam". Good.
+
+Let me also add a subtle "impact" — maybe a quick scale overshoot? No, keep it clean with power4.out (fast start, slow end). Actually for a slam, I might want it to land hard. power4.out does a fast decel. Good.
+
+Now let me reconsider timing to fit the beat sheet precisely:
+- Beat 1: 0-3s. Lines slam in during 0.45, 1.1, 1.75. Hold. Out at 3.0.
+- Beat 2: 3-7s. Chips stagger in at 3.45, 3.75, 4.05. Hold. Out at 7.0.
+- Beat 3: 7-10s. Logo in at 7.4, tagline at 8.15. Hold to 10.
+
+Good.
+
+Let me make sure beat 1 out (3.0-3.35) doesn't overlap beat 2 in (3.45+). 3.35 < 3.45, good. And beat 2 out (7.0-7.35) vs beat 3 in (7.4+). 7.35 < 7.4, good.
+
+Now, the chrome fade out: at 7.0-7.35 (same as beat 2 out). Good, clean transition.
+
+Let me write the timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// Chrome in
+tl.to("#chrome-tl", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.1);
+tl.to("#chrome-tr", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.15);
+tl.to("#chrome-bl", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.2);
+tl.to("#chrome-br", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.25);
+
+// Beat 1
+tl.fromTo("#b1-eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.25);
+tl.fromTo("#b1-line1", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.28, ease: "power4.out" }, 0.45);
+tl.to("#b1-num1", { opacity: 1, duration: 0.3, ease: "power2.out" }, 0.5);
+tl.fromTo("#b1-line2", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.28, ease: "power4.out" }, 1.1);
+tl.to("#b1-num2", { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.15);
+tl.fromTo("#b1-line3", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.28, ease: "power4.out" }, 1.75);
+tl.to("#b1-num3", { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.8);
+
+// Beat 1 out
+tl.to(["#b1-eyebrow","#b1-line1","#b1-line2","#b1-line3","#b1-num1","#b1-num2","#b1-num3"], { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, 3.0);
+
+// Beat 2
+tl.fromTo("#b2-eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.3);
+tl.fromTo("#chip1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.45);
+tl.fromTo("#chip1bar", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.5);
+tl.fromTo("#chip2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.75);
+tl.fromTo("#chip2bar", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.8);
+tl.fromTo("#chip3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 4.05);
+tl.fromTo("#chip3bar", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.1);
+
+// Beat 2 out
+tl.to(["#b2-eyebrow","#chip1","#chip2","#chip3"], { opacity: 0, y: 40, duration: 0.35, ease: "power2.in" }, 7.0);
+
+// Chrome out
+tl.to(["#chrome-tl","#chrome-tr","#chrome-bl","#chrome-br"], { opacity: 0, duration: 0.35, ease: "power2.in" }, 7.0);
+
+// Beat 3
+tl.fromTo("#b3-eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.3);
+tl.fromTo("#logo", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.9, ease: "power3.out" }, 7.4);
+tl.fromTo("#b3-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 8.0);
+tl.fromTo("#b3-tagline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 8.15);
+tl.fromTo("#b3-footer", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 8.5);
+
+window.__timelines["main"] = tl;
+```
+
+Wait, there's an issue with the beat 1 out animation. The lines have transform-origin left center and I'm animating scale in the in-animation, then in the out-animation I animate y. But GSAP will handle the transform. When I animate `y` in the out, GSAP composes it with the existing scale (which is 1 at that point). Should be fine. Actually, when I do `tl.to(..., { y: -30 })`, GSAP sets y and keeps scale at 1 (the value it was at). Good.
+
+But wait — the beat 1 lines: I used fromTo with scale. After the in-animation, scale is 1. Then out-animation sets y -30. GSAP will render transform as translate + scale(1). Fine.
+
+One concern: the numbers b1-num1 etc. I animate opacity in, then in the out I animate opacity 0 + y -30. But the numbers don't have a scale animation, so animating y on them is fine.
+
+Now, initial states: I need to set initial opacity 0 for elements that fade in via `tl.to` (like the numbers and chrome). Let me set their initial opacity to 0 via inline style `opacity:0` OR via `tl.set`. The rules say "Set initial hidden state with tl.set or fromTo, not by CSS transform." Setting opacity:0 via inline CSS is fine (it's not a transform). Actually, the rule says set initial hidden state with tl.set or fromTo, not by CSS *transform*. So opacity:0 inline is allowed. But to be safe and consistent, let me use inline `opacity:0` for elements that only fade in via `tl.to` (chrome, numbers). And for elements animated with fromTo, the fromTo sets the initial state, so I don't strictly need inline opacity:0, but it doesn't hurt (fromTo overrides at the start). Actually, if I set inline opacity:0 AND use fromTo, the fromTo's "from" opacity 0 matches, so no flash. Good. Let me set inline opacity:0 on everything that should start hidden, to be safe against any flash before the timeline plays. Since the render is frame-by-frame from t=0, and the timeline is paused at 0, the initial frame (t=0) should show the from states. GSAP fromTo at t=0 with start time >0 means before that start time, the element is in its "from" state? No — fromTo only applies during its duration. Before the start time, the element is in its natural (inline CSS) state. So if inline opacity is 1 (default) and the fromTo starts at 0.45, then from t=0 to t=0.45, the element would show at opacity 1 (its natural state)! That's a bug.
+
+So I MUST set inline opacity:0 (or use tl.set at time 0) for elements that should be hidden before their fromTo start. Let me set inline `opacity:0` on all elements that animate in. This ensures they're hidden from t=0 until their animation. The fromTo "from" opacity 0 matches, so no flash. 
+
+Actually, the cleanest: set inline opacity:0 on ALL animated-in elements. Then fromTo handles the reveal. For elements that only use `tl.to` (chrome, numbers), inline opacity:0 is essential.
+
+Let me set inline opacity:0 on: chrome-tl, chrome-tr, chrome-bl, chrome-br, b1-eyebrow, b1-line1, b1-line2, b1-line3, b1-num1, b1-num2, b1-num3, b2-eyebrow, chip1, chip2, chip3, b3-eyebrow, logo, b3-rule, b3-tagline, b3-footer.
+
+For the bars (chip1bar, etc.), they use scaleX fromTo; I should set their initial scaleX to 0? If I don't, from t=0 to the bar's start (3.5), the bar would show at scaleX 1 (full). That's a bug — the bar would be visible before its animation. So I need to hide the bar initially. Options: inline `transform: scaleX(0)` — but rule 4 says never put CSS transform on an element GSAP animates. So I can't use inline transform. Instead, use `tl.set("#chip1bar", { scaleX: 0 }, 0)` to set it at time 0. That's allowed (tl.set with absolute start time 0). Let me do that for the bars and the b3-rule.
+
+Actually, b3-rule uses fromTo scaleX 0->1 at 8.0. Before 8.0, it'd show at scaleX 1. So I need tl.set("#b3-rule", { scaleX: 0 }, 0). Same for bars.
+
+Let me add tl.set calls at time 0 for: chip1bar, chip2bar, chip3bar, b3-rule. Set scaleX: 0.
+
+Alternatively, I could set the bar's initial width via inline style? No, scaleX is cleaner. Let me use tl.set at 0.
+
+Wait, but the rule says "Use only tl.set / tl.to / tl.from / tl.fromTo with an absolute start time as 3rd argument." tl.set with start time 0 is fine.
+
+Let me add:
+```js
+tl.set(["#chip1bar","#chip2bar","#chip3bar","#b3-rule"], { scaleX: 0 }, 0);
+```
+
+Good.
+
+Now, also the logo: it's an img. I animate opacity + scale. Before 7.4, it should be hidden. Inline opacity:0 handles opacity. Scale — before 7.4, scale is 1 (natural). But since opacity is 0, it's invisible. So no issue. But when the fromTo starts at 7.4 with scale 0.92, there's a jump from scale 1 (invisible) to 0.92 (fading in). Since opacity goes 0->1 simultaneously, the jump in scale isn't visible at opacity 0. Fine. Actually, to be clean, let me set tl.set("#logo", { scale: 0.92 }, 0) too, so the scale is consistent. But it's not necessary since opacity 0 hides it. I'll add it for cleanliness. Actually, let me not over-engineer; inline opacity:0 is enough for the logo. But the scale jump from 1 to 0.92 at the moment opacity starts rising — the first frame of the animation has opacity ~0 and scale 0.92, so it's fine. Let me add tl.set for logo scale to be safe: `tl.set("#logo", { scale: 0.92 }, 0)`. Hmm, but then transform-origin must be center for the logo (so it scales from center). Let me set `transform-origin: center center` in CSS for the logo. Good.
+
+For the beat 1 lines, transform-origin left center (slam from left). For the logo, center. For the bars, left center. For the b3-rule, center (scale from center) — actually a rule scaling from center looks nice, or from left. Let me do center for the b3-rule (it's centered under the logo). transform-origin center center.
+
+Wait, b3-rule is at left 810, width 300, centered. Scaling from center means it grows from the middle. Nice. transform-origin: center center.
+
+Now, let me reconsider: the beat 1 lines use scale with transform-origin left center. When they slam in (scale 1.3->1), they grow from the left edge. Good. But the numbers are separate elements to the left of the lines; they fade in (opacity only). Good.
+
+Let me now also reconsider: should the beat 1 lines have a slight x movement too? "Slam in" — scale from 1.3 with left origin is a good slam. Let me keep it.
+
+Now let me write the CSS for the custom classes:
+
+```css
+body { margin: 0; background: #0E0E0E; overflow: hidden; }
+#root { position: relative; }
+.chip { box-sizing: border-box; border: 2px solid #F4F4F1; background: rgba(255,255,255,0.02); }
+.chipbar { transform-origin: left center; }
+.chiptext { font-family: var(--body); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #F4F4F1; }
+.chipnum { font-family: var(--mono); color: #F4F4F1; }
+```
+
+Hmm, `rgba(255,255,255,0.02)` is a very subtle background. Is that a "gradient"? No, it's a flat semi-transparent fill. Allowed (no gradients rule). But maybe I should avoid any background to keep it clean, or use a subtle fill. Let me use a very subtle fill `background: #161616` (a slightly lighter than #0E0E0E) to give the chips a panel feel. #161616 is a flat color, allowed. Let me use that. Actually, let me use `background: #141414`. Slightly lighter than bg #0E0E0E. Good, gives a panel.
+
+Wait, is #141414 within the brand palette? The brand says background #0E0E0E, ink #F4F4F1, cyan, magenta, yellow. A #141414 panel is a neutral derived from the bg — acceptable as a surface tone. I think it's fine and looks good. Let me use it.
+
+Let me reconsider the chip border color. I set border 2px solid #F4F4F1 (ink) for all chips, with a colored accent bar on top. That's clean. Or I could color the border per chip. Let me keep ink borders for consistency, with colored top bars. Good.
+
+Now, the `.hl` class (yellow band). It's defined in gw.css. I use it in the tagline: "Local AI, <span class="hl">delivered.</span>". The hl makes a yellow band behind "delivered." with #111 text. 
+
+Let me make sure the tagline reads well. "Local AI, delivered." — with "delivered." on yellow. Let me size it. Display font, uppercase, ~90px. "LOCAL AI, DELIVERED." = 20 chars. At 90px, ~20*60 = 1200px. Centered in 1600 width. Fits. But the "delivered." part is on a yellow band — the band adds padding. Let me size the tagline at 84px to be safe. 20 chars * 56 = 1120px. Centered. Fits within 1600. Good.
+
+Actually, let me reconsider — the tagline "Local AI, delivered." Let me render it as "LOCAL AI, DELIVERED." in the display font (uppercase). With "delivered." highlighted. Hmm, but the comma placement: "Local AI, delivered." → "LOCAL AI, DELIVERED." The hl is on "delivered." Let me do: `Local AI, <span class="hl">delivered.</span>`. The display class uppercases it. Good.
+
+Let me set the tagline: `class="a h"` with font-size 84px, left 160, width 1600, text-align center, top 660.
+
+Wait, but the display font is "wide" (heavy, wide). At 84px, uppercase letter ~ 0.667*84 = 56px. "LOCAL AI, DELIVERED." Let me count: L-O-C-A-L (5) space A-I (2) , (1) space D-E-L-I-V-E-R-E-D (9) . (1) = 5+1+2+1+1+9+1 = 20 chars. 20*56 = 1120px. But the hl band adds horizontal padding (maybe 10-20px each side). So total ~ 1160px. Centered in 1600. Fits with ~220px margins each side within the 1600 box. Good. And the 1600 box is at left 160, so overall it's within the canvas with 160px margins. Good.
+
+Hmm wait, but the display font weight is heavy and wide — my 0.667 ratio estimate might be low for a "wide" display font. Let me be more conservative. If the display font is wider, say 0.75*84 = 63px per char, 20 chars = 1260px + band padding ~ 1320px. Still fits in 1600. OK. Let me keep 84px. Actually, to be safe, let me use 78px. 20*0.75*78 = 1170 + padding = ~1230. Fits comfortably. Let me use 80px. Good balance.
+
+Now the b3-eyebrow: "GRAWWWW STUDIO" in mono, cyan, above the logo. left 160, width 1600, text-align center, top 300, font-size 24px. Good.
+
+b3-footer: "GRAWWWW.STUDIO — BUILT TO RUN ON YOUR MACHINE" or simpler. Let me do "GRAWWWW.STUDIO / LOCAL-FIRST AI" in mono, small, centered, top 950, font-size 20px, color a muted ink. Actually let me keep it minimal: "GRAWWWW.STUDIO" centered. Or add a subtle line. Let me do: "GRAWWWW.STUDIO — LOCAL AI, DELIVERED" no, that repeats. Let me do the footer as a small mono: "GRAWWWW.STUDIO". Hmm, or a tagline-adjacent detail. Let me do "BUILT TO RUN ON YOUR MACHINE" as the footer (it reinforces the local theme). Actually that's nice. Let me use it. But it might be redundant with the chips. Let me just do "GRAWWWW.STUDIO" small. Keep it clean.
+
+Hmm, let me reconsider the end card composition to make it strong:
+- eyebrow: "GRAWWWW STUDIO" (mono, cyan) — top 300
+- logo: center — top 360
+- rule: center — top 620
+- tagline: "LOCAL AI, DELIVERED." (display) — top 660
+- footer: "GRAWWWW.STUDIO" (mono, muted) — top 950
+
+That's a solid end card. Good.
+
+Actually, wait — the logo is the brand, and the eyebrow says "GRAWWWW STUDIO" which is the brand name. Having both the logo (which presumably contains the brand name) and the eyebrow "GRAWWWW STUDIO" is redundant. Let me change the eyebrow to something else, like "PRESENTING" or "THE STUDIO" or just remove it. Or make the eyebrow a small "●" or a label like "LOCAL-FIRST AI STUDIO". Let me use eyebrow: "LOCAL-FIRST AI STUDIO" (mono, cyan). That describes the brand without repeating the name. Good.
+
+Hmm, or I could skip the eyebrow and just have logo + rule + tagline + footer. That's cleaner. But an eyebrow adds context. Let me keep a subtle eyebrow: "LOCAL-FIRST AI STUDIO". 
+
+Actually, let me reconsider. The logo-negative.png is the brand logo. Below it, the tagline "Local AI, delivered." Above it, a small eyebrow. Let me make the eyebrow "GRAWWWW STUDIO" since the logo might be just the icon/symbol (not the wordmark). Actually "logo-negative" could be the full wordmark or just the symbol. I don't know. To be safe, let me not repeat the name. Let me use eyebrow "LOCAL-FIRST AI STUDIO". Good.
+
+Wait, but if the logo IS the wordmark "Grawwww Studio", then eyebrow "LOCAL-FIRST AI STUDIO" + logo "Grawwww Studio" + tagline "Local AI, delivered" is a bit much but fine. If the logo is just a symbol, then eyebrow + symbol + tagline works. Either way it's fine. Let me go with eyebrow "LOCAL-FIRST AI STUDIO".
+
+Now let me reconsider the top-left chrome. I'm using icon.svg + "GRAWWWW" wordmark. If the logo at the end is the full wordmark, then the corner "GRAWWWW" is a small version — fine, it's the running brand mark. Good.
+
+Let me finalize the chrome text:
+- chrome-tl: icon.svg (48px) + "GRAWWWW" (mono, 22px) — left 160, top 150. Icon at left 160 top 150 (48x48). Wordmark at left 224, top 162 (vertically centered with icon: icon center at 150+24=174, wordmark 22px so top ~163). Let me set wordmark top 163.
+- chrome-tr: "LOCAL AI — TEASER" (mono, 20px) — right aligned. left 1440, width 320, text-align right, top 165.
+- chrome-bl: "B5 / PRODUCT TEASER" (mono, 20px) — left 160, top 905.
+- chrome-br: "10S · 24FPS · 1080P" (mono, 20px) — right aligned. left 1440, width 320, text-align right, top 905.
+
+Wait, I should double check these don't overlap beat content. chrome-tr at top 165, right side (left 1440-1760). Beat 1 lines end at x~1320 (line 2 "AUTOMATIONS." at 140px). Actually let me recompute: line 2 "AUTOMATIONS." at 140px, 12 chars * 0.667*140 = 1120px, starting at x=200, ends at 1320. chrome-tr starts at 1440. No overlap (120px gap). Good. But wait, the beat 1 lines slam in with scale 1.3 from left origin — at peak, line 2 would be 1120*1.3 = 1456px wide, ending at 200+1456 = 1656. That overlaps chrome-tr (1440-1760)! During the slam (first 0.28s), line 2's scaled-up version would extend to 1656, overlapping chrome-tr which is at 1440. 
+
+Hmm. But the slam is very fast (0.28s) and the scale is momentary. Still, it could visually overlap for a few frames. To avoid, let me either (a) reduce the peak scale, (b) move chrome-tr up/right, or (c) reduce line font size. 
+
+Option: reduce beat 1 line font to 130px. Line 2 at 130px: 12*0.667*130 = 1040px, ending at 1240. At scale 1.3: 1040*1.3 = 1352, ending at 200+1352 = 1552. Still overlaps chrome-tr at 1440. 
+
+Option: reduce peak scale to 1.15. Line 2 at 140px: 1120*1.15 = 1288, ending at 1488. Still slightly overlaps 1440.
+
+Option: move the beat 1 lines to start further left (x=120) and reduce font. Or move chrome-tr to the very top-right corner higher up (top 120) so it's above the lines. The lines are at top 280+ (line 1). chrome-tr at top 165 is above line 1 (top 280). So vertically they don't overlap! The overlap concern is horizontal, but since chrome-tr is at top 165 and line 1 is at top 280, they're at different vertical positions. The line 1 box is at top 280, height ~150, so it spans 280-430. chrome-tr at top 165, height ~20, spans 165-185. No vertical overlap. So even if horizontally the scaled line extends under chrome-tr's x-range, they're at different y. No visual overlap. 
+
+Wait, I need to check: does the scaled line 2 (at top 450) extend into chrome-tr's area (top 165)? No, line 2 is at top 450, way below chrome-tr (top 165). The horizontal extension of line 2 doesn't matter because it's at a different y. So no overlap. 
+
+Let me re-examine: chrome-tr is top-right at top 165. The only beat 1 element near that y (top 165) is... none (line 1 is at top 280). So chrome-tr is clear. Good. My earlier concern was unfounded because I conflated x and y. The lines are lower than the chrome. Good.
+
+But wait, line 1 "AGENTS." at top 280 — when it slams in with scale 1.3 from left origin, it extends right. At peak, "AGENTS." (7 chars) at 140px = 700px, *1.3 = 910px, ending at 200+910 = 1110. That's below chrome-tr's y (top 165 vs line 1 top 280). No overlap. Good.
+
+OK so the chrome is fine. Let me keep line font at 140px.
+
+Actually, let me reconsider the vertical layout of beat 1 to be more centered/balanced. Lines at top 280, 450, 620. The block spans 280 to 770 (line 3 bottom). Center ~ 525. Canvas center is 540. Close enough. Good.
+
+Let me reconsider: should beat 1 lines be left-aligned or centered? Left-aligned with numbers looks editorial and strong. Let me keep left-aligned.
+
+Numbers: b1-num1 at left 100, top 345 (aligned with line 1 center). Line 1 top 280, height 150, center 355. Number 26px, top ~342. Let me set num top = line top + 95. So num1 top 375, num2 top 545, num3 top 715. Hmm, that's a bit low. Let me align numbers to the vertical center of each line. Line 1 center = 280 + 75 = 355. Number 26px tall, to center at 355, top = 355-13 = 342. Let me use top = line top + 70. num1 top 350, num2 top 520, num3 top 690. Close enough to center. Let me just use top = line top + 68.
+
+Actually, let me simplify: I'll place the number just left of each line, vertically centered. Let me set:
+- num1: left 96, top 348
+- num2: left 96, top 518
+- num3: left 96, top 688
+
+And lines at left 200. Good.
+
+Hmm, wait. Let me reconsider the number color. Let me color them: num1 cyan, num2 magenta, num3 ink. Ties into the chip colors. Nice.
+
+Now, let me reconsider the b1-eyebrow. "CAPABILITIES" or "WHAT IT DOES". Let me use "WHAT IT DOES" (mono, cyan). left 200, top 210, font-size 22px. Actually, let me align it with the lines (left 200). top 200. Good.
+
+Wait, the eyebrow at top 200, and chrome-tl at top 150 (left 160). No overlap (different y and the eyebrow is at left 200). Good. Actually chrome-tl wordmark is at left 224 top 163, eyebrow at left 200 top 200. Different y (163 vs 200), close but not overlapping (chrome-tl height ~22, spans 163-185; eyebrow at 200). 15px gap. OK, fine. Actually let me move the eyebrow down a bit to top 210 to be safe. And it's a different x-start (200 vs 224) but they're at different y. Fine.
+
+Hmm, actually the eyebrow "WHAT IT DOES" at left 200 top 210, and chrome-tl wordmark "GRAWWWW" at left 224 top 163. They're both in the top-left area but at different y (163 vs 210). The gap is 47px (210-163). Fine, no overlap.
+
+Let me now also add a subtle vertical accent or frame line to beat 1 for design? Maybe a thin vertical rule to the left of the numbers. Let me add a left accent: a thin vertical line at left 160, from top 260 to 780, in a brand color, that scales in. This frames the beat 1 block. transform-origin top center. Let me add `#b1-accent` at left 160, top 260, width 4, height 520, background cyan. Scales in (scaleY 0->1) at 0.3. Fades out with beat 1.
+
+Hmm, that might be nice but adds complexity. Let me include it — it gives a designed feel. Actually, let me reconsider: the numbers are at left 96, lines at left 200. A vertical accent at left 160 would be between them, which is odd. Let me put the accent at left 120 (left of the numbers). Or skip it. Let me skip the vertical accent to keep it clean, and instead rely on the numbers + lines + eyebrow.
+
+Actually, let me add a different design element: a large faint background number or a horizontal baseline. Hmm. Let me keep it focused. The numbers + big lines + eyebrow is enough for beat 1.
+
+Let me reconsider the overall feel. I want it to feel designed, not generic. Let me add:
+- A subtle grid or texture in the background? No, keep it clean (no gradients).
+- The corner chrome gives a broadcast/produced feel. Good.
+- The numbers give an editorial feel. Good.
+- The colored accents (cyan/magenta/ink) give brand energy. Good.
+
+I think it's solid. Let me also add a thin bottom baseline rule that persists? No, the chrome-bl/br serve as the bottom anchors.
+
+Let me now also double-check the "no per-token bill" — I want the chip text to be readable. Let me use the exact text from the brief: "Runs on your hardware", "No per-token bill", "Your data stays put". I'll uppercase them via CSS (text-transform uppercase) for the brand feel. So they display as "RUNS ON YOUR HARDWARE", "NO PER-TOKEN BILL", "YOUR DATA STAYS PUT". Good.
+
+Now let me write the full HTML. Let me be careful with the structure and the GSAP timeline.
+
+Let me reconsider the logo size and position once more. I'll set the logo img with width 520px, height auto. Position: I want it centered horizontally: left = (1920-520)/2 = 700. top 360. transform-origin center center.
+
+But if the logo's natural aspect ratio makes it very tall, it could push down. Let me also set a max-height to be safe? If I set max-height: 240px and width 520, the img will fit within 520x240 maintaining aspect ratio (with object-fit? No, img with width and max-height will scale to fit within the box, maintaining aspect ratio, and the actual rendered size will be the constrained one). Actually, an `<img>` with `width:520px; max-height:240px` — the browser will set width 520, then if the resulting height exceeds 240, it... hmm, actually with both width and max-height, the browser respects width first (520) and then max-height caps the height, which would distort? No. Let me think. An img with `width:520px` sets the width to 520. The height becomes auto (based on aspect ratio). Then `max-height:240px` caps the height at 240. If the auto height > 240, the height is set to 240 and... the width stays 520, causing distortion? Actually, no — when you set width and max-height on an img, the browser will try to honor both, and if they conflict with the aspect ratio, it distorts (stretches). To avoid distortion, I should set only one dimension (width) and let the other be auto, OR use max-width and max-height without setting width/height.
+
+To be safe and avoid distortion, let me set only `width: 520px` and `height: auto`. Then the logo keeps its aspect ratio. If it's very tall, it'll be tall, but that's the logo's natural shape. I'll position the tagline with enough clearance (top 660) to accommodate a reasonably tall logo. If the logo is, say, 520 wide and 2:1, height 260, bottom at 360+260 = 620, tagline at 660 is clear (40px gap). If 3:1, height 173, bottom 533, fine. If 1:1 (square, unlikely for a wordmark), height 520, bottom 880 — that would overlap the tagline at 660! But a 1:1 logo for "Grawwww Studio" is unlikely (wordmarks are wide). Let me assume it's a wide wordmark or a symbol. To be safe, let me reduce the logo width to 440 and position the tagline at top 680. If the logo is 440 wide and 1:1 (unlikely), height 440, bottom 800 — still overlaps. Hmm.
+
+I think I'm overthinking. A "logo-negative.png" for a studio is almost certainly a horizontal wordmark or a compact lockup, wide-ish. Let me set width 480, top 350, and tagline at top 680. This should be safe for a typical wide logo. If it's a squarer lockup, it might be tight, but I'll accept that risk. Actually, let me set the logo with a reasonable size and trust it's a standard wordmark.
+
+Let me set: logo width 480, top 340. Tagline top 680. Rule top 630.
+
+Hmm, let me reconsider — maybe I should make the logo bigger for impact since it's the end card hero. Let me set width 560, top 330, and tagline at top 700. If logo is 560 wide, 2:1 → height 280, bottom 610, tagline at 700 clear (90px). 3:1 → height 187, bottom 517, fine. Let me go with width 560, top 330, tagline top 700, rule top 645, eyebrow top 285.
+
+Let me lay out the end card:
+- eyebrow: left 160, width 1600, text-align center, top 285, font-size 24 (mono, cyan)
+- logo: left 680, top 330, width 560 (img, height auto)
+- rule: left 810, top 645, width 300, height 4
+- tagline: left 160, width 1600, text-align center, top 690, font-size 80 (display)
+- footer: left 160, width 1600, text-align center, top 950, font-size 20 (mono, muted)
+
+Check: logo top 330, if height ~200 (2.8:1),
+[CONTENT]

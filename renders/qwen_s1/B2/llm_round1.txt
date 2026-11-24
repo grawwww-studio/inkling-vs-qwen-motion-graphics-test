@@ -1,0 +1,812 @@
+[REASONING]
+I need to build a 9-second "How it works" explainer in HyperFrames style: single HTML file, 1920x1080, 24fps, GSAP timeline paused and registered as window.__timelines["main"].
+
+Requirements:
+- Heading "How it works"
+- Three columns: number (01/02/03), inline SVG icon, label: "Write a brief" (pencil/document), "Model writes the code" (brackets </>), "Render the video" (play triangle)
+- Steps appear in sequence, with connecting lines between them
+- Brand: dark #0E0E0E background, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class hl)
+- Fonts: var(--display) headings (class h: uppercase, heavy, wide), var(--body), var(--mono) (class m: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emoji
+- Position everything with position:absolute (class a) and explicit left/top/width in px
+- Text at least 100px margin from canvas edges
+- Icons: inline SVG, stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill
+- Only tl.set/tl.to/tl.from/tl.fromTo with absolute start time
+- No CSS transform on elements GSAP animates
+- No repeat:-1, no Math.random, no Date.now, no setTimeout, no requestAnimationFrame, no CSS animations/transitions
+- Everything visible at the end must be at opacity 1 in the hold frame
+- Link lib/gw.css and vendor/gsap.min.js exactly
+
+Let me plan the layout on 1920x1080:
+
+- Top area: eyebrow + heading "HOW IT WORKS"
+- Three columns for the steps
+
+Layout plan:
+- Root canvas 1920x1080
+- Margins: at least 100px from edges.
+
+Header:
+- Eyebrow at left:160, top:140, mono, smallish, e.g. "PROCESS / 03 STEPS"
+- Heading "HOW IT WORKS" at left:160, top:190, display font, big. Display font is wide: at 150px uppercase letters are ~100px wide. "HOW IT WORKS" is 12 chars including spaces. At 150px that's ~1200px. Let me use font-size 140px → ~140px*0.66 = ~92px per letter, 12 chars ≈ 1100px. Fits within 1920-320=1600. Good.
+
+Actually let me think about the hl class — yellow band behind #111 text. Maybe I can put "WORKS" in the hl span. That's a nice accent.
+
+Heading: "HOW IT <span class="hl">WORKS</span>"
+
+Rule line below heading.
+
+Three columns:
+- Column width: let's say each column ~440px wide, centered.
+- Canvas width 1920. Three columns with gaps.
+- Total available: 1920 - 2*160 (margins) = 1600.
+- Three columns of 440 = 1320, gaps of 140 each = 280. Total 1600. 
+
+Column positions:
+- Col 1: left:160, width:440
+- Col 2: left:740, width:440
+- Col 3: left:1320, width:440
+
+Wait, 160 + 440 = 600, gap 140 → 740. 740+440=1180, gap 140 → 1320. 1320+440=1760. 1760+160=1920. 
+
+Each column:
+- Number (01/02/03) at top — mono, big
+- Icon (SVG) in middle
+- Label below
+
+Let me lay out vertically:
+- Number at top: top:~420
+- Icon: top:~520, size ~120x120
+- Label: top:~680
+
+Actually let me think about the vertical space. Heading ends around top:190+140 = 330. Rule at ~360. Then steps start.
+
+Let me set:
+- Number: top:440, font-size 40px mono
+- Icon container: top:520, 140x140
+- Label: top:700
+
+Connector lines between columns — horizontal lines at the icon's vertical center, between the columns in the gaps.
+
+Connector 1: between col1 (ends at 600) and col2 (starts at 740). Line from x=600 to x=740, at icon center y.
+Connector 2: between col2 (ends at 1180) and col3 (starts at 1320). Line from 1180 to 1320.
+
+Icon center: icon at top:520, height 140 → center at 590. Let me put connectors at y=590.
+
+Actually, let me make the connector lines span a bit, maybe with small arrow or just a line. Keep it simple: a horizontal line with scaleX animation from left.
+
+Let me refine the vertical layout to use the full 1080 height nicely.
+
+Canvas 1080 tall.
+- Eyebrow top:120
+- Heading top:170 (font 140, so occupies to ~310)
+- Rule top:350
+- Step numbers top:450
+- Icons top:540 (140 tall, center 610)
+- Labels top:730
+
+Hmm, that leaves the bottom ~1080-730-100 = 250px of space. Maybe I can center the step block more. Let me push down a bit.
+
+Let me recompute:
+- Eyebrow top:110
+- Heading top:160, font 130 → occupies to ~290
+- Rule top:330
+- Numbers top:470
+- Icons top:560 (140 tall → center 630)
+- Labels top:750
+
+Bottom margin: 1080 - 750 - (label height ~60) = 270. That's fine, more than 100.
+
+Actually, let me make icons a bit bigger and add a bit more presence. Let me use icon size 150.
+
+Let me reconsider. I'll make it clean.
+
+Let me define each step column as a group. Since GSAP animates individual elements, I'll animate:
+- Number (opacity + y)
+- Icon (opacity + scale)
+- Label (opacity + y)
+
+Sequence:
+- t=0: eyebrow + heading + rule animate in
+- t=1.0: step 1 (number, icon, label)
+- t=2.0: connector 1
+- t=2.5: step 2
+- t=3.5: connector 2
+- t=4.0: step 3
+- hold until 9
+
+Let me make it feel good with stagger.
+
+Timeline:
+- 0.0: eyebrow fade in (opacity 0→1, 0.4)
+- 0.2: heading fromTo y:40→0, opacity 0→1, 0.6
+- 0.5: rule scaleX 0→1, 0.6
+- 1.0: step1 number opacity 0→1, y:20→0, 0.4
+- 1.1: step1 icon fromTo scale 0.6→1, opacity 0→1, 0.5
+- 1.3: step1 label opacity 0→1, y:20→0, 0.4
+- 1.8: connector1 scaleX 0→1, 0.5 (transform-origin left center)
+- 2.3: step2 number
+- 2.4: step2 icon
+- 2.6: step2 label
+- 3.1: connector2 scaleX 0→1, 0.5
+- 3.6: step3 number
+- 3.7: step3 icon
+- 3.9: step3 label
+- 4.4: maybe a subtle pulse or the whole thing settles. Keep hold.
+
+Actually to make it more dynamic, I could add a small "active" highlight. But keep it clean per rules.
+
+Let me add a footer note or a subtle baseline. Maybe a small caption at bottom: "BRIEF → CODE → VIDEO" as a mono strip. That would fill the bottom nicely and reinforce the flow. Let me add it.
+
+Footer: "BRIEF → CODE → VIDEO" — wait, no emojis but arrows are fine? The rule says no emojis. Arrows "→" are not emojis, they're punctuation. But to be safe with the "no emojis" and clean look, I could use it. Actually arrows are fine, they're not emojis. But let me avoid potential issues; I'll use a mono caption like "FROM BRIEF TO FINAL VIDEO" or "BRIEF · CODE · VIDEO". Let me use "BRIEF → CODE → VIDEO" — actually let me keep it as a subtle label. Hmm, let me use a simple bottom bar.
+
+Actually, let me add a bottom-left small mono label and a bottom-right small mono label for balance, like a frame. E.g., top-left "GW / STUDIO" and a logo? The assets include logo-negative.png. I could add the logo. Let me add a small logo top-right using the asset image. That's allowed (assets/logo-negative.png exists). 
+
+Let me add:
+- Logo top-right: <img src="assets/logo-negative.png"> — but need to size it. Let me place it at right:160, top:120, width:120. Since it's negative (light) it works on dark.
+
+Wait, but I need explicit left/top/width in px. For right-aligned, I'd compute left. Logo width 140, so left = 1920 - 160 - 140 = 1620. top:120.
+
+Let me keep it subtle, opacity 0.9.
+
+Actually, using an <img> is fine. Let me include it.
+
+Let me also add a bottom caption strip: a thin rule across the bottom with a mono label. E.g., at top:960, left:160, width:1600, height:2px, a faint line, and a mono label below or above. Hmm, might be too much. Let me add a bottom mono label: "FROM BRIEF TO FINAL VIDEO IN THREE STEPS" — no, keep it short. 
+
+Let me add bottom-left mono: "GW STUDIO" and bottom-right: "01 / 03". Actually let me not overdo. I'll add a single bottom caption centered-ish: "BRIEF → CODE → VIDEO" in mono, small, at top:950, left:160.
+
+Hmm, let me reconsider the whole composition for balance.
+
+Let me finalize:
+
+Header (top):
+- Eyebrow (mono, cyan): "PROCESS / 03 STEPS" at left:160, top:112
+- Logo (img) at left:1620, top:100, width:140
+- Heading (display): "HOW IT <span class=hl>WORKS</span>" at left:160, top:160, font-size:130
+- Rule (cyan bar) at left:160, top:330, width:220, height:8
+
+Steps (middle):
+- Numbers (mono, big, ink): 01/02/03
+- Icons (SVG)
+- Labels (body)
+
+Col positions:
+- Col1: left:160
+- Col2: left:740
+- Col3: left:1320
+- width:440 each
+
+Number: top:450, font-size:44
+Icon: top:545, 150x150 (center y = 620)
+Label: top:730, font-size:34
+
+Wait, labels: "Write a brief" (short), "Model writes the code" (long, 2 words wrap?), "Render the video". "Model writes the code" at 34px in 440px width — let me check. "MODEL WRITES THE CODE" — that's long. At 34px body font, roughly 0.55*34 = 18.7px per char. "MODEL WRITES THE CODE" = 21 chars ≈ 393px. Fits in 440. But it might be tight. Let me reduce label font to 32px or allow it. Actually these are labels — should they be uppercase? The class m is uppercase labels. But these are step labels, maybe body font, not necessarily uppercase. Let me use body font for labels, sentence case as given: "Write a brief", "Model writes the code", "Render the video". 
+
+"Model writes the code" at 32px in 440px: 21 chars * ~17 = 357px. Fits. Good.
+
+Actually, let me make labels a bit bigger for presence: 36px. "Model writes the code" at 36px: 21*19.8 = 416px. Fits in 440 but tight. Let me use 34px to be safe. Or I could reduce the longest one. Let me keep 34px.
+
+Hmm, but the labels should be readable and prominent. Let me use 38px but check the longest. Actually, let me just use 34px uniformly. Clean.
+
+Actually, let me reconsider — maybe make the label area taller and allow 2 lines if needed, but keep them single line. 34px single line works.
+
+Connectors:
+- Connector1: left:600, top:616, width:140, height:4, cyan, transform-origin left center. Wait, col1 ends at 160+440=600, col2 starts at 740. Gap = 140. So connector from 600 to 740, width 140. But I want it to visually connect the icons. Icon center y = 545+75 = 620. So connector top:618 (height 4, center 620). 
+
+Hmm, but the icon is 150 wide centered in the 440 column. Icon left within column: (440-150)/2 = 145. So icon1 spans left 160+145=305 to 455. Icon2 spans 740+145=885 to 1035. The connector between 600 and 740 is in the gap, not touching icons. That's fine — it's a connector in the gap. Actually maybe I want the connector to span from the right edge of icon1 area to left edge of icon2 area, or just in the gap. Let me put it in the gap: from 600 to 740. That reads as connecting the two columns. Good.
+
+Actually, better: make the connector span the full gap and maybe extend slightly. Let me keep it in the gap: width 140. But that's short. Let me widen the visual by making the connector go from icon1 right edge (455) to icon2 left edge (885)? That would overlap the column boundaries. Hmm. Let me just do the gap connector, it's cleaner. Actually, a connector that's only 140px wide might look small. Let me reconsider column widths.
+
+Alternative: reduce column width to 400, increase gaps.
+- Col width 400. Total 3*400=1200. Gaps: (1600-1200)/2 = 200 each.
+- Col1: left:160, ends 560
+- Gap 200: 560 to 760
+- Col2: left:760, ends 1160
+- Gap 200: 1160 to 1360
+- Col3: left:1360, ends 1760
+- 1760+160=1920. 
+
+Connectors: width 200 each. Better.
+
+Icon centering in 400: (400-150)/2 = 125. Icon1: 160+125=285 to 435. Icon2: 760+125=885 to 1035. 
+
+Connector1: left:560, width:200 (560 to 760). 
+Connector2: left:1160, width:200 (1160 to 1360).
+
+Good.
+
+Now let me reconsider label widths with 400px columns. "Model writes the code" at 34px ≈ 416px > 400. Too wide! Let me reduce to 32px: 21*17.6=370px < 400. OK. Or reduce font. Let me use 32px for labels. "Model writes the code" at 32px = 370px, fits in 400 with ~15px margin each side. Good.
+
+Actually, let me double check char width estimate. Body font at 32px, average char ~0.5em = 16px. "Model writes the code" = 21 chars = 336px. Fits. Good, 32px is safe.
+
+Let me use label font-size 32px.
+
+Hmm, but I want labels to be prominent. 32px is okay. Let me go with it.
+
+Now the numbers: 01/02/03 in mono, big. Let me use font-size 48px, colored cyan or ink. Let me make them ink with a cyan accent, or just cyan. Let me use cyan for numbers to tie in the accent. Actually, let me make numbers large and ink (#F4F4F1) with the icon in cyan. Or numbers cyan. Let me do numbers in cyan (#12A9E6) — clean.
+
+Wait, but I want hierarchy. Let me do:
+- Number: mono, 44px, cyan
+- Icon: SVG stroke ink or cyan
+- Label: body, 32px, ink
+
+Let me make icons stroke ink (#F4F4F1) with cyan accents, or all cyan. Let me do icons in ink with cyan stroke on key parts. Actually simplest: stroke #F4F4F1 (ink) for the main shape, and maybe one accent element in cyan. But to keep clean, let me do icons in cyan (#12A9E6). Hmm.
+
+Let me think: dark bg, ink text. Cyan is the primary accent. Let me make:
+- Numbers: cyan
+- Icons: ink (#F4F4F1) with cyan detail
+- Labels: ink
+
+That gives nice contrast. Let me design each icon with ink primary + cyan accent.
+
+Icon 1: "Write a brief" — pencil/document. Let me draw a document (rectangle with lines) + a pencil. 
+Icon 2: "Model writes the code" — brackets </>. Draw a left angle bracket, a slash, a right angle bracket.
+Icon 3: "Render the video" — play triangle. Draw a triangle (play) inside maybe a circle or just the triangle. Let me do a triangle with a small "scan" or just a clean triangle. Maybe a triangle inside a rounded... no rounded corners. A square frame with a play triangle? Let me do a play triangle with two small side bars (like a video frame). Or just the triangle. Let me do a triangle with a subtle baseline.
+
+Let me design SVGs at viewBox 0 0 100 100, stroke-width 6 (as required), stroke ink or cyan, no fill or flat fill.
+
+Icon 1 — document + pencil:
+- Document: rect from (15,10) to (60,80)? Let me do a document shape: a rectangle with a folded corner. Path: M20,12 H55 L68,25 V88 H20 Z (a page with folded top-right). Then lines inside: M30,40 H58, M30,55 H58, M30,70 H50. Then a pencil overlapping? Might get cluttered. Let me do document with lines, and a pencil crossing the bottom-right.
+
+Actually, "pencil/document" — I can do a document with a pencil. Let me do:
+- Page: M22,14 H52 L66,28 V86 H22 Z (stroke ink)
+- Fold: M52,14 L52,28 H66 (stroke ink)
+- Lines: M32,44 H56 ; M32,58 H56 ; M32,72 H48 (stroke cyan)
+- Pencil: a diagonal pencil at bottom right. Pencil body: a rotated rectangle. Let me draw a simple pencil: M60,92 L84,68 L90,74 L66,98 Z (the body) with a tip. Hmm, might overlap the page. Let me place the pencil crossing over the page bottom-right corner. 
+
+This is getting complex. Let me simplify: Icon 1 = a document with a pencil. I'll draw the document and a pencil as two clean strokes.
+
+Let me do:
+- Document outline (ink): M20,15 H50 L64,29 V85 H20 Z
+- Fold (ink): M50,15 V29 H64
+- Text lines (cyan): M30,45 H54 ; M30,59 H54 ; M30,73 H46
+- Pencil (ink, diagonal, over the corner): a pencil from (58,90) to (88,60). Body: M60,90 L86,64 ; tip: small. Actually a pencil as a thick line with a tip triangle. Let me draw: 
+  - Pencil body: M62,88 L88,62 (a line, but stroke-width 6 makes it a thin pencil). Add a tip: M88,62 L92,58 ... hmm.
+
+Let me instead make the pencil a filled shape for clarity:
+- Pencil: a rotated rectangle. Points: (58,94) (84,68) (92,76) (66,102)? That goes off canvas (102 > 100). Let me keep within 0-100.
+
+Ugh, this is fiddly. Let me simplify the whole icon set to be clean and clearly readable:
+
+Icon 1 (Write a brief): A document with lines + a pencil tip. I'll do:
+- Page (ink): M22,14 H52 L66,28 V86 H22 Z
+- Fold (ink): M52,14 V28 H66
+- Lines (cyan): M32,46 H56, M32,60 H56, M32,74 H48
+- Pencil (ink): a diagonal pencil overlapping bottom-right: 
+  - body: M56,92 L82,66 
+  - tip: M82,66 L90,58 L84,52 L76,60 ... 
+
+Actually, let me make the pencil a simple shape: a line with a triangular tip.
+- Pencil shaft: M58,90 L84,64 (stroke ink, width 6)
+- Pencil tip: M84,64 L90,58 (a short extension) — no.
+
+Let me do a cleaner pencil: 
+- A parallelogram body + triangle tip, filled ink:
+  - Body: M54,90 L80,64 L90,74 L64,100 — off canvas.
+
+OK the pencil is going off canvas because it's diagonal in a 100 box. Let me make the pencil smaller and position it in the lower-right, within bounds:
+- Tip at (60,88), body going up-right to (88,60).
+- Body rectangle (filled ink): points (58,90) (84,64) (90,70) (64,96). Check bounds: x 58-90 (ok), y 64-96 (ok). 
+- Tip (filled cyan): triangle (58,90) (64,96) (54,94)? The tip should point to lower-left. Let me do tip triangle: (56,92) (64,96) (60,86)? 
+
+This is getting too detailed. Let me step back.
+
+Simpler approach for icon 1: Just a document with a pencil, but draw the pencil as a clean diagonal line with a small triangle tip, both in ink, positioned in the lower-right quadrant, not overlapping the page lines too much.
+
+Let me define:
+- Page (ink, no fill): M20,14 H50 L64,28 V84 H20 Z
+- Fold (ink): M50,14 V28 H64
+- Lines (cyan): M30,44 H54 ; M30,58 H54 ; M30,72 H46
+- Pencil (ink): shaft M60,88 L86,62 ; tip M86,62 L90,58 M86,62 L82,58 (a little V at the end to suggest a tip) — no, let me just do shaft + a small filled triangle tip.
+  - Shaft: M62,86 L84,64 (line)
+  - Tip: filled triangle M84,64 L92,56 L86,60 Z — hmm.
+
+You know what, let me just make the pencil a filled polygon that's clearly a pencil:
+- Pencil (filled ink): a long thin rectangle rotated 45°, from lower-left (62,88) to upper-right (84,66), width ~8. Points: (60,86) (82,64) (88,70) (66,92). Bounds ok (x 60-88, y 64-92).
+- Pencil tip (filled cyan): triangle at lower-left end: (60,86) (66,92) (56,90). Points the tip. 
+- Pencil eraser (cyan): small rect at upper-right: (82,64)(88,70)(92,66)(86,60)? getting messy.
+
+Let me simplify: pencil = filled ink rectangle + cyan tip triangle.
+- Body: M60,86 L82,64 L88,70 L66,92 Z (fill ink)
+- Tip: M60,86 L66,92 L56,88 Z (fill cyan) — the tip pointing lower-left.
+
+Check: does the pencil overlap the page? Page right edge is at x=64 (top) down to... page is M20,14 H50 L64,28 V84 H20 Z, so page spans x 20-64, y 14-84. Pencil body spans x 60-88, y 64-92. Overlap region x 60-64, y 64-84. Slight overlap at the corner — acceptable, the pencil appears to be writing on the page. Good, that's the intended look.
+
+Actually the tip at (56,88) is inside the page (x 56 < 64, y 88 > 84, so just below page bottom). The tip pokes out below the page. Fine.
+
+Let me go with this. It'll read as "document + pencil".
+
+Icon 2 (Model writes the code): </>
+- Left bracket (ink): M38,30 L20,50 L38,70 (a "<")
+- Right bracket (ink): M62,30 L80,50 L62,70 (a ">")
+- Slash (cyan): M54,26 L46,74 (a "/")
+That's clean and clearly "</>". 
+
+Icon 3 (Render the video): play triangle
+- Triangle (fill cyan or ink): M38,32 L38,68 L72,50 Z (a right-pointing play triangle). 
+- Maybe add a frame: a rectangle around it? Let me add a subtle frame (ink): M20,22 H80 V78 H20 Z? That would make it look like a video screen with a play button. But "no rounded corners" — a square frame is fine. Let me do:
+  - Frame (ink, no fill): M18,24 H82 V76 H18 Z
+  - Play (cyan fill): M40,38 L40,62 L62,50 Z
+Hmm, but that's a "screen with play". The brief says "play triangle". A frame + triangle is nice and reads as "video". Let me do frame + triangle. But the frame might be too much. Let me do just the triangle with a small motion/speed element. 
+
+Actually, "Render the video" — a play triangle in a frame is perfect. Let me do:
+- Frame (ink): M18,26 H82 V74 H18 Z (stroke, no fill)
+- Play (cyan, filled): M40,38 L40,62 L64,50 Z
+
+Wait, but the triangle should be centered in the frame. Frame center: x=50, y=50. Triangle: M40,38 L40,62 L64,50 Z — center around x=48, y=50. Close enough, slightly left. Let me center: triangle points M42,38 L42,62 L66,50 Z, centroid x=(42+42+66)/3=50, y=50. 
+
+Let me use M42,38 L42,62 L66,50 Z.
+
+Good.
+
+Now, let me also consider adding small decorative elements for "life": maybe a subtle grid or corner marks. But the rules say no gradients, no box-shadow, no rounded corners. I can add thin lines as decoration. Let me add faint corner ticks or a subtle baseline. Actually, let me keep it clean but add a few subtle elements:
+- A faint vertical divider? No.
+- Small cyan dots as bullet accents near numbers.
+
+Let me add a small cyan square/dot before each number as an accent. Actually the number itself is cyan. Let me keep numbers cyan.
+
+Let me add a bottom caption to fill space and reinforce: a mono line at the bottom. E.g., "FROM BRIEF TO FINAL VIDEO" at left:160, top:960, and a thin rule. Or centered. Let me add:
+- Bottom rule (faint): left:160, top:940, width:1600, height:2, color rgba ink 0.15 — but I can't use rgba? Colors should be brand. Let me use a dark color like #2A2A2A for faint lines. That's not a brand token but it's a neutral. The rules say brand colors are ink, cyan, magenta, yellow. For faint lines I can use a dimmed version. Hmm, "no gradients" but a solid dim color is fine. Let me use #333 for faint decorative lines. Actually, to be safe with brand, let me use cyan at low opacity via the element opacity, or just use a dark gray. I'll use a neutral dark gray #2E2E2E for faint structural lines. That's acceptable as a neutral.
+
+Actually, let me reconsider. The brand says background #0E0E0E, ink #F4F4F1, cyan, magenta, yellow. It doesn't forbid neutrals for subtle lines, but to be safe let me use ink at low opacity for faint lines (set opacity on the element). E.g., a line with background #F4F4F1 and opacity 0.12. That's a faint ink line. Clean and on-brand.
+
+Let me add:
+- A faint full-width baseline near the bottom: left:160, top:950, width:1600, height:2, background #F4F4F1, opacity 0.12.
+- A mono caption below or above: "BRIEF → CODE → VIDEO" — let me place at left:160, top:970, font-size:22, color cyan, letter-spacing. Hmm, arrows. Let me use "BRIEF · CODE · VIDEO" with middle dots (not arrows, safer). Or "STEP 01 → 02 → 03". Let me use "BRIEF · CODE · VIDEO".
+
+Actually, I realize I should double check: is "·" (middle dot) fine? It's punctuation, not emoji. Fine.
+
+Let me also add a top-right small mono label or the logo. I'll add the logo image top-right.
+
+Let me reconsider the logo. assets/logo-negative.png — I'll place it top-right. But I don't know its aspect ratio. Let me give it width:130 and let height auto. But the rule says explicit left/top/width in px. Height can be auto via the image's natural aspect. Actually the rule says "explicit left/top/width in px" — width in px, height can be auto. Let me set width:130px, and it'll scale. But if the logo is very tall it might overflow. Let me set width:120px. It should be fine for a logo.
+
+Hmm, but I don't know the logo dimensions. Risk: it could be huge or tiny. Let me set a width and it scales proportionally. Most logos are wide-ish. width:130 should be reasonable. Let me also give it a max via... no, let me just set width:130px. If it's a square logo, 130x130, fine. If wide, 130 wide, shorter, fine.
+
+Actually, to be safe, let me set both width and height? But I don't know aspect ratio, setting both would distort. Let me just set width:130px and let height be auto. That's the safe choice.
+
+Wait, the rule: "Position everything with position:absolute (class a) and explicit left/top/width in px". So width must be px. Height can be auto. Good.
+
+Let me place logo: left:1640, top:110, width:120.
+
+Hmm, 1640+120 = 1760, right margin 160. Good. top:110 aligns with eyebrow.
+
+Now let me reconsider the heading font-size. "HOW IT WORKS" with WORKS in hl. Let me estimate width. Display font, uppercase, heavy, wide. At 130px, uppercase letter ~0.66*130 = 86px. "HOW IT WORKS" = 12 chars (H,O,W,space,I,T,space,W,O,R,K,S) = 10 letters + 2 spaces. Letters ~86px each = 860, spaces ~40px each = 80. Total ~940px. Fits in 1600. Good. But "wide" display font might be wider, ~0.7em = 91px. 10*91=910 + spaces = ~1000px. Still fits. Let me use 130px. Actually let me use 120px to be safe with the wide font and to leave room. 120px: letters ~84px, 10*84=840 + spaces ~960. Fits comfortably. Let me use 120px.
+
+Hmm, but I want the heading to be big and impactful. 120px is good. Let me use 120px.
+
+Actually the example used 150px for "Hello world" (11 chars). "HOW IT WORKS" is 12 chars. At 150px, ~100px/letter * 10 = 1000 + spaces = ~1100px. Fits in 1600. Let me use 140px for impact. 140px: letters ~93px, 10*93=930 + spaces ~1050. Fits. Let me use 140px. 
+
+Wait, "wide" font — the note says "at 150 px an uppercase letter is about 100 px wide". So at 140px, ~93px per letter. "HOW IT WORKS": 10 letters * 93 = 930, 2 spaces * ~45 = 90, total ~1020px. From left:160, ends at 1180. Right margin 1920-1180=740. Fits. Good. Let me use 140px.
+
+Let me set heading font-size:140px.
+
+Now the hl span (yellow band behind #111 text). The class hl presumably has background yellow and color #111, with some padding. I'll trust the CSS. I just wrap "WORKS" in <span class="hl">WORKS</span>.
+
+Let me now write out all elements with IDs and initial states.
+
+For GSAP-animated elements, I must NOT put CSS transform on them. I'll set initial opacity:0 via inline style (that's fine, opacity is not transform). For elements animated with transform (scale, y, scaleX), I set initial state via tl.set or fromTo, not CSS. And I must not have CSS `transform:` on them. For scaleX elements (rule, connectors), I set transform-origin in CSS (allowed) but no transform property.
+
+Let me list elements:
+
+1. #eyebrow — mono, cyan. Animate opacity 0→1. Initial opacity:0 (inline).
+2. #logo — img. Animate opacity 0→1. Initial opacity:0.
+3. #heading — display. Animate opacity + y. Use fromTo (opacity 0, y 40 → opacity 1, y 0). No CSS transform. Don't set inline opacity:0 needed since fromTo sets it, but to be safe for the hold frame it ends at 1. Actually fromTo handles it. But before the animation starts (t=0 to start time), the element would be visible at its natural state unless I set initial. Since the animation starts at 0.2 and fromTo sets opacity 0 at 0.2, before 0.2 the element shows at opacity 1 (natural). That's bad — it'd flash. So I should set initial opacity:0 via inline style OR use tl.set at 0. Let me set inline opacity:0 on all initially-hidden elements, AND use fromTo for the entrance. Wait, if I set inline opacity:0 and then fromTo from opacity:0 to 1, that's consistent. But fromTo's "from" is applied at the start time; before that, the inline opacity:0 holds. Good. So set inline opacity:0, and fromTo {opacity:0,...} to {opacity:1,...}. 
+
+Actually, simpler: set inline opacity:0, and use tl.to for opacity, and tl.fromTo for the y. But mixing is fine. Let me just use fromTo for both opacity and y, and also set inline opacity:0 to prevent pre-flash. The fromTo "from" opacity:0 matches inline 0, no conflict.
+
+Hmm, but there's a subtlety: GSAP fromTo will set the element's opacity to the "from" value at the start time and tween to "to". Before the start time, the element uses its current (inline) value = 0. Good. After the tween, it's 1. Good.
+
+For elements with scaleX (rule, connectors): inline style should NOT have transform. Set transform-origin in inline style (allowed). Set initial scaleX via fromTo. But before the start time, the element is at its natural scaleX (1), so it'd be fully visible (a full-width bar) before the animation. To prevent that, I need it hidden before start. Options: set inline opacity:0 and animate opacity too, OR use tl.set at time 0 to scaleX:0. Let me use tl.set("#rule", {scaleX:0}, 0) and then fromTo scaleX 0→1 at the start time. But tl.set at 0 sets scaleX 0 immediately at t=0. Before t=0 there's nothing (t starts at 0). So at t=0, set scaleX 0. Then fromTo at 0.5 scaleX 0→1. Between 0 and 0.5, scaleX stays 0 (from the set). Good. But wait, does the set at 0 persist until the fromTo starts? Yes, GSAP holds the set value until the next tween on that property. So rule is scaleX 0 from t=0 to t=0.5, then tweens to 1. 
+
+Alternatively, just use fromTo and accept that before start it's scaleX 1 (visible). To avoid, set inline opacity:0 and fade in too. That's more complex. Let me use tl.set approach for scaleX elements: set scaleX 0 at t=0, then fromTo scaleX 0→1.
+
+Actually, cleanest: for scaleX elements, use fromTo with the "from" being scaleX:0, and ALSO add a tl.set at 0 to scaleX:0 to cover the pre-start period. Let me do that.
+
+Wait, even simpler and robust: use tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.6}, 0.5) AND tl.set("#rule", {scaleX:0}, 0). The set at 0 ensures it's 0 before 0.5. Good.
+
+Hmm, but actually there might be a rendering consideration: HyperFrames renders frame by frame from t=0. At t=0, the set applies scaleX 0. So the first frames show scaleX 0. Good, no flash.
+
+Let me apply this pattern to #rule, #connector1, #connector2.
+
+For icons: animate scale 0.6→1 and opacity 0→1. Set inline opacity:0 to prevent pre-flash. Use fromTo.
+
+For numbers: opacity 0→1, y 20→0. Inline opacity:0.
+
+For labels: opacity 0→1, y 20→0. Inline opacity:0.
+
+Let me now also think: the rule says "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." So all my elements end at opacity 1. Good. The hold frame is at t=9 (end). All animations complete by ~4.5s, so at t=9 everything is at final state (opacity 1). Good.
+
+Now let me write the timeline with good pacing:
+
+- 0.0: tl.set for scaleX elements (rule, c1, c2) to 0.
+- 0.1: eyebrow opacity 0→1, dur 0.4
+- 0.2: heading fromTo opacity 0/y40 → 1/0, dur 0.6
+- 0.35: logo opacity 0→1, dur 0.5
+- 0.5: rule fromTo scaleX 0→1, dur 0.6, ease power2.inOut
+- 1.0: step1 number fromTo opacity 0/y20 → 1/0, dur 0.4
+- 1.15: step1 icon fromTo opacity 0/scale0.6 → 1/1, dur 0.5, ease back.out
+- 1.35: step1 label fromTo opacity 0/y20 → 1/0, dur 0.4
+- 1.9: connector1 fromTo scaleX 0→1, dur 0.5, ease power2.inOut
+- 2.4: step2 number
+- 2.55: step2 icon
+- 2.75: step2 label
+- 3.3: connector2 fromTo scaleX 0→1, dur 0.5
+- 3.8: step3 number
+- 3.95: step3 icon
+- 4.15: step3 label
+- 4.7: bottom caption + baseline fade in (opacity 0→1, dur 0.5)
+- hold to 9
+
+Let me make the bottom elements:
+- #baseline: faint line, opacity 0→1
+- #caption: mono, cyan, opacity 0→1
+
+Let me set these inline opacity:0 and animate at 4.7.
+
+Actually, let me reconsider the bottom area. I have labels at top:730 (font 32, so ~730-762). Bottom baseline at top:950. That's a 190px gap. Fine. Let me place caption at top:975.
+
+Wait, let me recompute the vertical layout to be balanced:
+- eyebrow top:112
+- heading top:160 (font 140, baseline around 160+140=300, but cap height less; occupies ~160 to ~290)
+- rule top:330
+- numbers top:460 (font 44)
+- icons top:555 (150 tall → 555 to 705, center 630)
+- labels top:745 (font 32 → 745 to 777)
+- baseline top:930
+- caption top:955
+
+Bottom margin: 1080 - 955 - 24 (caption height) = 101. Just over 100. Let me nudge caption up to top:950. Then bottom margin 1080-950-24=106. OK. Or move baseline to 920, caption 945. Let me do baseline top:920, caption top:945. Bottom margin 1080-945-24=111. Good.
+
+Hmm, let me reconsider — maybe the step block should be more vertically centered. The content spans from ~112 (eyebrow) to ~969 (caption). That's most of the height. Good, it fills the canvas.
+
+Let me refine icon vertical: icons at top:555, 150 tall. Number at 460 (44 tall → 460-504). Gap between number bottom (504) and icon top (555) = 51. Good. Icon bottom 705. Label top 745, gap 40. Good.
+
+Connector y: icon center = 555+75 = 630. Connector height 4, top = 630-2 = 628.
+
+Let me set connectors: top:628, height:4.
+
+Connector1: left:560, width:200.
+Connector2: left:1160, width:200.
+
+Now let me also add small accent: maybe a tiny cyan square at the start of each connector (an arrowhead or dot). Let me add a small triangle/chevron at the end of each connector pointing right, to indicate flow direction. That adds "life". Let me add:
+- #arrow1: a small ">" chevron at left:748 (just after connector1 end at 760), top:618, size ~20. Hmm, let me place a chevron at the end of each connector.
+
+Actually, the connector ends at 760 (col2 start). A chevron at ~745-765. Let me add a small SVG chevron. But that's more elements. Let me keep it simpler: just the connector lines. Or add a small dot at the start of each connector. 
+
+Let me add small cyan squares (dots) at the left end of each connector to mark the "from" point, and let the line grow to the right. Actually, the line growing from left already implies direction. Let me add a chevron at the right end for direction. Let me do it — it adds polish.
+
+Chevron as inline SVG: a ">" shape. Let me make #arrow1 and #arrow2.
+
+#arrow1: SVG 24x40, a ">" chevron, stroke cyan, at left:742, top:610. Animate opacity 0→1 after connector1 finishes (~2.3).
+#arrow2: at left:1342, top:610. Animate after connector2 (~3.7).
+
+Hmm, this is getting complex but adds nice motion. Let me include them but keep them subtle.
+
+Actually, let me reconsider. The connectors are in the gaps (560-760 and 1160-1360). A chevron at the right end (near 760 / 1360) points toward the next column. Good. Let me place chevron centered at the connector's right end.
+
+Connector1 right end x=760. Chevron at left:748, width:24 (748-772). Slightly past 760 into col2 start. That's fine, it points into col2.
+
+Let me define chevron SVG: viewBox 0 0 24 40, path M6,6 L18,20 L6,34, stroke cyan, width 5, no fill.
+
+Now, let me also reconsider: do I want the numbers to be very prominent? Let me make them font-size 48px, cyan, mono. Actually mono at 48px "01" is small width (~2 chars * ~29px = 58px). Fine.
+
+Let me finalize colors:
+- Numbers: cyan #12A9E6
+- Icons: ink #F4F4F1 primary, cyan accents
+- Labels: ink #F4F4F1
+- Eyebrow: cyan
+- Heading: ink, with WORKS in hl (yellow bg, #111 text)
+- Rule: cyan
+- Connectors: cyan
+- Arrows: cyan
+- Baseline: ink @ low opacity
+- Caption: cyan or ink
+
+Let me make caption ink for subtlety, or cyan. Let me do cyan to tie in.
+
+Hmm, actually let me reconsider the accent usage. Cyan is used a lot (eyebrow, numbers, rule, connectors, icons accents, caption). That's a lot of cyan. Maybe make numbers ink and keep cyan for the accent elements (eyebrow, rule, connectors, icon details). Let me make numbers ink (#F4F4F1) and larger, and keep cyan for structural accents. That balances.
+
+Wait, but then numbers and labels are both ink. That's fine, they're different sizes/fonts. Let me do:
+- Numbers: ink, mono, 48px — but make them feel like "step numbers". Maybe cyan is better for numbers to distinguish from labels. 
+
+Let me do numbers in cyan — it clearly marks them as step indicators and ties to the accent. Labels in ink. That's a clear hierarchy. I'll keep it.
+
+Let me reduce cyan elsewhere: make the rule cyan (short, fine), connectors cyan (fine). That's okay.
+
+OK let me also double-check: "magenta #FF2D92 ... only as a band behind #111 text (class hl, its text is #111)" — wait, re-reading: "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So the hl class uses yellow background with #111 text. Magenta is listed as a brand color but the hl is yellow. So I should use the hl class (yellow band) for the accent word. I'll use it on "WORKS". Good. I won't use magenta unless needed. That's fine — brand colors are available, not mandatory to use all.
+
+Let me now also make sure I don't use CSS transform anywhere on animated elements. Let me check each:
+- #rule: I'll set transform-origin:left center in inline style (allowed, it's transform-origin not transform). No transform. GSAP animates scaleX. Good.
+- #connector1, #connector2: transform-origin:left center. No transform. GSAP scaleX. Good.
+- #heading, #n1-3, #label1-3: GSAP animates y and opacity. No CSS transform. Good.
+- #i1-3 (icons): GSAP animates scale and opacity. No CSS transform. But wait, the SVG inside — I'm animating the container div #i1 with scale. The SVG is inside. That's fine. The container has no CSS transform. Good.
+
+Actually, for icons, do I animate the container div or the svg? Let me animate the container div (#i1) with scale + opacity. The SVG is a child. Good.
+
+Let me make sure the icon containers have explicit left/top/width. #i1: left:285, top:555, width:150, height:150. The SVG fills it (width/height 100% or 150). Let me set the svg width:150 height:150.
+
+Wait, I need to recompute icon left within each column (column width 400, icon 150, offset (400-150)/2=125):
+- #i1: left:160+125=285
+- #i2: left:760+125=885
+- #i3: left:1360+125=1485
+
+Numbers (mono, left-aligned in column): 
+- #n1: left:160
+- #n2: left:760
+- #n3: left:1360
+
+Labels (left-aligned in column):
+- #label1: left:160
+- #label2: left:760
+- #label3: left:1360
+
+Hmm, but should numbers/icons/labels be left-aligned or centered within each column? Left-aligned is cleaner and more editorial. Let me left-align all within the column. So number, icon, label all start at the column's left edge. Icon at left:160 (not centered). Let me do that — left-aligned column.
+
+Wait, but then the icon isn't centered in the column, it's at the left edge. That's fine for a left-aligned layout. Let me do left-aligned:
+- #n1: left:160, top:460
+- #i1: left:160, top:555
+- #label1: left:160, top:745
+
+- #n2: left:760, top:460
+- #i2: left:760, top:555
+- #label2: left:760, top:745
+
+- #n3: left:1360, top:460
+- #i3: left:1360, top:555
+- #label3: left:1360, top:745
+
+That's clean. The connectors are in the gaps between columns.
+
+But wait, if the icon is at the left edge of the column (left:160, width 150), and the connector is in the gap (560-760), there's a gap between icon1 (ends at 310) and connector1 (starts at 560) of 250px. That's a lot of empty space. The connector would look disconnected from the icon.
+
+Hmm. Let me reconsider. Maybe center the icon in the column so it's more central, and the connector connects the icon centers. Or make the connector span from the icon's right edge to the next icon's left edge.
+
+Option A: Center icons in columns. Icon offset 125. Icon1: 285-435. Icon2: 885-1035. Connector1 in gap 560-760. Gap between icon1 right (435) and connector1 left (560) = 125. Between connector1 right (760) and icon2 left (885) = 125. Symmetric. The connector sits in the middle of the gap. That reads as connecting the two columns. Acceptable.
+
+Option B: Left-align icons, connector spans from icon1 right (310) to icon2 left (760). Connector1: left:310, width:450. That's a long connector spanning most of the column. Might look odd (line running under/through the label area? No, it's at icon height y=630, labels are at y=745, so no overlap). A long connector from 310 to 760 at y=630. That connects icon1 to icon2 directly. That's actually nice — a clear flow line.
+
+Hmm, but 450px connector is long. Let me think about which looks better. 
+
+Actually, for a "three-step explainer with connector lines between them", the connectors should visually link the steps. Option B (connector from icon1 to icon2) makes the flow explicit. Let me go with a connector that spans from the right edge of one icon to the left edge of the next icon.
+
+With left-aligned icons:
+- Icon1: 160-310
+- Icon2: 760-910
+- Icon3: 1360-1510
+- Connector1: from 310 to 760, left:310, width:450, at y=630
+- Connector2: from 910 to 1360, left:910, width:450, at y=630
+
+That's clean and shows flow. Let me use this. The connectors are long but that's fine for a flow diagram.
+
+Actually, wait. Let me reconsider the column spacing. With columns at 160, 760, 1360 (width 400), the icons (left-aligned, 150 wide) are at 160-310, 760-910, 1360-1510. The gap between icon1 (310) and icon2 (760) is 450. That's a big gap. The connector fills it. OK.
+
+But maybe I should tighten the columns so icons are closer. Let me reconsider column width and spacing.
+
+Alternative: Make columns narrower (width 300) and closer, with the icon centered in each.
+- Col width 300. 3*300=900. Gaps: (1600-900)/2=350 each.
+- Col1: 160-460, Col2: 810-1110, Col3: 1460-1760.
+- Icon centered in 300: offset (300-150)/2=75. Icon1: 235-385. Icon2: 885-1035. Icon3: 1535-1685.
+- Connector1: from 385 to 885? That's 500. Still long.
+
+The issue is the icons are 150 wide but the columns are wide, so there's always a big gap. To make connectors shorter, I'd need icons closer together, which means narrower total layout or bigger icons.
+
+Let me reconsider: maybe make the whole step layout more compact, centered, with bigger icons and shorter connectors. 
+
+New plan:
+- Icons: 160 wide, centered in the layout.
+- Three icons with connectors between, total width maybe 1200, centered (left margin 360).
+- Icon1 center x=480, icon2 center x=960, icon3 center x=1440. Spacing 480 between centers.
+- Icons 160 wide: icon1 400-560, icon2 880-1040, icon3 1360-1520.
+- Connector1: from 560 to 880 (width 320), at icon center y.
+- Connector2: from 1040 to 1360 (width 320).
+- Numbers above icons, labels below, all centered on the icon center x.
+
+This is a classic three-step layout with centered elements and connectors between icons. Let me use this. It's cleaner.
+
+Let me define:
+- Icon centers: x = 480, 960, 1440.
+- Icon size: 160. Icon left: 400, 880, 1360. Icon top: 540, size 160 → 540-700, center y=620.
+- Numbers: centered above icon. Number width ~ let me center them. Number "01" mono 44px, width ~58px. To center at x=480, left = 480 - 29 = 451. Let me set number left:451, top:440. Hmm, but centering text requires knowing width. Let me use text-align center with a fixed-width box. Let me make the number a box of width 160 (same as icon) with text-align center, positioned at icon left. So #n1: left:400, top:440, width:160, text-align:center. That centers "01" over the icon. 
+
+Similarly labels: box width 160? But "Model writes the code" won't fit in 160. Let me make label boxes wider, e.g., width 300, centered on icon center. Label box left = iconCenter - 150. For icon2 (center 960), label left = 810, width 300. text-align center. "Model writes the code" at 32px ~370px > 300. Doesn't fit! 
+
+Hmm. Let me widen label boxes to 320 and reduce font to 30px. "Model writes the code" at 30px ~ 21*16.5=346 > 320. Still tight. Let me use 28px: 21*15.4=323 > 320. Ugh.
+
+Let me allow labels to be up to 2 lines, or make the box wider. If label box is 320 wide and centered at icon center, adjacent label boxes: icon1 center 480 → box 320-640; icon2 center 960 → box 800-1120; icon3 center 1440 → box 1280-1600. Gaps between boxes: 640 to 800 = 160, 1120 to 1280 = 160. No overlap. Good. So label boxes of width 320 don't overlap.
+
+"Model writes the code" at 30px = 346px > 320. Let me reduce to 28px = 323 > 320, still 3px over. Let me use 26px = 299 < 320. OK, 26px. Or allow 2 lines. 
+
+Alternatively, make label boxes wider (e.g., 360) but then they might get close: icon1 box 300-660, icon2 box 780-1140, icon3 box 1260-1620. Gaps: 660-780=120, 1140-1260=120. No overlap. Width 360. "Model writes the code" at 30px=346 < 360. Fits! Let me use label box width 360, font 30px. 
+
+But wait, do the labels overlap the connectors? Connectors at y=620 (icon center). Labels at top:745 (below icons). No overlap. Good.
+
+Let me recompute label box positions (width 360, centered on icon center):
+- #label1: left = 480-180 = 300, top:745, width:360, text-align:center
+- #label2: left = 960-180 = 780, top:745, width:360
+- #label3: left = 1440-180 = 1260, top:745, width:360
+
+Check gaps: label1 300-660, label2 780-1140, label3 1260-1620. Gaps 120. Good, no overlap.
+
+Numbers (width 160, centered on icon center):
+- #n1: left = 480-80 = 400, top:440, width:160, text-align:center
+- #n2: left = 960-80 = 880, top:440, width:160
+- #n3: left = 1440-80 = 1360, top:440, width:160
+
+Icons (160 wide, centered on icon center):
+- #i1: left = 480-80 = 400, top:540, width:160, height:160
+- #i2: left = 880, top:540
+- #i3: left = 1360, top:540
+
+Connectors (at icon center y=620):
+- #connector1: from icon1 right (560) to icon2 left (880). left:560, width:320, top:618, height:4.
+- #connector2: from icon2 right (1040) to icon3 left (1360). left:1040, width:320, top:618, height:4.
+
+Arrows (chevron at right end of connector):
+- #arrow1: at left:872, top:600, width:24, height:40 (near icon2 left 880). Actually let me place chevron just before icon2, at left:856, top:600. Hmm, let me place it at the connector's right end. Connector1 ends at 880. Chevron at left:858, top:600, width:24. So 858-882, centered ~870. Points right into icon2. 
+
+Actually, let me reconsider arrows. The chevron should be at the end of the connector, pointing toward the next icon. Let me place:
+- #arrow1: left:856, top:600, width:24, height:40. (connector1 ends at 880, chevron 856-880)
+- #arrow2: left:1336, top:600, width:24, height:40. (connector2 ends at 1360, chevron 1336-1360)
+
+The chevron SVG: viewBox 0 0 24 40, path M5,6 L19,20 L5,34, stroke cyan, width 5, no fill.
+
+Hmm wait, if the chevron is at 856-880 and icon2 starts at 880, they're adjacent. Good.
+
+Let me reconsider whether arrows add value or clutter. They add directional flow, which is nice for an explainer. Let me keep them but make them subtle (cyan, small).
+
+Actually, let me simplify and skip the separate arrow elements, and instead just have the connectors. The connectors growing from left to right already imply direction. Adding chevrons is extra. But it does add polish. Let me include them — it's not much more code.
+
+Hmm, let me reconsider. Actually, I think the cleanest is: connector lines that grow, and maybe a small dot at the start. Let me just do the connectors without arrows to keep it clean, OR with arrows. Let me include small arrows for the "flow" feel. Decision: include arrows.
+
+Let me now also reconsider the heading position vs the step layout. Heading at left:160, top:160, font 140. The step icons are centered at x=480, 960, 1440. The heading is left-aligned at 160. That's fine — header left-aligned, steps centered. Slight asymmetry but acceptable. Actually, maybe I should left-align the whole thing for consistency, or center the heading. Let me left-align the header (eyebrow, heading, rule) at left:160, and center the steps. It's a common editorial layout. Fine.
+
+Actually, let me reconsider — maybe left-align everything for a stronger editorial feel. But centered steps look more like a "process" diagram. Let me keep header left, steps centered. It's fine.
+
+Hold on, let me reconsider the vertical positions now that icons are at top:540 (not 555). Let me redo:
+- eyebrow top:112
+- heading top:160 (font 140)
+- rule top:330
+- numbers top:440
+- icons top:540 (160 tall → 540-700, center 620)
+- labels top:745
+- baseline top:920
+- caption top:945
+
+Gap heading bottom (~290) to rule (330) = 40. Rule to numbers (440) = 110. Numbers (440, ~44 tall → 440-484) to icons (540) = 56. Icons (700) to labels (745) = 45. Labels (745, ~30 tall → 745-775) to baseline (920) = 145. Baseline to caption (945) = 25. Caption (945, ~22 tall → 945-967). Bottom margin 1080-967 = 113. Good.
+
+Let me finalize.
+
+Now, the rule (cyan bar) — let me make it a bit longer, width 240. At left:160, top:330, width:240, height:8.
+
+Let me also add a subtle detail: a small cyan square accent before the eyebrow text. Eh, optional. Let me add a small square before the eyebrow: #eyebrowdot at left:160, top:118, width:14, height:14, background cyan. And shift eyebrow text to left:186. Hmm, that's an extra element. Let me skip to keep it clean. Actually a small accent square adds polish. Let me add it. #eyebrowdot: left:160, top:116, width:16, height:16, background:#12A9E6. Eyebrow text: left:190, top:112.
+
+Wait, I need to align them. Square 16x16 at top:116 (center 124). Eyebrow text at 26px, baseline... let me set eyebrow top:114, and square top:118. Roughly aligned. Let me set square top:118, eyebrow top:113. Close enough.
+
+Actually, let me not overthink alignment. Let me place the accent square and eyebrow. Let me set:
+- #eyebrowdot: left:160, top:118, width:16, height:16, background:#12A9E6
+- #eyebrow: left:192, top:112, font-size:26, cyan, mono
+
+Animate both in.
+
+Hmm, the eyebrow is cyan and the dot is cyan — the dot would blend. Let me make the dot a different accent, e.g., magenta, to add a second color. But magenta "only as a band behind #111 text"? No wait, re-reading: "cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class hl, its text is #111)". 
+
+Hmm, the phrasing is ambiguous. Let me re-read carefully: "ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)."
+
+I think it means: yellow #FFD400 is used only as a band behind #111 text (the hl class). Magenta and cyan are general accent colors. So I can use magenta as a general accent. Let me use the accent square in magenta to add color variety. Or keep it cyan. Let me use magenta for the small accent square to introduce a second accent color. Actually, to be safe and clean, let me keep accents mostly cyan and use the hl (yellow) for the heading word. Let me make the accent square cyan. It's fine if it's the same as eyebrow.
+
+Actually, having a cyan square + cyan text is redundant. Let me drop the square and just have the eyebrow text. Simpler. Decision: no accent square. Just eyebrow text.
+
+Let me reconsider — I'll add a thin vertical accent bar to the left of the heading instead, as a design element. A cyan vertical bar at left:160, top:170, width:8, height:120. And shift the heading to left:190. That's a nice editorial accent. Let me do that.
+
+- #accentbar: left:160, top:168, width:8, height:130, background:#12A9E6
+- #eyebrow: left:190, top:112
+- #heading: left:190, top:160
+
+Hmm, but then eyebrow and heading both at left:190. And the accent bar to their left. Let me align: accent bar left:160, eyebrow left:190, heading left:190. The bar spans the heading's height. Let me set bar top:165, height:135 (to cover heading cap height). 
+
+Actually, this is getting complicated. Let me simplify the header:
+- #eyebrow: left:160, top:112, cyan, mono
+- #heading: left:160, top:160, font 140, ink, with WORKS in hl
+- #rule: left:160, top:330, width:240, height:8, cyan
+
+No accent bar. Clean. Let me go with this.
+
+Now let me write the SVGs.
+
+Icon 1 (document + pencil), viewBox 0 0 100 100:
+```
+<svg width="160" height="160" viewBox="0 0 100 100" fill="none">
+  <!-- page -->
+  <path d="M20 14 H50 L64 28 V84 H20 Z" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="round"/>
+  <!-- fold -->
+  <path d="M50 14 V28 H64" stroke="#F4F4F1" stroke-width="6" stroke-linejoin="round"/>
+  <!-- lines -->
+  <path d="M30 44 H54" stroke="#12A9E6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M30 58 H54" stroke="#12A9E6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M30 72 H46" stroke="#12A9E6" stroke-width="6" stroke-linecap="round"/>
+  <!-- pencil body -->
+  <path d="M60 86 L82 64 L88 70 L66 92 Z" fill="#F4F4F1"/>
+  <!-- pencil tip -->
+  <path d="M60 86 L66 92 L56 88 Z" fill="#12A9E6"/>
+</svg>
+```
+Wait, stroke-linejoin round — the rule says "no rounded corners". Does that apply to SVG stroke joins? "No rounded corners" likely refers to CSS border-radius. SVG stroke-linejoin is a different thing. But to be safe, let me use stroke-linejoin="miter" (default) and stroke-linecap="butt" (default) to avoid any rounding. Actually, rounded line caps on the text lines look nicer. But "no rounded corners" — line caps aren't corners. Hmm. To be safe, let me use default (butt/miter) everywhere, no linecap/linejoin round. The lines will have square ends. That's fine and matches the "no rounded corners" aesthetic (sharp, square).
+
+Let me remove stroke-linecap and stroke-linejoin (use defaults).
+
+Revised icon 1:
+```
+<svg width="160" height="160" viewBox="0 0 100 100" fill="none">
+  <path d="M20 14 H50 L64 28 V84 H20 Z" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M50 14 V28 H64" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M30 44 H54" stroke="#12A9E6" stroke-width="6"/>
+  <path d="M30 58 H54" stroke="#12A9E6" stroke-width="6"/>
+  <path d="M30 72 H46" stroke="#12A9E6" stroke-width="6"/>
+  <path d="M60 86 L82 64 L88 70 L66 92 Z" fill="#F4F4F1"/>
+  <path d="M60 86 L66 92 L56 88 Z" fill="#12A9E6"/>
+</svg>
+```
+
+Hmm, the pencil body path M60 86 L82 64 L88 70 L66 92 Z — let me verify it forms a proper pencil. Points: (60,86) → (82,64) → (88,70) → (66,92) → back to (60,86). This is a parallelogram (the pencil body) rotated. (60,86) to (82,64): going up-right. (82,64) to (88,70): the "top" edge, going down-right (short). (88,70) to (66,92): going down-left (parallel to first edge). (66,92) to (60,86): the "bottom" edge (short). Yes, it's a parallelogram, the pencil body. The tip triangle M60 86 L66 92 L56 88 Z is at the lower-left end, pointing lower-left. Good. The pencil points toward lower-left (toward the page). 
+
+Actually, the tip should be the writing end. The pencil body goes from (60,86)/(66,92) [lower-left] to (82,64)/(88,70) [upper-right]. The tip is at the lower-left, pointing toward the page. That makes sense — the pencil is writing on the page. Good.
+
+But wait, the tip triangle (56,88) is to the left of the body start (60,86). And (66,92) is the body's lower-left corner. The tip triangle connects (60,86), (66,92), (56,88). That forms a small triangle at the lower-left, representing the sharpened tip. Good.
+
+Let me double check the pencil doesn't extend beyond the 100x100 viewBox: max x = 88, max y = 92, min x = 56, min y = 64. All within 0-100. Good.
+
+Icon 2 (</>), viewBox 0 0 100 100:
+```
+<svg width="160" height="160" viewBox="0 0 100 100" fill="none">
+  <path d="M38 30 L20 50 L38 70" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M62 30 L80 50 L62 70" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M54 26 L46 74" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Left bracket "<": (38,30)→(20,50)→(38,70). Right bracket ">": (62,30)→(80,50)→(62,70). Slash "/": (54,26)→(46,74). Clean "</>". Good.
+
+Icon 3 (play in frame), viewBox 0 0 100 100:
+```
+<svg width="160" height="160" viewBox="0 0 100 100" fill="none">
+  <path d="M18 26 H82 V74 H18 Z" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M42 38 L42 62 L66 50 Z" fill="#12A9E6"/>
+</svg>
+```
+Frame: (18,26)→(82,26)→(82,74)→(18,74)→close. A rectangle. Play triangle: (42,38)→(42,62)→(66,50)→close. Filled cyan. Center of frame: x=50, y=50. Triangle centroid: x=(42+42+66)/3=50, y=(38+62+50)/3=50. Centered. 
+
+Good.
+
+Now, let me reconsider: the icons are 160x160 but the viewBox is 100x100, so they scale up 1.6x. Stroke-width 6 in viewBox units → 9.6px actual. That's a good stroke weight. Good.
+
+Now let me write the full HTML.
+
+Let me also reconsider the label text. The brief says labels: "Write a brief", "Model writes the code", "Render the video". Let me use these exactly.
+
+Now, text fitting: labels in 360px boxes, font 30px, center-aligned.
+- "Write a brief" = 13 chars * 16.5 = 214px. Fits.
+- "Model writes the code" = 21 chars * 16.5 = 346px. Fits in 360 (barely, 7px margin each side). OK.
+- "Render the video" = 16 chars * 16.5 = 264px. Fits.
+
+Good.
+
+Numbers: "01", "02", "03", mono 44px, center in 160px box. Fits easily.
+
+Now let me write the timeline.
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// pre-set scaleX elements hidden
+tl.set(["#rule","#connector1","#connector2"], { scaleX: 0 }, 0);
+
+// header
+tl.to("#eyebrow", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.1);
+tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.25);
+tl.to("#logo", { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.35);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.55);
+
+// step 1
+tl.fromTo("#n1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.0);
+tl.fromTo("#i1", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5,
+[CONTENT]

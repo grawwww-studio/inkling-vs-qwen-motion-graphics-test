@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Local AI, real video — Title Card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #title .word { display: inline-block; position: relative; }
+  #title .band {
+    position: absolute;
+    left: -12px;
+    top: 18px;
+    bottom: 18px;
+    width: calc(100% + 24px);
+    background: #FFD400;
+    transform-origin: left center;
+  }
+  #title .hl {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    padding: 0;
+    color: #111;
+  }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="sq" style="left:160px;top:334px;width:22px;height:22px;background:var(--c);opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:198px;top:330px;font-size:26px;letter-spacing:0.22em;color:var(--c);opacity:0">EP05 / EXPERIMENT</div>
+
+  <div class="a h" id="title" style="left:160px;top:392px;font-size:150px;line-height:1.04">
+    <span class="word" id="w1">LOCAL</span>
+    <span class="word" id="w2">AI,</span><br/>
+    <span class="word" id="w3"><span class="band"></span><span class="hl">REAL</span></span>
+    <span class="word" id="w4">VIDEO</span>
+  </div>
+
+  <div class="a" id="rule" style="left:160px;top:748px;width:1120px;height:5px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a m" id="foot" style="left:160px;top:928px;font-size:20px;letter-spacing:0.18em;color:rgba(244,244,241,0.55);opacity:0">HYPERFRAMES / TITLE CARD — EP05</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#sq", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.2);
+  tl.fromTo("#eyebrow", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.3);
+
+  tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.6);
+  tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.82);
+  tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.04);
+  tl.fromTo(".band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.28);
+  tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.42);
+
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 2.0);
+  tl.fromTo("#foot", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.35);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

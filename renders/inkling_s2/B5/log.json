@@ -1,0 +1,26 @@
+{
+ "brief": "B5",
+ "name": "Product teaser with own assets (10 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 223.6,
+   "prompt_tokens": 1542,
+   "completion_tokens": 13657,
+   "finish": "stop",
+   "check_s": 1.9,
+   "check_errors": [],
+   "render_s": 9.4
+  }
+ ],
+ "model": "inkling",
+ "seed": "2",
+ "t0": 1795357251.3499207,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 223.6,
+ "prompt_tokens": 1542,
+ "completion_tokens": 13657,
+ "t1": 1795357486.3092387,
+ "wall_s": 235.0
+}

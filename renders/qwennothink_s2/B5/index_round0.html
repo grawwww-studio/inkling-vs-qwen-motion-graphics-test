@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; }
+  .a { position: absolute; box-sizing: border-box; }
+  .h { font-family: var(--display); text-transform: uppercase; font-weight: 800; letter-spacing: 0.01em; }
+  .m { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.16em; }
+  .hl { background: var(--y); color: #111; padding: 0 0.12em; }
+  .chip { display: flex; align-items: center; gap: 28px; background: #161616; border: 2px solid #2a2a2a; padding: 34px 40px; }
+  .chip .ic { width: 64px; height: 64px; flex: 0 0 64px; }
+  .chip .ic svg { width: 64px; height: 64px; display: block; }
+  .chip .tx { font-family: var(--body); font-size: 30px; font-weight: 600; color: var(--ink); letter-spacing: 0.01em; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <div id="act1">
+    <div class="a m" id="eyebrow" style="left:160px;top:300px;font-size:26px;color:var(--c);opacity:0">Grawwww Studio / Teaser</div>
+    <div class="a h" id="l1" style="left:160px;top:360px;font-size:150px;color:var(--ink);opacity:0">Agents.</div>
+    <div class="a h" id="l2" style="left:160px;top:510px;font-size:150px;color:var(--ink);opacity:0">Automations.</div>
+    <div class="a h" id="l3" style="left:160px;top:660px;font-size:150px;color:var(--ink);opacity:0">Video.</div>
+    <div class="a" id="rule" style="left:160px;top:830px;width:1600px;height:6px;background:var(--c);transform-origin:left center;opacity:0"></div>
+  </div>
+
+  <div id="act2">
+    <div class="a m" id="eyebrow2" style="left:160px;top:300px;font-size:26px;color:var(--c);opacity:0">Why local</div>
+    <div class="a chip" id="chip1" style="left:160px;top:400px;width:520px;height:150px;opacity:0">
+      <span class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#F4F4F1" stroke-width="6"><rect x="14" y="14" width="36" height="36"/><rect x="26" y="26" width="12" height="12"/></svg></span>
+      <span class="tx">Runs on your hardware</span>
+    </div>
+    <div class="a chip" id="chip2" style="left:700px;top:400px;width:520px;height:150px;opacity:0">
+      <span class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#F4F4F1" stroke-width="6"><path d="M32 10 V54"/><path d="M20 20 H40"/><path d="M20 30 H44"/><path d="M20 40 H40"/></svg></span>
+      <span class="tx">No per-token bill</span>
+    </div>
+    <div class="a chip" id="chip3" style="left:1240px;top:400px;width:520px;height:150px;opacity:0">
+      <span class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#F4F4F1" stroke-width="6"><path d="M32 10 L50 18 V34 C50 46 42 54 32 58 C22 54 14 46 14 34 V18 Z"/><path d="M24 34 L30 40 L42 26"/></svg></span>
+      <span class="tx">Your data stays put</span>
+    </div>
+    <div class="a" id="rule2" style="left:160px;top:620px;width:1600px;height:6px;background:var(--m);transform-origin:left center;opacity:0"></div>
+  </div>
+
+  <div id="act3">
+    <div class="a" id="logo" style="left:740px;top:250px;width:440px;height:440px;opacity:0">
+      <img src="assets/logo-negative.png" alt="Grawwww Studio" style="width:100%;height:100%;object-fit:contain;display:block" />
+    </div>
+    <div class="a h" id="tagline" style="left:460px;top:740px;width:1000px;text-align:center;font-size:80px;color:var(--ink);opacity:0">Local AI, <span class="hl">delivered</span>.</div>
+  </div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Act 1 — eyebrow + three slams
+  tl.to("#eyebrow", { opacity: 1, duration: 0.3 }, 0.1);
+  tl.fromTo("#l1", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, 0.3);
+  tl.fromTo("#l2", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, 0.85);
+  tl.fromTo("#l3", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, 1.4);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 1.9);
+
+  // Act 1 out
+  tl.to(["#eyebrow","#l1","#l2","#l3","#rule"], { opacity: 0, duration: 0.3, ease: "power2.in" }, 2.6);
+
+  // Act 2 — eyebrow + staggered chips
+  tl.fromTo("#eyebrow2", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.0);
+  tl.fromTo("#chip1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.4);
+  tl.fromTo("#chip2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.75);
+  tl.fromTo("#chip3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 4.1);
+  tl.fromTo("#rule2", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 4.6);
+
+  // Act 2 out
+  tl.to(["#eyebrow2","#chip1","#chip2","#chip3","#rule2"], { opacity: 0, duration: 0.35, ease: "power2.in" }, 6.5);
+
+  // Act 3 — logo + tagline
+  tl.fromTo("#logo", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.9, ease: "power2.out" }, 7.2);
+  tl.fromTo("#tagline", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 7.9);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

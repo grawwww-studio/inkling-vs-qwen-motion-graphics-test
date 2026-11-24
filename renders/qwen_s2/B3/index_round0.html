@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B3 / Chart reveal</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <!-- header -->
+  <div class="a m" id="eyebrow" style="left:100px;top:100px;width:600px;font-size:26px;color:var(--c);opacity:0">Data / Render time</div>
+  <div class="a h" id="title" style="left:100px;top:146px;width:1320px;font-size:76px;opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:100px;top:258px;width:620px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- legend -->
+  <div class="a" id="legendSq" style="left:1480px;top:110px;width:20px;height:20px;background:var(--c);opacity:0"></div>
+  <div class="a m" id="legendTx" style="left:1512px;top:104px;width:300px;font-size:24px;color:#F4F4F1;opacity:0">Render time / s</div>
+
+  <!-- tracks -->
+  <div class="a" id="track1" style="left:420px;top:340px;width:1020px;height:56px;background:rgba(244,244,241,0.05);opacity:0"></div>
+  <div class="a" id="track2" style="left:420px;top:470px;width:1020px;height:56px;background:rgba(244,244,241,0.05);opacity:0"></div>
+  <div class="a" id="track3" style="left:420px;top:600px;width:1020px;height:56px;background:rgba(244,244,241,0.05);opacity:0"></div>
+  <div class="a" id="track4" style="left:420px;top:730px;width:1020px;height:56px;background:rgba(244,244,241,0.05);opacity:0"></div>
+
+  <!-- gridlines + axis -->
+  <div class="a" id="axis" style="left:419px;top:320px;width:3px;height:520px;background:rgba(244,244,241,0.5);transform-origin:center top"></div>
+  <div class="a" id="grid2" style="left:759px;top:320px;width:2px;height:520px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="grid3" style="left:1099px;top:320px;width:2px;height:520px;background:rgba(244,244,241,0.12);opacity:0"></div>
+  <div class="a" id="grid4" style="left:1439px;top:320px;width:2px;height:520px;background:rgba(244,244,241,0.12);opacity:0"></div>
+
+  <!-- ticks -->
+  <div class="a m" id="tick0" style="left:412px;top:852px;width:60px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">0</div>
+  <div class="a m" id="tick1" style="left:744px;top:852px;width:60px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">20</div>
+  <div class="a m" id="tick2" style="left:1084px;top:852px;width:60px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">40</div>
+  <div class="a m" id="tick3" style="left:1404px;top:852px;width:80px;font-size:22px;color:rgba(244,244,241,0.5);opacity:0">60 s</div>
+
+  <!-- row labels -->
+  <div class="a m" id="lbl1" style="left:100px;top:354px;width:280px;text-align:right;font-size:26px;color:#F4F4F1;opacity:0">Title</div>
+  <div class="a m" id="lbl2" style="left:100px;top:484px;width:280px;text-align:right;font-size:26px;color:#F4F4F1;opacity:0">Explainer</div>
+  <div class="a m" id="lbl3" style="left:100px;top:614px;width:280px;text-align:right;font-size:26px;color:#F4F4F1;opacity:0">Chart</div>
+  <div class="a m" id="lbl4" style="left:100px;top:744px;width:280px;text-align:right;font-size:26px;color:#F4F4F1;opacity:0">Lower third</div>
+
+  <!-- bars (17 px per second: 42s=714, 58s=986, 51s=867, 23s=391) -->
+  <div class="a" id="bar1" style="left:420px;top:340px;width:714px;height:56px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="bar2" style="left:420px;top:470px;width:986px;height:56px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="bar3" style="left:420px;top:600px;width:867px;height:56px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="bar4" style="left:420px;top:730px;width:391px;height:56px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- values at bar ends -->
+  <div class="a h" id="val1" style="left:1162px;top:348px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+  <span class="a h hl" id="val2" style="left:1434px;top:472px;font-size:40px;color:#111;transform-origin:left center;opacity:0">0</span>
+  <div class="a h" id="val3" style="left:1315px;top:608px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+  <div class="a h" id="val4" style="left:839px;top:738px;font-size:40px;color:#F4F4F1;opacity:0">0</div>
+
+  <!-- footer -->
+  <div class="a m" id="footL" style="left:100px;top:956px;width:400px;font-size:22px;color:rgba(244,244,241,0.55);opacity:0">Scale / 0-60 s</div>
+  <div class="a m" id="footR" style="left:1520px;top:956px;width:300px;text-align:right;font-size:22px;color:rgba(244,244,241,0.55);opacity:0">Rows / 4</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  const rows = [
+    { t: 1.15, bar: "#bar1", lbl: "#lbl1", val: "#val1", target: 42 },
+    { t: 1.40, bar: "#bar2", lbl: "#lbl2", val: "#val2", target: 58 },
+    { t: 1.65, bar: "#bar3", lbl: "#lbl3", val: "#val3", target: 51 },
+    { t: 1.90, bar: "#bar4", lbl: "#lbl4", val: "#val4", target: 23 }
+  ];
+
+  // initial states
+  tl.set("#rule", { scaleX: 0 }, 0);
+  tl.set("#axis", { scaleY: 0 }, 0);
+  rows.forEach(function (r) {
+    tl.set(r.bar, { scaleX: 0 }, 0);
+    tl.set(r.val, { opacity: 0 }, 0);
+  });
+
+  // header
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.15);
+  tl.fromTo("#title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+  tl.to("#rule", { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.7);
+  tl.to("#legendSq", { opacity: 1, duration: 0.4 }, 0.55);
+  tl.to("#legendTx", { opacity: 1, duration: 0.4 }, 0.6);
+
+  // grid + axis
+  tl.to("#axis", { scaleY: 1, duration: 0.5, ease: "power2.out" }, 0.9);
+  tl.to("#grid2", { opacity: 1, duration: 0.35 }, 0.95);
+  tl.to("#grid3", { opacity: 1, duration: 0.35 }, 1.05);
+  tl.to("#grid4", { opacity: 1, duration: 0.35 }, 1.15);
+  tl.to("#tick0", { opacity: 1, duration: 0.35 }, 1.05);
+  tl.to("#tick1", { opacity: 1, duration: 0.35 }, 1.12);
+  tl.to("#tick2", { opacity: 1, duration: 0.35 }, 1.19);
+  tl.to("#tick3", { opacity: 1, duration: 0.35 }, 1.26);
+
+  // tracks
+  tl.to("#track1", { opacity: 1, duration: 0.35 }, 1.05);
+  tl.to("#track2", { opacity: 1, duration: 0.35 }, 1.05);
+  tl.to("#track3", { opacity: 1, duration: 0.35 }, 1.05);
+  tl.to("#track4", { opacity: 1, duration: 0.35 }, 1.05);
+
+  // rows: label, bar grow, value fade + count up
+  rows.forEach(function (r) {
+    tl.fromTo(r.lbl, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, r.t);
+    tl.to(r.bar, { scaleX: 1, duration: 0.9, ease: "power2.out" }, r.t);
+    tl.to(r.val, { opacity: 1, duration: 0.2 }, r.t);
+    const el = document.querySelector(r.val);
+    const proxy = { v: 0 };
+    el.textContent = "0";
+    tl.to(proxy, {
+      v: r.target,
+      duration: 0.9,
+      ease: "power1.out",
+      onUpdate: function () { el.textContent = String(Math.round(proxy.v)); }
+    }, r.t);
+  });
+
+  // yellow band behind the max value (Explainer, 58)
+  tl.to("#val2", { scaleX: 1, duration: 0.4, ease: "power2.out" }, 2.15);
+
+  // footer
+  tl.to("#footL", { opacity: 1, duration: 0.4 }, 3.0);
+  tl.to("#footR", { opacity: 1, duration: 0.4 }, 3.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

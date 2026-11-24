@@ -1,0 +1,197 @@
+[REASONING]
+A lower-third lower-third (lower third) over a dark plate. 4 seconds, 1920x1080, 24fps.
+
+Requirements:
+- Bottom-left lower third
+- Name "Lara Quinn" (display type, class `h`)
+- Title line "Presenter, Grawwww" (mono, class `m`)
+- Cyan accent bar wipes in first
+- Then text slides in
+- Hold
+- In the final 0.5 seconds, everything wipes out (i.e., 3.5s–4.0s)
+
+Structure:
+- Root: data-duration="4"
+- Dark plate: body is already #0E0E0E. "A dark plate that appears transparent" — the plate can be a slightly different dark background, e.g., a full-frame div with a slightly different dark color (#141414) to simulate the plate. In practice, the background is already #0E0E0E. To make it look like a "plate," I can add a full-frame div with a slightly different dark color (#141414) to simulate the plate. That's fine — it's a static element, no animation needed. Or leave the body as is. To make it look like a plate, I'll add a full-bleed plate div with #141414 (flat, no gradient).
+
+Layout (bottom-left, at least 100px margin from edges):
+- Accent bar: vertical cyan bar to the left of the text, e.g., left:120px, top:760px, width:14px, height:220px. Wipes in via scaleY, transform-origin top.
+- Name: "LARA QUINN" display, font-size around 92px. Uppercase display is wide: at 150px, uppercase letters are about 100px wide, so at 92px letters are about 61px. "LARA QUINN" = 10 characters including the space → about 610px wide. Left:170px (after the bar). Fits easily within the canvas.
+- Title: "PRESENTER, GRAWWWW" mono, font-size around 30px. Mono uppercase: 18 characters. Mono at 30px is about 18px per character → about 324px. No problem.
+
+Placement:
+- Bar: left:120px, top:740px, width:16px, height:240px, background var(--c) (cyan #12A9E6).
+- Name: left:180px, top:760px, font-size:96px. Display uppercase.
+- Title: left:182px, top:890px, font-size:30px, letter-spacing probably 6px, color #F4F4F1 or a muted color. Use ink #F4F4F1, or a slightly muted color like #9A9A94? The brand only specifies ink #F4F4F1, cyan, magenta, yellow. I'll use ink for the name and a muted tone for the title — but the brand only lists those colors. I can use ink with opacity 0.7. That's safe.
+
+Actually, let's go with a classic lower-third: bar + name + title, with a thin rule between them. Keep it simple.
+
+Timing (4 seconds):
+- 0.0–0.05: Plate is already visible (static, opacity 1 from the start — but rule 7 says "everything that should be visible at the end of the clip must be animated in and at opacity 1 at the hold frame." The plate is visible at the end, so it should be animated in? The plate is a background plate — it's fine to have it at opacity 1 from the start, but to be safe, I can fade it in quickly at t=0 (duration 0.3). Actually "at the hold frame" — the hold frame is before the final wipe-out. Hmm, "everything that should be visible at the end of the clip must be animated in and at opacity 1 at the hold frame." The lower third wipes out at the end, so the lower third won't be visible at the end — that's intentional per the brief. The plate is visible at the end and should be at opacity 1. I'll set the plate to opacity 1 with a quick fade-in at t=0 (or just leave it at 1 — but the linter might check that visible elements are animated in. Safer to animate in with tl.fromTo opacity 0→1 duration 0.4 at 0).
+
+Timeline:
+- 0.0: Plate fade in (0.3s)
+- 0.15: Bar scaleY 0→1, 0.45s, power2.out (wipes in first)
+- 0.5: Name slides in from x:-60, opacity 0→1, 0.5s, power3.out
+- 0.65: Title slides in from x:-60, opacity 0→1, 0.5s
+- Hold until 3.5
+- 3.5: Wipe out: bar scaleY→1→0 (transform-origin bottom for the wipe-out), name/title x:-60 opacity→0, 0.5s. "Everything wipes out in the final 0.5s" — from 3.5 to 4.0.
+
+Wipe-out: bar scaleY 1→0, origin bottom; text slides out to the left with opacity 0. Duration 0.45–0.5, ease power2.in.
+
+Note on transform-origin: bar in CSS `transform-origin: top center` for the wipe-in. For the wipe-out I want origin bottom. I can change transformOrigin with tl.set at 3.5. GSAP's tl.set can set transformOrigin. That's allowed (tl.set is permitted). So: tl.set("#bar", { transformOrigin: "bottom center" }, 3.5); then tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5).
+
+Text: fromTo x:-60, opacity 0 → x:0, opacity 1. Out: to x:-60, opacity 0, 3.5, duration 0.5, ease power2.in.
+
+Also, a small cyan tick/rule below the title? Keep it minimal. A thin 2px rule below the title line, width 340px, could be a nice accent. But keep it simple — the brief says bar + name + title. I'll add a small magenta square? No, stick to the brief. Maybe just a small cyan square bullet before the title. Keep it minimal per the brief.
+
+Font size: name 96px display. "LARA QUINN" — 10 characters. At 96px, uppercase is about 64px wide → about 640px. Left 180 → ends around 820. No problem.
+
+Title mono 30px, letter-spacing 8px: 18 characters × (about 18px + 8) ≈ 470px. No problem.
+
+Vertical: name top 740, height about 96 → bottom about 840. Title top 866, height about 30 → bottom about 900. Bar top 728, height 250 → bottom 978. Margin from bottom: 1080-978 = 102 ≥ 100. Good. Left margin 120 ≥ 100. Good.
+
+Plate: full-frame div, class a, left:0 top:0 width:1920 height:1080, background #141414. Hmm, "a dark plate that appears transparent" — the plate is dark, and the lower third sits on top of it. The body is already #0E0E0E. The plate is a slightly brighter dark #161616 to distinguish it. No gradient (forbidden). Flat color is fine.
+
+Add a subtle vignette? No, no gradients. Keep it flat.
+
+Add a small "GRAWWWW" logo? assets/logo-negative.png exists. The brief doesn't ask for it. Skip — keep it a clean lower third. Actually, adding a small logo to the lower third is common, but the brief only specifies name + title + bar. Skip.
+
+Also, a subtle label above the name? No.
+
+Writing the file:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="plate" style="left:0px;top:0px;width:1920px;height:1080px;background:#151515;opacity:0"></div>
+  <div class="a" id="bar" style="left:120px;top:726px;width:16px;height:252px;background:var(--c);transform-origin:top center;opacity:0"></div>
+  <div class="a h" id="name" style="left:184px;top:738px;font-size:96px;letter-spacing:2px;color:var(--ink);opacity:0">Lara Quinn</div>
+  <div class="a m" id="role" style="left:188px;top:868px;font-size:30px;letter-spacing:8px;color:var(--ink);opacity:0">Presenter, Grawwww</div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // plate
+  tl.fromTo("#plate", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power1.out" }, 0);
+
+  // cyan bar wipes in first
+  tl.fromTo("#bar", { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.45, ease: "power3.out" }, 0.15);
+
+  // name slides in
+  tl.fromTo("#name", { opacity: 0, x: -64 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+
+  // role slides in
+  tl.fromTo("#role", { opacity: 0, x: -64 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.65);
+
+  // wipe out in the final 0.5s
+  tl.set("#bar", { transformOrigin: "bottom center" }, 3.5);
+  tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#name", { opacity: 0, x: -64, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#role", { opacity: 0, x: -64, duration: 0.5, ease: "power2.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait — the bar's fromTo includes opacity 0→1 and scaleY. Setting transformOrigin via tl.set at 3.5 — that's fine.
+
+One concern: `var(--ink)` — is that defined in gw.css? The brand section says ink #F4F4F1, and fonts are via CSS variables. The example uses `color:var(--c)` and `background:var(--m)`. So tokens like --c, --m, --y probably exist, and --ink might exist too. Risky. The example uses `var(--c)` and `var(--m)`. To be safe, I could use the literal color #F4F4F1 for the ink text. That's definitely safe. I'll use #F4F4F1 directly for the name, and for the title #F4F4F1 with opacity 0.72 — but I'm animating the element's opacity, so I can't use element opacity for muting (it would get overwritten). I can use a color like #B9B9B2, or just use #F4F4F1. Simplest: use #F4F4F1 for the name and a slightly muted #C9C9C2 for the title? The brand says ink #F4F4F1. Muted gray isn't in the brand palette, but it's a neutral tone. To be strict, I'll use #F4F4F1 for both and differentiate via size/weight. Actually, a mono title in full white at 30px is fine.
+
+Hmm, but a slightly muted title looks more refined. I'll use #9C9C96 — neutral gray, not a brand color, but acceptable as a neutral tone. The rules say "ink #F4F4F1, cyan, magenta, yellow only as a band" — that's about brand colors, and neutral grays for the plate are probably fine (the plate is #151515). I'll use a neutral #A3A39C for the title. That's safe.
+
+Also, the class `h` is probably already uppercase (the example's "Hello world" would render uppercase via the class). The brief says name "Lara Quinn" in display type — the class h uppercases it. Good.
+
+Letter-spacing on the display: the class h is probably already "wide." Adding letter-spacing 2px is fine.
+
+Bar height alignment: name top 738, cap height about 68 (96px font, cap about 0.72em ≈ 69). Title bottom about 868+30 = 898. Bar from 726 to 978 — extends 80px below the title. Hmm, that might look unbalanced. Let me align: bar top 730, height 210 → bottom 940. Title bottom 898. Bar extends 42 below the title, 8 above the name top. That's a typical lower-third look where the bar slightly overshoots. Or the bar could span the name cap top to the title bottom: name cap top ≈ 738 + (96-69) ≈ 765? Actually, the top of the text box is 738, and the cap top is about 738 + 0.2em ≈ 757. Title bottom 898. Bar 750→910, height 160. Hmm.
+
+Simpler: bar top 734, height 190 → bottom 924. Name 738–834 (box), title 868–898. Bar spans 734–924, overshooting both. Looks intentional. Bottom margin: 1080-924 = 156. Good.
+
+Let me set the bar: left:120, top:732, width:16, height:196 → bottom 928.
+
+Gap between bar and text: bar right edge 136, name left 184 → 48px gap. Good.
+
+Check name width: 96px display, "LARA QUINN" 10 characters. Display uppercase is about 0.66em per character → 63px → about 630px + letter-spacing 2px×10 = 650. Ends around 834. Fine.
+
+Title: mono 30px, "PRESENTER, GRAWWWW" 18 characters, mono character width about 0.6em = 18px + letter-spacing 8 = 26 → 468px. Ends around 656. Fine.
+
+All within margins. No overlaps: name box 738–834, title 868–898 — 34px gap. Good.
+
+Timeline check: total duration 4. The final wipe ends exactly at 4.0. Good.
+
+Rule 4: no CSS transform on animated elements — the bar has transform-origin (allowed) and no transform property. Good.
+
+Rule 3: only tl.set/tl.to/tl.from/tl.fromTo with absolute start times. Yes.
+
+Rule 7: at the hold frame (e.g., t=3.0), the plate is at opacity 1, the bar is at scaleY 1 and opacity 1, and the text is at opacity 1. Good.
+
+One more thing: the bar's fromTo sets opacity 0→1 and scaleY 0→1 simultaneously — the wipe-in reads as a grow from the top. Good.
+
+I think this is done. I'll output a single html code block, with no substantive additional content.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <!-- dark plate -->
+  <div class="a" id="plate" style="left:0px;top:0px;width:1920px;height:1080px;background:#151515;opacity:0"></div>
+
+  <!-- cyan accent bar (wipes in first) -->
+  <div class="a" id="bar" style="left:120px;top:732px;width:16px;height:196px;background:var(--c);transform-origin:top center;opacity:0"></div>
+
+  <!-- name -->
+  <div class="a h" id="name" style="left:184px;top:738px;width:1200px;font-size:96px;letter-spacing:2px;color:#F4F4F1;opacity:0">Lara Quinn</div>
+
+  <!-- role -->
+  <div class="a m" id="role" style="left:188px;top:868px;width:900px;font-size:30px;letter-spacing:8px;color:#A3A39C;opacity:0">Presenter, Grawwww</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // plate settles in
+  tl.fromTo("#plate", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power1.out" }, 0);
+
+  // cyan bar wipes in first (grows from top)
+  tl.fromTo("#bar", { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.45, ease: "power3.out" }, 0.15);
+
+  // name slides in
+  tl.fromTo("#name", { opacity: 0, x: -64 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+
+  // role slides in just after
+  tl.fromTo("#role", { opacity: 0, x: -64 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.65);
+
+  // hold until 3.5, then everything wipes out in the last 0.5 s
+  tl.set("#bar", { transformOrigin: "bottom center" }, 3.5);
+  tl.to("#bar", { scaleY: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#name", { opacity: 0, x: -64, duration: 0.5, ease: "power2.in" }, 3.5);
+  tl.to("#role", { opacity: 0, x: -64, duration: 0.5, ease: "power2.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

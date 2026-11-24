@@ -1,0 +1,433 @@
+[REASONING]
+The user wants a title card with kinetic type, 5 seconds. Let me design:
+
+- 1920x1080 canvas
+- Background #0E0E0E
+- Eyebrow: "EP05 / Experiment" in mono, cyan color
+- Title: "Local AI, real video" — huge uppercase display type. Words slide/stagger in one by one. The word "real" gets a yellow marker band (class `hl`) that wipes in from the left.
+- Thin rule that draws across below
+- Hold for last second
+
+Layout:
+- Eyebrow at top area, e.g., left 160px, top ~340px
+- Title: "LOCAL AI," on one line and "REAL VIDEO" on second line? Or all on one line? At 150px uppercase, "LOCAL AI, REAL VIDEO" would be way too wide. Let's do two lines: "LOCAL AI," and "REAL VIDEO". Actually the brief says title "Local AI, real video" — words slide in one by one. So words: "LOCAL", "AI,", "REAL", "VIDEO". Could be two lines: "LOCAL AI," / "REAL VIDEO".
+
+Font size: maybe 130-150px. Let's compute widths. Display font is wide; at 150px uppercase letter ~100px wide. "LOCAL AI," = 9 chars ≈ 900px. "REAL VIDEO" = 10 chars ≈ 1000px. Fine within 1920 with 160px margins (usable 1600px).
+
+Let me use font-size 140px maybe. Keep it safe.
+
+Structure:
+
+```html
+<div class="a m" id="eyebrow" style="left:160px;top:330px;font-size:28px;color:var(--c);opacity:0">EP05 / EXPERIMENT</div>
+```
+
+Hmm, eyebrow above title. Title two lines. Let's place:
+- eyebrow at top: 300px
+- line 1: "LOCAL AI," at top 360px
+- line 2: "REAL VIDEO" at top 520px (font-size 150px, line-height ~1.0)
+- rule below at top ~760px
+
+Words as spans with inline-block, each animated from y: 60, opacity 0, maybe rotation slight. Stagger 0.15-0.2s apart.
+
+"REAL" gets `.hl` class — yellow band behind #111 text. The band wipes in from the left: I can do this with a span.hl that has a background, and animate scaleX from 0 to 1 with transform-origin left. But the text inside would scale too if applied to the whole span. Better: wrap "REAL" in a span with position relative, and put an inner span for the band. E.g.:
+
+```html
+<span class="word" id="w3"><span class="band"></span><span class="wtext">REAL</span></span>
+```
+
+Actually simpler: `.hl` class from gw.css gives background yellow and color #111. To wipe in the band, I can animate a ::before? GSAP can't easily animate pseudo-elements... Actually GSAP can animate pseudo-elements via CSSPlugin? Not reliably. Better: nested spans.
+
+```html
+<span class="word hl-wrap" id="w3"><span class="hl-band"></span><span class="hl-text">REAL</span></span>
+```
+
+CSS:
+```css
+.hl-wrap { position: relative; display: inline-block; }
+.hl-band { position: absolute; left: -12px; right: -12px; top: 8px; bottom: 8px; background: var(--y); transform-origin: left center; }
+.hl-text { position: relative; color: #111; }
+```
+
+Then animate band scaleX 0→1 with power2.inOut, and the word text slides in.
+
+But wait — the brief says words slide/stagger in one by one; the word "real" gets a yellow marker band that wipes in from the left. So the word slides in AND the band wipes. I'll animate word w3 (the whole wrap) from y offset + opacity, and band scaleX 0→1 slightly delayed.
+
+Also the `.hl` class exists in gw.css per brand: "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So I should use class `hl`. Maybe I can use `.hl` on the text span and animate a band? The class hl gives the background directly — no wipe. Hmm. Alternative: use the `hl` class on the word and animate the word itself sliding in — the band would appear with the word, not wipe.
+
+Better approach honoring the brand: use `.hl` for the text color/background, but implement the wipe with an extra band element. Or: keep `.hl` class on the word span (yellow bg, #111 text) and animate scaleX of a wrapper... no.
+
+I think the cleanest: use `.hl` class on the inner text span for text color #111, and a separate band div behind it that wipes in. Actually `.hl` sets background yellow on the element — if I put it on the text span, the yellow is behind the text but the wipe needs separate element.
+
+Let me just do:
+
+```html
+<span class="word" id="w3"><span class="band"></span><span class="hl">REAL</span></span>
+```
+
+CSS:
+```css
+.word { display: inline-block; position: relative; }
+.band { position:absolute; left:-10px; top:6px; bottom:6px; width: calc(100% + 20px); background:#FFD400; transform-origin: left center; }
+.hl { position: relative; z-index:1; }
+```
+
+Wait, .hl has its own background yellow — that would double with the band. Let me check gw.css — I don't have its contents. The brand says class `hl`: yellow band behind #111 text. I'll assume `.hl { background: var(--y); color: #111; padding: 0 12px; }` roughly. If I use .hl on the text span, it already has the yellow band. To wipe it in, I could instead animate the .hl element's... hmm, GSAP can't animate background-size? It can animate backgroundSize? GSAP can animate CSS properties like backgroundSize via css. Actually yes, GSAP can animate arbitrary CSS properties including background-size. I could set background: linear-gradient? No — gradients banned.
+
+Alternative: animate clip-path? Not in the allowed list (opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height). So stick to scaleX on a band element.
+
+Simplest robust: don't use .hl class; build the marker band manually with a band div + #111 text span. But brand says yellow only as band behind #111 text (class hl). The linter may not check for .hl usage; it's a brand guideline. I'll use class `hl` on the text span but override its background to transparent? That's messy.
+
+Better: use `.hl` on the word span, and animate the band via a child? Let me think about what .hl probably does: `.hl { background: #FFD400; color:#111; }`. If the word span has .hl, the yellow covers the word's box. To wipe from left, I can animate the word's scaleX? That would squash text.
+
+OK final decision: manual band approach, and also add class `hl` to the text span with a CSS override `background: transparent;` — hmm, that violates "only as class hl". Honestly, using the .hl class is fine; I'll put the .hl class on the band-wrapped word and animate a separate band element. If .hl has a background, the band behind it would be invisible/doubled.
+
+Cleanest: I'll define my own `.marker` styles in the file (allowed — it's my HTML), using #FFD400 band behind #111 text. That satisfies the visual requirement. But the brand explicitly says class `hl`. The example in the prompt uses `<span class="hl">world</span>` inside the title. So the linter probably just wants the brand tokens. I'll use `.hl` on the text span and NOT give it a background by overriding:
+
+Actually, I can make the band wipe by animating width? No — band is a separate element; animate its scaleX.
+
+Let me define:
+
+```css
+.hl { background: transparent; padding: 0; color:#111; position: relative; z-index: 1; }
+```
+
+That overrides gw.css's .hl if my stylesheet comes after. I can include a `<style>` block after the link. That's allowed. Then the band div behind provides the yellow.
+
+Hmm, but then I'm "using" class hl with overridden bg. Alternatively just don't override and put .hl on the band itself? .hl is for text.
+
+You know what, simplest that looks right: 
+
+```html
+<span class="word" id="w3"><span class="band"></span><span class="hl">REAL</span></span>
+```
+
+with CSS:
+```css
+.band { position:absolute; left:-14px; top:10px; height: calc(100% - 20px); width: calc(100% + 28px); background:#FFD400; transform-origin:left center; }
+```
+and gw.css .hl provides yellow background + #111 text. The .hl background would cover the band exactly — the wipe wouldn't be visible. So override .hl background to transparent in my style block. Then band shows through. Text #111 from .hl (keep color). padding from .hl might offset; I'll set padding:0 in my override.
+
+Actually — alternative approach that uses .hl exactly as intended and still wipes: animate the .hl span itself with scaleX from 0 to 1 with transform-origin left, but wrap the text in an inner span that counter-scales? Over-engineering.
+
+Final: override .hl background to transparent, keep color #111, add padding 0; band div provides wipe. Good.
+
+Hmm wait, actually maybe simpler and cleaner: skip .hl entirely, use my own `.marker` class:
+
+```css
+.marker { background:#FFD400; color:#111; padding: 0 14px; }
+```
+
+And animate... no wipe. Ugh.
+
+OK going with the band approach + .hl override. Actually, let me reconsider: maybe animate the .hl element's clip via scaleX on a wrapper div that contains ONLY the band, and the text is a sibling. That's what I have. Fine.
+
+Now the timeline (5s duration):
+
+- 0.0: everything hidden (set at start)
+- 0.2: eyebrow fades/slides in (opacity 0→1, y 20→0)
+- 0.5: word 1 "LOCAL" slides in (y 70, opacity 0 → y 0, opacity 1)
+- 0.7: word 2 "AI," slides in
+- 0.95: word 3 "REAL" slides in + band wipes in (scaleX 0→1, 0.5s)
+- 1.35: word 4 "VIDEO" slides in
+- 1.9: rule draws across (scaleX 0→1, transform-origin left)
+- maybe a small accent: cyan dot or "EP05" tag? Keep minimal.
+- Hold from ~2.6 to 5.0.
+
+Also maybe a subtle underline accent or a small cyan square. Keep it clean.
+
+Add a small detail: a cyan mono label at bottom-left like "EP05 — LOCAL AI, REAL VIDEO"? Might clutter. Keep: eyebrow top, title center-left, rule, and maybe a small footer line "HYPERFRAMES / TITLE CARD" at bottom? The brief doesn't ask. Keep minimal but a footer adds polish: small mono bottom-right "EP05" — skip, eyebrow already says EP05.
+
+Let me add a thin cyan accent bar at top-left? Keep it simple: eyebrow, title, rule, plus maybe a small cyan square before eyebrow. Nice touch: a 14px cyan square at left of eyebrow.
+
+Layout numbers:
+- Canvas 1920x1080.
+- Left margin 160px.
+- Eyebrow: top 300px? Title two lines at 150px font. Let's compute: line 1 top 380, line 2 top 530 (font-size 150, line-height 1.05 → ~157px per line). Bottom of line 2 ≈ 530+157 = 687. Rule at top 740, width 900, height 6.
+
+Eyebrow at top 300, font-size 26px mono, letter-spacing.
+
+Footer: bottom-left small mono "LOCAL AI / EP05" at top 950? Keep margins ≥100px. bottom text at top 960, height 40 → ends 1000, margin 80. Hmm, keep ≥100px margin: top 930, font-size 20, ends ~950. Fine. Maybe skip footer. I'll add a subtle bottom-right mono "TITLE CARD — 05" at top 940, right-aligned. Eh — keep it minimal; the brief lists eyebrow, title, rule. I'll add a small cyan square as accent.
+
+Word structure: Title split into words: "LOCAL", "AI,", "REAL", "VIDEO". Line 1: LOCAL AI, (two words). Line 2: REAL VIDEO (two words). Words slide in one by one — stagger across both lines.
+
+```html
+<div class="a h" id="title" style="left:160px;top:360px;font-size:148px;line-height:1.04;opacity:1">
+  <span class="word" id="w1">LOCAL</span>
+  <span class="word" id="w2">AI,</span>
+  <br/>
+  <span class="word" id="w3"><span class="band"></span><span class="hl">REAL</span></span>
+  <span class="word" id="w4">VIDEO</span>
+</div>
+```
+
+Wait — words with inline-block and br: the words are inline-block spans; spaces between them in the markup create text nodes with spaces — good for word separation. But between line 1 and line 2, the br handles the break.
+
+Hmm, the title container has opacity 1; each word starts opacity 0 via tl.set.
+
+Word widths: "LOCAL" 5 chars at 148px ≈ 5*95 = 475px. "AI," ≈ 3*95 = 285. Line 1 ≈ 475+30+285 = 790px. Line 2: "REAL" 475 + "VIDEO" 5*95=475 → ~980px. Fine.
+
+Font: display font — check gw.css for --display. It's presumably something like "Archivo Black" or similar. I don't know exact metrics; keep font-size 140 to be safe. Actually let me use 150px as in example. "LOCAL AI," ≈ 9 chars * 100 = 900px wide — fine within 1600px.
+
+Rule: below title, left 160, top ~740, width 1080, height 6, background cyan? Brand: cyan #12A9E6 accent. Rule in cyan, or ink with cyan segment? "a thin rule that draws across below" — make it ink #F4F4F1 or cyan. I'll make it cyan for brand pop. Actually a thin rule in ink with a cyan segment could be nice: main rule ink, plus a short cyan segment. Keep simple: cyan rule, height 5px, width 1100px.
+
+Also maybe a small yellow square? No — yellow only as band. Keep cyan/ink/magenta. Magenta could be used for the eyebrow? Eyebrow cyan per example (color:var(--c)). Magenta unused — fine, or use magenta for a tiny accent dot. I'll add a small magenta square before the eyebrow? Brand says cyan for accents; magenta is secondary. I'll use cyan square + cyan eyebrow text.
+
+Also add a subtle background texture? No gradients. Maybe a faint grid of dots? Keep clean.
+
+Animation details:
+
+```js
+tl.set("#eyebrow", { opacity: 0, y: 18 }, 0);
+tl.set(".word", { opacity: 0, y: 80 }, 0);
+tl.set(".band", { scaleX: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+
+tl.to("#eyebrow", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25);
+tl.to("#w1", { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.55);
+tl.to("#w2", { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.75);
+tl.to("#w3", { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.95);
+tl.to(".band", { scaleX: 1, duration: 0.55, ease: "power2.inOut" }, 1.15);
+tl.to("#w4", { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 1.3);
+tl.to("#rule", { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.95);
+```
+
+Maybe also a small accent square animates. And a final "hold" — nothing after 2.7s, hold to 5.0.
+
+Also could add a subtle stagger on the eyebrow's square. Keep it.
+
+Also maybe the title words have a slight x slide? "words slide/stagger in one by one" — y slide is fine. Could alternate y and x? Uniform y slide with stagger reads well.
+
+Add a small "EP05" big ghost text? No, keep clean.
+
+Also add a subtle bottom-left footer mono line: "HYPERFRAMES / TITLE CARD" — could add nice brand feel. The brief doesn't ask; extra elements are OK as long as no overlap. I'll add bottom-left mono small text "TITLE CARD — 05" at top 940, left 160, color ink at 50%? Keep opacity 1 at end. Also a thin baseline rule at very bottom? Skip.
+
+Let me also consider the .hl override. I'll add:
+
+```css
+.hl { background: transparent; padding: 0; color: #111; }
+```
+
+Wait, but .hl in gw.css might define padding and background. My override after the link wins (same specificity, later in cascade — link stylesheet vs my <style> in head: both in head; <style> after <link> wins). Good. But then the word "REAL" text color #111 sits on the band (yellow) — good contrast. The band is behind (z-index 0), text z-index 1. The word span .word is inline-block position relative; band absolute inside it.
+
+Band geometry: left -14px, top 12px, height calc(100% - 24px)? The word span's height = line height of the font (~1.04 * 150 = 156px). Band: top 18px, bottom 18px → height 120px. Width: calc(100% + 28px). transform-origin: left center. scaleX from 0.
+
+Actually, maybe give the band a slight extra: left -12px; width calc(100% + 24px).
+
+The .hl span: display inline-block? It's inside .word (inline-block). Text inside .word is the .hl span. .word { position:relative; display:inline-block; }. .band { position:absolute; left:-12px; top:16px; bottom:16px; width:calc(100% + 24px); background:#FFD400; transform-origin:left center; }. .hl { position:relative; z-index:1; background:transparent; color:#111; padding:0; }.
+
+Hmm — but the .hl class with background:transparent... the brand says yellow band behind #111 text class hl. My band provides the yellow. Fine.
+
+Wait, actually — should I just use .hl on the .word span and animate... no. Moving on.
+
+One more consideration: the linter says "Animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height." All my animations use those. Good.
+
+Also "Never put a CSS transform on an element that GSAP animates" — band has transform-origin in CSS (allowed) but no transform. Good. Rule: transform-origin left center in CSS, scaleX animated. Good.
+
+Initial hidden states: use tl.set at time 0. But note: elements with opacity 0 set at time 0 — before timeline plays (paused at 0), the render shows... The timeline is paused at 0; at time 0, the set at 0 has applied? With a paused timeline, when rendered at time 0, the set at 0 applies (it's at time 0, so it's rendered). Actually with paused timeline and rendering at time 0, tweens at time 0 with duration 0 (set) — gsap.timeline renders at current time; a set at 0 means at time 0 the property is applied. Yes, sets at 0 are applied at time 0. But to be extra safe, also set initial states in CSS style attributes (opacity:0). The example does `style="...opacity:0"`. I'll do both: CSS opacity:0 inline + tl.set. For the band and rule, CSS `transform: scaleX(0)`? No — CSS transform on GSAP-animated element is banned. So band/rule must start hidden via tl.set only. At time 0, set applies → scaleX(0). Good, no CSS transform needed. But wait — is the set applied when the timeline is paused at 0 and rendered? Yes: gsap.timeline({paused:true}) then the renderer renders at time 0, applying all zero-duration tweens at time 0. Actually, sets at time 0 are applied when the playhead is at or past 0. At exactly 0, they render. I believe yes. The example in the prompt uses tl.to with opacity from 0 via CSS style attribute, not set. To be safest, I'll set initial states inline in CSS styles (opacity:0 for words/eyebrow) AND tl.set for band/rule (can't CSS-transform). For band/rule, if the set at time 0 somehow doesn't render at time 0, they'd be visible at start — but the first frame is time 0... The renderer will render at time 0 with the set applied. I'm fairly confident. Alternatively use tl.fromTo for band/rule at time 0.01. Even safer: use fromTo with start state at the same time as the first visible animation. E.g., band: tl.fromTo(".band", { scaleX: 0 }, { scaleX: 1, ... }, 1.15). That guarantees the hidden state from the start? No — fromTo at 1.15 means before 1.15 the element is at its natural state (visible). Hmm, no: fromTo sets the start state when the tween starts (at 1.15), not before. Before that, element is at natural state = visible band. That's bad for frames before 1.15.
+
+So tl.set at 0 is the way. Let me double check how GSAP handles this: `tl.set("#rule", { scaleX: 0 }, 0)` — this creates a zero-duration tween at time 0. When the timeline is paused at time 0, rendering happens at time 0, and a zero-duration tween at time 0 is rendered as complete at time 0? Zero-duration tweens: they render their start values at their start time... Actually for a set at time 0, at time 0 the tween is at its very beginning; with duration 0, progress = 1 at time 0? A zero-duration tween at time 0: when playhead reaches 0, it's complete. I believe sets at 0 apply. This is a common pattern and works. Also the prompt's own example uses tl.set for nothing but tl.to with CSS opacity 0 inline. I'll do inline CSS opacity:0 for words/eyebrow AND tl.set for band/rule at 0. That covers it.
+
+Actually, for maximum safety, I could use fromTo for the band and rule with `immediateRender: true`? Default for fromTo is immediateRender: true (fromTo renders start state immediately upon creation). So `tl.fromTo(".band", { scaleX: 0 }, { scaleX: 1, duration: 0.55 }, 1.15)` — immediateRender defaults to true for fromTo, so the band starts at scaleX 0 immediately upon timeline creation. That's the cleanest! Use fromTo for band and rule. And for words/eyebrow, fromTo with immediateRender too, or CSS opacity 0 + to. I'll use fromTo everywhere for consistency.
+
+But careful: fromTo with immediateRender:true renders start state at creation — good.
+
+Let me also add a small cyan square accent before eyebrow:
+
+```html
+<div class="a" id="sq" style="left:160px;top:306px;width:22px;height:22px;background:var(--c);opacity:0"></div>
+```
+and eyebrow text at left 196px. Animate square scale from 0.
+
+Hmm, eyebrow text with letter-spacing. Mono font.
+
+Also maybe a bottom-right mono tag "EP05 — TITLE CARD"? Skip; keep clean. Actually a small footer adds polish: bottom-left "LOCAL AI, REAL VIDEO — EP05" mono 20px, color ink 60%? Brand: no opacity issues. I'll add bottom-right "HYPERFRAMES / 05" small mono in muted color. Muted = rgba ink 0.5. Fine. Animate it in with the rule.
+
+Let me also think about the title's second line: "REAL VIDEO" — words REAL and VIDEO. The band on REAL. 
+
+Also, the comma in "AI," — keep it.
+
+Font sizes: display at 148px. Let me check line 1 width: "LOCAL AI," = L,O,C,A,L (5) + space + A,I,(3) = 8 chars + space. At ~100px/char → ~900px. OK.
+
+Actually, let me reconsider font-size: 150px might make the two lines + eyebrow + rule fit nicely. Eyebrow top 300 (26px). Title top 370, two lines at 148px with line-height 1.05 → each ~155px, total ~310px → bottom ~680. Rule top 730. Footer top 920. Good.
+
+Wait, should the title be vertically centered-ish? Canvas 1080. Eyebrow 300, title 370-680, rule 730, footer 920. Slightly top-heavy but fine. Maybe shift down: eyebrow 330, title 400, rule 760. Let's do: eyebrow top 330, title top 395, rule top 745, footer top 930.
+
+Hmm, actually let me reconsider: "huge uppercase display type" — 148px is decent. Could go 160px. "LOCAL AI," at 160px ≈ 9 chars * 107 = 960px — fits. Line 2 "REAL VIDEO" 10 chars ≈ 1070px — fits within 1600px usable. Let's use 150px as a safe middle.
+
+Line-height 1.02.
+
+Now the words: for the word spans, add display:inline-block. Spaces between words in markup give separation. But careful: inside #title, whitespace between spans — fine.
+
+The br between line 1 and line 2: `<br/>` — with inline-block spans, br works.
+
+Rule: `<div class="a" id="rule" style="left:160px;top:745px;width:1120px;height:5px;background:var(--c);transform-origin:left center"></div>`.
+
+Footer: `<div class="a m" id="foot" style="left:160px;top:925px;font-size:20px;letter-spacing:0.18em;color:rgba(244,244,241,0.55);opacity:0">HYPERFRAMES / TITLE CARD — EP05</div>`. Hmm "—" fine.
+
+Wait, margins: text at top 925, font 20px → ends ~950, bottom margin 130px. Good.
+
+Also add a right-side element? Maybe a small magenta square at right of rule? Skip.
+
+Timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+tl.fromTo("#sq", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.2);
+tl.fromTo("#eyebrow", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.3);
+tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.6);
+tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.82);
+tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.04);
+tl.fromTo(".band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.28);
+tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.42);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 2.0);
+tl.fromTo("#foot", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.35);
+```
+
+Hold from 2.85 to 5.0. Total duration 5.
+
+Check: "REAL" word slides in at 1.04-1.64, band wipes 1.28-1.78 — band appears as word is landing. Good.
+
+Everything ends at opacity 1 by ~2.9s, hold to 5.0. 
+
+Also add a tiny magenta accent? Maybe the rule has a magenta segment? I could add a second small rule segment in magenta that draws after. Keep it simple: one cyan rule.
+
+Actually, let me add a subtle detail: after the rule draws, a small cyan square at the right end of the rule? Skip.
+
+One more: the eyebrow text "EP05 / Experiment" — uppercase via CSS (.m class likely uppercases? class m is mono label; brand says class m: uppercase labels). I'll write it uppercase in markup to be safe.
+
+CSS in style block:
+
+```css
+#title { ... }
+.word { display: inline-block; position: relative; }
+.band { position: absolute; left: -12px; top: 18px; bottom: 18px; width: calc(100% + 24px); background: #FFD400; transform-origin: left center; }
+.hl { position: relative; z-index: 1; background: transparent; padding: 0; color: #111; }
+```
+
+Hmm — wait. If gw.css .hl has padding, my override sets padding 0. Good. But maybe gw.css .hl has border-radius? Brand says no rounded corners. My override: background transparent, padding 0, color #111, position relative, z-index 1.
+
+Actually — hold on. Maybe I shouldn't override .hl at all and instead let .hl provide the yellow, and animate the band... The band would be hidden behind .hl's own yellow background. So override needed. Fine.
+
+Alternatively, don't use .hl; just make band + span with color #111. But the prompt's example uses .hl. I'll keep .hl with override — it's still "class hl" usage.
+
+Also the title container: `.h` class gives uppercase heavy wide. font-size inline 150px. line-height inline 1.04.
+
+Wait — do I want the title centered or left-aligned? Left-aligned at 160px margin, classic title card. Good.
+
+Footer text color: use rgba(244,244,241,0.5). Not a brand token issue.
+
+Also add a small magenta square at top-right? Like a tiny "REC" dot? Could be a nice touch: top-right mono "REC ●"? Emojis banned, but a colored dot via CSS is fine. Keep it minimal — skip.
+
+Actually, a nice touch: top-right small mono "EP05" tag with cyan border? Skip — keep the card clean.
+
+Let me also double check the "words slide/stagger in one by one" — yes, 4 words staggered 0.22s apart.
+
+Now, the root element: data-duration="5". data-start="0".
+
+Check text margins: eyebrow left 160 (≥100). Title left 160. Footer left 160. Right side: title max width ~1100px from 160 → ends ~1260, fine.
+
+Footer: also add right-aligned mono "LOCAL AI, REAL VIDEO"? No.
+
+Let me write the final file.
+
+One thing: `.m` class — from gw.css, mono uppercase labels. I'll use class "a m" for eyebrow and footer.
+
+Also the square: `.a` class with position absolute.
+
+Let me also consider adding a faint horizontal hairline at the very bottom? Skip.
+
+Final check on GSAP usage: only tl.set/to/from/fromTo with absolute start times. I use fromTo with absolute times. Good. No repeat, no random.
+
+Also `window.__timelines["main"] = tl;` after creating.
+
+Edge: the `.band` inside `#w3` — GSAP animating `.band` scaleX; transform-origin in CSS. Good.
+
+Let me write it.
+
+Also, since words are inline-block with y animation, and the title container has a br — the y transform on inline-block spans works fine.
+
+One concern: `.word` spans with `position: relative` — fine.
+
+Font-size for eyebrow: 26px, letter-spacing maybe 0.22em via CSS inline style.
+
+Write the file now.
+
+Also should the footer say something? "HYPERFRAMES — TITLE CARD / EP05". Fine.
+
+Let me also double-check the example structure: `<div id="root" data-composition-id="main" ...>` with children. Script at end. Good.
+
+Duration 5s. All tweens done by ~2.85s. Hold 2.85→5.0. 
+
+Let me write the HTML.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Local AI, real video — Title Card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #title .word { display: inline-block; position: relative; }
+  #title .band {
+    position: absolute;
+    left: -12px;
+    top: 18px;
+    bottom: 18px;
+    width: calc(100% + 24px);
+    background: #FFD400;
+    transform-origin: left center;
+  }
+  #title .hl {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    padding: 0;
+    color: #111;
+  }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="sq" style="left:160px;top:334px;width:22px;height:22px;background:var(--c);opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:198px;top:330px;font-size:26px;letter-spacing:0.22em;color:var(--c);opacity:0">EP05 / EXPERIMENT</div>
+
+  <div class="a h" id="title" style="left:160px;top:392px;font-size:150px;line-height:1.04">
+    <span class="word" id="w1">LOCAL</span>
+    <span class="word" id="w2">AI,</span><br/>
+    <span class="word" id="w3"><span class="band"></span><span class="hl">REAL</span></span>
+    <span class="word" id="w4">VIDEO</span>
+  </div>
+
+  <div class="a" id="rule" style="left:160px;top:748px;width:1120px;height:5px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a m" id="foot" style="left:160px;top:928px;font-size:20px;letter-spacing:0.18em;color:rgba(244,244,241,0.55);opacity:0">HYPERFRAMES / TITLE CARD — EP05</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#sq", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 0.2);
+  tl.fromTo("#eyebrow", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.3);
+
+  tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.6);
+  tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.82);
+  tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.04);
+  tl.fromTo(".band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.28);
+  tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.42);
+
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 2.0);
+  tl.fromTo("#foot", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.35);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

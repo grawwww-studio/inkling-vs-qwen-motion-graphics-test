@@ -1,0 +1,37 @@
+{
+ "brief": "B1",
+ "name": "Title card with kinetic type (5 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 18.4,
+   "prompt_tokens": 1281,
+   "completion_tokens": 664,
+   "finish": "stop",
+   "check_s": 1.8,
+   "check_errors": [
+    "  \u2717 t=1.389, 1.944, 2.5, 3.056, 3.611, 4.167, 4.722s text_box_overflow #t1 > span:nth-of-type(4) inside #root overflowed right 103.84px \"video\" \u2014 Text extends outside its nearest visual/container box."
+   ]
+  },
+  {
+   "round": 1,
+   "llm_s": 18.3,
+   "prompt_tokens": 2430,
+   "completion_tokens": 693,
+   "finish": "stop",
+   "check_s": 1.7,
+   "check_errors": [],
+   "render_s": 6.3
+  }
+ ],
+ "model": "qwennothink",
+ "seed": "4",
+ "t0": 1795395377.9263701,
+ "render_ok": true,
+ "fix_rounds": 1,
+ "llm_s": 36.7,
+ "prompt_tokens": 3711,
+ "completion_tokens": 1357,
+ "t1": 1795395424.3990533,
+ "wall_s": 46.5
+}

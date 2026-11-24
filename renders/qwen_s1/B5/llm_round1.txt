@@ -1,0 +1,760 @@
+[REASONING]
+The user is requesting a complete index.html inside a single ```html block. Last time, I got cut off partway through. I need to write the complete file carefully and make sure it fits.
+
+Let me plan the composition:
+
+- 1920x1080, 24fps, 10 seconds.
+- Brand identity C dark: background #0E0E0E, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 (only as a band behind #111 text, class `hl`).
+- Fonts: var(--display) headings (class `h`: uppercase, heavy, wide), var(--body), var(--mono) (class `m`: uppercase labels).
+- No rounded corners, no box-shadow, no gradients, no emojis.
+
+Beat sheet:
+- 0–3s: 3 short lines slam in: "Agents." "Automations." "Video."
+- 3–7s: A row of 3 feature chips ("Runs on your hardware", "No per-token bill", "Your data stays put") appear with stagger.
+- 7–10s: Everything clears, logo (assets/logo-negative.png) fades/scales in at center, with tagline "Local AI, delivered." below it.
+
+Also use assets/icon.svg somewhere — maybe as a small mark in the corner or as part of the chips. The brief says "use assets/logo-negative.png (center, appears at the end) and assets/icon.svg". So icon.svg should be used somewhere — probably a small header mark top-left, or as an icon inside the chips. Let me use icon.svg top-left as a brand mark, and maybe also use it in the final frame. Actually, the safest is: use icon.svg as a small mark in the header area during beats 1–2, and maybe also in the final frame next to the tagline. But keep it simple: use icon.svg top-left with a small "GRAWWWW STUDIO" label, and fade it out during the clear.
+
+Hard rules:
+- Exactly one root: `<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">`.
+- One paused GSAP timeline registered as window.__timelines["main"].
+- Only tl.set/tl.to/tl.from/tl.fromTo, with absolute start time as the third argument.
+- Animate only: opacity, x, y, xPercent, scale, scaleX, scaleY, rotation. No repeat:-1, no Math.random, no Date.now, no setTimeout, no rAF, no CSS animations/transitions.
+- Never put a CSS transform on elements that GSAP animates. Use transform-origin in CSS (that's fine).
+- All elements positioned with position:absolute (class `a`), explicit left/top/width in px. Text within canvas with 100px margin. Text must not overlap. At 150px, uppercase letters are about 100px wide.
+- Icons are inline SVG, stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill.
+- Everything visible at the end must be animated in and be at opacity 1 in the hold frame.
+
+Let me design the layout:
+
+Canvas 1920x1080. Margins 100px.
+
+Header (persistent until 7s):
+- icon.svg top-left: left:160px; top:100px; width:56px; height:56px.
+- "GRAWWWW STUDIO" label next to it: left:240px; top:112px; font-size:28px; mono.
+- Maybe a "TEASER — 10S" label on the right: right side... position with left: 1560px; top:112px; width:200px; text-align:right.
+
+Beat 1 (0–3s): 3 lines slam in.
+Big display lines, left-aligned. Font size maybe 150px. "AGENTS." "AUTOMATIONS." "VIDEO."
+
+Wait — the brief writes "Agents." "Automations." "Video." — the display font is uppercase via class `h` (uppercase). So text can be written in title case and CSS uppercases it. Class `h` is uppercase, heavy, wide. So I'll write "Agents." etc.
+
+Line widths: at 150px, uppercase letters are about 100px wide. "AUTOMATIONS." is 12 characters including the period. 12 × 100 = 1200px. Starting at left 160px, ends at 1360px. Fine within 1820 (1920-100).
+
+"AGENTS." = 7 chars ≈ 700px. "VIDEO." = 6 chars ≈ 600px.
+
+Vertical placement: 3 lines at 150px font, line height about 190px. Starting at top around 250px:
+- Line 1: top:220px
+- Line 2: top:410px
+- Line 3: top:600px
+
+Each line height about 180px. So line 3 ends at 780px. Chips go below that? That's cramped. Alternative: stack lines on the left, chips as a row below at about 850px. Chip height about 90px, 850+90=940, within 980 (1080-100). OK.
+
+Actually, maybe better: 150px lines might be too big with 3 lines + chips. Let me use 130px. At 130px, letter ≈ 87px. "AUTOMATIONS." ≈ 12 × 87 = 1040px. Fine.
+
+Line spacing: 130px font, line box about 165px.
+- L1 top: 230px
+- L2 top: 400px
+- L3 top: 570px
+Ends at 735px.
+
+Chips row: top: 810px, height: 100px. Ends at 910px. Good, ≥100px bottom margin (1080-910=170).
+
+Slam-in animation: each line from x:-120 (or from opacity 0, x:-80, scale 1.06?) — "slam" suggests fast and forceful. Use tl.fromTo with x: -140, opacity 0, and maybe a slight scale. Fast duration 0.35s, ease "power4.out". Stagger at 0.3s, 1.0s, 1.7s? Beat is 0–3s. Let me do:
+- L1 at 0.3s
+- L2 at 1.0s
+- L3 at 1.7s
+Each 0.4s duration. Ends at 2.1s. Hold until 3s.
+
+Maybe add a small accent bar or index number (01/02/03) before each line. Nice touch: mono index "01" in cyan left of the text. But text must not overlap. Let me put the index at left:160px and text at left:280px. Hmm, this shifts the text. "AUTOMATIONS." at 130px ≈ 1040px, starting at 280 ends at 1320. Fine.
+
+Actually, simpler and punchier: color the period in each line with a brand color. Like "AGENTS" in ink + "." in cyan. Use a span. That's a nice brand touch. But spans inside the animated element are fine.
+
+Chips (3–7s): A row of 3 chips. Each chip: a rectangle with border (no rounded corners), maybe a colored left accent bar, an inline SVG icon, and mono text.
+
+Chip text: "RUNS ON YOUR HARDWARE" — at 26px mono uppercase, letter width ≈ 16px? Mono at 26px, char ≈ 15.6px. "RUNS ON YOUR HARDWARE" = 21 chars ≈ 330px. Plus icon 40px + padding. Chip width about 440px.
+
+3 chips with gaps: total width 3×440 + 2×40 = 1400. Centered: left start = (1920-1400)/2 = 260. So chips at left 260, 740, 1220. Width 440 each.
+
+Chip height: 110px. Top: 810px.
+
+Chip content: icon on the left (44px), then text. Use flex? GSAP doesn't animate flex, but static layout with flex is fine (no CSS transform). Actually, the rules say position everything with position:absolute (class `a`) and explicit left/top/width. That's for positioning elements on the canvas. Inner layout with flex should be OK, but to be safe, I could absolutely position inside the chip too. Hmm, "position everything with position:absolute (class a), explicit left/top/width in px" — to be safe let me absolutely position the chip's children with px too.
+
+Chip structure:
+```html
+<div class="a chip" id="chip1" style="left:260px;top:810px;width:440px;height:110px;opacity:0">
+  <div class="a" style="left:0;top:0;width:8px;height:110px;background:var(--c)"></div>
+  <svg class="a" style="left:36px;top:33px;width:44px;height:44px" ...>...</svg>
+  <div class="a m" style="left:104px;top:41px;width:320px;font-size:26px;color:var(--ink)">Runs on your hardware</div>
+</div>
+```
+
+Wait, "RUNS ON YOUR HARDWARE" at 26px mono: 21 chars × ~15.6 = 328px. Width 320 might overflow. Let me make chip width 470, text width 340, font 26. 21×15.6=328 fits in 340. OK.
+
+Recompute: chip width 470, 3 chips: 3×470 + 2×45 = 1485. Start = (1920-1485)/2 = 217.5 → 218. Chips at 218, 733, 1248. 1248+470=1718 < 1820. Good.
+
+Chip text lengths:
+- "RUNS ON YOUR HARDWARE" 21 chars
+- "NO PER-TOKEN BILL" 17 chars
+- "YOUR DATA STAYS PUT" 19 chars
+All fit in 340px at 26px mono.
+
+Chip icons (inline SVG, stroke-width 6, viewBox 48):
+1. Hardware: chip/CPU icon — a square with pins.
+2. No per-token bill: a receipt with a slash, or a coin with a slash. Let me do a bill/receipt with a diagonal line.
+3. Your data stays put: a lock icon.
+
+SVG stroke: use brand color or #F4F4F1. stroke-width 6, no fill.
+
+Chip animation: staggered in. tl.fromTo each chip: opacity 0, y: 60, scale: 0.96 → opacity 1, y:0, scale:1, duration 0.5, ease "power3.out". Start at 3.2, 3.5, 3.8. Hold until 6.8.
+
+Maybe add a small label above chips: "THE DEAL" or "WHY IT MATTERS" mono, cyan, top:740px? Wait, lines end at 735. Chips at 810. Label at 745 is cramped. Maybe skip, or place it above the chips at top:745, height 24... 745+24=769 < 810. OK but tight. Actually, let me shift the layout: lines a bit higher.
+
+Let me redo the vertical rhythm:
+- Header: top 100–160.
+- L1: top 200, height ~160 (130px font)
+- L2: top 370
+- L3: top 540, ends at 700
+- Label "WHY IT MATTERS": top 736, 24px
+- Chips: top 780, height 110, ends at 890. Bottom margin 190.
+
+Hmm, but the slam lines at 130px: cap height about 95px, line box 160 is fine.
+
+Actually, wait: do the chips replace the lines, or coexist? Beat sheet: 0–3s lines slam in; 3–7s chip row appears; 7–10s everything clears and logo appears. "Everything clears" at 7s suggests lines + chips are still visible from 3–7s, then both clear. So chips coexist with lines. The layout above works.
+
+Or the lines could shrink/move. But simpler: keep them.
+
+Beat 3 (7–10s): Everything clears (lines, chips, header fade/slide out), logo fades/scales in at center with tagline below.
+
+Logo: assets/logo-negative.png, center. Size: width 560px, height auto? For absolute positioning I need explicit width; height can be auto for img. Rule says explicit left/top/width in px — height auto is fine for an img. Let me set width:600px; height:600px with object-fit:contain to be safe. Center: left:(1920-600)/2=660, top: 260. Logo box 600x600, 260→860. Tagline below: top 880? 880+60=940 < 980. Good.
+
+Actually, tagline "Local AI, delivered." — display font? It's a tagline; use class `h`? It's a heading-ish. At 64px display uppercase: "LOCAL AI, DELIVERED." = 20 chars × ~43px (150px→100px, so 64px→42.7px) ≈ 854px. Centered at 960: 533 to 1387. Fine.
+
+Hmm, but the brief writes "Local AI, delivered." — the class h uppercases it. That's on-brand (display font is uppercase). Good.
+
+Maybe a yellow `hl` band behind part of the tagline? Brand says yellow #FFD400 only as a band behind #111 text (class `hl`). I could put "DELIVERED" in the tagline on a yellow band. That adds brand pop. Let me do: "LOCAL AI, <span class="hl">DELIVERED.</span>" — the .hl class probably styles the band. In the example: `<span class="hl">world</span>` inside h. So hl is a band behind the text. Let me use it for "DELIVERED."
+
+Wait, but the tagline as written is "Local AI, delivered." — with a period. "DELIVERED." inside the hl band. Good.
+
+Logo animation: fromTo scale 0.9, opacity 0 → scale 1, opacity 1, duration 0.8, ease "power3.out", at 7.6. Tagline: fromTo y:30, opacity 0 → 0/1, at 8.0, duration 0.6. Maybe a rule line above the tagline? A small cyan rule between logo and tagline: scaleX 0→1.
+
+Also, maybe a subtle background element: a thin grid or corner marks? Keep it minimal but designed. Maybe 4 corner ticks (registration marks) that persist through the whole video — a nice "studio" frame. Small L-shaped corners in the canvas corners, 100px margin. These persist (opacity 1 at the end — fine, they're part of the frame). Actually, "everything visible at the end must be animated in and be at opacity 1 in the hold frame" — the corner marks can fade in at 0.1s and persist. Good.
+
+Also a progress bar at the bottom? A thin line that fills over 10s — but that would be at opacity 1 at the end, fine. Maybe overkill; skip. Actually, a subtle bottom progress line adds motion. Let me add: left:160, top:1000, width:1600, height:4, background #2B2B2B (track) with a cyan fill scaleX 0→1 over 10s. Hmm, at 10s it's full. That's fine and adds life. But is #2B2B2B OK? It's a neutral, not a gradient. Fine. Actually, the rules don't forbid other neutrals; the brand tokens are listed but a dark neutral for the track is fine. Let me keep it — it's a "teaser" so a timecode/progress feels right.
+
+Maybe a small mono timecode "00:00 — 00:10" bottom right? Static text, fine. Or "TEASER_001" bottom left. Let me add a bottom-left label "GS / LOCAL_AI / TEASER_001" mono 22px, and a progress bar. These persist through the end — acceptable (visible at end, animated in, opacity 1).
+
+Hmm, but "everything clears" at 7s — the main content clears; the frame elements (header? corners, progress) — the header should probably clear too ("everything clears"). Let me fade out the header at 7.0. Keep the corner ticks + progress bar as the persistent frame. That reads as intentional.
+
+Now let me write the timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// frame in
+tl.fromTo("#tick1", {opacity:0}, {opacity:1, duration:0.4}, 0.1);
+... corners, header, bottom labels at 0.1–0.4
+
+// beat 1 slams
+tl.fromTo("#l1", {opacity:0, x:-140}, {opacity:1, x:0, duration:0.35, ease:"power4.out"}, 0.35);
+tl.fromTo("#l2", {opacity:0, x:-140}, {opacity:1, x:0, duration:0.35, ease:"power4.out"}, 1.05);
+tl.fromTo("#l3", {opacity:0, x:-140}, {opacity:1, x:0, duration:0.35, ease:"power4.out"}, 1.75);
+```
+
+Maybe add a slight overshoot: use ease "back.out(1.7)"? GSAP ease strings are allowed (it's GSAP, not a CSS animation). The rules say use only tl.set/to/from/fromTo with absolute start time; eases are fine. "Slam" = fast in, maybe a tiny settle. back.out gives overshoot. Let me use "power4.out" for the slam, and maybe a small scale 1.04→1. Keep it simple: x slam with power4.out.
+
+Also a small accent: after each line slams in, its colored period? The period is part of the line. Fine.
+
+Beat 2:
+```js
+tl.fromTo("#clabel", {opacity:0, y:16}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 3.1);
+tl.fromTo("#chip1", {opacity:0, y:60}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.3);
+tl.fromTo("#chip2", {opacity:0, y:60}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.6);
+tl.fromTo("#chip3", {opacity:0, y:60}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.9);
+```
+
+Maybe also a rule line above the chips? The clabel is enough.
+
+Beat 3 clear:
+```js
+tl.to("#l1", {opacity:0, x:80, duration:0.35, ease:"power2.in"}, 7.0);
+tl.to("#l2", {opacity:0, x:80, duration:0.35, ease:"power2.in"}, 7.05);
+tl.to("#l3", {opacity:0, x:80, duration:0.35, ease:"power2.in"}, 7.1);
+tl.to("#chip1", {opacity:0, y:40, duration:0.3, ease:"power2.in"}, 7.0);
+tl.to("#chip2", {opacity:0, y:40, duration:0.3, ease:"power2.in"}, 7.05);
+tl.to("#chip3", {opacity:0, y:40, duration:0.3, ease:"power2.in"}, 7.1);
+tl.to("#clabel", {opacity:0, duration:0.25}, 7.0);
+tl.to("#hdr", {opacity:0, y:-20, duration:0.35, ease:"power2.in"}, 7.0);
+```
+
+Header: wrap header items in a container? Can't transform a container with children? I can — GSAP can animate a div containing children. The header div has absolutely positioned children relative to it? If the header container is position:absolute at left:0 top:0 with width 1920, and children are absolute inside. Then animating the container's opacity/y works. But the rule says don't put CSS transform on elements that GSAP animates — I won't. Let me make a #hdr container with 3 children (icon, label left, label right). Animate the container.
+
+Wait — the icon is an <img>. Fine.
+
+Logo in:
+```js
+tl.fromTo("#logo", {opacity:0, scale:0.88}, {opacity:1, scale:1, duration:0.9, ease:"power3.out"}, 7.55);
+tl.fromTo("#rule2", {scaleX:0}, {scaleX:1, duration:0.6, ease:"power2.inOut"}, 8.0);
+tl.fromTo("#tag", {opacity:0, y:30}, {opacity:1, y:0, duration:0.6, ease:"power3.out"}, 8.15);
+```
+
+Progress bar:
+```js
+tl.fromTo("#prog", {scaleX:0}, {scaleX:1, duration:9.6, ease:"none"}, 0.2);
+```
+Ends at 9.8, near full. Or duration 10, start 0 → full at 10. Let me do start 0, duration 10, ease none. At the final frame (t=10) it's full. Good.
+
+Hold frame: at t=10 (or just before), the visible elements: corner ticks, bottom labels, progress (full), logo, rule, tagline. All opacity 1.
+
+Now let me check the "hold frame" — the final frame is at t=10 (or 9.958 at 24fps). Logo/tagline must be at opacity 1. Yes.
+
+Layout details:
+
+Corner ticks: 4 L-shapes. Each: two thin divs, or one div with border-left+border-top. E.g. top-left: left:100,top:100,width:28,height:28, border-left:4px solid #F4F4F1? Hmm, use a low-contrast color like #3A3A3A or 40% ink. Let me use a neutral #4A4A4A. Actually, brand: ink #F4F4F1. A 30% opacity ink tick is fine (opacity is not a gradient). Let me set color with rgba? Simpler: background #333. Let me use #3D3D3D.
+
+Top-left tick: border-left 4px + border-top 4px, size 28x28, left:100, top:100.
+Top-right: left:1792, top:100 (1920-100-28), border-right+border-top.
+Bottom-left: left:100, top:952 (1080-100-28), border-left+border-bottom.
+Bottom-right: left:1792, top:952, border-right+border-bottom.
+
+These are static (opacity 1). But the rule: "everything visible at the end must be animated in" — animate in at 0.1s with opacity 0→1.
+
+Header:
+- #hdr container: left:0, top:0, width:1920, height:200 (no overflow issue; children absolute).
+- Icon img: left:160, top:104, 52x52.
+- Label: "GRAWWWW STUDIO" left:236, top:116, font 26 mono, ink. Add a cyan square before? The icon covers that.
+- Right label: "TEASER — 10 SEC" left:1520, top:116, width:240, text-align:right, 26 mono, color #8A8A8A? Use ink with opacity? Keep it #9A9A9A... brand-safe: use var(--ink) with opacity 0.6? Opacity on the element is fine (static). Actually, simpler: color:#8F8F8F. Hmm, brand tokens are limited but neutral gray is standard. Let me use ink at opacity:0.55.
+
+Wait, "—" em dash is fine (not an emoji). OK.
+
+Beat 1 lines:
+- #l1: left:160, top:205, font-size:132px. "Agents<span class="dot c">.</span>" — color the period: inline span with style color:var(--c).
+- #l2: top:375.
+- #l3: top:545.
+
+132px font, line box about 165px. L3 ends at 545+165=710.
+
+Widths: "AUTOMATIONS." at 132px ≈ 12 × 88 = 1056 → ends at 1216. Fine.
+
+Add index numbers? Maybe a small mono "01" above each line? Could clutter. Instead, a small colored tick to the left of each line? The period is already colored. Keep it clean.
+
+Actually, let me reconsider: to make it more designed, put a small mono index to the left of each line, like "01" at left:160, and the big text at left:270. "AUTOMATIONS." ends at 270+1056=1326. Fine. Index: font 24 mono, cyan/magenta/ink, top aligned with the line top + about 40px.
+
+Hmm, that adds 3 more elements + animation. Nice detail. Let me include: #n1, #n2, #n3, each 24px mono, colored (c, m, ink). They can be part of the line's slam (separate elements, same timing). Or wrap each line + number in a container and animate the container. Container: #row1 left:160 top:205 width:1200 height:170, children: number at left:0 top:44, text at left:110 top:0. Then animate the container's x/opacity.
+
+That's cleaner. 3 row containers.
+
+Chip row:
+- #clabel: "WHY IT MATTERS" left:218, top:730, 24px mono, color var(--c).
+- Chips top:778, height:112, width:470, at left 218 / 733 / 1248.
+  - 218+470=688, gap 45 → 733; 733+470=1203, gap 45 → 1248; 1248+470=1718.
+- Chip ends at 778+112=890. Bottom margin 190.
+
+Chip inner:
+- Accent bar: left:0, top:0, width:8, height:112, background c/m/ink.
+- Border: 2px solid #2E2E2E on the chip.
+- Icon svg: left:34, top:34, 44x44.
+- Text: left:104, top:43, width:340, 26px mono, ink.
+
+Text vertical centering: chip 112, text 26px → top ≈ (112-34)/2 ≈ 39–44. Use 44? Text cap height about 19. Let me use top:42.
+
+Icons (viewBox 0 0 48 48, stroke-width 6, fill none):
+
+1. CPU/hardware (cyan #12A9E6):
+```svg
+<svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+  <rect x="12" y="12" width="24" height="24" stroke="#12A9E6" stroke-width="6"/>
+  <rect x="20" y="20" width="8" height="8" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="18" y1="4" x2="18" y2="12" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="30" y1="4" x2="30" y2="12" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="18" y1="36" x2="18" y2="44" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="30" y1="36" x2="30" y2="44" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="4" y1="18" x2="12" y2="18" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="4" y1="30" x2="12" y2="30" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="36" y1="18" x2="44" y2="18" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="36" y1="30" x2="44" y2="30" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+
+2. No per-token bill (magenta #FF2D92): a receipt with a slash.
+```svg
+<rect x="13" y="8" width="22" height="32" stroke="#FF2D92" stroke-width="6"/>
+<line x1="19" y1="18" x2="29" y2="18" .../>
+<line x1="19" y1="26" x2="29" y2="26" .../>
+<line x1="8" y1="42" x2="40" y2="6" .../>  (slash)
+```
+
+3. Your data stays put (ink #F4F4F1): a padlock.
+```svg
+<rect x="11" y="22" width="26" height="18" stroke="#F4F4F1" stroke-width="6"/>
+<path d="M16 22 v-5 a8 8 0 0 1 16 0 v5" stroke="#F4F4F1" stroke-width="6" fill="none"/>
+<line x1="24" y1="28" x2="24" y2="34" stroke="#F4F4F1" stroke-width="6"/>
+```
+
+Final beat:
+- #logo: img, left:660, top:240, width:600, height:600, object-fit:contain.
+- #rule2: left:860, top:880? Let me compute: logo box 240→840. Tagline at 64px: top:900? 900+64=964 < 980. Hmm, tight with the progress bar at 1000. Let me shrink: logo 520x520, left:700, top:250 → ends at 770. Rule: left:810, top:810, width:300, height:6, background var(--c), transform-origin center? scaleX from 0. Then tagline top:850, 64px → ends at 914. Progress at 1000. Bottom labels at 960? Conflict with tagline? Tagline is centered (about 533–1387), bottom-left label at left:160 top:956 — no overlap (different x? label width about 300, ends at 460 < 533). OK.
+
+Wait, bottom area: progress bar top:1000 (height 4) — within 100px margin? 1000+4=1004, margin from bottom = 76px. The 100px margin rule is for text. The bar is not text. Fine, but let me move it to top:980 for safety. Then bottom-left label at top:952? Overlaps the bar? Label at left:160, bar at left:160 top:980 width:1600. Label 22px at top:948 → ends at 970 < 980. OK.
+
+Hmm, actually let me simplify the bottom: put the progress bar at top:984, and the bottom labels above it? Or put the labels in the bottom corners next to the ticks. Let me do:
+- Bottom-left: "GS / LOCAL_AI / TEASER_001" left:160, top:944, 22px mono, ink 0.55.
+- Bottom-right: "00:00–00:10" left:1560, top:944, width:200, right-align, 22px mono.
+- Progress bar: left:160, top:984, width:1600, height:4, track #262626 + fill cyan scaleX.
+
+Tagline ends at 914 — clear of 944. Good.
+
+Actually wait: the tagline "LOCAL AI, DELIVERED." at 64px display: 20 chars × 42.7 ≈ 854px, centered → left = (1920-854)/2 ≈ 533. Set left:533, width:854, text-align:center. Or simpler: left:460, width:1000, text-align:center. Text is centered within the box. Good.
+
+The hl band inside the tagline: "DELIVERED." with class hl. The .hl class is presumably defined in gw.css as a yellow band with #111 text. Trust it (the example uses it).
+
+Logo negative — probably a white/negative logo on a dark background. Good on #0E0E0E.
+
+Now, "everything clears" — should the corner ticks also clear? "Everything clears" refers to the content; the frame can persist. Let me keep the frame (ticks, progress, bottom labels) persistent — that's a design choice, and the rule only requires the final visible elements to be at opacity 1.
+
+Timeline summary (absolute times):
+
+Frame:
+- Ticks: fromTo opacity 0→1, 0.1, dur 0.5. (4 elements, or animate each)
+- #hdr: fromTo opacity 0, y:-24 → 1,0, 0.15, dur 0.5
+- Bottom labels: fromTo opacity 0→1, 0.2, dur 0.5
+- Progress track: set opacity 1 at 0 (or fromTo 0→1 at 0.2)
+- Progress fill: fromTo scaleX 0→1, 0, dur 10, ease none.
+
+Beat 1:
+- #row1: fromTo {opacity:0, x:-160} → {opacity:1, x:0}, 0.35, dur 0.4, ease power4.out
+- #row2: 1.05
+- #row3: 1.75
+Maybe add a small scale: fromTo scale 1.06? With x slam, scale isn't needed. Keep just x.
+
+Actually, "slam" — maybe add a tiny y? No, x is enough.
+
+Beat 2:
+- #clabel: 3.15, dur 0.4, y:14→0
+- #chip1: 3.35, dur 0.5, y:64→0, opacity
+- #chip2: 3.65
+- #chip3: 3.95
+Ends at 4.45. Hold until 7.
+
+Maybe add a subtle accent: chips' accent bar grows? The bar is a child; animating the child separately adds life: tl.fromTo("#chip1 .acc", {scaleY:0}, {scaleY:1, ...})? transform-origin top. But the child is inside a container that's being animated — nested transforms are fine. Let me add: each .acc fromTo scaleY 0→1, at chip time +0.1, dur 0.4. transform-origin: top center in CSS. Nice detail. But the rule: never put CSS transform on elements that GSAP animates — I only set transform-origin, which is allowed.
+
+Hmm, but the .acc class is inside the chip; the selector "#chip1 .acc" works in GSAP.
+
+Beat 3:
+- Clear:
+  - #row1: to {opacity:0, x:120}, 7.0, dur 0.35, power2.in
+  - #row2: 7.06
+  - #row3: 7.12
+  - #clabel: to opacity 0, 7.0, dur 0.3
+  - #chip1: to {opacity:0, y:48}, 7.0, dur 0.32
+  - #chip2: 7.06
+  - #chip3: 7.12
+  - #hdr: to {opacity:0, y:-24}, 7.0, dur 0.35
+- Logo: fromTo {opacity:0, scale:0.9} → {opacity:1, scale:1}, 7.55, dur 0.85, ease power3.out
+- #rule2: fromTo scaleX 0→1, 7.95, dur 0.55, power2.inOut (transform-origin center)
+- #tag: fromTo {opacity:0, y:28} → {opacity:1, y:0}, 8.1, dur 0.6, power3.out
+- Maybe a small mono sublabel below the tagline? "GRAWWWW.STUDIO" — no, keep it clean.
+
+End hold: 9.7–10 static.
+
+Check: logo at 7.55+0.85=8.4 done. Tag done at 8.7. Good hold.
+
+One more check: "use only tl.set / tl.to / tl.from / tl.fromTo, with absolute start time as the third argument" — all my calls use absolute start. Good. No CSS transitions. No CSS transform on animated elements (only transform-origin + text-align).
+
+Row containers: #row1 etc. contain number + text. Animate the container's x/opacity. No CSS transform on the container. Good.
+
+Chip containers animate opacity/y. Inner .acc animates scaleY. No CSS transform on them. Good.
+
+#logo animates scale — CSS: only object-fit, no transform. Good.
+
+#prog fill animates scaleX — CSS transform-origin:left center. Good.
+
+#rule2 animates scaleX — transform-origin:center. Good.
+
+Font classes: `h` for display, `m` for mono. Body class? I don't think I need body text.
+
+Colors: use var(--ink), var(--c), var(--m) — presumably defined in gw.css (the brand tokens). The example uses var(--c), var(--m), var(--ink)? The example used color:var(--c) and background:var(--m). So the tokens exist: --c (cyan), --m (magenta), and probably --ink, --y (yellow), --display, --body, --mono. The brief says "fonts via CSS variables: var(--display)... var(--body), var(--mono)". Colors: cyan #12A9E6, magenta #FF2D92, yellow #FFD400. Token names unknown — the example used var(--c) and var(--m). To be safe, let me use hex values for colors instead of guessing tokens: #F4F4F1, #12A9E6, #FF2D92, #FFD400. And the `h`, `m` classes presumably set font-family. The example used class "m" with a font-size style. So classes h/m exist in gw.css.
+
+For the tagline hl: class `hl` exists (the example uses it). Good.
+
+Let me also double-check text overlap:
+- Header label (top about 116–142) and row 1 (top 205). Fine.
+- Row 1: number at left 160, text at left 270. "AGENTS." at 132px: 7 chars × 88 = 616 → ends at 886.
+- Row 2: "AUTOMATIONS." 12 × 88 = 1056 → 270+1056=1326 < 1820. Fine.
+- Row 3: "VIDEO." 6 × 88=528 → 798.
+- clabel at top 730: row 3 ends at 545+165=710. Fine.
+- Chips 778–890.
+- Tagline 850–914 — chips are gone by then (cleared at 7.0–7.4). No overlap in time.
+- Logo 250–770 (520 box). Tagline 850. Rule at 810, between 770 and 850. Good.
+
+Wait, the logo img is 520x520 with object-fit contain — the actual logo might be smaller inside the box. Fine.
+
+Bottom labels at 944: tagline ends at 914. OK.
+
+Progress bar 984–988.
+
+Bottom ticks at top:952 (1080-100-28=952), left:100 and 1792. Bottom-left label at left:160 top:944 — the tick is at x 100–128, the label starts at 160. No overlap.
+
+Top ticks at top:100; header icon at top:104 left:160. Tick x 100–128. Fine.
+
+Now, the icon.svg usage: header top-left. It's an <img> — allowed (a project asset). The brief says to use it. Good. Should it also appear in the final frame? Not required. Keep it in the header only.
+
+Hmm — one consideration: "no CDN, no network, no other files" — the assets are project files, fine.
+
+Let me also add a subtle background: a faint center crosshair or grid? Maybe two thin horizontal rules framing the content? Keep it minimal; the ticks + progress are enough. Maybe add a faint vertical rule at left:160 from 200 to 710? No — clutter.
+
+Actually, one more designed touch: a small mono "01 — 03" counter on the right of each beat? Skip.
+
+Let me also think about the slam easing: "power4.out" is a strong deceleration = slam. Good.
+
+Now let me write the final HTML. Keep it complete and valid.
+
+Also: `data-duration="10"`.
+
+Font sizes:
+- Header label: 26px mono.
+- Number: 26px mono.
+- Line: 132px display (class h).
+- clabel: 24px mono.
+- Chip text: 26px mono.
+- Tagline: 64px display.
+- Bottom labels: 22px mono.
+
+Check chip text width at 26px mono: char ≈ 0.6×26 = 15.6px. "RUNS ON YOUR HARDWARE" 21 chars → 328px. Text box width 340, from left 104 → ends at 444 < 470-16. Good.
+
+Chip text top: chip height 112; mono 26px cap about 19px; top:42 gives visual center (42+19=61, center 56 — close enough; use 44).
+
+Let me write the SVGs carefully with stroke-linecap? Default butt is fine; maybe square. No rounded corners rule — that's about UI; SVG linecap square is fine. Let me leave the default.
+
+Receipt slash: line from (8,42) to (40,6) — crosses the rect (13,8,22,32 → x 13–35, y 8–40). The slash crosses it. Good.
+
+Lock: rect x11 y22 w26 h18 → x 11–37, y 22–40. Shackle path M16 22 v-5 a8 8 0 0 1 16 0 v5 → from (16,22) up to (16,17), arc to (32,17), down to (32,22). Good. Keyhole: line 24,28→24,34.
+
+Now the header right label: "TEASER — 10 SEC" width 240, left:1520, right-align. 1520+240=1760 < 1820. Good.
+
+Bottom-right: "00:00 — 00:10" left:1560 width:200 → 1760. Good.
+
+Progress track: left:160 top:984 width:1600 height:4 background #262626. Fill: same box, background #12A9E6, scaleX 0→1, origin left.
+
+Wait — the fill is a child of the track? Two separate absolute divs, or a child. Let me nest the fill inside the track div (track has overflow visible; fill is absolute left:0 top:0 width:100%? explicit px is better: width:1600 height:4). Let me nest: #prog (track) contains #progFill. #progFill: position absolute left:0 top:0 width:1600 height:4 background #12A9E6, transform-origin left center. Animate #progFill.
+
+But the rule: "position everything with position:absolute (class a), explicit left/top/width in px" — the fill has left:0 top:0 width:1600. Class a. Good.
+
+Also, the track animates opacity 0→1 at 0.2.
+
+Let me assemble the timeline code:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// frame
+tl.fromTo("#tick1", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.out"}, 0.1);
+tl.fromTo("#tick2", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.out"}, 0.1);
+tl.fromTo("#tick3", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.out"}, 0.1);
+tl.fromTo("#tick4", {opacity:0}, {opacity:1, duration:0.5, ease:"power2.out"}, 0.1);
+tl.fromTo("#hdr", {opacity:0, y:-24}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 0.15);
+tl.fromTo("#bl1", {opacity:0}, {opacity:1, duration:0.5}, 0.2);
+tl.fromTo("#bl2", {opacity:0}, {opacity:1, duration:0.5}, 0.2);
+tl.fromTo("#prog", {opacity:0}, {opacity:1, duration:0.5}, 0.2);
+tl.fromTo("#progFill", {scaleX:0}, {scaleX:1, duration:10, ease:"none"}, 0);
+
+// beat 1
+tl.fromTo("#row1", {opacity:0, x:-160}, {opacity:1, x:0, duration:0.4, ease:"power4.out"}, 0.35);
+tl.fromTo("#row2", {opacity:0, x:-160}, {opacity:1, x:0, duration:0.4, ease:"power4.out"}, 1.05);
+tl.fromTo("#row3", {opacity:0, x:-160}, {opacity:1, x:0, duration:0.4, ease:"power4.out"}, 1.75);
+
+// beat 2
+tl.fromTo("#clabel", {opacity:0, y:14}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 3.15);
+tl.fromTo("#chip1", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.35);
+tl.fromTo("#chip2", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.65);
+tl.fromTo("#chip3", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.95);
+tl.fromTo("#acc1", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 3.5);
+tl.fromTo("#acc2", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 3.8);
+tl.fromTo("#acc3", {scaleY:0}, {scaleY:1, duration:0.4, ease:"power2.out"}, 4.1);
+
+// beat 3 clear
+tl.to("#row1", {opacity:0, x:120, duration:0.35, ease:"power2.in"}, 7.0);
+tl.to("#row2", {opacity:0, x:120, duration:0.35, ease:"power2.in"}, 7.06);
+tl.to("#row3", {opacity:0, x:120, duration:0.35, ease:"power2.in"}, 7.12);
+tl.to("#clabel", {opacity:0, duration:0.3, ease:"power2.in"}, 7.0);
+tl.to("#chip1", {opacity:0, y:48, duration:0.32, ease:"power2.in"}, 7.0);
+tl.to("#chip2", {opacity:0, y:48, duration:0.32, ease:"power2.in"}, 7.06);
+tl.to("#chip3", {opacity:0, y:48, duration:0.32, ease:"power2.in"}, 7.12);
+tl.to("#hdr", {opacity:0, y:-24, duration:0.35, ease:"power2.in"}, 7.0);
+
+// logo
+tl.fromTo("#logo", {opacity:0, scale:0.9}, {opacity:1, scale:1, duration:0.85, ease:"power3.out"}, 7.55);
+tl.fromTo("#rule2", {scaleX:0}, {scaleX:1, duration:0.55, ease:"power2.inOut"}, 7.95);
+tl.fromTo("#tag", {opacity:0, y:28}, {opacity:1, y:0, duration:0.6, ease:"power3.out"}, 8.1);
+
+window.__timelines["main"] = tl;
+```
+
+Initial hidden states: elements with opacity 0 in inline styles? The rule says "set initial hidden states with tl.set or fromTo, not with CSS transform." Opacity via CSS is OK? The example sets opacity:0 in inline style and animates with tl.to. So inline opacity:0 is acceptable. But for elements that use fromTo, the fromTo sets the initial state at the start time; before that, the element shows at its CSS state. For #row1 at t=0, the fromTo starts at 0.35 — before that, GSAP's fromTo only applies the "from" state when the tween starts (or with immediateRender, at timeline creation). GSAP fromTo tweens render the from state immediately by default (immediateRender true) when the timeline is at 0... actually, for a fromTo in a timeline, immediateRender defaults to true, so at t=0 the element is at the from state. Since the timeline is paused at 0 and the renderer presumably seeks per frame, at frame 0 (t=0) the from state is applied. To be safe, let me also set inline opacity:0 on elements that should be hidden initially (rows, chips, clabel, logo, tag, rule2, accs). That guarantees hidden before the animation. The example did exactly that (opacity:0 inline + tl.to). Let me add inline opacity:0 to: rows, clabel, chips, logo, tag, rule2 (scaleX via fromTo; also add opacity 0? rule2 is visible from 7.95; before that it should be hidden — inline opacity 0, and fromTo scaleX... but opacity stays 0! I need to animate opacity too. Let me make rule2 a fromTo with both: {opacity:0, scaleX:0} → {opacity:1, scaleX:1}. Good.
+
+acc bars: inline opacity? They're inside chips that are hidden initially (chip opacity 0), so the accs are hidden with the chip. The acc scaleY fromTo at 3.5 — before that, immediateRender sets scaleY 0. Fine, no inline needed since the parent is hidden. But between 3.35–3.5, the chip fades in with the acc at scaleY 0 — a nice effect (the bar grows after the chip lands).
+
+Wait, immediateRender on fromTo in a timeline: for fromTo tweens, GSAP defaults immediateRender to true, applying the from values at timeline position 0 (when the tween is created/first rendered). Since the renderer seeks the timeline per frame, at t=0 the accs are at scaleY 0. Good.
+
+Logo: inline opacity:0 + fromTo. Good.
+
+Now the header container #hdr: children are absolute positioned relative to #hdr. #hdr is at left:0 top:0 width:1920 height:220. Children: icon left:160 top:104; label left:236 top:116; right left:1520 top:116.
+
+But wait: the rule says every visible element is a child of root — nested is fine.
+
+Also "position everything with position:absolute (class a), explicit left/top/width in px" — the #hdr container: left:0 top:0 width:1920. Give it height:220. Class a.
+
+Rows: #row1 left:160 top:205 width:1200 height:170. Children: number left:0 top:48 (26px mono), text left:110 top:0 (132px h).
+
+Hmm, number vertical alignment: 132px text, cap height about 95; number 26px at top:48 aligns near the middle of the caps. Fine.
+
+Chip text: class m, 26px.
+
+Tagline: #tag left:460 top:850 width:1000 text-align:center font-size:64 class h. Content: Local AI, <span class="hl">delivered.</span>
+
+Rule2: left:810 top:812 width:300 height:6 background #12A9E6, transform-origin center.
+
+Logo: left:700 top:250 width:520 height:520.
+
+Let me double-check the logo + tagline vertical: logo box 250–770. The actual logo content is centered within the box (object-fit contain) — if the logo is wide, it's vertically centered around 510. Rule at 812, tagline 850–914. Balanced.
+
+Bottom labels:
+- #bl1: left:160 top:944 width:400, 22px mono, color #F4F4F1 opacity .5 → use style color:#F4F4F1;opacity? But opacity is animated 0→1... conflict: animating opacity to 1 would override the 0.5. Use color:#8A8A8A instead. Let me use #8F8F8F. Hmm, brand-safe neutral. Fine.
+- #bl2: left:1520 top:944 width:240 right-align, same color.
+
+Actually, the header right label also uses #8F8F8F.
+
+Progress track color #262626, fill #12A9E6.
+
+Ticks: color #3D3D3D, 4px border.
+
+Let me write the ticks:
+```html
+<div id="tick1" class="a" style="left:100px;top:100px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-top:4px solid #3D3D3D;opacity:0"></div>
+<div id="tick2" class="a" style="left:1792px;top:100px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-top:4px solid #3D3D3D;opacity:0"></div>
+<div id="tick3" class="a" style="left:100px;top:952px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D;opacity:0"></div>
+<div id="tick4" class="a" style="left:1792px;top:952px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D;opacity:0"></div>
+```
+
+Header:
+```html
+<div id="hdr" class="a" style="left:0;top:0;width:1920px;height:220px;opacity:0">
+  <img class="a" src="assets/icon.svg" style="left:160px;top:104px;width:52px;height:52px" />
+  <div class="a m" style="left:236px;top:116px;font-size:26px;color:#F4F4F1">Grawwww Studio</div>
+  <div class="a m" style="left:1520px;top:116px;width:240px;text-align:right;font-size:26px;color:#8F8F8F">Teaser — 10 Sec</div>
+</div>
+```
+
+Rows:
+```html
+<div id="row1" class="a" style="left:160px;top:205px;width:1200px;height:170px;opacity:0">
+  <div class="a m" style="left:0px;top:48px;font-size:26px;color:#12A9E6">01</div>
+  <div class="a h" style="left:110px;top:0px;font-size:132px;color:#F4F4F1">Agents<span style="color:#12A9E6">.</span></div>
+</div>
+```
+Row 2: top:375, number 02 magenta, "Automations." period magenta.
+Row 3: top:545, number 03 ink, "Video." period cyan? Let me vary: row 1 cyan, row 2 magenta, row 3 yellow? Yellow is "only as a band behind #111 text" — so yellow can't be used for the period. Row 3 period: ink or cyan. Let me use cyan. Number 03: #F4F4F1.
+
+Wait, number 03 in ink is fine.
+
+Chips:
+```html
+<div id="clabel" class="a m" style="left:218px;top:730px;font-size:24px;color:#12A9E6;opacity:0">Why it matters</div>
+
+<div id="chip1" class="a" style="left:218px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+  <div id="acc1" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#12A9E6;transform-origin:center top"></div>
+  <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">...</svg>
+  <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">Runs on your hardware</div>
+</div>
+```
+
+transform-origin: center top for the acc (scaleY from top). Good.
+
+Chip 2: left:733, acc magenta, icon magenta, text "No per-token bill".
+Chip 3: left:1248, acc #F4F4F1, icon ink, text "Your data stays put".
+
+Final:
+```html
+<img id="logo" class="a" src="assets/logo-negative.png" style="left:700px;top:250px;width:520px;height:520px;object-fit:contain;opacity:0" />
+<div id="rule2" class="a" style="left:810px;top:812px;width:300px;height:6px;background:#12A9E6;transform-origin:center center;opacity:0"></div>
+<div id="tag" class="a h" style="left:460px;top:850px;width:1000px;text-align:center;font-size:64px;color:#F4F4F1;opacity:0">Local AI, <span class="hl">delivered.</span></div>
+```
+
+Bottom:
+```html
+<div id="bl1" class="a m" style="left:160px;top:944px;width:500px;font-size:22px;color:#8F8F8F;opacity:0">GS / Local AI / Teaser 001</div>
+<div id="bl2" class="a m" style="left:1420px;top:944px;width:340px;text-align:right;font-size:22px;color:#8F8F8F;opacity:0">00:00 — 00:10</div>
+<div id="prog" class="a" style="left:160px;top:984px;width:1600px;height:4px;background:#262626;opacity:0">
+  <div id="progFill" class="a" style="left:0px;top:0px;width:1600px;height:4px;background:#12A9E6;transform-origin:left center"></div>
+</div>
+```
+
+bl2 left 1420 width 340 → 1760. Good.
+
+Check overlap: bl1 (160–660) and bl2 (1420–1760) fine.
+
+Tagline 850–914, bl at 944. Fine.
+
+One concern: the `h` class probably sets font-family var(--display), text-transform uppercase, font-weight heavy, letter-spacing wide. The period span inherits. Good.
+
+The `m` class: mono, uppercase.
+
+Now, is there any CSS transform on animated elements? #acc1 has transform-origin (allowed). #progFill transform-origin (allowed). #rule2 transform-origin (allowed). No `transform:` property anywhere.
+
+All animated elements use only allowed properties: opacity, x, y, scale, scaleX, scaleY. Yes.
+
+No repeat, no random, no setTimeout. Good.
+
+Duration 10. Root data-duration="10".
+
+Also make sure every visible element at the end is at opacity 1: ticks (1), bl1/bl2 (1), prog (1), progFill scaleX 1 (1), logo (1), rule2 (1), tag (1). Header/rows/chips are 0 (cleared) — that's intended.
+
+Edge: at t=10 exactly, progFill's scaleX=1 (0→10 with duration 10). The final frame is probably 9.958 → 0.996, fine.
+
+Let me also verify the text fits the width:
+- "GRAWWWW STUDIO" 26px mono: 14 chars × 15.6 = 218px, from 236 → ends at 454. Fine.
+- "TEASER — 10 SEC" 13 chars ≈ 203px, box 240 right-aligned. Fine.
+- Chip text computed. Fine.
+- Tagline: "LOCAL AI, DELIVERED." — with letter-spacing wide, maybe wider: 20 chars × (42.7 + spacing about 4) ≈ 934. Box 1000 centered. Fine.
+
+Row text at 132px with wide letter-spacing: "AUTOMATIONS." 12 chars × (88+6) ≈ 1128 → 270+1128=1398 < 1820. OK.
+
+Hmm, the number is at left:0 top:48 within the row; the row is at left:160. So the number is at x160, text at x270. Good.
+
+One more: the brief's lines are "Agents." "Automations." "Video." — the class h uppercases them. Good.
+
+I think the file is solid. Let me write it out completely, carefully, in a single html block. No extra prose beyond the code block (the user asked to reply with the complete index.html in one ```html block).
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, Delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a{position:absolute;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- frame ticks -->
+  <div id="tick1" class="a" style="left:100px;top:100px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-top:4px solid #3D3D3D;opacity:0"></div>
+  <div id="tick2" class="a" style="left:1792px;top:100px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-top:4px solid #3D3D3D;opacity:0"></div>
+  <div id="tick3" class="a" style="left:100px;top:952px;width:28px;height:28px;border-left:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D;opacity:0"></div>
+  <div id="tick4" class="a" style="left:1792px;top:952px;width:28px;height:28px;border-right:4px solid #3D3D3D;border-bottom:4px solid #3D3D3D;opacity:0"></div>
+
+  <!-- header -->
+  <div id="hdr" class="a" style="left:0px;top:0px;width:1920px;height:220px;opacity:0">
+    <img class="a" src="assets/icon.svg" style="left:160px;top:104px;width:52px;height:52px" />
+    <div class="a m" style="left:236px;top:116px;font-size:26px;color:#F4F4F1">Grawwww Studio</div>
+    <div class="a m" style="left:1520px;top:116px;width:240px;text-align:right;font-size:26px;color:#8F8F8F">Teaser — 10 Sec</div>
+  </div>
+
+  <!-- beat 1: slams -->
+  <div id="row1" class="a" style="left:160px;top:205px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:48px;font-size:26px;color:#12A9E6">01</div>
+    <div class="a h" style="left:110px;top:0px;font-size:132px;color:#F4F4F1">Agents<span style="color:#12A9E6">.</span></div>
+  </div>
+  <div id="row2" class="a" style="left:160px;top:375px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:48px;font-size:26px;color:#FF2D92">02</div>
+    <div class="a h" style="left:110px;top:0px;font-size:132px;color:#F4F4F1">Automations<span style="color:#FF2D92">.</span></div>
+  </div>
+  <div id="row3" class="a" style="left:160px;top:545px;width:1200px;height:170px;opacity:0">
+    <div class="a m" style="left:0px;top:48px;font-size:26px;color:#F4F4F1">03</div>
+    <div class="a h" style="left:110px;top:0px;font-size:132px;color:#F4F4F1">Video<span style="color:#12A9E6">.</span></div>
+  </div>
+
+  <!-- beat 2: chips -->
+  <div id="clabel" class="a m" style="left:218px;top:730px;font-size:24px;color:#12A9E6;opacity:0">Why it matters</div>
+
+  <div id="chip1" class="a" style="left:218px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc1" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#12A9E6;transform-origin:center top"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <rect x="12" y="12" width="24" height="24" stroke="#12A9E6" stroke-width="6"></rect>
+      <rect x="20" y="20" width="8" height="8" stroke="#12A9E6" stroke-width="6"></rect>
+      <line x1="18" y1="4" x2="18" y2="12" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="30" y1="4" x2="30" y2="12" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="18" y1="36" x2="18" y2="44" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="30" y1="36" x2="30" y2="44" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="4" y1="18" x2="12" y2="18" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="4" y1="30" x2="12" y2="30" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="36" y1="18" x2="44" y2="18" stroke="#12A9E6" stroke-width="6"></line>
+      <line x1="36" y1="30" x2="44" y2="30" stroke="#12A9E6" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">Runs on your hardware</div>
+  </div>
+
+  <div id="chip2" class="a" style="left:733px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc2" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#FF2D92;transform-origin:center top"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <rect x="13" y="8" width="22" height="32" stroke="#FF2D92" stroke-width="6"></rect>
+      <line x1="19" y1="18" x2="29" y2="18" stroke="#FF2D92" stroke-width="6"></line>
+      <line x1="19" y1="26" x2="29" y2="26" stroke="#FF2D92" stroke-width="6"></line>
+      <line x1="8" y1="42" x2="40" y2="6" stroke="#FF2D92" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">No per-token bill</div>
+  </div>
+
+  <div id="chip3" class="a" style="left:1248px;top:778px;width:470px;height:112px;border:2px solid #2E2E2E;background:#141414;opacity:0">
+    <div id="acc3" class="a" style="left:0px;top:0px;width:8px;height:112px;background:#F4F4F1;transform-origin:center top"></div>
+    <svg class="a" style="left:34px;top:34px;width:44px;height:44px" viewBox="0 0 48 48" fill="none">
+      <rect x="11" y="22" width="26" height="18" stroke="#F4F4F1" stroke-width="6"></rect>
+      <path d="M16 22 v-5 a8 8 0 0 1 16 0 v5" stroke="#F4F4F1" stroke-width="6" fill="none"></path>
+      <line x1="24" y1="28" x2="24" y2="34" stroke="#F4F4F1" stroke-width="6"></line>
+    </svg>
+    <div class="a m" style="left:104px;top:42px;width:340px;font-size:26px;color:#F4F4F1">Your data stays put</div>
+  </div>
+
+  <!-- beat 3: logo -->
+  <img id="logo" class="a" src="assets/logo-negative.png" style="left:700px;top:250px;width:520px;height:520px;object-fit:contain;opacity:0" />
+  <div id="rule2" class="a" style="left:810px;top:812px;width:300px;height:6px;background:#12A9E6;transform-origin:center center;opacity:0"></div>
+  <div id="tag" class="a h" style="left:460px;top:850px;width:1000px;text-align:center;font-size:64px;color:#F4F4F1;opacity:0">Local AI, <span class="hl">delivered.</span></div>
+
+  <!-- footer -->
+  <div id="bl1" class="a m" style="left:160px;top:944px;width:500px;font-size:22px;color:#8F8F8F;opacity:0">GS / Local AI / Teaser 001</div>
+  <div id="bl2" class="a m" style="left:1420px;top:944px;width:340px;text-align:right;font-size:22px;color:#8F8F8F;opacity:0">00:00 — 00:10</div>
+  <div id="prog" class="a" style="left:160px;top:984px;width:1600px;height:4px;background:#262626;opacity:0">
+    <div id="progFill" class="a" style="left:0px;top:0px;width:1600px;height:4px;background:#12A9E6;transform-origin:left center"></div>
+  </div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  /* frame */
+  tl.fromTo("#tick1", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+  tl.fromTo("#tick2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+  tl.fromTo("#tick3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+  tl.fromTo("#tick4", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+  tl.fromTo("#hdr", { opacity: 0, y: -24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.15);
+  tl.fromTo("#bl1", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.2);
+  tl.fromTo("#bl2", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.2);
+  tl.fromTo("#prog", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.2);
+  tl.fromTo("#progFill", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+
+  /* beat 1 — slams (0-3s) */
+  tl.fromTo("#row1", { opacity: 0, x: -160 }, { opacity: 1, x: 0, duration: 0.4, ease: "power4.out" }, 0.35);
+  tl.fromTo("#row2", { opacity: 0, x: -160 }, { opacity: 1, x: 0, duration: 0.4, ease: "power4.out" }, 1.05);
+  tl.fromTo("#row3", { opacity: 0, x: -160 }, { opacity: 1, x: 0, duration: 0.4, ease: "power4.out" }, 1.75);
+
+  /* beat 2 — chips (3-7s) */
+  tl.fromTo("#clabel", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.15);
+  tl.fromTo("#chip1", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.35);
+  tl.fromTo("#chip2", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.65);
+  tl.fromTo("#chip3", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.95);
+  tl.fromTo("#acc1", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 3.5);
+  tl.fromTo("#acc2", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 3.8);
+  tl.fromTo("#acc3", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.out" }, 4.1);
+
+  /* beat 3 — clear (7s) */
+  tl.to("#row1", { opacity: 0, x: 120, duration: 0.35, ease: "power2.in" }, 7.0);
+  tl.to("#row2", { opacity: 0, x: 120, duration: 0.35, ease: "power2.in" }, 7.06);
+  tl.to("#row3", { opacity: 0, x: 120, duration: 0.35, ease: "power2.in" }, 7.12);
+  tl.to("#clabel", { opacity: 0, duration: 0.3, ease: "power2.in" }, 

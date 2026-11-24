@@ -1,0 +1,39 @@
+Here's the complete `index.html` for Brief B1:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Local AI, real video — EP05</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div class="a m" id="eyebrow" style="left:160px;top:300px;font-size:28px;letter-spacing:6px;color:var(--c);opacity:0">EP05 / Experiment</div>
+
+  <div class="a h" id="t1" style="left:160px;top:372px;font-size:140px;line-height:1;white-space:nowrap;opacity:1">
+    <span class="w">Local</span> <span class="w">AI,</span> <span class="w" style="display:inline-block;position:relative">
+      <span id="band" style="position:absolute;left:-14px;top:-14px;width:0%;height:128%;background:var(--y);z-index:0"></span>
+      <span id="real" style="position:relative;z-index:1">real</span>
+    </span> <span class="w">video</span>
+  </div>
+
+  <div class="a" id="rule" style="left:160px;top:560px;width:1600px;height:6px;background:var(--m);transform-origin:left center"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#t1 .w", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.12 }, 0.45);
+  tl.fromTo("#band", { width: "0%" }, { width: "100%", duration: 0.6, ease: "power2.out" }, 1.05);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.4);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

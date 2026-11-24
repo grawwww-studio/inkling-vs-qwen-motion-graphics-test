@@ -1,0 +1,623 @@
+[REASONING]
+The user wants a 9-second explainer video with three steps. Let me design:
+
+- Canvas 1920x1080
+- Background #0E0E0E
+- Heading "How it works" with a yellow highlight maybe
+- Three columns, each with number 01/02/03, inline SVG icon, label
+- Connector lines between columns that draw in
+- Sequential reveal
+
+Timeline plan (9s):
+- 0.0-0.6: eyebrow "Process / 03 steps" fades in
+- 0.4-1.2: heading "How it works" animates in
+- Step 1: number + icon + label reveal ~1.4-2.6
+- Connector line 1 draws ~2.6-3.2
+- Step 2 reveal ~3.0-4.2
+- Connector line 2 ~4.2-4.8
+- Step 3 reveal ~4.6-5.8
+- Hold with maybe a footer line at 6.5-7.0
+- Total 9s
+
+Design: dark background, cyan accent, magenta accent, yellow highlight. Brand: no rounded corners, no shadows, no gradients.
+
+Layout:
+- Eyebrow top-left at 160px margin
+- Heading "HOW IT WORKS" big display font
+- Three columns across: each column ~440px wide, at left 160, 700, 1240 maybe. Canvas 1920, margins 160 each side → content width 1600. Three columns of ~420px with gaps.
+
+Let me compute: content from x=160 to x=1760 (width 1600). Three columns each 420px wide, gaps of 70px: 420*3 + 70*2 = 1260+140 = 1400. Hmm, let's do columns 440 wide, gaps 60: 440*3+120=1440. Start at 160, ends at 1600... 160+1440=1600, leaving 160 right margin? 1920-160=1760. 160+1440=1600, right margin 320. Not centered.
+
+Better: columns width 460, gap 80: 460*3+160=1540. Start at 190: 190+1540=1730, right margin 190. Good.
+
+Actually let's just do: left margin 160, total width 1600. Column width 440, gap 90: 440*3+180=1500. Start 210: 210+1500=1710, margins 210/210. Fine. Or simpler: column width 420, gap 100: 420*3+200=1460, start at 230. Hmm.
+
+Let me do: col width 430, gap 100 → 430*3 + 200 = 1490. Start at 215, end 1705. Margins 215 each side. OK-ish. Actually let me center: (1920-1490)/2 = 215. Good.
+
+Columns: x = 215, 745, 1275. Width 430.
+
+Connector lines: horizontal lines between columns, in the gap. Gap from x=645 to 745 (width 100). Line at vertical center of icon area.
+
+Structure per column:
+- Number "01" — big mono or display, cyan/magenta/yellow? Brand colors: cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as band behind #111 text. So numbers could be cyan, magenta, and... yellow can't be used as text color? "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So yellow text not allowed. Use cyan and magenta and ink. Number 01 cyan, 02 magenta, 03 ink? Or all cyan. Let's do 01 cyan, 02 magenta, 03 cyan? Better: 01 #12A9E6, 02 #FF2D92, 03 #F4F4F1 (ink). Hmm, or keep all cyan with magenta accents. I'll do 01 cyan, 02 magenta, 03 yellow-hl? No — yellow band behind text. Could make the number 03 with .hl class? That'd be a yellow band behind "03" with #111 text — that's allowed and looks good. Actually the hl class is for highlight text. Using it for the number is fine.
+
+Icon area: SVG ~120x120, stroke ink or accent color.
+
+- Label text: "Write a brief" etc., display font, uppercase, ~40px.
+
+Icons:
+1. Pencil/document: document outline with pencil. Draw: rect (document) with folded corner, plus pencil diagonal. Stroke #F4F4F1 or cyan.
+2. Code brackets: </> — two angle brackets with a slash.
+3. Play triangle: circle with triangle, or just triangle.
+
+Let me draw SVGs:
+
+Icon 1 (pencil/document):
+```svg
+<svg viewBox="0 0 120 120">
+  <path d="M30 15 h45 l15 15 v75 h-60 z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M75 15 v15 h15" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="40" y1="55" x2="70" y2="55" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="40" y1="75" x2="62" y2="75" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Maybe add a small pencil? Keep simple: document with lines. Or pencil: diagonal line with tip. Let me do document with folded corner + pencil stroke in cyan. Actually "pencil/document" — I'll do a document with lines and a pencil overlapping. Might get busy at small size. Keep document with cyan lines, plus a small pencil: line from (70,88) to (95,63)? Hmm. Simpler: document + pencil. Let me do:
+
+```svg
+<svg viewBox="0 0 120 120">
+  <path d="M28 12 h42 l16 16 v80 H28 z" stroke="#F4F4F1" stroke-width="6" fill="none"/>
+  <path d="M70 12 v16 h16" stroke="#F4F4F1" stroke-width="6" fill="none"/>
+  <line x1="40" y1="52" x2="66" y2="52" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="40" y1="70" x2="58" y2="70" stroke="#12A9E6" stroke-width="6"/>
+  <!-- pencil -->
+  <line x1="66" y1="98" x2="94" y2="70" stroke="#FF2D92" stroke-width="6"/>
+  <path d="M94 70 l6 -6" ... />
+</svg>
+```
+Hmm, pencil tip: small triangle. Maybe simpler to skip pencil and just do document with lines — it reads as "brief/document". I'll add a small pencil: a line with a tip. Let's do:
+pencil: line from (70,92) to (96,66), stroke magenta width 6, and tip: path "M96 66 l8 -8" ... Actually a pencil: body line + tip triangle. Keep it: 
+```svg
+<path d="M64 96 L92 68" stroke="#FF2D92" stroke-width="7"/>
+<path d="M92 68 L102 58 L96 66 Z" ... />
+```
+Getting fiddly. Alternative: pencil alone? "Write a brief (pencil/document)" — either works. I'll do document with lines, clean.
+
+Icon 2 (brackets):
+```svg
+<svg viewBox="0 0 120 120">
+  <path d="M42 32 L18 60 L42 88" stroke="#F4F4F1" stroke-width="7" fill="none" stroke-linecap="square"/>
+  <path d="M78 32 L102 60 L78 88" stroke="#F4F4F1" stroke-width="7" fill="none"/>
+  <line x1="66" y1="26" x2="54" y2="94" stroke="#12A9E6" stroke-width="7"/>
+</svg>
+```
+
+Icon 3 (play):
+```svg
+<svg viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" stroke="#F4F4F1" stroke-width="6" fill="none"/>
+  <path d="M50 40 L84 60 L50 80 Z" fill="#FF2D92" stroke="none"/>
+</svg>
+```
+Or triangle with stroke. Fill magenta is fine (flat fill allowed).
+
+Connector lines: horizontal 2px... maybe 4px height bars with an arrowhead? Simple: line with small triangle at end. I can do a div with background cyan and a small SVG arrow. Or just a line with scaleX animation. Let's do: a div (height 4px, background cyan, transform-origin left) plus a small arrowhead div (rotated square) that appears at end. Simpler: just the line, with a small circle/triangle at the end. I'll do line + arrowhead as inline SVG? Easier: div line + div arrow (CSS triangle via borders — but borders are fine, not gradients). Actually a small rotated square (diamond) works: width 12px height 12px, background cyan, transform rotate(45deg) — but transform on element GSAP animates? GSAP won't animate the arrowhead; CSS transform static is fine as long as GSAP doesn't touch it. Rule says never put CSS transform on an element GSAP animates. The arrowhead won't be GSAP-animated except opacity maybe. If I animate opacity only, transform stays. But GSAP opacity animation doesn't overwrite transform. Safe. Actually simpler: skip arrowhead, use line with a small square at the end. Or animate the line scaleX then a dot pops. Keep it: line (scaleX 0→1), plus dot (scale 0→1) at end.
+
+Layout vertical:
+- Eyebrow at top: y=110, left=160, "PROCESS / EXPLAINER" mono 24px cyan, letter-spacing.
+- Heading "HOW IT WORKS" at y=150, font-size ~110px, left=160. Display font wide. 14 chars incl space. At 110px uppercase, ~0.75*110 ≈ 82px per char? Rule says at 150px an uppercase letter is about 100px wide → ~0.66em per char. At 110px → ~73px per char. "HOW IT WORKS" = 12 chars → ~880px. Fits in 1600. Good. Maybe 120px → 960px. Fine.
+
+- Yellow highlight behind "WORKS"? Could do `<span class="hl">WORKS</span>`. Nice brand touch. hl class: yellow band, #111 text. Good.
+
+- Columns area: y ~ 420-820.
+  - Number at top of each column: font mono or display, size 64px, y=430.
+  - Icon: 130x130 at y=520.
+  - Label: y=700, font-size 44px, display, uppercase, maybe two lines? "WRITE A BRIEF" fits one line at 44px: 13 chars * ~29px = 380px. Column 430 wide — tight. 40px → 13*26 = 340. OK. "MODEL WRITES THE CODE" — 21 chars, too long for one line at 40px (21*26=546). Two lines: "MODEL WRITES" / "THE CODE". Or reduce to 34px: 21*22=462 still too wide. Two lines it is. Label container height ~110px for two lines.
+
+Actually maybe label font-size 38px, two lines max. "WRITE A BRIEF" one line (13 chars * 25 = 325). "MODEL WRITES THE CODE" two lines. "RENDER THE VIDEO" — 16 chars * 25 = 400, fits one line at 38px? 16*25=400 < 430. OK.
+
+Hmm, labels: "Write a brief", "Model writes the code", "Render the video". Uppercase display.
+
+- Connector lines between columns at icon vertical center: y ≈ 585 (icon center). Gap x ranges: col1 ends at 215+430=645, col2 starts 745. Line from 655 to 735 (width 80). Hmm gap is 100, line width 80 with 10px insets. Actually make line span the full gap: left 650, width 90.
+
+Wait — connectors between columns could also be at number level. Icon-level is nice.
+
+- Footer: maybe a small mono line at bottom: "01 — BRIEF  /  02 — CODE  /  03 — VIDEO"? Redundant. Better: a small footer bar: "THE PIPELINE — BRIEF → CODE → VIDEO"? Redundant too. Maybe a bottom rule with mono text "HYPERFRAMES / EXPLAINER" at bottom. Keep minimal: bottom-left mono small text "HOW IT WORKS — 03 STEPS" and bottom-right "01 / 02 / 03"? Redundant. Let me add a subtle bottom line: left "WORKFLOW / EXPLAINER", right "STEP 01 → 03". Hmm.
+
+Simpler and clean: bottom strip with mono text left "THE PIPELINE" and right "BRIEF → CODE → VIDEO". That's a nice footer. Arrow "→" is a unicode char, not emoji — fine.
+
+Actually let me keep it minimal but polished: footer rule (thin line) + mono text.
+
+Timeline (9s):
+- 0.2: eyebrow fade in (opacity, y?)
+- 0.5: heading from y 40 opacity 0 → in, 0.7s
+- 1.3: rule under heading scaleX
+- 1.6: step 1 group: number fade/slide, icon scale in, label fade — staggered
+- 2.6: connector 1 scaleX
+- 3.1: step 2 group
+- 4.3: connector 2
+- 4.7: step 3 group
+- 6.0: footer fade in
+- Hold to 9.0
+
+Each step group: number (y 20→0, opacity), icon (scale 0.6→1, opacity), label (y 20→0, opacity). Stagger 0.12s. Duration ~0.5 each.
+
+Connector: line scaleX 0→1 (0.5s), dot scale 0→1 at end.
+
+Also maybe a progress indicator at bottom? Not needed.
+
+Ensure everything visible at end: all opacity 1.
+
+Initial states: set opacity 0 via tl.set or fromTo. Use fromTo for animated elements.
+
+Let me structure HTML:
+
+```html
+<div id="root" ...>
+  <div class="a m" id="eyebrow" style="left:160px;top:96px;font-size:24px;color:var(--c);letter-spacing:...">Process / Explainer</div>
+  <div class="a h" id="heading" style="left:160px;top:140px;font-size:118px;">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:280px;width:640px;height:6px;background:var(--m);transform-origin:left center"></div>
+  
+  <!-- step 1 -->
+  <div class="a m" id="num1" style="left:215px;top:420px;font-size:60px;color:var(--c)">01</div>
+  <div class="a" id="icon1" style="left:215px;top:510px;width:140px;height:140px">svg</div>
+  <div class="a h" id="label1" style="left:215px;top:700px;font-size:38px;width:430px">Write a brief</div>
+  
+  connector 1: <div class="a" id="conn1" style="left:652px;top:578px;width:86px;height:4px;background:var(--c);transform-origin:left center"></div>
+  dot: <div class="a" id="dot1" style="left:730px;top:571px;width:18px;height:18px;background:var(--c)"></div>
+```
+
+Wait, dot as rotated square would need transform rotate — but GSAP animates scale on it; GSAP combines transforms fine (it manages transform). Actually if I set CSS transform: rotate(45deg) on the dot and GSAP animates scale, GSAP overwrites the whole transform. So don't set CSS transform on GSAP-animated elements. Instead make dot a plain square (no rotation) — fine, or a circle via border-radius... "no rounded corners" — avoid border-radius. Plain square dot is fine.
+
+Connector vertical position: icon center. Icon at top 510, height 140 → center 580. Line height 4 → top 578. Dot 18px → top 571.
+
+Column x positions: 215, 745, 1275. Gap: 645→745. Line from 652 to 738 (width 86). Dot at 722, width 18 → ends 740. Good.
+
+Icon width 140, maybe center icon in column? Left-align icons with column. Fine.
+
+Label top: 700. Two-line labels: height ~100px. Bottom margin: 700+110 = 810 < 1080-100. Good.
+
+Footer: rule at top 930, left 160 width 1600 height 2px background #2a2a2a? Brand doesn't define gray... use ink at low opacity? Opacity on footer line — animate opacity. Use background: var(--i) with opacity 0.25? GSAP animates opacity of the element; setting CSS opacity 0.25 and animating to... conflict. Just use background #333333? Not in palette but it's a neutral. Hmm, brand says background #0E0E0E, ink #F4F4F1, cyan, magenta, yellow. A dim line could be ink at 20% via rgba(244,244,241,0.18). That's fine — it's a tint of ink.
+
+Footer text: mono 22px, left "The pipeline", right "Brief → Code → Video". Right-aligned: use right:160px. Position absolute with left/right.
+
+Also add small step markers under footer? Keep simple.
+
+Heading with hl: "How it <span class='hl'>works</span>". hl class from gw.css — presumably defined. The example uses `<span class="hl">world</span>`. Yes.
+
+Fonts: var(--display), var(--body), var(--mono). Classes h, m.
+
+Let me check gw.css? I can't read it, but the example uses classes h, m, hl, a. I'll rely on those.
+
+Now icons in detail. Icon container 140x140 with inline SVG viewBox 0 0 120 120, width/height 100%.
+
+Icon 1 — document (pencil/document):
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <path d="M28 10 h44 l18 18 v82 H28 Z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M72 10 v18 h18" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="40" y1="52" x2="68" y2="52" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="40" y1="70" x2="60" y2="70" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Hmm the pencil part missing. Add a pencil diagonally bottom-right? Might clutter. The brief says "pencil/document" — document alone satisfies. But to honor "pencil", add small pencil: 
+```svg
+<line x1="64" y1="98" x2="92" y2="70" stroke="#FF2D92" stroke-width="7"/>
+<path d="M92 70 l10 -10" ...>
+```
+Pencil tip: a small triangle at the end. Let me do:
+```svg
+<path d="M60 96 L88 68" stroke="#FF2D92" stroke-width="8"/>
+<path d="M88 68 L100 56 L94 70 Z" fill="#FF2D92"/>
+```
+Hmm, tip triangle: from (88,68) to (100,56) — the pencil body line goes to (88,68); tip extends to (100,56). Triangle with points (88,68),(100,56),(94,70)? That's a thin triangle. Eh. Alternatively eraser line at other end. Keep it simple: pencil = line with a small tip:
+```svg
+<line x1="58" y1="98" x2="90" y2="66" stroke="#FF2D92" stroke-width="8"/>
+<path d="M90 66 L102 54 L94 68 Z" fill="#F4F4F1"/>
+```
+Tip triangle points: (90,66),(102,54),(94,68) — a small sliver. Eh, might look odd. 
+
+Alternative clean approach: skip the pencil, do document with a pen nib? Honestly document with lines reads clearly as "write a brief". I'll add the pencil as a simple diagonal capsule with tip — let me just do it carefully:
+
+Pencil from (58,96) to (88,66): direction vector (30,-30), unit (0.707,-0.707). Tip: from (88,66) extend to (100,54). Tip triangle: base perpendicular at (88,66): perpendicular direction (0.707,0.707). Base points: (88±4*0.707, 66±4*0.707) = (85.2,69.8) and (90.8,62.2). Tip apex (100,54). Path: M85.2 69.8 L100 54 L90.8 62.2 Z. Fill ink. That gives a proper pencil tip. 
+
+And eraser: small line at (58,96) perpendicular: from (54,100) to (62,92)? Just leave body end flat.
+
+OK:
+```svg
+<line x1="58" y1="96" x2="88" y2="66" stroke="#FF2D92" stroke-width="8"/>
+<path d="M85.2 69.8 L100 54 L90.8 62.2 Z" fill="#F4F4F1"/>
+```
+Pencil overlaps document's bottom-right corner — document spans x 28-90, y 10-110. Pencil from (58,96) to (100,54) crosses the document's right edge (x=90). Overlapping the border line — visually fine, like pencil writing on the doc. Actually might look messy crossing the border. Alternative: pencil below-right of document, not overlapping: document shifted left/up: x 22-78, pencil from (64,100) to (96,68). Document: path M22 10 h44 l18 18 v82 H22 Z → spans x 22-84, y 10-110. Fold at (66,10)-(84,28). Lines: x 34-62 at y 52, x 34-54 at y 70. Pencil: line from (62,102) to (92,72), tip from (92,72) to (104,60): base at (92,72): perp (0.707,0.707), base points (89.2,75.8) and (94.8,68.2), apex (104,60). Path M89.2 75.8 L104 60 L94.8 68.2 Z.
+
+Pencil crosses document right edge (x=84)? Line from (62,102) to (92,72): at x=84, y = 102 - (84-62) = 80. Document right edge is x=84 from y=28 to y=110. So pencil crosses the border at (84,80). Slightly overlapping border — actually that looks natural, pencil writing over the page edge. Fine. Or move pencil fully outside: from (70,104) to (100,74)? Still crosses x=84 at y=90. Hmm. Or make document narrower: x 22-72 (width 50): path M22 10 h36 l18 18 v82 H22 Z → spans 22-76. Pencil from (70,100) to (98,72): at x=76, y=94 — crosses border at (76,94)? Document spans x 22-76, so pencil starts inside (70,100) and exits at (76,94). Still crosses. Whatever — overlapping is fine and looks intentional. Actually, let me just place pencil fully in the lower-right area, overlapping the document's bottom edge region only:
+
+Pencil from (66,104) to (96,74) — crosses bottom edge y=110? No, y max 104 < 110, stays inside vertically. Crosses right edge x=84 at y=86. It'll cross the border line. It's fine — a pencil over a document reads clearly.
+
+Actually simplest clean: no pencil, document with cyan lines + a small magenta pencil glyph is over-engineering. But the brief explicitly says "(pencil/document)" — meaning either is acceptable. Document it is, but I'll include the pencil since it's nice. Let me finalize coordinates:
+
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <path d="M26 10 h42 l18 18 v82 H26 Z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M68 10 v18 h18" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="38" y1="50" x2="64" y2="50" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="38" y1="68" x2="56" y2="68" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="60" y1="98" x2="90" y2="68" stroke="#FF2D92" stroke-width="8"/>
+  <path d="M86.8 71.8 L102 56 L92.8 75.8 Z" fill="#F4F4F1"/>
+</svg>
+```
+Tip: base at (90,68): perp points (86.8,71.8) and (93.2,64.2)... let me recompute. Direction of pencil: from (60,98) to (90,68): vector (30,-30). Tip apex beyond (90,68): (102,56). Base perpendicular at (90,68): perp unit (0.707,0.707); half-width 4 → base points (90-2.8, 68-2.8)=(87.2,65.2) and (90+2.8,68+2.8)=(92.8,70.8). Apex (102,56). Path: M87.2 65.2 L102 56 L92.8 70.8 Z. Fill ink. Good enough.
+
+Icon 2 — brackets:
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <path d="M44 30 L20 60 L44 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <path d="M76 30 L100 60 L76 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <line x1="66" y1="26" x2="54" y2="94" stroke="#FF2D92" stroke-width="7"/>
+</svg>
+```
+Slash in magenta. Good.
+
+Icon 3 — play:
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <circle cx="60" cy="60" r="42" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M50 40 L86 60 L50 80 Z" fill="#12A9E6"/>
+</svg>
+```
+Play triangle cyan. Good.
+
+Numbers: 01 cyan, 02 magenta, 03 ink? Or 01 cyan, 02 magenta, 03 cyan. Hmm. Let's do 01 cyan, 02 magenta, 03 yellow-hl band? Number 03 in hl style: `<span class="hl">03</span>` with yellow bg and #111 text — striking. But hl class styling: padding? Probably padding 0 10px, background yellow, color #111. That works for a number. Nice progression: cyan → magenta → yellow. Let me do that. Number font: display class h, size 56px.
+
+Hmm wait — should the number be mono? "m" class uppercase labels. Numbers as display font bold look strong. Use h.
+
+Labels: display, uppercase, font-size 36px, color ink. Width 430px. "MODEL WRITES THE CODE" wraps to two lines. Set line-height 1.15.
+
+Actually let me reconsider column width: 430px at 36px font — "MODEL WRITES THE" = 16 chars * ~24px = 384, fits. "CODE" second line. Good.
+
+Vertical layout:
+- eyebrow: top 96, left 160
+- heading: top 140, font-size 112px. Height ~130. Ends ~270.
+- rule: top 292, left 160, width 560, height 6, background magenta? Brand: rule could be cyan. Use magenta for pop. Actually heading hl is yellow; rule cyan. Fine.
+- Numbers: top 400, font-size 56
+- Icons: top 480, size 140 → center 550
+- Labels: top 660, font-size 36, line-height 1.2 → two lines = 86px, ends ~750
+- Connectors: top 547 (center 550), line height 4, width 86, left 652 (gap 645-745). Dot at left 730, top 541, 18x18.
+  Wait line from 652 to 738, dot at 722-740. Dot left 722, width 18 → 722-740. Good.
+  Second connector: gap 1175-1275. Line left 1182, width 86 → 1182-1268. Dot left 1252, width 18 → 1252-1270.
+- Footer: rule line top 920, left 160, width 1600, height 2, rgba ink 0.16. Footer text top 940: left "THE PIPELINE" mono 22px color ink-dim (rgba ink 0.6?) — use color: #8a8a86? Not brand. Use ink at opacity via CSS color: rgba(244,244,241,0.55). That's fine (tint of ink). Right text "BRIEF → CODE → VIDEO" mono 22px cyan? Cyan right side. Good.
+
+Bottom margin: footer text at 940, height ~30 → ends 970. Canvas 1080, margin 110. Good.
+
+Now GSAP timeline. All elements need initial hidden state. Use tl.set at 0? The rule: use tl.fromTo or tl.set. I'll use fromTo for animated ones.
+
+Timeline:
+```js
+const tl = gsap.timeline({ paused: true });
+
+tl.fromTo("#eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+tl.fromTo("#heading", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.5);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.1);
+
+// step 1
+tl.fromTo("#num1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 1.5);
+tl.fromTo("#icon1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 1.75);
+tl.fromTo("#label1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.0);
+
+// connector 1
+tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.55);
+tl.fromTo("#dot1", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 2.95);
+
+// step 2
+tl.fromTo("#num2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.15);
+tl.fromTo("#icon2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 3.4);
+tl.fromTo("#label2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.65);
+
+// connector 2
+tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.2);
+tl.fromTo("#dot2", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 4.6);
+
+// step 3
+tl.fromTo("#num3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 4.85);
+tl.fromTo("#icon3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 5.1);
+tl.fromTo("#label3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 5.35);
+
+// footer
+tl.fromTo("#footer-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 6.1);
+tl.fromTo("#footer-left", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.35);
+tl.fromTo("#footer-right", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.45);
+```
+
+Total duration 9.0. Everything done by ~6.8, hold to 9. Good.
+
+Icons need transform-origin center for scale. Set in CSS: `.icon { transform-origin: center center; }` — but GSAP sets transform-origin? GSAP default transformOrigin is "50% 50%" for scale, good. Actually GSAP's default transformOrigin for scale is "50% 50%". Yes.
+
+Connector lines: transform-origin left center — set via CSS (allowed, only transform not). Rule 4 says transform-origin in CSS is fine.
+
+Number 3 with hl: `<span class="hl">03</span>` inside #num3? Or #num3 itself with class hl. If #num3 has class hl, it's a yellow band behind "03" with #111 text. Let me make #num3 a div with class "a h hl". hl class presumably sets background yellow + color #111 + padding. Good.
+
+Also maybe make step 3 label's key word highlighted? Keep labels plain ink.
+
+Also add small step index markers on the connector? No.
+
+One more flourish: a subtle background grid? Not allowed gradients; could add thin lines. Skip — keep clean.
+
+Also maybe add small mono caption under each label? Like "STEP 01"? Redundant with number. Skip.
+
+Check text widths:
+- Heading "How it works" at 112px display uppercase. 12 chars (incl 2 spaces). ~0.66*112 = 74px/char → 12*74 = 888px. Wait "HOW IT WORKS" — H,O,W,space,I,T,space,W,O,R,K,S = 12 chars. ~890px. Fits 1600. Good.
+- Eyebrow mono 24px letter-spacing 4px: "PROCESS / EXPLAINER" 19 chars * (24*0.6+4) ≈ 19*18.4 = 350px. Fine.
+
+Labels at 36px: "WRITE A BRIEF" 13 chars * 0.66*36 = 13*23.8 = 309px < 430. "MODEL WRITES THE CODE" → wraps. "RENDER THE VIDEO" 16 chars * 23.8 = 381 < 430. Good.
+
+Footer right text: "BRIEF → CODE → VIDEO" 20 chars * (22*0.6+2) ≈ 20*15.2 = 304px. Right aligned at right:160. Fine.
+
+Eyebrow content: "PROCESS / EXPLAINER" — fine.
+
+Now the hl class: I don't know its exact CSS from gw.css. The example uses it inline within heading. I'll use it the same way.
+
+Let me also double check rule 3: "one paused GSAP timeline const tl = gsap.timeline({ paused: true }); registered as window.__timelines['main']". Yes.
+
+Rule 2: exactly one root element with data-composition-id="main", data-start="0", data-duration="9", data-width="1920", data-height="1080".
+
+Rule 5: position everything with class a and explicit left/top/width in px. I'll add class "a" to all absolutely positioned elements. For footer right text, use right instead of left? Rule says explicit left/top/width — I'll use left/width instead of right. Footer right text: left 1300, width 460, text-align right. 1300+460=1760. Good.
+
+Footer left: left 160, width 500.
+
+Now, icons: the SVG inside #icon1 div. The div has class "a" with left/top/width/height. SVG width/height 100%.
+
+Note: GSAP animating scale on #icon1 (the div) — CSS must not have transform on it. Fine.
+
+Also the dot: class "a", plain square. GSAP animates scale + opacity. transform-origin center default. Fine.
+
+Let me also consider adding a subtle underline accent under each label? Skip.
+
+Write the final file.
+
+One concern: `.hl` padding — unknown. Fine.
+
+Also add `overflow:hidden` on root? Root is 1920x1080 fixed. Add overflow hidden to be safe.
+
+Let me also think about whether the heading should be "How it works" with hl on "works". Yes.
+
+Footer text: left "THE PIPELINE — 03 STEPS", right "BRIEF → CODE → VIDEO". Arrows "→" are unicode, fine (not emoji).
+
+Also maybe add small cyan tick marks at column tops? Keep minimal.
+
+Let me write the code now.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Explainer</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:160px;top:96px;width:900px;font-size:24px;color:var(--c);letter-spacing:6px;opacity:0">Process / Explainer</div>
+  <div class="a h" id="heading" style="left:160px;top:138px;width:1600px;font-size:112px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:292px;width:560px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- Step 1 -->
+  <div class="a h" id="num1" style="left:215px;top:398px;width:200px;font-size:56px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:215px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">...</svg>
+  </div>
+  <div class="a h" id="label1" style="left:215px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Write a brief</div>
+
+  <div class="a" id="conn1" style="left:652px;top:545px;width:86px;height:4px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="dot1" style="left:722px;top:538px;width:18px;height:18px;background:var(--c);opacity:0"></div>
+
+  ... step 2 (x 745), step 3 (x 1275)
+```
+
+Wait, icon center: top 478 + 70 = 548. Line top 545 (height 4 → center 547). Dot top 538 (18 → center 547). Good.
+
+Step 2 x=745: num2 left 745, icon2 left 745, label2 left 745 width 430.
+Connector 2: gap 1175-1275. Line left 1182, width 86 → 1182-1268. Dot left 1252, width 18 → 1252-1270.
+
+Step 3 x=1275: num3 left 1275, icon3 left 1275, label3 left 1275 width 430 → ends 1705. Good.
+
+Footer:
+```html
+<div class="a" id="footer-rule" style="left:160px;top:916px;width:1600px;height:2px;background:rgba(244,244,241,0.16);transform-origin:left center"></div>
+<div class="a m" id="footer-left" style="left:160px;top:938px;width:600px;font-size:20px;color:rgba(244,244,241,0.55);letter-spacing:3px;opacity:0">The pipeline — 03 steps</div>
+<div class="a m" id="footer-right" style="left:1150px;top:938px;width:610px;font-size:20px;color:var(--c);letter-spacing:3px;text-align:right;opacity:0">Brief → Code → Video</div>
+```
+
+Footer right width 610: 1150+610=1760. Good.
+
+Number 3 with hl: `<div class="a h hl" id="num3" style="left:1275px;top:398px;width:200px;font-size:56px;opacity:0">03</div>`. hl gives yellow band. Width 200 — band will be as wide as text? div is block, width 200 → band spans 200px. Maybe width fit-content? Can't easily. Set width 110px so band hugs "03"? "03" at 56px display ≈ 2 chars * 37 = 74px + padding. Width 120. But rule 5 says explicit width — 120 is explicit. OK. Actually if hl has padding, text may overflow 120px. Hmm. Safer: make num3 a span inside a div? Simpler: keep num3 plain ink color like others? But I wanted yellow accent. Alternative: put hl on a span inside the num3 div:
+```html
+<div class="a h" id="num3" style="left:1275px;top:398px;width:200px;font-size:56px;opacity:0"><span class="hl">03</span></div>
+```
+The span wraps just the text; band hugs text. 
+
+Hmm, but is yellow-hl for the third number the best? Alternatively 01 cyan, 02 magenta, 03 ink — and use yellow hl only in heading. That's cleaner brand-wise. But the trio of accents is nice. I'll do cyan, magenta, hl-yellow. It mirrors heading accent. Good.
+
+Labels: maybe color labels ink (#F4F4F1). Yes.
+
+Also add a small mono tag under each label? e.g. "01 / WRITE"? No.
+
+Now GSAP code with all fromTo. Also ensure initial hidden states set via inline opacity:0 (and fromTo sets start anyway). fromTo sets starting values at tween time... actually fromTo with absolute start: the "from" state applies when the tween starts? No — fromTo sets the from state immediately when the timeline is created? GSAP fromTo: the from values are applied when the tween is first rendered (at its start time), not immediately, unless immediateRender is true. For fromTo, immediateRender defaults to true. So the from state applies immediately at timeline creation. Good — but since timeline is paused at 0, elements will show from-state (hidden). 
+
+But careful: elements with opacity:0 inline and fromTo immediateRender → consistent.
+
+For elements not animated (none visible static), fine.
+
+Edge: `#rule` scaleX from 0 — immediateRender true → scaleX 0 at start. Good.
+
+Footer rule scaleX 0 initially. Good.
+
+Let me also add a subtle "step" progress: maybe not needed.
+
+Duration 9s, last tween ends ~6.9s. Hold. Good.
+
+Let me write the SVG icons carefully.
+
+Icon 1 (document + pencil):
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <path d="M26 10 h42 l18 18 v82 H26 Z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M68 10 v18 h18" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="38" y1="50" x2="64" y2="50" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="38" y1="68" x2="56" y2="68" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="60" y1="98" x2="90" y2="68" stroke="#FF2D92" stroke-width="8"/>
+  <path d="M87.2 65.2 L102 56 L92.8 70.8 Z" fill="#F4F4F1"/>
+</svg>
+```
+Check pencil tip triangle: base at (90,68), perp half-width ~4: (87.2,65.2) and (92.8,70.8). Apex (102,56). Yes.
+
+Hmm the pencil line from (60,98) to (90,68): crosses the document's right edge (x=86? document right edge: path M26 10 h42 → to x=68, then l18 18 → to (86,28), then v82 → down to (86,110). So right edge x=86, from y=28 to y=110. Pencil at x=86: y = 98 - (86-60) = 98-26 = 72. So pencil crosses border at (86,72). It'll look like pencil writing over the page — acceptable, even nice.
+
+Icon 2 (brackets):
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <path d="M44 30 L20 60 L44 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <path d="M76 30 L100 60 L76 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+  <line x1="66" y1="26" x2="54" y2="94" stroke="#FF2D92" stroke-width="7"/>
+</svg>
+```
+
+Icon 3 (play):
+```svg
+<svg viewBox="0 0 120 120" width="140" height="140">
+  <circle cx="60" cy="60" r="42" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+  <path d="M50 40 L86 60 L50 80 Z" fill="#12A9E6"/>
+</svg>
+```
+
+Good. Now write final HTML. Also add `overflow:hidden` on root via inline style or CSS in head? I can add a <style> block? The rules don't forbid a style block; gw.css provides classes. I'll add minimal inline styles only, plus maybe a <style> for #root overflow. Inline: style="overflow:hidden" on root. That's fine.
+
+Also body margin — gw.css presumably handles. Keep as is.
+
+Font sizes: heading 112px — check width: "HOW IT WORKS" 12 chars. Display font wide; at 150px a letter ~100px → at 112px, ~75px per char → 12*75=900px. Width 1600 fine.
+
+Label font-size 36px, width 430: "MODEL WRITES THE CODE" wraps to two lines. Line-height 1.2 → 86px tall. Top 656 → ends 742. Fine.
+
+Now, is there anything about "connector lines between them" — done with cyan lines + dots.
+
+Also maybe animate the numbers with a slight stagger relative to icons — done.
+
+Final check on rule 4: no CSS transform on GSAP-animated elements. I have transform-origin in CSS — allowed. No transform in CSS. Good.
+
+Rule 7: everything visible at end must be at opacity 1 at hold frame — yes, all tweens end by ~6.9s, opacity 1.
+
+Let me also double-check the hl class usage: heading "How it <span class='hl'>works</span>". hl text #111 on yellow band. Good.
+
+Write it.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Three Steps</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080" style="overflow:hidden">
+
+  <!-- Header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:96px;width:900px;font-size:24px;color:var(--c);letter-spacing:6px;opacity:0">Process / Explainer</div>
+  <div class="a h" id="heading" style="left:160px;top:138px;width:1600px;font-size:112px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:292px;width:560px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- Step 1 -->
+  <div class="a h" id="num1" style="left:215px;top:398px;width:200px;font-size:56px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:215px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <path d="M26 10 h42 l18 18 v82 H26 Z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <path d="M68 10 v18 h18" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="38" y1="50" x2="64" y2="50" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="38" y1="68" x2="56" y2="68" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="60" y1="98" x2="90" y2="68" stroke="#FF2D92" stroke-width="8"/>
+      <path d="M87.2 65.2 L102 56 L92.8 70.8 Z" fill="#F4F4F1"/>
+    </svg>
+  </div>
+  <div class="a h" id="label1" style="left:215px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Write a brief</div>
+
+  <!-- Connector 1 -->
+  <div class="a" id="conn1" style="left:652px;top:545px;width:86px;height:4px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="dot1" style="left:722px;top:538px;width:18px;height:18px;background:var(--c);opacity:0"></div>
+
+  <!-- Step 2 -->
+  <div class="a h" id="num2" style="left:745px;top:398px;width:200px;font-size:56px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="icon2" style="left:745px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <path d="M44 30 L20 60 L44 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+      <path d="M76 30 L100 60 L76 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+      <line x1="66" y1="26" x2="54" y2="94" stroke="#FF2D92" stroke-width="7"/>
+    </svg>
+  </div>
+  <div class="a h" id="label2" style="left:745px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Model writes the code</div>
+
+  <!-- Connector 2 -->
+  <div class="a" id="conn2" style="left:1182px;top:545px;width:86px;height:4px;background:var(--m);transform-origin:left center"></div>
+  <div class="a" id="dot2" style="left:1252px;top:538px;width:18px;height:18px;background:var(--m);opacity:0"></div>
+
+  <!-- Step 3 -->
+  <div class="a h" id="num3" style="left:1275px;top:398px;width:200px;font-size:56px;opacity:0"><span class="hl">03</span></div>
+  <div class="a" id="icon3" style="left:1275px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <circle cx="60" cy="60" r="42" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <path d="M50 40 L86 60 L50 80 Z" fill="#12A9E6"/>
+    </svg>
+  </div>
+  <div class="a h" id="label3" style="left:1275px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Render the video</div>
+
+  <!-- Footer -->
+  <div class="a" id="footer-rule" style="left:160px;top:916px;width:1600px;height:2px;background:rgba(244,244,241,0.16);transform-origin:left center"></div>
+  <div class="a m" id="footer-left" style="left:160px;top:938px;width:600px;font-size:20px;color:rgba(244,244,241,0.55);letter-spacing:3px;opacity:0">The pipeline — 03 steps</div>
+  <div class="a m" id="footer-right" style="left:1150px;top:938px;width:610px;font-size:20px;color:var(--c);letter-spacing:3px;text-align:right;opacity:0">Brief → Code → Video</div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.fromTo("#eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+  tl.fromTo("#heading", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.5);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.1);
+
+  // Step 1
+  tl.fromTo("#num1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 1.75);
+  tl.fromTo("#label1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.0);
+
+  // Connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.55);
+  tl.fromTo("#dot1", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 2.95);
+
+  // Step 2
+  tl.fromTo("#num2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.15);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 3.4);
+  tl.fromTo("#label2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.65);
+
+  // Connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.2);
+  tl.fromTo("#dot2", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 4.6);
+
+  // Step 3
+  tl.fromTo("#num3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 4.85);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 5.1);
+  tl.fromTo("#label3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 5.35);
+
+  // Footer
+  tl.fromTo("#footer-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 6.1);
+  tl.fromTo("#footer-left", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.35);
+  tl.fromTo("#footer-right", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.45);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

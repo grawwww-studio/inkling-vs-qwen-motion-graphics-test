@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Local AI, real video</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <!-- eyebrow -->
+  <div class="a" id="tick" style="left:160px;top:322px;width:14px;height:14px;background:var(--c,#12A9E6);opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:194px;top:310px;width:640px;font-size:28px;letter-spacing:6px;color:var(--c,#12A9E6);opacity:0">EP05 / Experiment</div>
+
+  <!-- title line 1 -->
+  <div class="a h" id="wLocal" style="left:160px;top:382px;width:540px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">LOCAL</div>
+  <div class="a h" id="wAi"    style="left:740px;top:382px;width:260px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">AI,</div>
+
+  <!-- title line 2 : yellow marker band behind REAL -->
+  <div class="a" id="band" style="left:144px;top:570px;width:472px;height:126px;background:var(--y,#FFD400);transform-origin:left center;z-index:1"></div>
+  <div class="a h" id="wReal"  style="left:160px;top:562px;width:440px;font-size:150px;line-height:1;white-space:nowrap;color:#111;opacity:0;z-index:2">REAL</div>
+  <div class="a h" id="wVideo" style="left:640px;top:562px;width:540px;font-size:150px;line-height:1;white-space:nowrap;opacity:0">VIDEO</div>
+
+  <!-- rule -->
+  <div class="a" id="rule" style="left:160px;top:752px;width:1600px;height:4px;background:#F4F4F1;transform-origin:left center"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states (transforms must not live in CSS)
+  tl.set("#band", { scaleX: 0 }, 0);
+  tl.set("#rule", { scaleX: 0 }, 0);
+
+  // eyebrow
+  tl.fromTo("#tick",    { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3,  ease: "power2.out" }, 0.15);
+  tl.fromTo("#eyebrow", { opacity: 0, x: -24 },  { opacity: 1, x: 0,   duration: 0.45, ease: "power2.out" }, 0.2);
+
+  // words stagger in one by one
+  tl.fromTo("#wLocal", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+  tl.fromTo("#wAi",    { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.72);
+  tl.fromTo("#wReal",  { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 0.94);
+  tl.fromTo("#wVideo", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.16);
+
+  // yellow marker band wipes in from the left, revealing REAL
+  tl.fromTo("#band", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+  // thin rule draws across below
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 2.0);
+
+  // hold until 5s
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

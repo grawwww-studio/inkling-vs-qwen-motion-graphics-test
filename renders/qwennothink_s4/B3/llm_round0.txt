@@ -1,0 +1,87 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { background:#0E0E0E; }
+  .lbl { font-family:var(--body); color:var(--ink); font-size:30px; white-space:nowrap; }
+  .val { font-family:var(--mono); color:var(--c); font-size:30px; letter-spacing:1px; white-space:nowrap; }
+  .band { background:var(--y); color:#111; font-family:var(--mono); font-size:30px; letter-spacing:1px; white-space:nowrap; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:120px;top:104px;font-size:22px;letter-spacing:3px;color:var(--c);opacity:0">Render metrics</div>
+
+  <div class="a h" id="title" style="left:120px;top:150px;font-size:80px;letter-spacing:1px;opacity:0">Render time per card <span class="hl">(s)</span></div>
+  <div class="a m" id="unit" style="left:120px;top:262px;font-size:26px;letter-spacing:2px;color:var(--ink);opacity:0">Unit · seconds</div>
+  <div class="a" id="rule" style="left:120px;top:312px;width:1680px;height:4px;background:var(--m);opacity:0"></div>
+
+  <!-- Row 1 : Title (42) -->
+  <div class="a lbl" id="l1" style="left:120px;top:378px;width:300px;opacity:0">Title</div>
+  <div class="a" id="b1" style="left:440px;top:372px;width:693px;height:52px;background:var(--c);transform-origin:left center"></div>
+  <div class="a val" id="v1" style="left:1143px;top:378px;width:120px;opacity:0">42</div>
+
+  <!-- Row 2 : Explainer (58) -->
+  <div class="a lbl" id="l2" style="left:120px;top:490px;width:300px;opacity:0">Explainer</div>
+  <div class="a" id="b2" style="left:440px;top:484px;width:952px;height:52px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="band2" style="left:1402px;top:484px;width:114px;height:52px;transform-origin:left center;opacity:0"></div>
+  <div class="a band" id="v2" style="left:1402px;top:490px;width:114px;text-align:center;opacity:0">58</div>
+
+  <!-- Row 3 : Chart (51) -->
+  <div class="a lbl" id="l3" style="left:120px;top:602px;width:300px;opacity:0">Chart</div>
+  <div class="a" id="b3" style="left:440px;top:596px;width:838px;height:52px;background:var(--c);transform-origin:left center"></div>
+  <div class="a val" id="v3" style="left:1288px;top:602px;width:120px;opacity:0">51</div>
+
+  <!-- Row 4 : Lower third (23) -->
+  <div class="a lbl" id="l4" style="left:120px;top:714px;width:300px;opacity:0">Lower third</div>
+  <div class="a" id="b4" style="left:440px;top:708px;width:377px;height:52px;background:var(--c);transform-origin:left center"></div>
+  <div class="a val" id="v4" style="left:827px;top:714px;width:120px;opacity:0">23</div>
+
+  <!-- Baseline axis -->
+  <div class="a" id="axis" style="left:440px;top:352px;width:4px;height:420px;background:var(--ink);opacity:0"></div>
+
+  <div class="a m" id="foot" style="left:120px;top:800px;font-size:22px;letter-spacing:2px;color:var(--ink);opacity:0">Largest · Explainer (58 s)</div>
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.1);
+  tl.fromTo("#title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+  tl.to("#unit", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.75);
+  tl.to("#rule", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.9);
+  tl.to("#axis", { opacity: 1, duration: 0.4, ease: "power2.out" }, 1.0);
+
+  // Bars grow from zero, staggered
+  const barStarts = [1.2, 1.55, 1.9, 2.25];
+  const bars = ["#b1", "#b2", "#b3", "#b4"];
+  const labels = ["#l1", "#l2", "#l3", "#l4"];
+  const vals = ["#v1", "#v2", "#v3", "#v4"];
+
+  bars.forEach((id, i) => {
+    const s = barStarts[i];
+    tl.to(labels[i], { opacity: 1, duration: 0.3, ease: "power2.out" }, s - 0.15);
+    tl.fromTo(id, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.out" }, s);
+    tl.to(vals[i], { opacity: 1, duration: 0.4, ease: "power2.out" }, s + 0.7);
+  });
+
+  // Yellow band behind the largest value (Explainer)
+  tl.fromTo("#band2", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 3.3);
+
+  // Footer note
+  tl.to("#foot", { opacity: 1, duration: 0.4, ease: "power2.out" }, 4.0);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

@@ -1,0 +1,855 @@
+[REASONING]
+I need to build a 9-second three-step explainer video with a heading "How it works" and three columns, each with a number, icon, and label. The steps should reveal sequentially with connector lines between them.
+
+Let me plan the composition:
+- 1920x1080, 24fps, 9 seconds
+- Dark background #0E0E0E
+- Heading "How it works" — display font, uppercase, heavy
+- Three columns with:
+  - 01: "Write a brief" — pencil/document icon
+  - 02: "Model writes the code" — brackets </> icon
+  - 03: "Render the video" — play triangle icon
+- Connector lines between steps
+
+Let me think about the layout:
+- Header area: eyebrow + heading at top
+- Three columns below, evenly spaced
+
+Let me plan positions:
+- Canvas: 1920 x 1080
+- 100px margin on all sides
+
+Header:
+- Eyebrow: left:160px, top:100px
+- Heading "HOW IT WORKS": left:160px, top:150px, font-size:120px
+- Rule below heading
+
+Three columns - let me space them evenly:
+- Total width available: 1920 - 200 (margins) = 1720px
+- Three columns, each about 450px wide with gaps
+- Column 1: left:160px
+- Column 2: left:720px
+- Column 3: left:1280px
+- Each column about 440px wide
+
+Actually let me think about this more carefully. Three columns with connector lines between them.
+
+Let me use:
+- Column 1: left:160px, width:440px
+- Column 2: left:740px, width:440px
+- Column 3: left:1320px, width:440px
+
+That gives: 160+440=600, gap 140, 740+440=1180, gap 140, 1320+440=1760. Right margin: 1920-1760=160. 
+
+Connector lines between columns:
+- Between col1 and col2: from x=600 to x=740, at the icon level
+- Between col2 and col3: from x=1180 to x=1320, at the icon level
+
+Let me think about vertical layout:
+- Eyebrow: top:100px
+- Heading: top:150px, font-size:110px (tall)
+- Rule: top:310px
+- Numbers: top:400px
+- Icons: top:480px (SVGs, about 120x120)
+- Labels: top:650px
+
+Actually, let me reconsider. The heading "HOW IT WORKS" at 110px display font... uppercase letters are about 73px wide (110 * 0.66). "HOW IT WORKS" is 12 characters including spaces. That's about 12 * 73 = 876px. With the hl span on "WORKS" that's fine, fits within 1600px width.
+
+Let me refine the vertical layout:
+- Eyebrow: top:110px, font-size:26px
+- Heading: top:160px, font-size:110px
+- Rule: top:320px
+- Step numbers: top:420px
+- Icons: top:500px (120x120 SVGs)
+- Labels: top:660px
+
+For the icons, I need to draw them as inline SVG:
+1. Pencil/document - I'll draw a document with a pencil
+2. Brackets </> - code brackets
+3. Play triangle - a triangle in a circle or just a triangle
+
+Let me think about the animation timeline (9 seconds):
+- 0.0-0.5s: Eyebrow fades in
+- 0.3-0.8s: Heading slides up
+- 0.8-1.2s: Rule scales in
+- 1.2-1.8s: Step 1 appears (number, icon, label)
+- 2.0-2.5s: Connector line 1 draws
+- 2.5-3.1s: Step 2 appears
+- 3.3-3.8s: Connector line 2 draws
+- 3.8-4.4s: Step 3 appears
+- 4.4-9.0s: Hold
+
+Let me make the animations a bit more dynamic:
+- 0.0-0.4s: Eyebrow fades in with slight x movement
+- 0.2-0.7s: Heading slides up with opacity
+- 0.7-1.1s: Rule scaleX
+- 1.0-1.5s: Step 1 number fades in
+- 1.1-1.6s: Step 1 icon scales in
+- 1.3-1.7s: Step 1 label fades in
+- 1.8-2.3s: Connector 1 draws (scaleX)
+- 2.2-2.7s: Step 2 number
+- 2.3-2.8s: Step 2 icon
+- 2.5-2.9s: Step 2 label
+- 3.0-3.5s: Connector 2 draws
+- 3.4-3.9s: Step 3 number
+- 3.5-4.0s: Step 3 icon
+- 3.7-4.1s: Step 3 label
+- 4.1-9.0s: Hold (everything visible)
+
+Let me now write the SVG icons:
+
+1. Document with pencil (Write a brief):
+- A rectangle (document) with lines inside, and a diagonal pencil
+- viewBox="0 0 120 120"
+- Document: rect from (20,10) to (75,110), with a folded corner
+- Lines inside: 3 horizontal lines
+- Pencil: diagonal line from bottom-right area
+
+Actually let me simplify:
+- Document: a rectangle with a folded top-right corner
+- 3 horizontal lines inside
+- A pencil at an angle
+
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Document body -->
+  <path d="M25 10 L70 10 L90 30 L90 110 L25 110 Z"/>
+  <!-- Fold -->
+  <path d="M70 10 L70 30 L90 30"/>
+  <!-- Lines -->
+  <line x1="40" y1="55" x2="75" y2="55"/>
+  <line x1="40" y1="72" x2="75" y2="72"/>
+  <line x1="40" y1="89" x2="65" y2="89"/>
+  <!-- Pencil diagonal -->
+  <line x1="85" y1="95" x2="110" y2="70"/>
+  <line x1="82" y1="98" x2="107" y2="73"/>
+</svg>
+```
+
+Hmm, let me think about this differently. A simpler approach:
+
+1. Document icon: rectangle with folded corner and text lines
+2. Code brackets: < / > 
+3. Play triangle: triangle pointing right
+
+Let me draw them more carefully:
+
+Icon 1 - Document with pencil:
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6">
+  <!-- Document -->
+  <path d="M20 8 H68 L92 32 V112 H20 Z"/>
+  <path d="M68 8 V32 H92"/>
+  <!-- Text lines -->
+  <line x1="36" y1="56" x2="76" y2="56"/>
+  <line x1="36" y1="74" x2="76" y2="74"/>
+  <line x1="36" y1="92" x2="60" y2="92"/>
+  <!-- Pencil tip -->
+  <path d="M96 88 L112 72 L116 76 L100 92 Z"/>
+</svg>
+```
+
+Icon 2 - Code brackets </>:
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6">
+  <!-- Left bracket < -->
+  <polyline points="40,30 15,60 40,90"/>
+  <!-- Right bracket > -->
+  <polyline points="80,30 105,60 80,90"/>
+  <!-- Slash / -->
+  <line x1="65" y1="25" x2="55" y2="95"/>
+</svg>
+```
+
+Icon 3 - Play triangle:
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6">
+  <!-- Circle -->
+  <circle cx="60" cy="60" r="52"/>
+  <!-- Triangle -->
+  <polygon points="45,35 45,85 85,60"/>
+</svg>
+```
+
+Now let me think about the connector lines. They should be horizontal lines between the columns at the icon level.
+
+Column positions:
+- Col 1: left:160px, width:440px → right edge at 600px
+- Col 2: left:740px, width:440px → right edge at 1180px
+- Col 3: left:1320px, width:440px → right edge at 1760px
+
+Connector 1: from x=600 to x=740, so width=140px, left=600px
+Connector 2: from x=1180 to x=1320, so width=140px, left=1180px
+
+These should be at the vertical center of the icons. If icons are at top:500px and are 120px tall, center is at 560px. So connectors at top:556px (with 8px height, centered at 560).
+
+Actually, let me reconsider the layout. Let me center the content more.
+
+Let me use a slightly different layout:
+- Each column is centered within its space
+- Column centers: 380px, 960px, 1540px (evenly spaced across 1920)
+
+Wait, let me think about this more carefully.
+
+Available width: 1920 - 2*160 = 1600px (with 160px margins)
+Three columns: each 440px wide
+Total column width: 1320px
+Remaining space for gaps: 1600 - 1320 = 280px
+Two gaps: 140px each
+
+So:
+- Col 1: left:160px, width:440px (160 to 600)
+- Gap 1: 140px (600 to 740)
+- Col 2: left:740px, width:440px (740 to 1180)
+- Gap 2: 140px (1180 to 1320)
+- Col 3: left:1320px, width:440px (1320 to 1760)
+
+Column centers: 380px, 960px, 1540px
+
+For the icons, I'll center them within each column:
+- Icon 1: left: 380 - 60 = 320px
+- Icon 2: left: 960 - 60 = 900px
+- Icon 3: left: 1540 - 60 = 1480px
+
+Numbers above icons:
+- Num 1: left:160px (left-aligned in column) or centered
+- Let me left-align the numbers and labels within each column
+
+Actually, for a cleaner look, let me left-align everything within each column:
+- Col 1 content starts at left:160px
+- Col 2 content starts at left:740px
+- Col 3 content starts at left:1320px
+
+Numbers: font-size 34px, mono
+Icons: 120x120, centered in column or left-aligned
+Labels: font-size 36px, body or display
+
+Let me go with left-aligned content in each column.
+
+Vertical layout:
+- Eyebrow: top:100px
+- Heading: top:155px, font-size:105px
+- Rule: top:310px
+- Numbers: top:400px
+- Icons: top:470px (120px tall, so bottom at 590)
+- Labels: top:620px
+
+Let me check text sizes:
+- "WRITE A BRIEF" at 36px display: 13 chars * ~24px = 312px. Fits in 440px.
+- "MODEL WRITES THE CODE" at 36px: 21 chars * ~24px = 504px. That's too wide for 440px!
+
+I need to either make the labels smaller or use a different font size. Let me use 30px for labels:
+- "MODEL WRITES THE CODE" at 30px: 21 chars * ~20px = 420px. Still tight.
+
+Or I could use the body font for labels instead of display. The body font would be narrower.
+
+Actually, the brief says "label" - let me use the body font for labels. That should be narrower.
+
+Or I could break "Model writes the code" into two lines. But the brief says "label" suggesting a single line.
+
+Let me use font-size:28px for labels with the body font:
+- "MODEL WRITES THE CODE" at 28px body: roughly 21 * 16 = 336px. Fits.
+
+Actually, let me reconsider. The display font is described as "wide: at 150px an uppercase letter is about 100px wide". So at 28px, an uppercase letter would be about 28 * (100/150) = 18.7px wide. "MODEL WRITES THE CODE" has 21 characters (including spaces). 21 * 18.7 = 393px. That fits in 440px.
+
+Let me use 30px display font for labels:
+- 21 * 20 = 420px. Fits in 440px with a little room.
+
+Actually, let me be safe and use 28px. Or I could make the columns wider.
+
+Let me adjust: make columns 460px wide, gaps 120px.
+- Col 1: left:160px, width:460px (160 to 620)
+- Gap: 120px (620 to 740)
+- Col 2: left:740px, width:460px (740 to 1200)
+- Gap: 120px (1200 to 1320)
+- Col 3: left:1320px, width:460px (1320 to 1780)
+
+Right margin: 1920 - 1780 = 140px. That's fine (≥100px).
+
+With 460px columns, "MODEL WRITES THE CODE" at 30px display: 21 * 20 = 420px. Fits.
+
+Let me finalize:
+- Col 1: left:160px, width:460px
+- Col 2: left:740px, width:460px
+- Col 3: left:1320px, width:460px
+
+Connectors:
+- Conn 1: left:620px, width:120px, top:530px (at icon center)
+- Conn 2: left:1200px, width:120px, top:530px
+
+Icon vertical center: if icons are at top:470px and 120px tall, center is at 530px. So connectors at top:527px (with 6px height).
+
+Let me finalize the timeline:
+
+0.0-0.4: Eyebrow fade in (opacity 0→1, x -20→0)
+0.2-0.7: Heading slide up (opacity 0→1, y 40→0)
+0.7-1.1: Rule scaleX 0→1
+1.0-1.4: Step 1 number (opacity 0→1, y 20→0)
+1.1-1.6: Step 1 icon (scale 0.5→1, opacity 0→1)
+1.3-1.7: Step 1 label (opacity 0→1, y 20→0)
+1.9-2.4: Connector 1 (scaleX 0→1)
+2.3-2.7: Step 2 number
+2.4-2.9: Step 2 icon
+2.6-3.0: Step 2 label
+3.2-3.7: Connector 2
+3.6-4.0: Step 3 number
+3.7-4.2: Step 3 icon
+3.9-4.3: Step 3 label
+4.3-9.0: Hold
+
+That's a nice sequential reveal. Total animation ends around 4.3s, then hold until 9s.
+
+Now let me write the complete HTML file.
+
+For the icons, I need to be careful with the SVG. Let me draw them:
+
+Icon 1 - Document with pencil:
+- A document shape (rectangle with folded corner)
+- 3 horizontal lines inside
+- A small pencil shape at the bottom-right
+
+Icon 2 - Code brackets </>:
+- Left angle bracket <
+- Forward slash /
+- Right angle bracket >
+
+Icon 3 - Play triangle:
+- A circle
+- A right-pointing triangle inside
+
+Let me write clean SVGs:
+
+Icon 1 (Document + Pencil):
+```html
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <path d="M22 10 L70 10 L94 34 L94 110 L22 110 Z"/>
+  <path d="M70 10 L70 34 L94 34"/>
+  <line x1="38" y1="58" x2="78" y2="58"/>
+  <line x1="38" y1="76" x2="78" y2="76"/>
+  <line x1="38" y1="94" x2="62" y2="94"/>
+</svg>
+```
+
+Actually, I want to add a pencil element. Let me add a diagonal line with a small tip:
+```html
+<line x1="98" y1="98" x2="114" y2="82"/>
+<line x1="95" y1="101" x2="117" y2="79"/>
+```
+
+Hmm, that's two parallel lines forming the pencil body. Let me simplify - just a single diagonal line with a small triangle tip.
+
+Actually, for simplicity and clarity, let me just do a document with lines. The "pencil" aspect can be implied. Or I could add a small pencil.
+
+Let me try:
+```html
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Document -->
+  <path d="M20 8 L66 8 L90 32 L90 112 L20 112 Z"/>
+  <path d="M66 8 L66 32 L90 32"/>
+  <!-- Lines -->
+  <line x1="36" y1="56" x2="74" y2="56"/>
+  <line x1="36" y1="74" x2="74" y2="74"/>
+  <line x1="36" y1="92" x2="58" y2="92"/>
+  <!-- Pencil -->
+  <line x1="96" y1="96" x2="112" y2="80"/>
+  <path d="M93 99 L96 96 L112 80 L115 83 Z"/>
+</svg>
+```
+
+Hmm, the pencil is getting complicated. Let me just do a clean document icon. The brief says "pencil/document" so either is fine.
+
+Let me go with a clean document:
+```html
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <path d="M20 8 H68 L92 32 V112 H20 Z"/>
+  <path d="M68 8 V32 H92"/>
+  <line x1="38" y1="58" x2="76" y2="58"/>
+  <line x1="38" y1="76" x2="76" y2="76"/>
+  <line x1="38" y1="94" x2="60" y2="94"/>
+</svg>
+```
+
+Icon 2 (Code brackets):
+```html
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <polyline points="42,28 14,60 42,92"/>
+  <polyline points="78,28 106,60 78,92"/>
+  <line x1="64" y1="24" x2="56" y2="96"/>
+</svg>
+```
+
+Icon 3 (Play triangle):
+```html
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <circle cx="60" cy="60" r="52"/>
+  <polygon points="46,36 46,84 86,60"/>
+</svg>
+```
+
+Wait, the polygon should have no fill (or fill="none") and just stroke. Let me check - the SVG has fill="none" on the root, so the polygon will just be stroked. That's fine.
+
+Actually, for the play triangle, a filled triangle might look better. But the rules say "no fill or flat fill". Let me use a flat fill for the triangle:
+```html
+<polygon points="46,36 46,84 86,60" fill="#F4F4F1" stroke="none"/>
+```
+
+That would give a solid white triangle inside a stroked circle. That looks good.
+
+Now let me put it all together. Let me also think about colors:
+- Numbers: cyan #12A9E6
+- Icons: white #F4F4F1
+- Labels: white #F4F4F1
+- Connectors: cyan #12A9E6 or a dimmer version
+
+Let me use cyan for the numbers and connectors, white for icons and labels.
+
+Let me also add a small accent - maybe the hl class on "WORKS" in the heading.
+
+Now let me write the complete file:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- Header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:100px;width:600px;font-size:26px;letter-spacing:4px;color:#12A9E6;opacity:0">PROCESS / 03 STEPS</div>
+  <div class="a h" id="heading" style="left:160px;top:155px;width:1600px;font-size:105px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+  <div class="a" id="rule" style="left:160px;top:310px;width:240px;height:8px;background:#12A9E6;transform-origin:left center"></div>
+
+  <!-- Step 1 -->
+  <div class="a m" id="n1" style="left:160px;top:400px;width:200px;font-size:34px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="i1" style="left:160px;top:460px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M20 8 H68 L92 32 V112 H20 Z"/>
+      <path d="M68 8 V32 H92"/>
+      <line x1="38" y1="58" x2="76" y2="58"/>
+      <line x1="38" y1="76" x2="76" y2="76"/>
+      <line x1="38" y1="94" x2="60" y2="94"/>
+    </svg>
+  </div>
+  <div class="a h" id="l1" style="left:160px;top:620px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+
+  <!-- Connector 1 -->
+  <div class="a" id="c1" style="left:620px;top:517px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <!-- Step 2 -->
+  <div class="a m" id="n2" style="left:740px;top:400px;width:200px;font-size:34px;color:#12A9E6;opacity:0">02</div>
+  <div class="a" id="i2" style="left:740px;top:460px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <polyline points="42,28 14,60 42,92"/>
+      <polyline points="78,28 106,60 78,92"/>
+      <line x1="64" y1="24" x2="56" y2="96"/>
+    </svg>
+  </div>
+  <div class="a h" id="l2" style="left:740px;top:620px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">MODEL WRITES THE CODE</div>
+
+  <!-- Connector 2 -->
+  <div class="a" id="c2" style="left:1200px;top:517px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <!-- Step 3 -->
+  <div class="a m" id="n3" style="left:1320px;top:400px;width:200px;font-size:34px;color:#12A9E6;opacity:0">03</div>
+  <div class="a" id="i3" style="left:1320px;top:460px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <circle cx="60" cy="60" r="52"/>
+      <polygon points="46,36 46,84 86,60" fill="#F4F4F1" stroke="none"/>
+    </svg>
+  </div>
+  <div class="a h" id="l3" style="left:1320px;top:620px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">RENDER THE VIDEO</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.1);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.3);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.8);
+
+  // Step 1
+  tl.fromTo("#n1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.2);
+  tl.fromTo("#i1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.3);
+  tl.fromTo("#l1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+
+  // Connector 1
+  tl.fromTo("#c1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.0);
+
+  // Step 2
+  tl.fromTo("#n2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+  tl.fromTo("#i2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 2.6);
+  tl.fromTo("#l2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.8);
+
+  // Connector 2
+  tl.fromTo("#c2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.3);
+
+  // Step 3
+  tl.fromTo("#n3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.8);
+  tl.fromTo("#i3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.9);
+  tl.fromTo("#l3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait, I need to check a few things:
+
+1. The `transform-origin` on `#rule` and connectors is set in CSS style, not as a `transform` property. That's fine per the rules.
+
+2. I'm using `scale` in GSAP for the icons. The rule says I can use `scale` (it's in the list: opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height). Good.
+
+3. No CSS `transform` on animated elements. The `transform-origin` is fine. Let me double-check - I have `transform-origin:left center` on `#rule`, `#c1`, `#c2`. These are not `transform` properties, they're just origin settings. Good.
+
+4. All visible elements are children of `#root`. Good.
+
+5. Duration is 9 seconds. Good.
+
+6. The icons are inline SVGs with stroke #F4F4F1, stroke-width 6, no fill (except the play triangle which has a flat fill). Good.
+
+7. No rounded corners, no box-shadow, no gradients, no emojis. Good.
+
+8. The `hl` class is used on "WORKS" in the heading. Good.
+
+Let me check text overlap:
+- Eyebrow at top:100px, font-size:26px → bottom around 130px
+- Heading at top:155px, font-size:105px → bottom around 260px
+- Rule at top:310px → no overlap
+- Numbers at top:400px → no overlap
+- Icons at top:460px, 120px tall → bottom at 580px
+- Labels at top:620px → no overlap
+
+Good, no overlaps.
+
+Let me check that text fits:
+- "PROCESS / 03 STEPS" at 26px mono: about 18 chars * ~16px = 288px. Fits in 600px.
+- "HOW IT WORKS" at 105px display: 12 chars * ~70px = 840px. Fits in 1600px.
+- "01" at 34px mono: 2 chars * ~20px = 40px. Fits in 200px.
+- "WRITE A BRIEF" at 30px display: 13 chars * ~20px = 260px. Fits in 460px.
+- "MODEL WRITES THE CODE" at 30px display: 21 chars * ~20px = 420px. Fits in 460px.
+- "RENDER THE VIDEO" at 30px display: 16 chars * ~20px = 320px. Fits in 460px.
+
+All good.
+
+Let me also make sure the connectors are positioned correctly:
+- Connector 1: left:620px (right edge of col 1), width:120px → ends at 740px (left edge of col 2). Good.
+- Connector 2: left:1200px (right edge of col 2), width:120px → ends at 1320px (left edge of col 3). Good.
+- Both at top:517px, height:6px. Icon center is at 460 + 60 = 520px. So 517 + 3 = 520px. Perfect centering.
+
+I think this looks good. Let me also consider adding a subtle background element or footer to make it more visually interesting. But the brief is specific about what to include, so I'll keep it clean.
+
+Actually, let me add a small footer text at the bottom to fill the space:
+- "BRIEF → CODE → VIDEO" at the bottom
+
+No, the brief doesn't ask for that. Let me keep it clean.
+
+One more thing - I should make sure the initial state of elements is hidden. I'm using `opacity:0` in the CSS style for elements that will be animated in. For the rule and connectors, I'm using `fromTo` with `scaleX: 0`, so they start invisible. Good.
+
+Wait, I have `opacity:0` in the style for `#eyebrow`, `#heading`, `#n1`, `#i1`, `#l1`, `#n2`, `#i2`, `#l2`, `#n3`, `#i3`, `#l3`. But for `#rule`, `#c1`, `#c2`, I don't have `opacity:0` in the style. They'll be visible from the start but with `scaleX: 0` from the `fromTo`. Actually, `scaleX: 0` makes them invisible (zero width), so they're effectively hidden. That's fine.
+
+Actually wait - I should set initial opacity to 0 for all animated elements to be safe, or rely on the fromTo. The fromTo sets the initial state, so it should be fine. But to be extra safe, let me add opacity:0 to the rule and connectors too.
+
+Hmm, but the rule says "Set initial hidden state with tl.set or fromTo, not by CSS transform." It doesn't say I can't use CSS opacity:0. In fact, the example uses `opacity:0` in the CSS style. So it's fine.
+
+Let me add opacity:0 to the rule and connectors for safety.
+
+Actually, looking at the example again:
+```html
+<div class="a" id="rule" style="left:160px;top:560px;width:900px;height:6px;background:var(--m);transform-origin:left center"></div>
+```
+
+The example doesn't have opacity:0 on the rule. It relies on the fromTo to set scaleX:0. So I'll follow the same pattern.
+
+Let me finalize the file. I think it's ready.
+
+One more consideration: the `transform-origin` in CSS style. The rule says "Never put a CSS transform on an element that GSAP animates". `transform-origin` is not `transform`, it's a separate property. The example also uses `transform-origin:left center` in the CSS style. So it's fine.
+
+Let me also double-check: am I using `tl.set` anywhere? No, I'm using `tl.fromTo` for everything. That's fine per the rules.
+
+I think the file is complete and correct. Let me write it out.
+
+Actually, I realize I should double-check the heading text width more carefully.
+
+"HOW IT WORKS" - let me count: H-O-W-space-I-T-space-W-O-R-K-S = 12 characters
+At 105px display font, uppercase letters are about 105 * (100/150) = 70px wide
+12 * 70 = 840px
+
+But spaces are narrower, maybe 30px each. So: 10 * 70 + 2 * 30 = 700 + 60 = 760px. Still fits in 1600px.
+
+The "WORKS" part has the hl class (yellow band). That's 5 characters * 70 = 350px wide band. Fine.
+
+OK I'm confident the layout works. Let me write the final file.
+
+Let me reconsider the vertical spacing. The content goes from top:100px (eyebrow) to about top:650px (labels bottom). That leaves a lot of empty space at the bottom (650 to 1080 = 430px). Let me shift everything down a bit to center it better.
+
+Actually, let me add some bottom content or just shift things down. Let me shift the main content down:
+- Eyebrow: top:130px
+- Heading: top:190px
+- Rule: top:340px
+- Numbers: top:440px
+- Icons: top:500px
+- Labels: top:660px
+
+That puts the content from 130 to about 700px, roughly centered in 1080px. Better.
+
+Or I could add a subtle bottom element. Let me add a thin line at the bottom:
+- Bottom line: left:160px, top:900px, width:1600px, height:2px, background:rgba(244,244,241,0.1)
+
+Actually, let me keep it simple and just adjust the vertical positions.
+
+Final vertical layout:
+- Eyebrow: top:120px
+- Heading: top:180px (font-size:105px, so bottom around 285px)
+- Rule: top:330px
+- Numbers: top:430px
+- Icons: top:490px (120px tall, bottom at 610px)
+- Labels: top:650px (font-size:30px, bottom around 690px)
+
+Content spans from 120 to 690px. Center is at 405px. Canvas center is 540px. So it's a bit high. Let me shift down by about 60px:
+- Eyebrow: top:180px
+- Heading: top:240px
+- Rule: top:390px
+- Numbers: top:490px
+- Icons: top:550px
+- Labels: top:710px
+
+Content spans from 180 to 750px. Center at 465px. Still a bit high but better.
+
+Actually, for a video composition, having the content slightly above center is fine (it looks better visually). Let me go with:
+- Eyebrow: top:140px
+- Heading: top:200px
+- Rule: top:350px
+- Numbers: top:450px
+- Icons: top:510px
+- Labels: top:670px
+
+Content: 140 to 710px. Center at 425px. Good enough.
+
+Let me finalize with these positions.
+
+Connector vertical position: icon center at 510 + 60 = 570px. Connector at top:567px (with 6px height, center at 570px).
+
+Let me write the final version now.
+
+Hmm, actually I want to reconsider the icon for step 1. The brief says "pencil/document". Let me add a small pencil to the document icon to make it more distinctive.
+
+Document with pencil:
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Document body -->
+  <path d="M18 8 H62 L86 32 V112 H18 Z"/>
+  <!-- Fold -->
+  <path d="M62 8 V32 H86"/>
+  <!-- Text lines -->
+  <line x1="34" y1="56" x2="70" y2="56"/>
+  <line x1="34" y1="74" x2="70" y2="74"/>
+  <line x1="34" y1="92" x2="54" y2="92"/>
+  <!-- Pencil (diagonal, bottom-right) -->
+  <line x1="92" y1="100" x2="112" y2="80"/>
+  <line x1="89" y1="103" x2="109" y2="83"/>
+  <path d="M86 106 L92 100 L89 103 Z" fill="#F4F4F1" stroke="none"/>
+</svg>
+```
+
+Hmm, the pencil is getting complicated. Let me simplify - just two parallel lines for the pencil body and a small triangle for the tip.
+
+Actually, you know what, let me just do a clean document icon. It's clear and recognizable. The brief says "pencil/document" meaning either is acceptable.
+
+Let me go with the clean document. Final answer:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:160px;top:140px;width:600px;font-size:26px;letter-spacing:4px;color:#12A9E6;opacity:0">PROCESS / 03 STEPS</div>
+  <div class="a h" id="heading" style="left:160px;top:200px;width:1600px;font-size:105px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+  <div class="a" id="rule" style="left:160px;top:350px;width:240px;height:8px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n1" style="left:160px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="i1" style="left:160px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M18 8 H62 L86 32 V112 H18 Z"/>
+      <path d="M62 8 V32 H86"/>
+      <line x1="34" y1="56" x2="70" y2="56"/>
+      <line x1="34" y1="74" x2="70" y2="74"/>
+      <line x1="34" y1="92" x2="54" y2="92"/>
+    </svg>
+  </div>
+  <div class="a h" id="l1" style="left:160px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+
+  <div class="a" id="c1" style="left:620px;top:567px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n2" style="left:740px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">02</div>
+  <div class="a" id="i2" style="left:740px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <polyline points="42,28 14,60 42,92"/>
+      <polyline points="78,28 106,60 78,92"/>
+      <line x1="64" y1="24" x2="56" y2="96"/>
+    </svg>
+  </div>
+  <div class="a h" id="l2" style="left:740px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">MODEL WRITES THE CODE</div>
+
+  <div class="a" id="c2" style="left:1200px;top:567px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n3" style="left:1320px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">03</div>
+  <div class="a" id="i3" style="left:1320px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <circle cx="60" cy="60" r="52"/>
+      <polygon points="46,36 46,84 86,60" fill="#F4F4F1" stroke="none"/>
+    </svg>
+  </div>
+  <div class="a h" id="l3" style="left:1320px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">RENDER THE VIDEO</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.1);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.3);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.8);
+
+  tl.fromTo("#n1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.2);
+  tl.fromTo("#i1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.3);
+  tl.fromTo("#l1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+
+  tl.fromTo("#c1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.0);
+
+  tl.fromTo("#n2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+  tl.fromTo("#i2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 2.6);
+  tl.fromTo("#l2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.8);
+
+  tl.fromTo("#c2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.3);
+
+  tl.fromTo("#n3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.8);
+  tl.fromTo("#i3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.9);
+  tl.fromTo("#l3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+This looks good. Let me verify all the rules one more time:
+
+1. ✅ File layout: links to lib/gw.css and vendor/gsap.min.js, no CDN
+2. ✅ One root element with correct attributes, duration=9
+3. ✅ One paused GSAP timeline, registered as window.__timelines["main"], uses only tl.fromTo with absolute start times, no repeat:-1, no Math.random, no Date.now, no setTimeout, no requestAnimationFrame, no CSS animations
+4. ✅ No CSS transform on animated elements (only transform-origin which is fine)
+5. ✅ All positioned with position:absolute (class a), explicit left/top/width in px, 100px+ margins, text doesn't overlap
+6. ✅ Icons are inline SVG with stroke #F4F4F1, stroke-width 6, no fill (except flat fill on play triangle)
+7. ✅ Everything visible at end has been animated in and is at opacity 1
+
+Brand:
+- ✅ Background #0E0E0E (body)
+- ✅ Ink #F4F4F1
+- ✅ Cyan #12A9E6 for accents
+- ✅ Yellow #FFD400 via hl class (in gw.css)
+- ✅ Display font for headings (class h)
+- ✅ Body font for labels
+- ✅ Mono font for numbers (class m)
+- ✅ No rounded corners, no box-shadow, no gradients, no emojis
+
+I'm satisfied with this. Let me output it.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <div class="a m" id="eyebrow" style="left:160px;top:140px;width:600px;font-size:26px;letter-spacing:4px;color:#12A9E6;opacity:0">PROCESS / 03 STEPS</div>
+  <div class="a h" id="heading" style="left:160px;top:200px;width:1600px;font-size:105px;color:#F4F4F1;opacity:0">HOW IT <span class="hl">WORKS</span></div>
+  <div class="a" id="rule" style="left:160px;top:350px;width:240px;height:8px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n1" style="left:160px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">01</div>
+  <div class="a" id="i1" style="left:160px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M18 8 H62 L86 32 V112 H18 Z"/>
+      <path d="M62 8 V32 H86"/>
+      <line x1="34" y1="56" x2="70" y2="56"/>
+      <line x1="34" y1="74" x2="70" y2="74"/>
+      <line x1="34" y1="92" x2="54" y2="92"/>
+    </svg>
+  </div>
+  <div class="a h" id="l1" style="left:160px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">WRITE A BRIEF</div>
+
+  <div class="a" id="c1" style="left:620px;top:567px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n2" style="left:740px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">02</div>
+  <div class="a" id="i2" style="left:740px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <polyline points="42,28 14,60 42,92"/>
+      <polyline points="78,28 106,60 78,92"/>
+      <line x1="64" y1="24" x2="56" y2="96"/>
+    </svg>
+  </div>
+  <div class="a h" id="l2" style="left:740px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">MODEL WRITES THE CODE</div>
+
+  <div class="a" id="c2" style="left:1200px;top:567px;width:120px;height:6px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a m" id="n3" style="left:1320px;top:450px;width:200px;font-size:34px;color:#12A9E6;opacity:0">03</div>
+  <div class="a" id="i3" style="left:1320px;top:510px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#F4F4F1" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+      <circle cx="60" cy="60" r="52"/>
+      <polygon points="46,36 46,84 86,60" fill="#F4F4F1" stroke="none"/>
+    </svg>
+  </div>
+  <div class="a h" id="l3" style="left:1320px;top:670px;width:460px;font-size:30px;color:#F4F4F1;opacity:0">RENDER THE VIDEO</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.1);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.3);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.8);
+
+  tl.fromTo("#n1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.2);
+  tl.fromTo("#i1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 1.3);
+  tl.fromTo("#l1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+
+  tl.fromTo("#c1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.0);
+
+  tl.fromTo("#n2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+  tl.fromTo("#i2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 2.6);
+  tl.fromTo("#l2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.8);
+
+  tl.fromTo("#c2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.3);
+
+  tl.fromTo("#n3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.8);
+  tl.fromTo("#i3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.9);
+  tl.fromTo("#l3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

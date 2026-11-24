@@ -1,0 +1,42 @@
+{
+ "brief": "B5",
+ "name": "Product teaser with own assets (10 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 525.5,
+   "prompt_tokens": 1373,
+   "completion_tokens": 20000,
+   "finish": "length",
+   "error": "no html block"
+  },
+  {
+   "round": 1,
+   "llm_s": 528.0,
+   "prompt_tokens": 3115,
+   "completion_tokens": 20000,
+   "finish": "length",
+   "error": "no html block"
+  },
+  {
+   "round": 2,
+   "llm_s": 200.3,
+   "prompt_tokens": 4914,
+   "completion_tokens": 7624,
+   "finish": "stop",
+   "check_s": 1.8,
+   "check_errors": [],
+   "render_s": 8.8
+  }
+ ],
+ "model": "qwen",
+ "seed": "1",
+ "t0": 1795363086.4525826,
+ "render_ok": true,
+ "fix_rounds": 2,
+ "llm_s": 1253.9,
+ "prompt_tokens": 9402,
+ "completion_tokens": 47624,
+ "t1": 1795364350.962604,
+ "wall_s": 1264.5
+}

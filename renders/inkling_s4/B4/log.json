@@ -1,0 +1,26 @@
+{
+ "brief": "B4",
+ "name": "Lower third (4 s, transparent-looking over a dark plate)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 77.7,
+   "prompt_tokens": 1472,
+   "completion_tokens": 4773,
+   "finish": "stop",
+   "check_s": 1.6,
+   "check_errors": [],
+   "render_s": 5.2
+  }
+ ],
+ "model": "inkling",
+ "seed": "4",
+ "t0": 1795373137.3249128,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 77.7,
+ "prompt_tokens": 1472,
+ "completion_tokens": 4773,
+ "t1": 1795373221.8421872,
+ "wall_s": 84.5
+}

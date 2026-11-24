@@ -1,0 +1,698 @@
+[REASONING]
+Let me carefully think through this brief.
+
+Brief B3: Chart reveal from small JSON (8 seconds)
+
+Data:
+```json
+{"title":"Render time per card (s)","unit":"s","rows":[{"label":"Title","value":42},{"label":"Explainer","value":58},{"label":"Chart","value":51},{"label":"Lower third","value":23}]}
+```
+
+Requirements:
+- Horizontal bars, cyan color, grow from zero with staggered timing
+- Value labels either count up or fade in at the bar end
+- The largest bar (Explainer, 58) is highlighted with a yellow band behind the value
+- Chart title comes from the JSON
+- Bars must be proportional to values
+- 8 seconds total
+- 1920x1080, 24fps
+
+Design constraints:
+- Dark identity C: background #0E0E0E, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class `hl`, text is #111)
+- Fonts: var(--display) for headings (class `h`: uppercase, heavy, wide), var(--body), var(--mono) (class `m`: uppercase label)
+- No rounded corners, no box-shadow, no gradients, no emoji
+- Position everything with position:absolute (class `a`), left/top/width in px
+- Text within the canvas with at least a 100px margin
+- Icons as inline SVG stroke #F4F4F1 or brand color, stroke-width 6
+- One paused GSAP timeline registered as window.__timelines["main"]
+- Only tl.set / tl.fromTo / tl.to / tl.from allowed, absolute start time as the 3rd argument
+- No CSS transform on elements GSAP animates
+- transform-origin in CSS is OK
+- Initial hidden state via tl.set or fromTo, not via CSS transform
+
+Layout plan (1920x1080):
+
+Left margin 100px. Let's design:
+
+- Eyebrow (mono label): "PERF / RENDER BUDGET" or similar — top left, around left:100, top:90
+- Title (display, uppercase, heavy, wide): "RENDER TIME PER CARD (S)" — from JSON title. Display font is wide: at 150px, an uppercase letter is about 100px wide. Title is "RENDER TIME PER CARD (S)" = 24 chars including spaces. At 150px that's about 2400px wide — too wide. So smaller font size. At 90px, an uppercase letter is about 60px wide. 24 chars × 60 = 1440px. Fits within 1920-200=1720. Let's use about 88px. Actually let me count: "RENDER TIME PER CARD (S)" — R-E-N-D-E-R (6) space T-I-M-E (4) space P-E-R (3) space C-A-R-D (4) space (S) (3) = 6+1+4+1+3+1+4+1+3 = 24 chars. At 88px font, uppercase width ≈ 88*0.67 ≈ 59px → 24×59 ≈ 1416px. Good, fits within the 1720px available (100..1820).
+
+Let's actually make it two lines? No, one line is cleaner. Font size 84px.
+
+- Chart area: horizontal bars. 4 rows: Title (42), Explainer (58), Chart (51), Lower third (23).
+
+Max value 58. Bar area width: let's say labels on the left, bars start at x=460 (after labels), max bar width 1100px? Let me compute: canvas width 1920, right margin 100 → content right edge 1820. Bars start at x=480. Max bar width for value 58: let's say 1180px → scale = 1180/58 ≈ 20.34 px/s.
+
+Bar widths:
+- Title 42 → 42 × 20.34 = 854.3 → 854px
+- Explainer 58 → 1180px
+- Chart 51 → 1037.4 → 1037px
+- Lower third 23 → 467.9 → 468px
+
+Let me use a cleaner scale: 20 px/s. Then:
+- 42 → 840
+- 58 → 1160
+- 51 → 1020
+- 23 → 460
+
+Bars start at x=480. Max bar end = 480+1160 = 1640. Value labels after bar end, e.g. at 1640 + 30 = 1670 for the largest. Text "58" is about 2 chars, at 40px font ≈ 2×27 = 54px wide. Fits within 1820. Good.
+
+Actually value labels: "42 s", "58 s", etc. With unit "s" from JSON. Let's include the unit: "42 s".
+
+Row layout (vertical):
+Chart area vertical: title is top ~300. Rows start at y=420, row height 110px, bar height 56px? Let's plan:
+
+- Eyebrow: top 110
+- Title: top 150 (font 84 → height ~100)
+- Rule: top 300
+- Rows: 4 rows. Row pitch 120px. Row 1 top 380, row 2 top 500, row 3 top 620, row 4 top 740. Bar height 64px. Labels vertically centered with bars.
+
+Bottom: footer note at top 950? Bottom margin 100 → content bottom edge 980. Row 4 bar bottom = 740+64 = 804. Footer at 880-940.
+
+Actually let me give more breathing room:
+
+- Eyebrow: left 100, top 96, font 24
+- Title: left 100, top 140, font 84 → occupies up to about 240
+- Rule: left 100, top 292, width 1720, height 6? Or a shorter accent rule. Let's go with a full-width thin rule: left 100, top 296, width 1720, height 4. Hmm, the example uses height 6. OK.
+
+Rows: pitch 132px, bar height 68px.
+- Row 1: top 372
+- Row 2: top 504
+- Row 3: top 636
+- Row 4: top 768
+Bar bottom: 768+68 = 836.
+
+Footer: top 900: mono text "SOURCE / JSON · SCALE 1PX = 0.05S" or "MAX 58 S · UNIT S". Let's do something like "UNIT S · N=4 · SCALE 20PX/S". Keep it simple: "UNIT / S — SCALE / 20PX PER S".
+
+Labels (mono, uppercase): left 100, width 340, right-aligned? Right-aligned labels look good for horizontal bar charts. CSS text-align: right. Labels: "TITLE", "EXPLAINER", "CHART", "LOWER THIRD". "LOWER THIRD" at 28px mono: 11 chars × ~17px = 187px. Fits in 340.
+
+Labels vertically centered with the bar: bar top + (68 - line-height)/2. If label font is 28px, label top = bar top + 20.
+
+Bar container: left 480. Each bar: div with class `a`, height 68, background cyan #12A9E6. Animate scaleX from 0 to 1 with transform-origin left center. Width set to final px width.
+
+Wait — rule 4: never put CSS transform on elements GSAP animates. transform-origin in CSS is fine. So the bar: `style="left:480px;top:372px;width:840px;height:68px;background:var(--c);transform-origin:left center"` and animate scaleX 0→1. Good.
+
+Value labels: divs positioned at bar end + offset. E.g. row 1 value at left 480+840+28 = 1348, top 372+14 (font 40 → height about 40; bar 68 → top offset (68-40)/2 ≈ 14). Font: mono or display? Value labels — let's use display for the numbers (heavy, wide) or mono. The `m` class is uppercase label; numbers with display font look strong. Let's use display font 44px for numbers, and a small "s" unit in mono? Simpler: "42 s" with display 44px.
+
+Hmm, "value labels either count up or fade in at the bar end". Count up: we can animate the text content with GSAP? We can't use onUpdate… actually the rules say only tl.set/tl.from/to/tl.fromTo with absolute start times. An onUpdate callback isn't forbidden, but "no requestAnimationFrame, no setTimeout" — an onUpdate that changes textContent is technically allowed? The rules say "use only tl.set / tl.fromTo / tl.to / tl.from" — that's about the timeline methods. An onUpdate that changes textContent is a bit risky for the linter. Safer: fade in the value labels. The brief says "count up or fade in" — either is acceptable. Let's go with fade in (with a slight x slide for style).
+
+Actually, count-up can be safely implemented with a proxy object animated with tl.to and an onUpdate that writes textContent. But the linter might flag onUpdate. The instructions say "use only tl.set / tl.fromTo / tl.to / tl.from with absolute start time as the 3rd argument". Passing an onUpdate in the vars is still tl.to. But to be safe and deterministic (frame-based rendering), fade-in is cleaner. Let's go with fade in + small x offset.
+
+Yellow band behind the largest value (Explainer, 58): class `hl` — "yellow #FFD400 only as a band behind #111 text (class `hl`, text is #111)". So the value label for Explainer should be a span with class hl inside a div. The hl class presumably has background: var(--y) and color: #111. So the value label for row 2: `<div class="a h" ...><span class="hl">58 s</span></div>`.
+
+Hmm wait — the hl band: "yellow band behind the value". The band should be visible. If hl is inline, the band wraps the text. Should be fine.
+
+Also highlight the largest bar itself? The brief only says "the largest bar is highlighted with a yellow band behind the value". So the band is behind the value label, not the bar. Keep the bar cyan. Should the Explainer bar be slightly different? No — the brief is specific. Keep all bars cyan.
+
+Gridlines? Not required. Keep it clean. A subtle baseline (vertical rule) at bar start x=480: 1px width, ink 20% opacity? A thin vertical axis line from row 1 top to row 4 bottom. Nice touch. Color: rgba? "no gradients" — a solid color with opacity is fine. Use #F4F4F1 with opacity 0.25. Or use a brand color. Let's add a vertical axis line at left 478, top 360, width 4, height 488 (from 360 to 848). Actually row 1 top 372 to row 4 bottom 836 → height 464. Let's do top 364, height 480.
+
+Also tick marks? Overkill. Keep minimal.
+
+Eyebrow: "PERFORMANCE / CARD RENDERS" or "BENCHMARK / RENDER TIMES". Mono, cyan. Let's do "BENCHMARK / RENDER TIMES".
+
+Footer: "UNIT / S · SCALE / 20PX PER S · N / 4" — mono, ink 50% opacity. And a logo? The project has assets/logo-negative.png. The brief doesn't mention a logo. We could add a small logo bottom right. The rules say the project already has those assets; linking is mandatory (gw.css, gsap). Logo is optional. Let's add a small logo in the top right or bottom right for polish. Actually, note: images are fine (no external load — local file). Let's place a logo bottom right: left 1700, top 920, width 120. Hmm, footer text is on the left. OK.
+
+Actually let's not overcomplicate; a small logo adds polish. `<img src="assets/logo-negative.png" class="a" id="logo" style="left:1680px;top:900px;width:140px;height:auto;opacity:0">`. Height auto may be unpredictable; the logo is probably wide. Let's set width 140px, height 40px? If the aspect ratio differs, the image will be distorted. Safer: width:140px; height:140px; object-fit:contain. Hmm, object-fit is fine (not a transform). Let's do width 150, height 150, object-fit contain, opacity .9? Actually negative logo on dark background — designed for dark. Place it in the bottom right area: left 1660, top 880, width 160, height 160? That might collide with the footer? Footer is on the left. OK.
+
+Hmm, but I don't know the logo dimensions. object-fit: contain handles it.
+
+Animation timeline (8s):
+
+- 0.0: root background already dark.
+- 0.2: eyebrow fades in (opacity 0→1, duration 0.4)
+- 0.35: title fromTo y 30→0, opacity 0→1, duration 0.6
+- 0.7: rule scaleX 0→1, duration 0.7
+- 0.9: axis line: scaleY 0→1 (transform-origin top), duration 0.5
+- Bars: staggered. Bar i starts at 1.1 + i*0.35, duration 0.9, ease power3.out.
+  - Bar 1 (Title 42): 1.1
+  - Bar 2 (Explainer 58): 1.45
+  - Bar 3 (Chart 51): 1.8
+  - Bar 4 (Lower third 23): 2.15
+  Each bar ends at start+0.9: bar 1 ends at 2.0, bar 2 at 2.35, bar 3 at 2.7, bar 4 at 3.05.
+- Value labels: fade in after each bar ends (or slightly before): label i at bar_i end + 0.05, duration 0.45, fromTo x 14→0, opacity 0→1.
+  - Label 1: 2.0
+  - Label 2: 2.35
+  - Label 3: 2.7
+  - Label 4: 3.05
+- Labels (row names): fade in earlier, staggered, at 0.9-1.5: label i at 0.95 + i*0.15, duration 0.4.
+- Yellow band (hl): the band behind the Explainer value. If hl is the span inside the value div, animating the div's opacity covers it. But for extra emphasis, after all bars are in, pulse the band? No repeat. Maybe a second "pop" of the band: scaleX 1.06→1? Subtle. Or the band animates in separately: the value div contains the span.hl; animate the span's background? Can't easily animate background without CSS transition. Instead, we can make the band a separate div behind the value text: a div with background #FFD400, and the value text div with color #111 on top. Then the band can be animated (scaleX) independently. This matches "yellow band behind the value" — a band element.
+
+Let's do that: for row 2, a band div at the value position, size to fit "58 s" at 44px display: 2 chars + space + s ≈ 4 chars × ~30px = 120px + padding. Band: width 150px, height 64px, background var(--y). Text on top: "58 s" color #111, display 44px, centered? Let's left-align the text with 14px padding.
+
+Hmm, but the rule: "yellow #FFD400 only as a band behind #111 text (class `hl`, text is #111)". So it wants us to use the class `hl`. The hl class presumably styles the band. If we make a separate band div, do we give it class hl? The hl class probably sets background: var(--y); color: #111. If we apply hl to the band div (background), the text div on top needs color #111.
+
+Simplest compliant approach: value label div for row 2: `<div class="a h" id="v2" style="..."><span class="hl">58 s</span></div>`. The span.hl gets the yellow background + #111 text (from gw.css). Then we can animate the span separately: after the value fades in, do a quick scaleX 1.15→1 pop on the span (transform-origin left center), or animate the span's opacity separately from the parent.
+
+To make the "band" clearly a band (slightly larger than the text), we can add padding to the span via inline style: padding: 6px 12px; display:inline-block. That's fine (padding isn't a transform).
+
+Let's do this: for row 2, the value div contains span.hl with padding. Animate the parent div (fade in), then pop the span: fromTo scaleX 1.25→1? That would stretch the text horizontally — might look weird but a quick "stamp" effect is OK. Alternative: animate the span's y: 8→0 with opacity — but the parent is already fading in.
+
+Better: for row 2, delay the parent div fade, and animate the band (span) with fromTo scaleX 0→1 (transform-origin left center), then fade in the text. Sequence: at 2.35, band scaleX 0→1 (duration 0.35, power2.out); at 2.55, text (inside span) opacity 0→1 (duration 0.3). But the text is inside the band span… we need separate elements: the band div (background) and the text div on top.
+
+Let me restructure: for all rows, value = a div positioned after the bar. For row 2, add a band div behind it:
+- Band: `<div class="a" id="band2" style="left:1668px;top:504px;width:170px;height:68px;background:var(--y);transform-origin:left center;opacity:1">` — wait, the bar top for row 2 is 504, bar height 68. The value label is at the bar end: bar 2 width 1160 → end x = 480+1160 = 1640. Band at left 1656, width 170 → right edge 1826. Slightly past the 1820 margin. Let's adjust: band left 1652, width 168 → 1820. Text "58 s" at left 1664, font 44.
+
+Hmm wait, actually let me reconsider the scale to leave more room. Scale 19 px/s:
+- 42 → 798
+- 58 → 1102
+- 51 → 969
+- 23 → 437
+
+Bar 2 end = 480+1102 = 1582. Band left 1598, width 170 → 1768. Value text "58 s" at 1610.
+
+Other value labels:
+- v1 "42 s": left 480+798+26 = 1304, top 372+14
+- v3 "51 s": left 480+969+26 = 1475
+- v4 "23 s": left 480+437+26 = 943
+
+Font 44 display: "42 s" ≈ 4 glyphs × 30 = 120px wide. v1: 1304+120 = 1424 < 1820 ✓.
+
+Or scale 20 with band 1652..1820 — also works but tight. Let's use scale 19 for breathing room. Actually let me recompute with cleaner numbers: scale = 19px/s.
+
+- Title 42 → 798px
+- Explainer 58 → 1102px
+- Chart 51 → 969px
+- Lower third 23 → 437px
+
+Good, proportional (exact multiples of 19).
+
+Footer: "SCALE / 19PX PER S · MAX / 58 S · N / 4" — mono 22px, left 100, top 900.
+
+Wait, I should double-check the vertical space:
+- Eyebrow top 96 (font 24)
+- Title top 138, font 84 → cap height about 60, total about 100 → bottom about 238
+- Rule top 288, height 6
+- Row 1 top 368, pitch 132: rows at 368, 500, 632, 764. Bar height 64. Row 4 bottom = 764+64 = 828.
+- Footer top 896 (font 22) → bottom about 918. Bottom margin: 1080-918 = 162 ≥ 100 ✓.
+
+Labels: font 26 mono, top = bar top + 19 (bar 64, text 26 → (64-26)/2 ≈ 19).
+
+Values: font 44 display, top = bar top + 10 (64-44)/2 = 10.
+
+Axis line: left 474, top 356, width 4, height 484 (356→840). Covers row 1 top 368 to row 4 bottom 828 with padding. Animate scaleY 0→1, origin top.
+
+Hmm — actually, should the axis be at x=480 (bar start)? A 4px line at left 476, width 4 → occupies 476-480, bars start at 480.
+
+Now, the "hl" class requirement: the brief says the largest bar is highlighted with a yellow band behind the value, and the brand rule says the yellow band uses class hl with #111 text. So the band div should have class hl? If hl sets background var(--y) and color #111, then the band div with class hl gets the yellow background. The text on top is a separate div with color #111 (or we can put the text inside the band div — the band div's color #111 applies to its text).
+
+Simplest: band div with class "a hl" containing the text "58 s". The band div: left 1598, top 500, width 170, height 64, background from hl class, color #111, font display 44, text-align left, padding-left 12px, line-height 64px. Then animate: band scaleX 0→1 (origin left), then… the text is inside the band so it scales with it. A stamp effect: fromTo scaleX 0→1 with power3.out, then a small overshoot? GSAP's ease "back.out(1.6)" gives overshoot — is that allowed? Eases aren't restricted. Only methods are restricted. back.out is fine.
+
+But wait — if the band + text scale together from 0, the text also stretches during the animation. That's a common "stamp" style and looks intentional. Alternatively, animate the band's width? Width animation is allowed (tl.to width). Animate the band's width from 0 to 170, and fade in the text after. That's cleaner: band width 0→170 (duration 0.35, power2.out), then text opacity 0→1 (duration 0.25).
+
+But note: the band div contains the text; if the band width is 0 the text overflows (visible). So the text needs to be a separate element on top, hidden until the band grows. Structure:
+
+```html
+<div class="a hl" id="band2" style="left:1598px;top:500px;width:170px;height:64px;"></div>
+<div class="a h" id="v2" style="left:1610px;top:510px;font-size:44px;color:#111;opacity:0">58 s</div>
+```
+
+The band has class hl (yellow background, no text). v2 is the text with #111.
+
+Wait, but the hl class in gw.css might set color:#111 and background:var(--y) — fine for the band (no text inside).
+
+Hmm, but I don't know exactly what hl does — the instructions say "yellow #FFD400 only as a band behind #111 text (class `hl`, text is #111)". So class hl is the band styling. To be safe, let me also set inline background: var(--y) on the band? If hl already sets it, the inline is redundant but harmless. Actually, if hl doesn't set the background (maybe it sets background on a span?), the inline ensures the yellow. Let's add `background:var(--y)` inline, and also class hl. And color #111 inline on v2.
+
+Actually wait — maybe the hl class is meant to be used on a span inside text (like in the example: `<span class="hl">world</span>` — the example shows `<div class="a h" id="t1">Hello <span class="hl">world</span></div>`). In the example, hl is a span inside a heading. So hl = inline highlight band. For our chart, the value "58 s" can be `<span class="hl">58 s</span>` inside the value div. That matches the example usage exactly.
+
+So: `<div class="a h" id="v2" style="left:1610px;top:510px;font-size:44px;opacity:0"><span class="hl" id="hl2">58 s</span></div>`.
+
+Then animation: v2 fades in (opacity), and hl2 can pop: fromTo scaleX 1.15→1? Or the band can grow: animate hl2 with scaleX 0→1? But then the text inside also scales. A quick stamp is fine. Or animate the parent v2 with x + opacity, and give hl2 a one-shot scale pop after: fromTo("#hl2", {scaleX:1.18}, {scaleX:1, duration:0.3, ease:"power2.out"}, 2.75) — subtle emphasis. Hmm, but scaleX on a span with transform-origin left — the text briefly stretches. At 44px for 0.3s it's subtle. I think it's fine, adds a "highlight" beat.
+
+Actually, a cleaner emphasis: after the value appears, the band does a quick "flash" — but color animation isn't in the allowed property list (opacity, x, y, scale, width, height, rotation). So no color flash. A scale pop is the way.
+
+Alternatively, animate the band with width: make the band a separate div (class hl, no text) and animate its width from 0 to 170 — width animation is allowed. Then the text fades in on top. This gives a clear "band wipes in behind the value" effect. I like this better:
+
+```html
+<div class="a hl" id="band2" style="left:1598px;top:500px;width:170px;height:64px;"></div>
+<div class="a h" id="v2t" style="left:1612px;top:510px;font-size:44px;color:#111;opacity:0">58 s</div>
+```
+
+Wait, but if the hl class is designed for inline spans (display:inline), putting it on an absolutely positioned div is fine — the div's display is controlled by class `a` (position:absolute). The background applies to the box. OK.
+
+But risk: what if hl sets `display:inline`? Then the box collapses? An absolutely positioned element with display:inline → the browser treats it as block-like (absolute positioning forces block). Actually, position:absolute with display:inline computes to display:block. So it's fine.
+
+Hmm, but honestly, the simplest and most robust: use the span.hl approach inside the value div, matching the example. The band appears with the text (parent opacity). Then a subtle scale pop on the span. Let me weigh:
+
+Option A (span.hl inside value div):
+- v2 div: `<span class="hl">58 s</span>`, parent opacity 0→1 at 2.35.
+- Pop: fromTo("#hl2", {scaleX:1.25}, {scaleX:1, ...}) at 2.6.
+- Band size = text size + maybe padding via inline style on the span: `padding:4px 10px`. Inline padding on the span is fine.
+
+Option B (separate band div + text div):
+- Band width 0→170 at 2.3 (duration 0.35).
+- Text opacity 0→1 at 2.55 (duration 0.3).
+- Clearer "band behind the value" visual.
+
+Option B gives a more deliberate "band wipes in behind the value" moment. And it literally matches "yellow band behind the value". Let's go with B, but also include class hl on the band div (plus inline background for safety).
+
+Wait, one more consideration: the rule says "no rounded corners, no box-shadow, no gradients" — a flat yellow rectangle band. Good.
+
+Should the band also highlight the bar? No.
+
+Now, "value labels either count up or fade in at the bar end" — fade in. ✓
+
+Let me also think about whether to include a small "unit" axis label like "s" at the top of the axis or in the footer. The JSON has unit "s". Include "S" in the title ("(S)") ✓, and in the value labels ("42 s") ✓.
+
+Eyebrow text: "BENCHMARK / RENDER TIMES" — mono, cyan, 24px.
+
+Footer: "SCALE / 19 PX PER S · MAX / 58 S · N / 4" mono 22px, color rgba? Use var(--ink) with opacity 0.55. Actually, we can use color: #F4F4F1 with opacity 0.55 on the element. Fine.
+
+Also, a small magenta accent somewhere? The brand allows magenta #FF2D92. Maybe make the eyebrow magenta? Or a small magenta tick on the axis. Let's keep the eyebrow cyan, and add a magenta square marker next to the eyebrow? A small 12px magenta square before the eyebrow text — a nice brand touch. Or the rule line: left 40% cyan, right 60% magenta? Let's keep it simple: a full-width rule in ink 15% opacity, plus a short 200px cyan segment on top? Hmm.
+
+Let me design the rule: a thin full-width line at top 288 (1720px, 4px, ink 12% opacity), and a 260px cyan segment at the same y (4px height, cyan) that animates in. Actually simpler: one rule, cyan, width 1720, 4px, opacity 0.9? A full-width cyan rule is strong. Or ink. Let's do: base rule ink @ 0.18 (static, fades in), accent segment cyan 260px that animates scaleX. Two elements:
+
+- #rule: left 100, top 290, width 1720, height 4, background #F4F4F1, opacity 0.18 → animate opacity to 0.18? Animating to opacity 0.18 is fine (tl.to opacity:0.18). Hmm, but the initial opacity 0 in CSS… the rule says set initial hidden state with tl.set or fromTo. fromTo opacity 0→0.18 is fine.
+- #rule2: left 100, top 290, width 260, height 4, background var(--c), scaleX 0→1.
+
+Actually, let me simplify to just one cyan rule 1720 wide. Clean and brand-forward. Hmm, a full-width cyan line under the title looks good on dark. Let's do: rule cyan, 1720px, 5px, scaleX 0→1 origin left, duration 0.8.
+
+Add a small magenta element for balance: a 10px magenta square at the right end of the rule? Like a "terminal" tick. Or a magenta dot before the eyebrow. Let's do: a 14×14 magenta square to the left of the eyebrow? Eyebrow at left 122, square at left 100. Cute. Or a magenta vertical tick at the top of the axis.
+
+Let me add: a small magenta square (14px) at left 100, top 100 (aligned with the eyebrow), and the eyebrow text at left 126. The square scales in with the eyebrow.
+
+Also a logo bottom right: assets/logo-negative.png. Include it, fade in at the end (7.0). Position: left 1640, top 900, width 180, height 180, object-fit contain. Hmm, that's a big box; the logo will be contained within. Or width 150. Let's do left 1660, top 890, width 160, height 160.
+
+Wait, footer is at top 896 on the left; logo on the right — no overlap.
+
+Bottom margin check: logo bottom 890+160 = 1050 — only 30px from the bottom edge! Violates the 100px margin? The margin rule is for text: "keep all text within the canvas with at least 100px margin". The logo is an image, not text, but let's be safe: top 820, height 160 → bottom 980. 100px margin. left 1660 → right edge 1820. ✓. But does it collide with row 4? Row 4 bar top 764, bar 4 width 437 → end x 917. Logo at x 1660 — no horizontal overlap. ✓.
+
+Hmm, but the logo may visually float. Fine.
+
+Actually, do I want the logo? The brief is about the chart. A small logo adds production value. Keep it, subtle, opacity 0.9.
+
+Now, let me double-check the "no CSS transform on elements GSAP animates" rule. Elements I animate:
+- eyebrow (opacity) — no transform in CSS ✓
+- square (scale) — needs transform-origin in CSS ✓ (origin allowed)
+- title (opacity, y) — no CSS transform ✓
+- rule (scaleX) — transform-origin:left center in CSS ✓
+- axis (scaleY) — transform-origin:top center ✓
+- bars (scaleX) — transform-origin:left center ✓
+- row labels (opacity, x) ✓
+- value labels (opacity, x) ✓
+- band (width) — no transform ✓
+- v2 text (opacity) ✓
+- footer (opacity) ✓
+- logo (opacity, y) ✓
+
+All good.
+
+Also "no CSS animations or transitions" ✓. "No repeat:-1, no Math.random, no Date.now, no setTimeout, no requestAnimationFrame" ✓.
+
+Timeline methods: only tl.set, tl.to, tl.from, tl.fromTo with absolute start times. ✓
+
+Duration: data-duration="8". The timeline should end before 8, with a hold. Let me map the full timeline:
+
+- 0.00: (root is visible; everything else hidden via fromTo/set)
+- 0.15: square fromTo scale 0→1 (0.35, back.out(2))
+- 0.20: eyebrow fromTo x -18→0, opacity 0→1 (0.45)
+- 0.35: title fromTo y 34→0, opacity 0→1 (0.6, power2.out)
+- 0.75: rule fromTo scaleX 0→1 (0.8, power3.inOut)
+- 0.90: axis fromTo scaleY 0→1 (0.5, power2.out)
+- Row labels: 0.95, 1.10, 1.25, 1.40 → fromTo x -14→0, opacity 0→1 (0.4)
+- Bars:
+  - b1: 1.15 → scaleX 0→1 (0.85, power3.out) → ends 2.00
+  - b2: 1.50 → ends 2.35
+  - b3: 1.85 → ends 2.70
+  - b4: 2.20 → ends 3.05
+- Values:
+  - v1: 2.00 → fromTo x 16→0, opacity 0→1 (0.4)
+  - band2: 2.35 → width 0→170 (0.35, power2.out)
+  - v2t: 2.60 → opacity 0→1 (0.3)
+  - v3: 2.70 → x 16→0, opacity 0→1 (0.4)
+  - v4: 3.05 → x 16→0, opacity 0→1 (0.4)
+- Footer: 3.4 → opacity 0→1 (0.5)
+- Logo: 3.6 → fromTo y 12→0, opacity 0→1 (0.5)
+- 7.5–8.0: hold (everything at opacity 1)
+
+Wait — rule 7: "everything that should be visible at the end of the clip must be animated in and at opacity 1 on the hold frame". The hold frame is presumably near the end (t≈7.5-8). All elements reach opacity 1 by about 4.1s. ✓
+
+Hmm, 8 seconds with the action ending around 4s is a long hold. That's fine (charts need to be readable). Should I stretch the bar animation a bit for pacing? Bars at 0.85s each with 0.35 stagger — the whole chart is in by about 3s. A 5-second hold is long. Let me slow down: bar duration 1.0, stagger 0.45:
+- b1: 1.2 → 2.2
+- b2: 1.65 → 2.65
+- b3: 2.1 → 3.1
+- b4: 2.55 → 3.55
+Values:
+- v1: 2.2 (0.4)
+- band2: 2.65 (width 0.4)
+- v2t: 2.9 (0.35)
+- v3: 3.1 (0.4)
+- v4: 3.55 (0.4)
+Footer: 3.9 (0.5)
+Logo: 4.1 (0.5)
+Ends about 4.6, hold until 8. Still about a 3.4s hold. Acceptable — the chart stays on screen to be read. Maybe add a subtle end beat: a magenta tick under the Explainer row? Or a pulse on the band at about 6.5? A gentle scale pulse on the band (scaleX 1→1.04→1)? That needs two tweens: to 1.04 at 6.8 (0.25), to 1 at 7.1 (0.25). Subtle life in the final hold. Allowed (tl.to). Let's add: band2 fromTo scaleX… wait, the band already had its width animated; scaleX is separate. Add:
+- 6.9: band2 to scaleX 1.05 (0.3, power1.inOut), origin left
+- 7.2: band2 to scaleX 1 (0.3)
+Subtle. OK.
+
+Or, a second pass: a cyan "max" marker line at the bar 2 end? Overkill.
+
+Let me reconsider the value label fade: "value labels either count up or fade in at the bar end" — fade in at the bar end. My values fade in right when the bar finishes growing. ✓
+
+Now, exact positions:
+
+Canvas 1920×1080. Margins: left 100, right 1820.
+
+Eyebrow square: left 100, top 104, 14×14, magenta.
+Eyebrow text: left 130, top 96, font 24 mono, cyan. "BENCHMARK / RENDER TIMES" = 24 chars × about 14px (mono 24px ≈ 14.4/char) ≈ 346px. Ends about 476. Fine.
+
+Title: left 100, top 140, font 84 display. "RENDER TIME PER CARD (S)" — 24 glyphs. Display is wide: at 84px, uppercase ≈ 84×0.67 ≈ 56px → 24×56 = 1346px → ends 1446 < 1820 ✓.
+
+Hmm wait, the title has "(S)" — parentheses and S. Fine.
+
+Rule: left 100, top 282, width 1720, height 5, cyan.
+
+Chart rows: bar left 480.
+Row tops: 368, 500, 632, 764. Bar height 64.
+
+Row labels (mono 26, right-aligned, width 340, left 100 → right edge 440; bars start at 480, 40px gap):
+- l1 "TITLE": top 368+19=387
+- l2 "EXPLAINER": top 519
+- l3 "CHART": top 651
+- l4 "LOWER THIRD": top 783
+
+Bars (background var(--c) = cyan #12A9E6):
+- b1: left 480, top 368, width 798, height 64
+- b2: left 480, top 500, width 1102, height 64
+- b3: left 480, top 632, width 969, height 64
+- b4: left 480, top 764, width 437, height 64
+
+Axis: left 476, top 356, width 4, height 484 (356→840). Hmm, row 1 top 368, row 4 bottom 828. Axis 356→840 covers with 12px padding. ✓
+
+Values (display 44):
+- v1 "42 s": bar 1 end 480+798=1278 → left 1304, top 368+10=378
+- band2: bar 2 end 480+1102=1582 → left 1598, top 500, width 170, height 64 (right edge 1768 ✓)
+- v2t "58 s": left 1598+14=1612, top 510, color #111
+- v3 "51 s": bar 3 end 480+969=1449 → left 1475, top 642
+- v4 "23 s": bar 4 end 480+437=917 → left 943, top 774
+
+Value width check: "42 s" at 44 display ≈ 4×30=120 → v1 ends 1424 ✓.
+
+Footer: left 100, top 896, mono 22, opacity target 0.55. Text: "SCALE / 19 PX PER S · MAX / 58 S · N / 4". About 38 chars × 13 ≈ 495px ✓.
+
+Hmm, "·" is fine (not an emoji).
+
+Logo: left 1650, top 820, width 170, height 160, object-fit contain. Right edge 1820 ✓, bottom 980 ✓.
+
+Wait — does the logo overlap the footer? Footer ends at about 595. No.
+
+Does the logo overlap band2? Band2 at 1598–1768, top 500–564. Logo at top 820. No.
+
+Now, the hl class on band2: `<div class="a hl" id="band2" style="left:1598px;top:500px;width:170px;height:64px;background:var(--y)">`. And animate width from 0 to 170. But the initial state: set width 0 with tl.set at time 0? The element's style has width:170px. At t=0 (before the 2.65 animation), the band would be visible at full width! I need to hide it initially. Options: tl.set("#band2", {width:0}, 0) — allowed (tl.set with absolute start). Or fromTo with immediateRender… fromTo at 2.65 sets the from state at timeline creation (immediateRender true by default for fromTo) — actually, a fromTo with a start time renders the "from" state immediately at timeline position 0? GSAP's fromTo tweens have immediateRender default true, so the from state applies at timeline creation (when the timeline is at 0). Since we render frame by frame from t=0, at t=0 the from state (width 0) is applied. That works. But to be safe, let me also add an explicit tl.set at 0 for elements that must be hidden at start: bars (scaleX 0), band (width 0), and opacity 0 for the fading elements. Actually, fromTo handles it. But the linter example uses opacity:0 in CSS on the eyebrow… the example sets `opacity:0` in the style and then tl.to opacity 1. Rule 4 says "set initial hidden state with tl.set or fromTo, not via CSS transform" — CSS opacity:0 is OK (only transform is forbidden). The example itself uses opacity:0 in CSS. So I can use opacity:0 in CSS for fade elements, and tl.set for scaleX/scaleY/width.
+
+To be maximally safe, I'll use fromTo for everything animated (no reliance on CSS initial state), plus tl.set at 0 for the scaleX/scaleY/width ones. Actually, fromTo with immediateRender covers it. Let me use fromTo consistently, and add tl.set("#bars...") at 0 for the transform-based ones just in case. Hmm, redundant sets are harmless.
+
+Actually, let me keep it clean: use fromTo for everything. GSAP's fromTo renders the from state immediately (immediateRender defaults true for fromTo). Since the renderer seeks from 0, at t=0 the from values apply. This is standard HyperFrames practice.
+
+But wait — the example used `opacity:0` in CSS on the eyebrow and then `tl.to`. Both patterns are fine. Let me use fromTo everywhere for self-containment.
+
+Another check: "use only tl.set / tl.from / tl.to / tl.fromTo with absolute start time as the 3rd argument". All my calls: tl.fromTo(el, from, to, time) or tl.to(el, to, time). ✓
+
+Ease strings: "power2.out", "power3.out", "power3.inOut", "power1.inOut", "back.out(1.8)". Allowed (eases aren't restricted).
+
+Now, the JSON data: "use exactly" — should I embed the JSON in the file? The brief says "chart reveal from small JSON". I can define the data as a JS const and build the bars dynamically? But the rules require explicit px positions (position everything with left/top/width in px). Dynamic construction with JS is possible, but the linter might prefer static markup. Also "data (use exactly)" means the values must match. Let me hardcode the layout in HTML (computed from the data) and include the JSON as a comment or as a const for reference. Actually, including `const DATA = {...}` and using it to set widths would be elegant, but it adds complexity and risk. The safe path: static HTML with exact values, and include the JSON in a comment for provenance.
+
+Hmm, but a linter checking "bars proportional to values" would check the width ratios: 798:1102:969:437 = 42:58:51:23 × 19. ✓ Exact.
+
+Let me also double-check the display font size for the value "58 s": 44px. "58" digits in the display font are about 0.6em each → 26px; "s" about 24px; space about 14px. Total about 90px. Band width 170 with 14px padding → text 1612..about 1702, band 1598..1768. Text fits within the band with room. ✓
+
+Actually, let me center the text within the band: band 1598..1768 (170 wide). Text about 90 wide → left padding 40 → left 1638. Let's set v2t left 1636. Hmm, or left-align with 16px padding: 1614. Left-aligned matches the other values (which are left-aligned at bar end + 26). For consistency, left-align: v2t left 1614, top 510.
+
+Wait, other values: v1 at 1304 (bar end 1278 + 26). Band starts at 1598 (bar end 1582 + 16). Text at 1614 (band + 16). Slight inconsistency in the gap (26 vs 16) but fine — the band provides the offset.
+
+Font: value labels — display or mono? Display heavy looks chart-like. Let's use display (class h? class h sets uppercase — numbers aren't affected by uppercase; "s" becomes "S" — that's fine, "58 S"? Hmm, the unit is "s" lowercase. Uppercase makes it "S". Acceptable? The JSON unit is "s". "58 S" vs "58 s" — the brief says use the data exactly; the unit "s" appears in the title "(S)" anyway (the title itself has (S)). For values, let's write "58 s" — with the class h uppercase, it would render as "58 S". To preserve the "s", use the body font or a plain div without class h. Let's use var(--body) font, weight 700? I don't know the body font weight options. Simpler: use class h (display) and accept "S". The title already shows "(S)" uppercase, so it's consistent. OK — values: "42 S", "58 S", "51 S", "23 S". Consistent with the title. Good.
+
+Hmm, actually, let me reconsider: the display font is "wide" — at 44px, "42 S" ≈ 4 glyphs × 30 = 120px. OK as computed.
+
+Row labels: class m (mono, uppercase). "LOWER THIRD" 11 chars × about 15.6 (26px mono ≈ 0.6em) ≈ 172px < 340 ✓.
+
+Eyebrow: class m, 24px, cyan: "BENCHMARK / RENDER TIMES".
+
+Footer: class m, 22px.
+
+Now the logo — assets/logo-negative.png. "negative" = light/white version for dark backgrounds. ✓
+
+Let me write out the timeline code:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// Intro
+tl.fromTo("#sq", { scale: 0 }, { scale: 1, duration: 0.35, ease: "back.out(1.8)" }, 0.15);
+tl.fromTo("#eyebrow", { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+tl.fromTo("#title", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 0.75);
+tl.fromTo("#axis", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power2.out" }, 0.9);
+
+// Row labels
+tl.fromTo("#l1", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.95);
+tl.fromTo("#l2", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.1);
+tl.fromTo("#l3", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.25);
+tl.fromTo("#l4", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.4);
+
+// Bars
+tl.fromTo("#b1", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 1.2);
+tl.fromTo("#b2", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 1.65);
+tl.fromTo("#b3", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 2.1);
+tl.fromTo("#b4", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 2.55);
+
+// Values
+tl.fromTo("#v1", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.2);
+tl.fromTo("#band2", { width: 0 }, { width: 170, duration: 0.4, ease: "power2.out" }, 2.65);
+tl.fromTo("#v2", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, 2.9);
+tl.fromTo("#v3", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 3.1);
+tl.fromTo("#v4", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 3.55);
+
+// Footer + logo
+tl.fromTo("#foot", { opacity: 0 }, { opacity: 0.55, duration: 0.5, ease: "power2.out" }, 3.9);
+tl.fromTo("#logo", { opacity: 0, y: 12 }, { opacity: 0.9, y: 0, duration: 0.5, ease: "power2.out" }, 4.1);
+
+// End beat: band pulse
+tl.to("#band2", { scaleX: 1.05, duration: 0.3, ease: "power1.inOut" }, 6.9);
+tl.to("#band2", { scaleX: 1, duration: 0.3, ease: "power1.inOut" }, 7.2);
+
+window.__timelines["main"] = tl;
+```
+
+Wait — the band2 pulse: the band has its width animated (to 170), then scaleX 1.05 — the band needs transform-origin left center in CSS. Adding transform-origin to the band is fine (it's not a CSS transform). ✓
+
+The footer target opacity 0.55 — the element ends at 0.55, which is "visible". Rule 7 says opacity 1 on the hold frame… "everything that should be visible at the end of the clip must be animated in and at opacity 1 on the hold frame". Strictly, the footer at 0.55 might violate. Safer: make the footer a full-opacity element with a dimmer color (e.g. color: #8A8A86 or rgba(244,244,241,0.55)). Then animate opacity 0→1. Let's use color: #9A9A95 (a gray derived from ink) — hmm, the brand palette is limited, but a dimmed ink for secondary text is standard. Use color:#8F8F8A? Let's use rgba(244,244,241,0.5) — a solid color with alpha, not a gradient. OK.
+
+Similarly, the logo at opacity 0.9 → make it opacity 1 (full). Fine.
+
+The rule (cyan) full opacity ✓.
+
+The axis: ink at 0.25 opacity color → use rgba(244,244,241,0.25) as the background, animate the element's opacity 0→1 (scaleY). ✓
+
+Now, initial hidden states: all via fromTo (immediateRender). The bars' scaleX 0 at t=0 ✓. The band width 0 at t=0 ✓.
+
+One concern: `tl.fromTo("#band2", { width: 0 }, { width: 170, ...}, 2.65)` — the width animation triggers layout every frame; fine for 24fps rendering.
+
+Also, the band2 pulse at 6.9 uses tl.to from the current scaleX (1) → 1.05 → 1. ✓
+
+Check: no CSS transform on animated elements:
+- #sq: transform-origin center (default) — CSS: `transform-origin:center` — fine. Actually, the default origin is center; no CSS needed. But GSAP sets transform inline — that's GSAP's doing, allowed.
+- #rule: transform-origin:left center (CSS) ✓
+- #axis: transform-origin:top center (CSS) ✓
+- #b1..b4: transform-origin:left center (CSS) ✓
+- #band2: transform-origin:left center (CSS) ✓
+- Others: no transform.
+
+No CSS `transform:` property anywhere. ✓
+
+Layout classes: `a` = position:absolute (presumably defined in gw.css? The example uses class "a" with inline left/top — the example's elements have class "a" and inline left/top/width. The instructions say "position everything with position:absolute (class `a`), with explicit left/top/width in px". So class a presumably sets position:absolute in gw.css. To be safe, I'll also add `position:absolute` inline? The example relies on class a. Let's follow the example: class "a" + inline left/top/width. But what if gw.css doesn't define .a? The example is "valid" and uses class a without inline position, so gw.css must define it. Trust it. Hmm, to be extra safe, I could add position:absolute inline on each element — redundant but harmless. The linter might check for the presence of class a. Let me include both class a and inline position:absolute. Actually wait — if I include inline position:absolute and gw.css also sets it, no conflict. Safe. But it's verbose… let me include it; safety first. Hmm, actually, the example (which is "valid") doesn't include inline position. The linter enforces the listed rules; rule 5 says position everything with position:absolute (class a) and explicit left/top/width in px. "Class a" is the mechanism. Let's follow the example exactly: class a + left/top/width inline. If .a isn't defined in gw.css, the example would break, so it must be defined. OK, no inline position.
+
+Hmm, wait. Let me reconsider: "position everything with `position:absolute` (class `a`), with explicit left/top/width in px on the 1920x1080 canvas". I read this as: use class `a` which is position:absolute. Follow the example. Decision: class a only.
+
+Font classes: h (display, uppercase, heavy, wide), m (mono uppercase). The body font is var(--body) — for which elements? Maybe the footer? The footer is a label → m. Values → h. Fine, no need for body font.
+
+Now, let me also consider adding a small "unit" annotation near the axis top: a small mono "S" at left 476, top 330? The axis top is 356; a unit label above the axis: left 470, top 322, font 20 mono, cyan? Might clutter. The footer covers the scale. Skip.
+
+Also a "MAX" tag for the Explainer row? The band already highlights it. Could add a small magenta "MAX" label to the right of the band? Band right edge 1768; "MAX" at 1780? Too close to the 1820 edge, and it might collide with the logo (top 820, no — the band is at 500). "MAX" 3 chars × 14 = 42px at 20px mono → 1780+42=1822 > 1820. Slightly over. Skip MAX. Or place it to the left of the band? No. Skip — the yellow band is the highlight per the brief.
+
+Let me reconsider the title: the JSON title is "Render time per card (s)". The display class is uppercase → "RENDER TIME PER CARD (S)". Use the exact string in HTML; CSS uppercases it. ✓ "Chart title comes from the JSON" ✓.
+
+Eyebrow: something neutral: "PERF / CARD RENDER TIMES"? Let's do "BENCHMARK / CARD RENDERS". Fine.
+
+Footer: "SCALE / 19 PX PER S · MAX / 58 S · N / 4" — includes the unit. Good.
+
+Let me double-check that the title width estimate is safe. Display font at 84px: "at 150px, an uppercase letter is about 100px wide" → ratio 0.667. At 84px → 56px/letter. 24 letters → 1344px. From 100 → ends 1444. ✓ Plenty of room.
+
+Actually, hmm: "RENDER TIME PER CARD (S)" — let me recount the characters: R(1)E2N3D4E5R6 space7 T8I9M10E11 space12 P13E14R15 space16 C17A18R19D20 space21 (22 S23 )24. 24 glyphs, 4 of which are spaces (narrow). So about 20 wide glyphs × 56 + 4 × 20 = 1120+80 = 1200px. Even safer.
+
+Value font 44: digit about 29px. "42 S" ≈ 29+29+14+29 ≈ 101px.
+
+Band 170 wide, text at 1614 → 1614+101 = 1715 < 1768 ✓.
+
+Now, bar 2 (Explainer) width 1102 → end 1582. Band left 1598 (16px gap). ✓
+
+All within margins: max right edge = 1768 (band) < 1820 ✓. Logo right 1820 ✓ (exactly at the margin line, fine).
+
+Vertical: title top 140, font 84 → text bottom about 140+84×0.75 ≈ 203? Display cap height about 0.72em → 60px; line box about 100px → bottom about 240. Rule at 282. Gap 42. ✓
+
+Eyebrow top 96, height about 24 → bottom 120. Title top 140. Gap 20 — a bit tight but fine (eyebrow is small). Actually, let me move the eyebrow to top 92 and the title to top 142. Fine as is.
+
+Row 1 top 368; rule 282+5=287; gap 81. ✓
+
+Footer top 896; row 4 bottom 828; gap 68. ✓
+
+Axis height: 356 to 840 (484). Row 4 bottom 828 < 840 ✓.
+
+Now, one more idea for polish: a subtle vertical gridline at the max value position? Skip.
+
+Also, should the bars have a slightly darker track (full-width background)? A track line (ink 8%) behind each bar showing the full scale could add structure: a div at left 480, width 1160 (max scale for 61s? or 1102?), height 64, background rgba(244,244,241,0.06). Track width: let's make the track 1216px (=64s at 19px/s) so the max bar doesn't fill the track completely. Track: left 480, top = row top, width 1216, height 64, background rgba(244,244,241,0.07). Bars overlay on top. This is a nice chart convention. Track right edge: 480+1216 = 1696 < 1820 ✓.
+
+Hmm, but the band2 is at 1598..1768 — the track (row 2) extends to 1696, and the band starts at 1598 → the band overlaps the track's end region (1598..1696). The band is opaque yellow, drawn later (z-order: DOM order — put the band after the track). Visually fine.
+
+Add 4 track divs t1..t4, fade in with the axis (opacity 0→1 at 0.95). Wait, the tracks are behind the bars; the bars grow on top. ✓
+
+Z-order: DOM order: tracks, axis, bars, labels, values, band, v2. The band must be above the track. ✓
+
+Actually, the axis line at 476..480 is to the left of the tracks (480+). ✓
+
+Let me also reconsider: the track might make the chart feel busier. It's a standard technique and looks professional. Keep it, very subtle (0.06 alpha).
+
+Now, the "count up" alternative — I chose fade. ✓
+
+Let me write the final HTML.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card (s)</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+  <!-- data: {"title":"Render time per card (s)","unit":"s","rows":[{"label":"Title","value":42},{"label":"Explainer","value":58},{"label":"Chart","value":51},{"label":"Lower third","value":23}]} -->
+
+  <div class="a" id="sq" style="left:100px;top:104px;width:14px;height:14px;background:var(--m)"></div>
+  <div class="a m" id="eyebrow" style="left:130px;top:96px;width:600px;font-size:24px;color:var(--c)">Benchmark / Card renders</div>
+
+  <div class="a h" id="title" style="left:100px;top:140px;width:1720px;font-size:84px">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:100px;top:284px;width:1720px;height:5px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- tracks -->
+  <div class="a" id="t1" style="left:480px;top:368px;width:1216px;height:64px;background:rgba(244,244,241,0.06)"></div>
+  <div class="a" id="t2" style="left:480px;top:500px;width:1216px;height:64px;background:rgba(244,244,241,0.06)"></div>
+  <div class="a" id="t3" style="left:480px;top:632px;width:1216px;height:64px;background:rgba(244,244,241,0.06)"></div>
+  <div class="a" id="t4" style="left:480px;top:764px;width:1216px;height:64px;background:rgba(244,244,241,0.06)"></div>
+
+  <div class="a" id="axis" style="left:476px;top:356px;width:4px;height:484px;background:rgba(244,244,241,0.28);transform-origin:top center"></div>
+
+  <!-- row labels -->
+  <div class="a m" id="l1" style="left:100px;top:387px;width:340px;font-size:26px;text-align:right">Title</div>
+  ...
+```
+
+Wait, the class m is uppercase — the text "Title" renders as "TITLE". ✓ (CSS handles it).
+
+Bars:
+```html
+  <div class="a" id="b1" style="left:480px;top:368px;width:798px;height:64px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="b2" style="left:480px;top:500px;width:1102px;height:64px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="b3" style="left:480px;top:632px;width:969px;height:64px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="b4" style="left:480px;top:764px;width:437px;height:64px;background:var(--c);transform-origin:left center"></div>
+```
+
+Values:
+```html
+  <div class="a h" id="v1" style="left:1304px;top:378px;font-size:44px">42 s</div>
+  <div class="a hl" id="band2" style="left:1598px;top:500px;width:170px;height:64px;background:var(--y);transform-origin:left center"></div>
+  <div class="a h" id="v2" style="left:1614px;top:510px;font-size:44px;color:#111">58 s</div>
+  <div class="a h" id="v3" style="left:1475px;top:642px;font-size:44px">51 s</div>
+  <div class="a h" id="v4" style="left:943px;top:774px;font-size:44px">23 s</div>
+```
+
+Hmm — the band2 has class hl and inline background var(--y). If hl already sets the background, the inline is redundant. If hl sets color:#111, the band has no text — fine.
+
+Wait, one issue: v2 has color:#111 inline — but if the hl class isn't on v2, the #111 comes from the inline. ✓ The rule says the band's text is #111 ✓.
+
+Footer + logo:
+```html
+  <div class="a m" id="foot" style="left:100px;top:896px;width:1200px;font-size:22px;color:rgba(244,244,241,0.5)">Scale / 19 px per s · Max / 58 s · N / 4</div>
+  <img class="a" id="logo" src="assets/logo-negative.png" style="left:1650px;top:820px;width:170px;height:160px;object-fit:contain" />
+```
+
+Wait, the logo top 820 height 160 → bottom 980 ✓. But row 4's track (t4) is at 764..828, extending to x 1696. The logo at x 1650..1820, y 820..980. Overlap with t4? t4 bottom 828, logo top 820 → 8px vertical overlap in x 1650..1696. The track is 6% alpha — the logo image over it is visually negligible. But to be clean, move the logo to top 836 → bottom 996. Bottom margin 84 < 100. Hmm. The 100px margin rule is for text. The logo is an image. 996 leaves 84px. Or shrink the logo: width 140, height 140, top 840 → bottom 980 ✓, right edge: left 1680 → 1820 ✓. Overlap with t4 (bottom 828)? Logo top 840 > 828 ✓ no overlap.
+
+Logo: left 1680, top 840, width 140, height 140, object-fit contain.
+
+Now, the timeline. Also, animate the tracks: fromTo opacity 0→1 at 0.9 (duration 0.5). All four tracks — I can select them with "#t1, #t2, #t3, #t4" in one fromTo. GSAP accepts comma-separated selectors. The linter rule says use tl.fromTo with absolute start — a multi-target fromTo is still one call. Should be fine. But to be safe, should I do them individually? A comma selector is standard GSAP; the risk is low. Let me group the tracks and the row labels? The row labels are staggered individually. Let me group the tracks in one call.
+
+Actually, let me be conservative and write each tween separately — 4 extra lines, zero risk.
+
+Full timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+tl.fromTo("#sq", { scale: 0 }, { scale: 1, duration: 0.35, ease: "back.out(1.8)" }, 0.15);
+tl.fromTo("#eyebrow", { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+tl.fromTo("#title", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 0.75);
+tl.fromTo("#axis", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power2.out" }, 0.9);
+
+tl.fromTo("#t1", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.95);
+tl.fromTo("#t2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 1.05);
+tl.fromTo("#t3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 1.15);
+tl.fromTo("#t4", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 1.25);
+
+tl.fromTo("#l1", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.95);
+tl.fromTo("#l2", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.1);
+tl.fromTo("#l3", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.25);
+tl.fromTo("#l4", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.4);
+
+tl.fromTo("#b1", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 1.2);
+tl.fromTo("#b2", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 1.65);
+tl.fromTo("#b3", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 2.1);
+tl.fromTo("#b4", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.out" }, 2.55);
+
+tl.fromTo("#v1", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.2);
+tl.fromTo("#band2", { width: 0 }, { width: 170, duration: 0.4, ease: "power2.out" }, 2.65);
+tl.fromTo("#v2", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, 2.9);
+tl.fromTo("#v3", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 3.1);
+tl.fromTo("#v4", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 3.55);
+
+tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 3.9);
+tl.fromTo("#logo", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 4.1);
+
+tl.to("#band2", { scaleX: 1.05, duration: 0.3, ease: "power1.inOut" }, 6.9);
+tl.to("#band2", { scaleX: 1, duration: 0.3, ease: "power1.inOut" }, 7.2);
+
+window.__timelines["main"] = tl;
+```
+
+Check: the last animation ends at 7.5 < 8 ✓. The hold frame (say 7.5-8.0) has everything at final opacity 1 ✓ (band2 returns to scaleX 1 at 7.5, width 170 ✓).
+
+Wait, the band2 width: fromTo 0→170 at 2.65..3.05. Then scaleX pulse at 6.9. At 7.5, scaleX=1, width=170 ✓.
+
+One concern: `tl.to("#band2", { scaleX: 1.05 ...})` — the band2's transform: GSAP previously set only width (no transform). At 6.9, GSAP applies scaleX from the current value (1, the default). ✓
+
+Another check: the eyebrow's `x: -18` — the eyebrow has width 600 set; the x offset is fine.
+
+The title's width 1720 — the text is left-aligned by default. ✓
+
+Row labels: width 340, text-align right. l4 "LOWER THIRD" at 26px mono: mono char width ≈ 0.6em = 15.6px → 11 chars ≈ 172px ✓ fits.
+
+Values: no width set — the rule says explicit left/top/width in px. Hmm, "position everything with position:absolute (class a), with explicit left/top/width in px". Should every element have a width? The example: the eyebrow has left/top/font-size but no width; the rule has width. So width isn't strictly required on every element — "explicit left/top/width in px" probably means when sizing. To be safe, let me add width to the value labels: v1 width 200, v2 width 170, v3 200, v4 200. And the eyebrow width 600. The title width 1720. The footer width 1200. The logo width 140. The sq width 14. OK, add widths where missing.
+
+Actually, the example's #t1 (title) has no width… the example is valid without it. But adding it doesn't hurt. Let me add widths to text elements for safety.
+
+Now, the class h on values: h is uppercase + heavy + wide + display font. "42 s" → "42 S". OK.
+
+Potential issue: the hl class on band2 — if hl sets `display:inline`, the absolutely positioned div computes to block. ✓. If hl sets a background, the inline background is redundant. ✓
+
+What if hl sets a background with padding (like a highlighter)? The band is a fixed 170×64 box; the text is a separate element. If hl adds padding, the band's box might shift? Padding doesn't shift the box (box-sizing?). If gw.css uses box-sizing:border-box globally, padding shrinks the content — the band is still 170×64. Fine.
+
+Alternatively, drop the hl class and just use the background var(--y) inline. But the brief/brand explicitly mentions class hl for the yellow band. The linter might check for the presence of hl. Keep class hl + inline background.
+
+Also the brand: "yellow #FFD400 only as a band behind #111 text" — our only yellow use is band2 ✓. v2 text is #111 ✓.
+
+
+[CONTENT]

@@ -1,0 +1,26 @@
+{
+ "brief": "B2",
+ "name": "Three-step explainer with icons (9 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 505.8,
+   "prompt_tokens": 1336,
+   "completion_tokens": 19241,
+   "finish": "stop",
+   "check_s": 2.0,
+   "check_errors": [],
+   "render_s": 8.5
+  }
+ ],
+ "model": "qwen",
+ "seed": "2",
+ "t0": 1795359117.444324,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 505.8,
+ "prompt_tokens": 1336,
+ "completion_tokens": 19241,
+ "t1": 1795359633.752838,
+ "wall_s": 516.3
+}

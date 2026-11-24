@@ -1,0 +1,711 @@
+[REASONING]
+Let me carefully build this 10-second teaser.
+
+Requirements:
+- 1920x1080, 24fps, 10 seconds
+- Root: `<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">`
+- GSAP paused timeline registered as window.__timelines["main"]
+- Only tl.set/tl.to/tl.from/tl.fromTo, absolute start time as 3rd argument
+- No CSS transform on elements that GSAP animates
+- Position everything with class `a` (position:absolute) with explicit left/top/width in px
+- 100px margin from edges, text must not overlap
+- Icons as inline SVG, stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill
+- Assets: assets/logo-negative.png (center, appears at the end), assets/icon.svg
+- Brand identity C dark: background #0E0E0E (body), ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class `hl`, text #111)
+- Fonts: var(--display) for headings (class h: uppercase, heavy, wide), var(--body), var(--mono) (class m: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emoji
+
+Beat sheet:
+- 0-3s: Three short lines slam in: "Agents." "Automations." "Video."
+- 3-7s: A row of three feature chips: "Runs on your hardware" "No per-token bill" "Your data stays put" staggered
+- 7-10s: Everything clears, logo fades/scales in with tagline "Local AI, delivered." below it
+
+Design plan:
+
+Layout:
+- Background: #0E0E0E (body). I could add a subtle grid or frame elements, but keep it clean. I could also add a thin frame border or corner ticks. Let me add some ambient elements: a top bar with a mono label like "GRAWWWW STUDIO" on the left and "TEASER / B5" on the right, maybe a bottom bar too. Actually, the brief says "everything clears" at 7s, so I should clear the corner labels too. Let me have the corner labels present from 0-7s and clear out at 7s.
+
+Beat 1 (0-3s): Three lines slam in. Big display type, left-aligned at 160px. "AGENTS." "AUTOMATIONS." "VIDEO." each slams in with a fast scale/opacity, maybe with a slight overshoot. Stagger: 0.3s, 1.0s, 1.7s. Each line is large — "AUTOMATIONS." is 11 chars + period. At 150px, uppercase letter ~100px wide → 12 chars * 100 = 1200px. Left margin 160px, right margin 100px → max width 1920-260 = 1660px. 1200px fits. But three lines at 150px each is 450px + line spacing. Let me use ~120px for the lines. At 120px, letter width ~80px, AUTOMATIONS. ≈ 12*80=960px. Good.
+
+Actually "slam in" — use a quick scale from 1.15 to 1 with opacity 0→1, duration 0.18s, ease "power4.out". Or x from -40. Slam: fast, punchy. Let's do fromTo: opacity 0, scale 1.2 → 1, duration 0.16, ease "power4.in"? power4.in accelerates into it — slam feel. Actually a slam is usually a fast ease-out with overshoot. Let me do scale 1.25 → 1 with ease "power3.out", duration 0.22. Add a small y too.
+
+Give each line an accent: "AGENTS." ink, "AUTOMATIONS." ink with a cyan period? The period could be a brand color. I can wrap the period in a span with color var(--c). Nice touch: color the periods cyan, magenta, yellow. Yellow as a band is only allowed behind #111 text... "yellow #FFD400 only as a band behind #111 text (class hl)". So yellow is only allowed as a band behind #111 text. So a yellow period would be a violation? The rule says yellow is only as a band behind #111 text. So avoid a yellow period; use cyan and magenta, and ink or cyan for the third. Let me do: AGENTS. (cyan period), AUTOMATIONS. (magenta period), VIDEO. (cyan period). Or all cyan. Let me vary: cyan, magenta, cyan.
+
+Also, I could add a big index number or a small mono label next to each line like "01" "02" "03" in mono. Adds polish. Small mono numbers on the left or right. Keep it simple: a small mono label above each line? Might get cluttered. Maybe a thin rule between lines.
+
+Beat 2 (3-7s): "A row of three feature chips". Chips — rectangular (no rounded corners) boxes with a border (1-2px stroke), each with a small inline SVG icon + label text. Chip width: 3 across 1920 with 100px margins. Total available: 1720px. 3 chips of 520px with 40px gaps: 520*3 + 80 = 1640. Left 140? Let me compute: left margin 140, chips 520 wide, gap 50: 140 + 520 + 50 + 520 + 50 + 520 + 140 = 1900. Hmm 140+520=660, +50=710, +520=1230, +50=1280, +520=1800, +140=1940. Too much. Let me do chips 500 wide, gap 60: 100 + 500 + 60 + 500 + 60 + 500 + 100 = 1880. Close to 1920, leaves 40. Let me do left 120, gap 60: 120+500+60+500+60+500+120 = 1860, leaves 60 → total 1920? 120+500=620, +60=680, +500=1180, +60=1240, +500=1740, +120=1860. 60px short. Make chips 520: 120+520+60+520+60+520+120 = 1920.
+
+So chips: left 120, 700, 1280; width 520; top probably 400; height 220.
+
+Chip contents: icon (inline SVG, stroke-width 6) top-left inside chip, text below. Text: "Runs on your hardware" — 21 chars. In body font at 34px, average char ~18px → 378px, fits in 520-80 padding = 440. Good. "No per-token bill" shorter. "Your data stays put" 19 chars.
+
+Chip style: border 2px solid rgba ink? Use 2px border #F4F4F1 or a brand color. Maybe border color: cyan for chip 1, magenta for chip 2, ink for chip 3? Or all ink border with a colored top bar. Let me do: each chip has a 6px top bar in a brand color (cyan, magenta, and... yellow is only for band behind #111 text — a yellow bar with no text behind it would be a violation. So use ink for the third bar). Actually, the `hl` class is a yellow band behind #111 text. I could use one chip with a yellow band behind the label text! That's allowed: "yellow #FFD400 only as a band behind #111 text (class hl)". So chip 2 "No per-token bill" could have a yellow band behind the text with #111 text. That's a nice use. Let me do:
+
+- Chip 1: cyan top bar, ink text, cyan icon.
+- Chip 2: yellow `hl` band behind the label, text #111, icon ink or magenta.
+- Chip 3: magenta top bar, ink text, magenta icon.
+
+Hmm, but the `hl` class — I need to check what gw.css defines for `.hl`. I can't see it, but the example uses `<span class="hl">world</span>` inside a heading — so hl is an inline band style (probably background yellow, color #111). I could wrap the chip label text in a span.hl. But the chip label is multi-word; the band will wrap the text inline. Fine.
+
+Actually, to be safe and consistent with the example, `.hl` is a span with a yellow background and #111 text. Let me use it on the chip 2 label.
+
+Chip icons (inline SVG, stroke-width 6, stroke #F4F4F1 or brand color, no fill):
+- "Runs on your hardware": a CPU chip icon — a square with pins.
+- "No per-token bill": a coin/bill with a slash, or a "no" circle with a line. Let me do a circle with a diagonal slash (prohibition mark) — simple: circle + line. Or a bill: rect + circle in the middle. Let me do a rect (bill) with a circle inside.
+- "Your data stays put": a lock icon — rect body + arc shackle.
+
+SVG size ~64px.
+
+Chip appearance: staggered, each chip slides up (y 40→0) + opacity, duration 0.5, stagger 0.35 starting at 3.1s. Also, the big lines from beat 1 need to clear/move out before the chips. Beat sheet: 0-3s lines, 3-7s chips. So at ~2.8-3.1s, the lines exit (fast, y -40, opacity 0, duration 0.25). Then chips in at 3.1, 3.45, 3.8. Hold until ~6.8, then chips exit at 6.9-7.1 (y 40, opacity 0, stagger 0.12).
+
+Beat 3 (7-10s): Everything clears, logo fades/scales in with tagline below. Logo: assets/logo-negative.png, center. Size: logo width ~520px. Position: left = (1920-520)/2 = 700, top ~330. Tagline "LOCAL AI, DELIVERED." in display font below, ~64px, center. Centered text: I can use width 1920 and text-align center? Rule says position with left/top/width in px; text-align center within a full-width box is fine. But "keep all text in the canvas with 100px margin" — fine.
+
+Actually for the tagline, I could do a mono or display. "Local AI, delivered." — the brand heading class h is uppercase. The tagline is probably display font, 56-64px, letter-spacing. Width: "LOCAL AI, DELIVERED." = 20 chars incl. space/period. At 64px, uppercase ~43px wide (at 150px letter ~100px → at 64px ~42.7px) → 20*43 = 860px. Fits.
+
+Logo animation: fromTo opacity 0, scale 0.92 → 1, duration 0.9, ease "power2.out" at 7.2s. Tagline: fade + y 20→0 at 7.7s. Maybe a thin rule between logo and tagline, or a small mono eyebrow "GRAWWWW STUDIO" above the logo at 7.5s. Beat sheet says "logo fades/scales in with tagline 'Local AI, delivered.' below it". Could add a small mono eyebrow "GRAWWWW STUDIO" above the logo — but the logo probably contains the studio name. To be safe, keep it minimal: logo + tagline. Maybe add a small mono caption at the bottom "grawwww.studio" — hmm, I'm fabricating a domain. Maybe a mono label "LOCAL FIRST / NO CLOUD" at the bottom. Let me keep it clean: logo, tagline, and a thin rule above the tagline.
+
+Also, "everything clears" — chips exit at ~6.9-7.1s, corner labels exit at ~6.9s.
+
+Ambient/frame elements:
+- Corner ticks or a thin frame? A 1px frame inset 60px might be elegant, but "everything clears" — the frame could remain as a persistent brand frame. Hmm, "everything clears" probably means the content clears; a persistent frame is fine and looks intentional. But to be safe, let me have the frame fade out too, leaving a pure end card. Let me have the frame fade out at 7s.
+
+- Top-left mono label: "GRAWWWW STUDIO" with a small square bullet. Top-right: "TEASER — 00:00-00:10" or "B5 / 10S". Bottom-left: "LOCAL AI, DELIVERED."? No, that's the end tagline. Bottom-left: "IDENTITY C / DARK". Bottom-right: "24 FPS / 1920×1080". These are meta labels, mono, 22px, color rgba ink 0.5. Present 0.2-7s.
+
+Also, I could use assets/icon.svg somewhere in the first half — the brief says to use both assets. icon.svg: small icon, probably a square glyph. I can place it top-left next to the "GRAWWWW STUDIO" label, or as a bullet before each line in beat 1. Let me use it as a 40px icon top-left next to the studio label. `<img src="assets/icon.svg" ...>`.
+
+Wait — can I use <img> for the SVG? Yes, local file, no network. Fine.
+
+Beat 1 layout details:
+- Lines at left 160px.
+- Line 1 "AGENTS." top 240, font 120px.
+- Line 2 "AUTOMATIONS." top 380.
+- Line 3 "VIDEO." top 520.
+Each line height ~120px + 20 gap → 140 spacing. 240, 380, 520. Bottom of last line ~640. Good, above the chips? The chips are at top 400 — but the lines are gone by then, no overlap in time. Fine.
+
+Actually, let me reconsider: a giant "slam" — 140px might be better. AUTOMATIONS. at 140px: 12 chars * ~93px = 1116px + left 160 = 1276 < 1820 (right margin 100). OK, 140px works. Lines at 140px: spacing 165. Toppers: 200, 365, 530. Bottom ~670.
+
+Add a small mono index to the right of each line? E.g. "01" to the right. Or a small mono kicker above the block: "WHAT WE SHIP" at top 150. Nice: kicker "WHAT WE SHIP —" mono cyan, 24px, at 160/140. Then lines.
+
+Also, a vertical accent: a 6px cyan bar to the left of the lines? A rule under the block. Let me add a rule under the block: left 160, top 700, width 500, height 6, background cyan, scaleX in at 2.2s. Hmm, the block bottom is ~670, rule at 700. OK.
+
+Slam details: fromTo each line: opacity 0, scale 1.3, y 0 → opacity 1, scale 1, duration 0.2, ease "power4.out". transform-origin left center (so it slams from the left). Set transform-origin in CSS.
+
+Timing:
+- 0.2: kicker fade in (opacity, x -20→0, 0.3)
+- 0.35: line 1 slam
+- 1.05: line 2 slam
+- 1.75: line 3 slam
+- 2.2: rule scaleX in
+- 2.85: whole beat 1 group exits: opacity 0, y -30, duration 0.25. Group them? I can animate each element: kicker, lines 1-3, rule. Or wrap in a container div? Positioning: children are absolute; a container with position absolute at 0,0 covering the area, and children positioned relative to it — the rule says "position everything with position:absolute (class a) with explicit left/top/width in px on the 1920x1080 canvas". A container with children inside — the children are positioned relative to the container, which is at 0,0, so effectively canvas coordinates. To be safe with the linter, let me animate each element individually with the same exit timing (or slightly staggered: lines exit staggered 0.08).
+
+Exit: lines exit with y -40, opacity 0, duration 0.22, staggered 0.07 starting 2.8; kicker exits at 2.75; rule exits with scaleX→0 at 2.8 (transform-origin left).
+
+Beat 2 (chips) timing:
+- 3.05: chip 1 in (y 50→0, opacity, 0.5, power3.out)
+- 3.4: chip 2
+- 3.75: chip 3
+- Maybe a small mono kicker above the chips: "WHY LOCAL" at top 300, left 120? Chips at top 400. Kicker at 320. In at 3.0.
+- Hold.
+- 6.85: chips exit staggered 0.1: y 40, opacity 0, duration 0.3, starting 6.85/6.95/7.05. Kicker exits at 6.8.
+
+Chip interior:
+- Chip box: border 2px solid #F4F4F1? Let me use border 2px solid rgba(244,244,241,0.9). Plus a 6px top bar in brand color.
+- Padding: icon at left 40 top 40 (64px). Label at left 40, top 140, width 440, font 34px body, line-height 1.25. "Runs on your hardware" at 34px: average char ~17px → 21 chars = 357px, fits in 440 on one line. "Your data stays put" 19*17=323. Good.
+- Chip height 240: icon 64 at top 40 (40-104), label at 140-210. Good.
+- Chip 2 with hl band: label span.hl — the band is inline with padding; text #111. Font 34px. "No per-token bill" 17 chars * 17 = 289 + padding. Fits.
+
+Wait, does the .hl class in gw.css have its own font-size/line-height? Unknown. It's a band behind text, probably inline with padding. Should be fine.
+
+Icons:
+1. CPU: rect 8,8 to 56,56 (48x48), inner rect 22,22-42,42, pins: lines from the edges. viewBox 0 0 64 64, stroke-width 6, stroke cyan.
+   - Outer: x=10 y=10 w=44 h=44
+   - Inner: x=24 y=24 w=16 h=16
+   - Pins: top: x=20 y=10→2? Pins outside the box: lines from y=2 to 10 at x=20, 32, 44; similarly bottom y=54→62; left x=2→10 at y=20,32,44; right x=54→62.
+   With stroke-width 6, pins at 6px offset might be tight. Let me do pins from 0 to 10 (length 10). Fine.
+2. Bill with slash (no per-token): rect x=6 y=16 w=52 h=32, circle cx=32 cy=32 r=8, plus a diagonal line from 8,58 to 56,6? The slash overlaps the bill — a prohibition slash. Let me do: bill rect (8,18,48,28), circle (32,32,7), slash line (10,58)-(54,6). Hmm, the slash crosses the bill diagonally. Looks like "no bill". OK.
+   Actually simpler: a circle with a slash (prohibition) with a small bill inside? Too complex. Let me do a bill + slash.
+3. Lock: shackle: path M20,26 v-8 a12,12 0 0 1 24,0 v8 — arc. Body: rect x=14 y=26 w=36 h=30. Keyhole: circle cx=32 cy=38 r=4 + line 32,42→32,48. Stroke magenta.
+
+Stroke width 6, viewBox 64.
+
+Beat 3 timing:
+- 7.2: logo fromTo opacity 0 scale 0.9 → 1, duration 1.0, ease "power2.out". Logo: width 560, left (1920-560)/2=680, top 320. Height unknown; the logo-negative is probably wide. Let me set width 560, height auto — but the rule says explicit width in px; height can be auto for an img? "Explicit left/top/width in px" — width yes. Let me set width 560, height auto.
+- 7.6: rule (thin, center, width 240, height 4, cyan) scaleX in. Position: left 840, top 560? Depends on logo height. Hmm, risky: unknown logo aspect ratio. Safer: place the tagline at a fixed top and don't put a rule between them, or put the rule below the tagline. Let me structure:
+  - Logo top 300, width 560 → if the logo aspect is ~2:1, height ~280 → bottom ~580.
+  - Tagline top 620, font 58px, center. "LOCAL AI, DELIVERED." at 58px: 20 chars * 38.7 = 774px, fits.
+  - Small mono bottom caption: "GRAWWWW STUDIO — TEASER B5" top 760, center, 22px, opacity 0.6.
+  If the logo is taller (1:1 → 560 height → bottom 860), it overlaps the tagline. Risky. Let me make the logo width 480: 1:1 → 480 height, top 260 → bottom 740, tagline 620 overlaps. Hmm.
+
+Safer: logo width 420, top 280. If 1:1 → bottom 700. Tagline at 730. If 2:1 → height 210, bottom 490, tagline 730 — big gap but OK. Let me put the tagline at 720. Actually, typical "logo-negative" for a studio is a horizontal wordmark, probably 3:1 or 4:1. Width 480, top 300: 3:1 → 160 height, bottom 460; 2:1 → 240, bottom 540; 1:1 → 480, bottom 780 (overlaps tagline 720!).
+
+To be safe against a 1:1 logo, use width 380, top 260 → 1:1 bottom 640, tagline 680. 2:1 → bottom 450, tagline 680, gap 230 — a bit big but acceptable. Hmm.
+
+Alternative: put the tagline above the logo? No, the brief says below.
+
+Let me pick logo width 400, top 280 (1:1 → bottom 680). Tagline top 720, font 56. Bottom caption 810. 100px bottom margin: 810+30=840 < 980. Good. For a wide logo (3:1 → 133 height, bottom 413), tagline 720 — 300px gap. A bit airy but fine; I can add a rule at ~640 to fill. Or I can set the logo with a fixed height instead: height 240, width auto! I can give the img an explicit height 240 and width auto. Then the bottom is guaranteed: top 300 + 240 = 540. Tagline 620. That's deterministic! Let me do: logo height 240, top 300, left: use left 50% with margin to center? Rule: explicit left in px. For an img with width auto, the centering is unknown... I can set left: 960 with transform translateX(-50%)? No — no CSS transform on elements GSAP animates; the logo is animated (scale). GSAP's scale overrides the transform, and translateX(-50%) would be lost.
+
+Alternative: wrap the logo in a container div with a fixed width (e.g. 800px, left 560, top 280) and center the img inside with margin auto (text-align center) — the img is height 240, width auto, display block, margin 0 auto. The container is a positioning box (position absolute, left 560, top 280, width 800). The img itself is not positioned absolute — the rule says "position everything with position:absolute (class a) with explicit left/top/width in px". Hmm, does "everything" include the img? The linter probably checks that elements with class a have left/top/width. To be safe, let me give the img class a too with left/top/width... but width auto conflicts with "explicit width in px".
+
+Simplest robust approach: give the img explicit width and height in px (object-fit: contain to preserve aspect, letterboxed within the box). If I set width 640, height 240, object-fit contain, the logo will render centered within that box preserving aspect, and the box is deterministic. If the logo is 1:1, it renders 240x240 centered in the 640 box — fine. If 3:1, 720→clamped to 640x213.
+
+So: img class a, left 640, top 300, width 640, height 240, object-fit: contain, object-position: center. Deterministic box: 640..1280 horizontally (centered: (1920-640)/2=640 ✓), 300..540 vertically.
+
+Tagline: top 600, width 1920, text-align center, font 56px display. Wait, text-align center within a full-width box — allowed? "Keep all text in the canvas with 100px margin" — fine. Rule: "size the box so the text fits on that line" — 774px < 1920. Good.
+
+Hmm, but should the tagline be uppercase? Class h is uppercase. "Local AI, delivered." — the brief writes it with mixed case, but the brand display font is uppercase. Let me render "LOCAL AI, DELIVERED." in class h.
+
+Maybe make "DELIVERED." stand out: cyan? Or a hl band? A yellow band behind "DELIVERED." with #111 text would pop nicely as an end card. But yellow is only as a band behind #111 text — that's exactly the hl class. Let me do: <div class="a h" ...>LOCAL AI, <span class="hl">DELIVERED.</span></div>. Nice brand moment. Hmm, but the logo is "negative" (light on dark) — a yellow band adds pop. Let me do it.
+
+Bottom mono caption: "GRAWWWW STUDIO" top 720? Tagline 600-660, caption 710. And maybe a small icon.svg next to the caption? The icon is already used top-left. Keep the caption plain.
+
+Wait — I also need to re-check that the tagline doesn't overlap the logo box: logo bottom 540, tagline top 600. Good.
+
+Beat 3 timing:
+- 7.15: logo fromTo {opacity 0, scale 0.9} → {opacity 1, scale 1}, 0.9, power2.out. transform-origin center center in CSS.
+- 7.55: tagline fromTo {opacity 0, y 24} → {opacity 1, y 0}, 0.6, power2.out.
+- 7.9: caption fade in 0.5.
+- Hold to 10.
+
+Also, the corner meta labels + frame exit at ~6.85-7.0.
+
+Frame: a 1px border box inset 60px: left 60 top 60 width 1800 height 960, border 1px solid rgba(244,244,241,0.18). Fade out at 6.85. Actually, a full border might conflict with "no rounded corners" — fine, it's square. Subtle. But wait: at the end card, "everything clears" — the frame is gone, a pure black card with the logo. Good.
+
+Also, I could add a subtle background texture: a faint grid? Keep it minimal — maybe two thin horizontal rules at the top and bottom? The frame covers that.
+
+Meta labels (mono, 22px, color rgba ink 0.55, uppercase):
+- Top-left: "GRAWWWW STUDIO" + a 40px icon.svg before it. Icon at left 120 top 96 (40x40), label at left 176 top 104? Baseline alignment: icon 40px at top 96 → center 116; label 22px at top 105 → center ~116. OK.
+- Top-right: "TEASER / B5" right-aligned: box left 1400 top 105 width 400, text-align right.
+- Bottom-left: "LOCAL AI, DELIVERED" — no, that's the end tagline; use "IDENTITY C — DARK" at left 120 top 950.
+- Bottom-right: "1920 × 1080 / 24 FPS" right-aligned box left 1400 top 950 width 400.
+
+Wait, 100px margin: top labels at top ~96-128 → within 100? "Keep all text in the canvas with 100px margin" — top 96 is 96px from the top edge, slightly less than 100. Let me move to top 110. Icon top 104 (40px → 104-144). Label top 112. Bottom labels top 940 (940+24=964, 116 from bottom ✓; top margin from top is fine). Let me set the bottom at top 944, height 24 → bottom 968, 112px from bottom edge ✓.
+
+Frame inset 60: labels at 120 are inside the frame (60). Good.
+
+Chips at top 400 height 240 → 400-640, vertical center 520 ≈ canvas center 540, close. Kicker "WHY LOCAL" at top 330, left 120. Hmm, chips start at left 120, width 520 → 120..1700? Wait, I computed earlier: chips at 120, 700, 1280 with width 520, gap 60: 120+520=640, +60=700, 700+520=1220, +60=1280, 1280+520=1800, right margin 120 ✓.
+
+Chip kicker: "WHY IT'S LOCAL" or "WHY LOCAL" mono cyan at left 120 top 330.
+
+Chip exit stagger and entrance: entrance 3.05/3.4/3.75; exit 6.8/6.9/7.0 (kicker 6.75).
+
+Also, I could add a small index number inside the chip top-right: "01" mono 20px at left 440 top 40? Might be nice. Let me add a mono index at the top-right of the chip: chip 1 index at left 120+440=560? Chip box left 120 width 520; index at left 120+430=550, top 400+36=436, width 60, text-align right. Hmm, keep it simple — skip the index, keep the icon + label clean. Actually, a small mono index adds craft. Let me add it: "01" "02" "03" at the top-right of each chip, 20px mono, opacity 0.5.
+
+Chip structure (per chip):
+- .a chip box (border 2px, background rgba(244,244,241,0.03)? A slight fill is OK — no gradients allowed, a flat fill is fine. Let me use background #141414 for a slight lift. Background #141414.)
+- .a top bar: 6px tall, full chip width, brand color, top of the chip.
+- .a icon svg (64x64) at left+40, top+40.
+- .a index mono at top-right.
+- .a label at left+40, top+150, width 440, font 34px.
+
+Wait, the icon is at top 40 (40..104), label at 150..210 (34px, one line). Chip height 240 → bottom padding 30. Good.
+
+Chip 2 label with hl band: <div class="a" ...><span class="hl">No per-token bill</span></div> — the hl band is inline; the parent div is the positioned box. Font size 34 on the parent; the span inherits. The .hl in gw.css probably sets background var(--y) and color #111, maybe padding. Should be fine.
+
+Chip 2 icon: ink or magenta. Chip 1 cyan bar/icon, chip 2 ink bar? Let me assign:
+- Chip 1: cyan bar, cyan icon, ink label.
+- Chip 2: magenta bar, magenta icon, hl label (yellow band, #111 text).
+- Chip 3: ink bar (#F4F4F1), ink icon, ink label.
+Balanced: cyan, magenta, ink.
+
+Beat 1 periods: line 1 cyan period, line 2 magenta period, line 3 cyan period. Or line 3 ink. Let me do cyan, magenta, cyan.
+
+Now, GSAP constraints: only tl.set/tl.to/tl.from/tl.fromTo with absolute start time as 3rd arg. No repeat, no random, no CSS transitions. Initial hidden state via tl.set or fromTo — do I set opacity:0 in inline style? The example sets opacity:0 in inline style. But rule 4 says "set the initial hidden state with tl.set or fromTo, not with a CSS transform" — CSS opacity:0 is fine (the example does it). But safer: use tl.set at time 0 or fromTo for everything. Let me use fromTo for entrance and explicit tl.to for exit, and set the initial state with tl.set at 0 for elements that animate later. Actually, fromTo defines the start state at the animation start; before that, the element shows its natural state (opacity 1) — so I need to hide before the entrance. Let me use tl.set(el, {opacity:0}, 0) for all hidden elements, then fromTo/tl.to for the entrance. That's cleanest.
+
+List of elements and animations:
+
+Persistent/frame:
+1. #frame (border box): visible from 0 (opacity 0 → fade in 0.3 at 0.1), fade out at 6.85 (to opacity 0, 0.3).
+2. #iconTL (img icon.svg 40x40): set opacity 0; to 1 at 0.15 (0.3). Exit at 6.8.
+3. #brandTL "GRAWWWW STUDIO": set 0; fromTo x -20→0 opacity at 0.2. Exit at 6.8 (y -16, opacity 0).
+4. #metaTR "TEASER / B5": set 0; to 1 at 0.25. Exit 6.8.
+5. #metaBL "IDENTITY C — DARK": set 0; to 1 at 0.3. Exit 6.8.
+6. #metaBR "1920 × 1080 · 24 FPS": set 0; to 1 at 0.3. Exit 6.8.
+
+Beat 1:
+7. #kicker1 "WHAT WE SHIP —" (mono cyan, 24px, left 160 top 140): set 0; fromTo x -24→0 opacity 0.35 at 0.25. Exit at 2.7 (opacity 0, y -16, 0.2).
+8. #line1 "AGENTS.": set 0; fromTo {opacity 0, scale 1.28} → {opacity 1, scale 1} 0.22 power4.out at 0.45. transform-origin left center.
+9. #line2 "AUTOMATIONS." at 1.1.
+10. #line3 "VIDEO." at 1.75.
+11. #rule1 (left 160 top 700 width 460 height 6, cyan, origin left): set scaleX 0? Use fromTo scaleX 0→1 at 2.15, 0.5, power2.inOut. Exit: to scaleX 0 at 2.75, 0.25, origin left.
+
+Line exits: line 1 at 2.8, line 2 at 2.88, line 3 at 2.96: to {y: -44, opacity 0} 0.22 power2.in.
+
+Wait, line 1 top 200: y -44 → fine.
+
+Beat 1 line positions (font 140px):
+- Line 1 top 200 (200..340)
+- Line 2 top 365 (365..505)
+- Line 3 top 530 (530..670)
+- Rule top 710.
+Kicker top 140 (140..170). Good spacing.
+
+"AUTOMATIONS." width at 140px: 12 glyphs. Uppercase ~0.667em → 93px each → 1118px. Left 160 → right edge 1278 < 1820 ✓.
+
+Beat 2:
+12. #kicker2 "WHY IT STAYS LOCAL" mono magenta 24px left 120 top 330: set 0; fromTo x -24→0 opacity at 3.0 (0.35). Exit at 6.75.
+13-15. Chips: each chip group animates: box, bar, icon, index, label — 5 elements × 3 chips = 15 elements. Animating all 5 with the same fromTo per chip is verbose but fine. Alternatively, wrap each chip in a container div (position absolute with left/top/width) and animate the container (opacity, y) — the children are positioned relative to the container. Does that violate "position everything with position:absolute with explicit left/top/width in px on the 1920x1080 canvas"? The children would be positioned relative to the chip container, not the canvas. The linter might check that class a elements have left/top/width — they would. The "on the 1920x1080 canvas" phrasing is about the coordinate system. Risky.
+
+Safer: absolute-position every element in canvas coordinates and animate each element individually. Verbose but safe. Chip 1 (left 120, top 400):
+- #chip1 box: left 120 top 400 width 520 height 240
+- #chip1bar: left 120 top 400 width 520 height 6 (cyan) — bar at the very top of the box.
+- #chip1icon: left 160 top 440 (64x64)
+- #chip1idx "01": left 540 top 436 width 70 text-align right, 20px
+- #chip1label: left 160 top 550 width 440, 34px
+Chip 2 (left 700): bar left 700; icon left 740; idx left 1120; label left 740.
+Chip 3 (left 1280): bar left 1280; icon left 1320; idx left 1700; label left 1320.
+
+Label top: chip top 400 + 150 = 550, height ~42 → bottom 592, chip bottom 640 ✓.
+
+Per-chip animation (all 5 children share): fromTo {opacity 0, y 46} → {opacity 1, y 0} 0.5 power3.out at 3.05/3.4/3.75. Bar could do scaleX 0→1 instead — but the bar is at the top of the box; if the box fades in with y, the bar should move with it. If the bar does scaleX while the box does y, they'd be inconsistent. Keep all 5 with the same y/opacity. Fine.
+
+Chip exit: to {y 40, opacity 0} 0.3 power2.in at 6.8/6.9/7.0.
+
+Beat 3:
+16. #logo (img, left 640 top 300 width 640 height 240, object-fit contain): set {opacity 0}; fromTo {opacity 0, scale 0.9} → {opacity 1, scale 1} 0.95 power2.out at 7.15. transform-origin center.
+17. #tagline (left 0 top 600 width 1920, text-align center, 56px h): set 0; fromTo {opacity 0, y 26} → {opacity 1, y 0} 0.6 power2.out at 7.55.
+18. #caption "GRAWWWW STUDIO · TEASER B5" mono 22px, left 0 top 720 width 1920 center, opacity 0.55: set 0; to 1 at 7.95, 0.5.
+
+Hold to 10s: everything at opacity 1 at the final frame (logo, tagline, caption) ✓. Rule 7: "everything that should be visible at the end of the clip must be animated in and at opacity 1 at the hold frame" ✓.
+
+Also, the logo needs object-fit: contain so it doesn't distort. And display block.
+
+Fonts: class h is uppercase heavy wide (defined in gw.css). Class m is mono uppercase. Body font via var(--body).
+
+Colors: use var(--c) for cyan, var(--m) for magenta? The example uses var(--c) and var(--m) — so gw.css defines --c (cyan) and --m (magenta)? The example: eyebrow color var(--c), rule background var(--m). So the tokens exist: --c cyan, --m magenta, probably --y yellow, --ink, --display, --body, --mono. Let me use var(--c), var(--m), var(--y) for the yellow band? The hl class handles yellow. For the ink color, use #F4F4F1 directly or var(--ink)? Unknown if --ink exists. The example uses var(--c) and var(--m) only. To be safe, let me use hex #F4F4F1 for ink, var(--c) for cyan, var(--m) for magenta. Hmm, but maybe the tokens are --cyan/--magenta? The example explicitly uses var(--c) and var(--m), so those exist. For yellow, I rely on the .hl class.
+
+Body background: #0E0E0E — "already the body" per the brief ("background #0E0E0E (already the body)"). So gw.css sets the body background. I could also set it explicitly: body { background: #0E0E0E } — a small <style> is allowed? The rules don't forbid a <style> block; they forbid CSS animations/transitions and transform on animated elements. Let me add a minimal style block for transform-origin, object-fit, text-align helpers, letter-spacing. Keep it small.
+
+transform-origins:
+- .slam { transform-origin: left center; }
+- #logo { transform-origin: center center; }
+- #rule1 { transform-origin: left center; }
+
+No CSS transform properties anywhere.
+
+Text details:
+- Kicker 1: "WHAT WE SHIP" with a trailing "—"? Let me write "WHAT WE SHIP —". Mono uppercase 24px, letter-spacing 4px? The m class is probably already uppercase + letter-spaced. Let me add letter-spacing in the style.
+- Lines: "AGENTS." with span period: AGENTS<span style="color:var(--c)">.</span> — inline style color is fine.
+
+Chip labels: body font 34px, color #F4F4F1. Chip 2 label: <span class="hl">No per-token bill</span> — the hl band's text is #111.
+
+Tagline: "LOCAL AI, <span class="hl">DELIVERED.</span>" — 56px display. The hl band inline within the display font — the band will inherit the display font. Good.
+
+Hmm wait — will the .hl band look right at 56px? It's a yellow band behind the text, probably with padding. Should be fine.
+
+Caption: "GRAWWWW STUDIO — LOCAL AI, DELIVERED"? Redundant. Use "GRAWWWW STUDIO / TEASER B5". OK.
+
+Meta labels:
+- Top-right: "TEASER — B5 / 10S"
+- Bottom-left: "IDENTITY C — DARK"
+- Bottom-right: "1920 × 1080 / 24 FPS"
+
+Note: "×" is fine (not emoji).
+
+Icon SVGs — let me write them carefully.
+
+CPU icon (cyan):
+```svg
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <rect x="12" y="12" width="40" height="40" stroke="var(--c)" stroke-width="6"/>
+  <rect x="24" y="24" width="16" height="16" stroke="var(--c)" stroke-width="6"/>
+  <line x1="22" y1="2" x2="22" y2="12" .../>
+```
+Wait, stroke-width 6 with pins from y=2 to 12: the line at y=2 with stroke 6 → extends to y=-1... viewBox clipping. Let me use pins from y=4 to 12 (length 8). With stroke 6, the line's visual length is 8+6=14. OK. Actually simpler: pins from 0 to 10: half of the stroke (3) clips at 0. Slight clipping is acceptable but let me avoid: pins from 4 to 12.
+
+Pins: top at x=22, 32, 42, y 4→12; bottom at x=22, 32, 42, y 52→60; left at y=22, 32, 42, x 4→12; right at x 52→60, y 22, 32, 42.
+
+Bill icon (magenta):
+```svg
+<rect x="8" y="18" width="48" height="28" stroke="var(--m)" stroke-width="6"/>
+<circle cx="32" cy="32" r="7" stroke="var(--m)" stroke-width="6"/>
+<line x1="12" y1="58" x2="52" y2="6" stroke="var(--m)" stroke-width="6"/>
+```
+The slash from (12,58) to (52,6) crosses the bill diagonally. Good "no bill".
+
+Hmm, the slash endpoints: with stroke 6, at (12,58) it extends to ~y 61, within 64 ✓; at (52,6) to y 3 ✓.
+
+Lock icon (ink #F4F4F1):
+```svg
+<path d="M20 28 V20 a12 12 0 0 1 24 0 V28" stroke="#F4F4F1" stroke-width="6" fill="none"/>
+<rect x="14" y="28" width="36" height="28" stroke="#F4F4F1" stroke-width="6"/>
+<circle cx="32" cy="40" r="4" fill="#F4F4F1"/>
+<line x1="32" y1="44" x2="32" y2="50" stroke="#F4F4F1" stroke-width="6"/>
+```
+Shackle: M20 28 V20, arc a12 12 0 0 1 24 0 → from (20,20) to (44,20) with radius 12, sweep 1 → upper arc. Then V28. Good. Keyhole: circle r4 flat fill + line down. The body rect is 28..56, keyhole at 40..50 ✓.
+
+Rule 6: "stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill" — the keyhole circle is a flat fill ✓.
+
+Now the GSAP script. Let me enumerate the sets at t=0:
+
+```js
+const hidden = ["#kicker1","#line1","#line2","#line3","#kicker2",
+ "#chip1","#chip1bar","#chip1icon","#chip1idx","#chip1label",
+ "#chip2","#chip2bar","#chip2icon","#chip2idx","#chip2label",
+ "#chip3","#chip3bar","#chip3icon","#chip3idx","#chip3label",
+ "#logo","#tagline","#caption"];
+hidden.forEach(el => tl.set(el, { opacity: 0 }, 0));
+```
+Wait — forEach is fine (not forbidden). But the linter might only allow specific call patterns? "Use only tl.set / tl.to / tl.from / tl.fromTo" — a forEach loop calling tl.set is still tl.set calls. Should be OK. But to be extra safe, let me write explicit tl.set lines. Verbose but zero risk. Let me write them explicitly.
+
+Also, the frame and meta are visible at start: frame fades in from 0 (set opacity 0, to 1 at 0.05, 0.3). Meta: set 0, to 1.
+
+Full timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// Initial state
+tl.set("#frame", { opacity: 0 }, 0);
+tl.set("#iconTL", { opacity: 0 }, 0);
+tl.set("#brandTL", { opacity: 0, x: -20 }, 0);
+tl.set("#metaTR", { opacity: 0 }, 0);
+tl.set("#metaBL", { opacity: 0 }, 0);
+tl.set("#metaBR", { opacity: 0 }, 0);
+tl.set("#kicker1", { opacity: 0, x: -24 }, 0);
+tl.set("#line1", { opacity: 0, scale: 1.28 }, 0);
+tl.set("#line2", { opacity: 0, scale: 1.28 }, 0);
+tl.set("#line3", { opacity: 0, scale: 1.28 }, 0);
+tl.set("#rule1", { scaleX: 0 }, 0);
+tl.set("#kicker2", { opacity: 0, x: -24 }, 0);
+tl.set("#chip1", { opacity: 0, y: 46 }, 0);
+... (all chips)
+tl.set("#logo", { opacity: 0, scale: 0.9 }, 0);
+tl.set("#tagline", { opacity: 0, y: 26 }, 0);
+tl.set("#caption", { opacity: 0 }, 0);
+
+// Frame + meta in
+tl.to("#frame", { opacity: 1, duration: 0.4 }, 0.05);
+tl.to("#iconTL", { opacity: 1, duration: 0.3 }, 0.15);
+tl.to("#brandTL", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+tl.to("#metaTR", { opacity: 1, duration: 0.3 }, 0.25);
+tl.to("#metaBL", { opacity: 1, duration: 0.3 }, 0.3);
+tl.to("#metaBR", { opacity: 1, duration: 0.3 }, 0.3);
+
+// Beat 1
+tl.to("#kicker1", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 0.3);
+tl.to("#line1", { opacity: 1, scale: 1, duration: 0.2, ease: "power4.out" }, 0.5);
+tl.to("#line2", { opacity: 1, scale: 1, duration: 0.2, ease: "power4.out" }, 1.15);
+tl.to("#line3", { opacity: 1, scale: 1, duration: 0.2, ease: "power4.out" }, 1.8);
+tl.to("#rule1", { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.2);
+
+// Beat 1 exit
+tl.to("#kicker1", { opacity: 0, y: -18, duration: 0.2, ease: "power2.in" }, 2.72);
+tl.to("#line1", { opacity: 0, y: -44, duration: 0.2, ease: "power2.in" }, 2.78);
+tl.to("#line2", { opacity: 0, y: -44, duration: 0.2, ease: "power2.in" }, 2.86);
+tl.to("#line3", { opacity: 0, y: -44, duration: 0.2, ease: "power2.in" }, 2.94);
+tl.to("#rule1", { scaleX: 0, duration: 0.25, ease: "power2.in" }, 2.78);
+```
+
+Wait — kicker1 has x -24 set, and the exit animates y — fine, x stays at 0 after entrance.
+
+Beat 2:
+```js
+tl.to("#kicker2", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.0);
+// Chip 1
+tl.to("#chip1", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.05);
+tl.to("#chip1bar", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.05);
+tl.to("#chip1icon", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.05);
+tl.to("#chip1idx", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.05);
+tl.to("#chip1label", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.05);
+// Chip 2 at 3.4, Chip 3 at 3.75
+```
+
+Chip exit:
+```js
+tl.to("#kicker2", { opacity: 0, y: -18, duration: 0.2, ease: "power2.in" }, 6.72);
+tl.to("#chip1", { opacity: 0, y: 40, duration: 0.3, ease: "power2.in" }, 6.78);
+... chip 1 children
+tl.to("#chip2", ..., 6.88);
+tl.to("#chip3", ..., 6.98);
+```
+Chip 3 exit ends at 7.28. Logo starts at 7.15 — slight overlap, fine (logo fades in as chips fade out). Maybe start the logo at 7.2. Let me do: logo at 7.2 (0.95 → ends 8.15), tagline at 7.6, caption at 8.0 (0.5 → 8.5). Hold 8.5-10 ✓.
+
+Meta/frame exit:
+```js
+tl.to("#frame", { opacity: 0, duration: 0.3 }, 6.7);
+tl.to("#iconTL", { opacity: 0, duration: 0.25 }, 6.7);
+tl.to("#brandTL", { opacity: 0, y: -14, duration: 0.25 }, 6.7);
+tl.to("#metaTR", { opacity: 0, duration: 0.25 }, 6.7);
+tl.to("#metaBL", { opacity: 0, duration: 0.25 }, 6.7);
+tl.to("#metaBR", { opacity: 0, duration: 0.25 }, 6.7);
+```
+
+Beat 3:
+```js
+tl.to("#logo", { opacity: 1, scale: 1, duration: 0.95, ease: "power2.out" }, 7.2);
+tl.to("#tagline", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 7.6);
+tl.to("#caption", { opacity: 1, duration: 0.5 }, 8.0);
+```
+
+All good. Total duration 10.
+
+Now the HTML structure. Let me write out all the elements with class a and inline styles.
+
+Style block:
+```css
+body { background: #0E0E0E; }
+.a { position: absolute; box-sizing: border-box; }
+.h { font-family: var(--display); text-transform: uppercase; font-weight: 800; letter-spacing: 0.02em; }
+.m { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.18em; }
+```
+Hmm — gw.css probably already defines .h and .m. Redefining might conflict. The example uses classes h and m without a style block, so gw.css defines them. Let me not redefine .h/.m; only add what's needed:
+
+```css
+body { margin: 0; background: #0E0E0E; }
+.a { position: absolute; }
+.slam { transform-origin: left center; }
+#rule1 { transform-origin: left center; }
+#logo { transform-origin: center center; object-fit: contain; object-position: center; display: block; }
+.center { text-align: center; }
+```
+
+Wait, "position everything with position:absolute (class a)" — the class a probably already exists in gw.css. If I redefine .a { position:absolute } it's harmless.
+
+Note: I must not put a CSS transform on elements GSAP animates. transform-origin is fine per the rules.
+
+Line elements: class "a h slam", font-size 140px, color #F4F4F1.
+
+Kicker: class "a m", font-size 24px, color var(--c).
+
+Chip box: class a, border: 2px solid #F4F4F1. Hmm, a full ink border might be heavy; use 2px solid rgba(244,244,241,0.85)? rgba is fine (no gradient). Let me use 2px solid #F4F4F1 for a strong look, background #141414.
+
+Actually, with a 6px color bar at the top of the box, the box border + bar: the bar spans the full width at the top, overlapping the top border. Bar at the same top as the box: the bar covers the top border area. Looks intentional.
+
+Chip index: class "a m", font-size 20px, color rgba(244,244,241,0.45), text-align right.
+
+Chip label: class a, font-family var(--body), font-size 34px, color #F4F4F1, line-height 1.2.
+
+Chip 2 label: same box, containing <span class="hl">No per-token bill</span>.
+
+Meta labels: class "a m", font-size 22px, color rgba(244,244,241,0.55).
+
+Top-right box: left 1320 top 112 width 480, text-align right.
+Bottom-left: left 120 top 944.
+Bottom-right: left 1320 top 944 width 480, text-align right.
+
+Icon TL: left 120 top 104, width 40 height 40.
+Brand TL: left 176 top 112, 22px.
+
+Wait, the icon is 40px at top 104 → 104..144, center 124. Label 22px at top 112 → center ~123. ✓.
+
+Frame: left 60 top 60 width 1800 height 960, border 1px solid rgba(244,244,241,0.16).
+
+Kicker 1: left 160 top 140, 24px, cyan. Text "WHAT WE SHIP —". Hmm, em dash is fine.
+
+Lines:
+- #line1: left 160 top 200, 140px. "AGENTS<span style="color:var(--c)">.</span>"
+- #line2: left 160 top 365. "AUTOMATIONS<span style="color:var(--m)">.</span>"
+- #line3: left 160 top 530. "VIDEO<span style="color:var(--c)">.</span>"
+
+Rule 1: left 160 top 710 width 460 height 6 background var(--c).
+
+Kicker 2: left 120 top 330, magenta: "WHY IT STAYS LOCAL".
+
+Chips (top 400, height 240):
+Chip 1: box left 120; bar left 120 top 400 w 520 h 6 bg var(--c); icon left 160 top 440; idx left 540 top 436 w 70 (text "01"); label left 160 top 550 w 440 ("Runs on your hardware").
+Chip 2: box left 700; bar bg var(--m); icon left 740; idx left 1120 ("02"); label left 740 (hl span "No per-token bill").
+Chip 3: box left 1280; bar bg #F4F4F1; icon left 1320; idx left 1700 ("03"); label left 1320 ("Your data stays put").
+
+Logo: left 640 top 300 w 640 h 240.
+Tagline: left 0 top 600 w 1920, class "a h center", 56px: "LOCAL AI, <span class="hl">DELIVERED.</span>"
+
+Wait — tagline top 600, logo bottom 540, gap 60 ✓. Tagline height ~60 → 600..660.
+
+Caption: left 0 top 716 w 1920, class "a m center", 22px, color rgba(244,244,241,0.5): "GRAWWWW STUDIO · TEASER B5". 716..740. Bottom margin: 1080-740=340 ✓.
+
+Hmm, the middle dot "·" is fine.
+
+One concern: the .hl class on the tagline at 56px display — the hl band probably has padding in px; it should scale acceptably.
+
+Also, the hl band on chip 2 at 34px body.
+
+Now, let me verify "text must not overlap other text": beat 1: kicker 140..170, line 1 200..340, line 2 365..505, line 3 530..670, rule 710..716. Meta top 104..144 — kicker 1 top 140! Brand TL at 112..134 (left 176..~450), kicker 1 at top 140 (left 160). Brand bottom ~134, kicker top 140 — 6px gap, tight but no overlap. Hmm, both are on the left side: brand TL x 176 to ~176+ (14 chars * ~15px + spacing) ≈ 176+280=456. Kicker 1 x 160..~160+ (14 chars*~17) ≈ 400. Vertically: brand 112..134, kicker 140..164. No overlap (different y). OK, 6px vertical gap — visually tight. Let me move kicker 1 to top 150. Line 1 top 210? Then line 2 370, line 3 535, rule 715. Bottom 675. Fine. Actually, let me keep the lines at 200/365/530 and the kicker at 148. Brand bottom 134, kicker top 148 → 14px gap. OK.
+
+Let me also check the right side: meta TR at 112..134, x 1320..1800. No conflict with the left elements.
+
+Chips: kicker 2 at 330..354 (left 120..~420). Chips at 400..640. ✓.
+
+Chip labels: one line each? "Runs on your hardware" at 34px body: body font average ~0.5em → 17px/char → 21 chars ≈ 357px < 440 ✓. "Your data stays put" 19 ≈ 323 ✓. "No per-token bill" 17 ≈ 289 + hl padding ✓.
+
+Tagline at 56px display: display is wide; uppercase ~0.66em → 37px/char; "LOCAL AI, DELIVERED." = 20 chars ≈ 740px ✓.
+
+Beat 1 line 2 "AUTOMATIONS." 12 chars * 93 ≈ 1120 → right edge 1280 < 1820 ✓.
+
+Now, the logo-negative.png — "negative" means a light version for dark backgrounds ✓.
+
+img tag: `<img id="logo" class="a" src="assets/logo-negative.png" style="left:640px;top:300px;width:640px;height:240px;object-fit:contain;object-position:center center;display:block" />` — object-fit in inline style is fine (not a transform).
+
+Icon TL: `<img id="iconTL" class="a" src="assets/icon.svg" style="left:120px;top:104px;width:40px;height:40px" />`.
+
+Now let me write the script with all explicit sets.
+
+Also, per the rules: "one paused GSAP timeline ... registered as window.__timelines['main']". ✓.
+
+Double-check: no CSS transitions/animations ✓. No repeat:-1 ✓. No Math.random/Date.now/setTimeout/rAF ✓.
+
+Rule 4: "Never put a CSS transform on an element that GSAP animates" — my style block only has transform-origin ✓.
+
+Rule 5: all positioned elements have class a + left/top/width in px. Let me audit each element:
+- frame: left 60 top 60 width 1800 ✓ (+height)
+- iconTL: left 120 top 104 width 40 ✓
+- brandTL: left 176 top 148? Wait, brand is at top 112. left 176 top 112 width 400 ✓
+- metaTR: left 1320 top 112 width 480 ✓
+- metaBL: left 120 top 944 width 400 ✓
+- metaBR: left 1320 top 944 width 480 ✓
+- kicker1: left 160 top 148 width 500 ✓
+- line1: left 160 top 200 width 1200 ✓
+- line2: left 160 top 365 width 1400 ✓
+- line3: left 160 top 530 width 1200 ✓
+- rule1: left 160 top 710 width 460 ✓
+- kicker2: left 120 top 330 width 500 ✓
+- chip boxes: width 520 ✓
+- bars: width 520 ✓
+- icons: width 64 ✓
+- idx: width 70 ✓
+- labels: width 440 ✓
+- logo: width 640 ✓
+- tagline: left 0 top 600 width 1920 ✓
+- caption: left 0 top 716 width 1920 ✓
+
+All good.
+
+One more consideration: the `slam` class with transform-origin left center — but GSAP sets a transform with its own origin? GSAP reads the CSS transform-origin. GSAP handles transform-origin; if I set it in CSS, GSAP will respect it (it parses it). Actually, GSAP sets transformOrigin from CSS when it initializes. Yes, GSAP reads the existing transform-origin. To be extra safe, I could pass transformOrigin in tl.set: tl.set("#line1", { opacity: 0, scale: 1.28, transformOrigin: "left center" }, 0). That's a property in set — allowed (set can include transformOrigin). Let me do that instead of CSS. Similarly for rule1 (transformOrigin "left center") and logo ("center center"). Safer.
+
+So the style block is minimal:
+```css
+body { margin: 0; background: #0E0E0E; }
+.a { position: absolute; }
+.center { text-align: center; }
+#logo { object-fit: contain; object-position: center center; display: block; }
+```
+
+Wait, if gw.css already defines .a, my redefinition is harmless.
+
+Also, letter-spacing for .m is probably in gw.css.
+
+Font sizes in inline px.
+
+Let me also think about the "slam" feel: scale 1.28 → 1 with power4.out at 0.2s is a fast punch. Maybe add a small x? Keep it pure scale + opacity. Good.
+
+Beat timing summary:
+- 0.05-0.4: frame/meta in
+- 0.3: kicker 1
+- 0.5, 1.15, 1.8: lines slam (each 0.2s)
+- 2.2-2.7: rule in
+- 2.72-3.14: beat 1 exit
+- 3.0: kicker 2
+- 3.05/3.4/3.75: chips in (0.5s)
+- Hold to 6.7
+- 6.7-7.28: everything clears
+- 7.2-8.15: logo in
+- 7.6-8.2: tagline
+- 8.0-8.5: caption
+- 8.5-10: hold ✓
+
+The brief says 0-3s lines, 3-7s chips, 7-10s logo. My timing matches (chips fully in by 4.25, hold, clear by 7.28, logo 7.2-8.15).
+
+Edge: chip 3 exit ends 7.28, logo starts 7.2 — a 0.08s overlap, fine, a crossfade feel.
+
+Let me also verify the chip bar y animation: the bar is at top 400 (same as the box); both animate y 46→0 together ✓.
+
+Now, the icons inside chips are inline SVG — each is a separate positioned element (class a). SVG with width/height 64.
+
+Let me write the CPU icon fully:
+```html
+<svg id="chip1icon" class="a" style="left:160px;top:440px;width:64px" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="12" y="12" width="40" height="40" stroke="#12A9E6" stroke-width="6"/>
+  <rect x="24" y="24" width="16" height="16" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="22" y1="4" x2="22" y2="12" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="32" y1="4" x2="32" y2="12" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="42" y1="4" x2="42" y2="12" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="22" y1="52" x2="22" y2="60" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="32" y1="52" x2="32" y2="60" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="42" y1="52" x2="42" y2="60" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="4" y1="22" x2="12" y2="22" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="4" y1="32" x2="12" y2="32" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="4" y1="42" x2="12" y2="42" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="52" y1="22" x2="60" y2="22" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="52" y1="32" x2="60" y2="32" stroke="#12A9E6" stroke-width="6"/>
+  <line x1="52" y1="42" x2="60" y2="42" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Pins at y=4 with stroke 6 → extends to y=1 ✓ within viewBox.
+
+Bill icon:
+```html
+<svg id="chip2icon" class="a" style="left:740px;top:440px;width:64px" viewBox="0 0 64 64" fill="none">
+  <rect x="8" y="18" width="48" height="28" stroke="#FF2D92" stroke-width="6"/>
+  <circle cx="32" cy="32" r="7" stroke="#FF2D92" stroke-width="6"/>
+  <line x1="12" y1="58" x2="52" y2="6" stroke="#FF2D92" stroke-width="6"/>
+</svg>
+```
+Circle r7 with stroke 6: the outer edge is 7+3=10 → 22..42, within the bill 18..46 (bill inner ~21..43 with stroke). Hmm, the circle is 22..42, bill inner top 21, bottom 43 — the circle almost touches the bill edges. Tight. Let me shrink r to 6: 19..45... still. Let me make the bill taller: rect y=16 h=32 (16..48), circle r=6 (23..41). Inner bill 19..45. Gap OK. Slash (12,58)-(52,6).
+
+Actually, the slash visually crosses the bill and the circle — that's the point ("no bill"). Good.
+
+Lock icon:
+```html
+<svg id="chip3icon" class="a" style="left:1320px;top:440px;width:64px" viewBox="0 0 64 64" fill="none">
+  <path d="M20 28 V20 A12 12 0 0 1 44 20 V28" stroke="#F4F4F1" stroke-width="6"/>
+  <rect x="14" y="28" width="36" height="28" stroke="#F4F4F1" stroke-width="6"/>
+  <circle cx="32" cy="40" r="4" fill="#F4F4F1"/>
+  <line x1="32" y1="45" x2="32" y2="51" stroke="#F4F4F1" stroke-width="6"/>
+</svg>
+```
+Shackle arc: from (20,20) with A12 12 0 0 1 to (44,20): rx=12, distance 24 = 2r → semicircle up ✓. Shackle top: 20-12=8, with stroke → 5 ✓.
+
+Keyhole line 45..51, body bottom 56, inner ~53. OK.
+
+Now the chip index positions: chip 1 idx left 540 top 436 width 70, text-align right → text at ~570..610, chip right edge 640 ✓. Wait, chip 1 box is 120..640. idx box 540..610, right-aligned text ends at 610, 30px from the right edge ✓.
+
+Chip 2 idx: left 1120 (chip 700..1220, idx 1120..1190, ends 30 from 1220 ✓).
+Chip 3 idx: left 1700 (chip 1280..1800, idx 1700..1770 ✓).
+
+Chip top bar: h 6, at top 400, w 520, at the same left as the box. The box border is 2px; the bar overlaps the top border. Fine.
+
+Also, give the chip box a background: #141414.
+
+Now, let me think about whether to include a subtle background element for the end card — maybe a faint big "G" or a grid. Keep it clean; the logo is the hero.
+
+Also, I could add a small icon.svg next to the caption? The caption is centered; adding the icon complicates centering. Skip.
+
+Let me re-check rule 7: "everything that should be visible at the end of the clip must be animated in and at opacity 1 at the hold frame" — logo (1), tagline (1), caption (1) ✓.
+
+Potential issue: the `#logo` initial set {opacity 0, scale 0.9} at t=0 — before 7.2 it's invisible ✓.
+
+Now, the tagline uses class h with a span.hl — the .hl band inside the display font. And the chip 2 label uses .hl inside the body font. Both are allowed uses.
+
+Also, the brief's tagline: "Local AI, delivered." — I'll render it uppercase "LOCAL AI, DELIVERED." per the brand h class. Fine.
+
+Let me also reconsider the kicker 1 text: "WHAT WE SHIP" — the lines are "Agents." "Automations." "Video." — what the studio ships. Good. Kicker 2: "WHY IT STAYS LOCAL" fits the chip content.
+
+Meta top-right: "TEASER — B5 / 10S". Bottom-left: "IDENTITY C — DARK". Bottom-right: "1920 × 1080 / 24 FPS".
+
+Em dash vs hyphen: use "—", fine (not emoji).
+
+Now let me assemble the full HTML.
+
+Also, the title: "Grawwww Studio — Teaser B5".
+
+Script: I need to be careful that all selectors match the ids.
+
+Let me write out the timeline code fully:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+/* ---- initial states ---- */
+tl.set("#frame", { opacity: 0 }, 0);
+tl.set("#iconTL", { opacity: 0 }, 0);
+tl.set("#brandTL", { opacity: 0, x: -20 }, 0);
+tl.set("#metaTR", { opacity: 0 }, 0);
+tl.set("#metaBL", { opacity: 0 }, 0);
+tl.set("#metaBR", { opacity: 0 }, 0);
+tl.set("#kicker1", { opacity: 0, x: -24 }, 0);
+tl.set("#line1", { opacity: 0, scale: 1.28, transformOrigin: "left center" }, 0);
+tl.set("#line2", { opacity: 0, scale: 1.28, transformOrigin: "left center" }, 0);
+tl.set("#line3", { opacity: 0, scale: 1.28, transformOrigin: "left center" }, 0);
+tl.set("#rule1", { scaleX: 0, transformOrigin:
+[CONTENT]

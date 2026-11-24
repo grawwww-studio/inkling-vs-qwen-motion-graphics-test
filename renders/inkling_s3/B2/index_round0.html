@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Three-step explainer</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .hl{display:inline-block;transform-origin:left center;}
+  #rule,#conn1,#conn2{transform-origin:left center;}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- Eyebrow -->
+  <div class="a m" id="eyebrow" style="left:196px;top:118px;font-size:24px;letter-spacing:6px;color:var(--c);opacity:0">PROCESS / 03 STEPS</div>
+  <div class="a" id="emark" style="left:160px;top:126px;width:16px;height:16px;background:var(--c);opacity:0"></div>
+  <div class="a m" id="tag" style="left:1500px;top:122px;width:260px;text-align:right;font-size:20px;letter-spacing:4px;color:rgba(244,244,241,0.45);opacity:0">EXPLAINER / B2</div>
+
+  <!-- Heading -->
+  <div class="a h" id="heading" style="left:160px;top:168px;font-size:104px;color:#F4F4F1;opacity:0">HOW IT <span class="hl" id="hlword">WORKS</span></div>
+  <div class="a" id="rule" style="left:160px;top:322px;width:1600px;height:4px;background:rgba(244,244,241,0.16)"></div>
+
+  <!-- Step 1 -->
+  <div class="a m" id="n1" style="left:160px;top:392px;font-size:42px;letter-spacing:4px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="box1" style="left:160px;top:450px;width:200px;height:200px;border:3px solid rgba(244,244,241,0.28);opacity:0">
+    <svg viewBox="0 0 160 160" fill="none" stroke="#12A9E6" stroke-width="6" stroke-linecap="square" style="position:absolute;left:25px;top:25px;width:150px;height:150px">
+      <path d="M44 14 H98 L126 42 V146 H44 Z"/>
+      <path d="M98 14 V42 H126"/>
+      <path d="M62 64 H104"/>
+      <path d="M62 84 H104"/>
+      <path d="M62 104 H90"/>
+      <path d="M96 112 L126 142"/>
+      <path d="M126 142 L134 150"/>
+      <path d="M88 104 L96 112"/>
+    </svg>
+  </div>
+  <div class="a h" id="lab1" style="left:160px;top:680px;width:460px;font-size:30px;line-height:1.25;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  <!-- Connector 1 -->
+  <div class="a" id="conn1" style="left:620px;top:547px;width:100px;height:6px;background:var(--c)"></div>
+  <div class="a" id="dot1" style="left:704px;top:542px;width:16px;height:16px;background:var(--c);opacity:0"></div>
+
+  <!-- Step 2 -->
+  <div class="a m" id="n2" style="left:720px;top:392px;font-size:42px;letter-spacing:4px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="box2" style="left:720px;top:450px;width:200px;height:200px;border:3px solid rgba(244,244,241,0.28);opacity:0">
+    <svg viewBox="0 0 160 160" fill="none" stroke="#FF2D92" stroke-width="8" stroke-linecap="square" style="position:absolute;left:25px;top:25px;width:150px;height:150px">
+      <path d="M58 42 L28 80 L58 118"/>
+      <path d="M92 34 L68 126"/>
+      <path d="M102 42 L132 80 L102 118"/>
+    </svg>
+  </div>
+  <div class="a h" id="lab2" style="left:720px;top:680px;width:460px;font-size:30px;line-height:1.25;color:#F4F4F1;opacity:0">Model writes the code</div>
+
+  <!-- Connector 2 -->
+  <div class="a" id="conn2" style="left:1180px;top:547px;width:100px;height:6px;background:var(--m)"></div>
+  <div class="a" id="dot2" style="left:1364px;top:542px;width:16px;height:16px;background:var(--m);opacity:0"></div>
+
+  <!-- Step 3 -->
+  <div class="a m" id="n3" style="left:1280px;top:392px;font-size:42px;letter-spacing:4px;color:#F4F4F1;opacity:0">03</div>
+  <div class="a" id="box3" style="left:1280px;top:450px;width:200px;height:200px;border:3px solid rgba(244,244,241,0.28);opacity:0">
+    <svg viewBox="0 0 160 160" fill="#F4F4F1" style="position:absolute;left:25px;top:25px;width:150px;height:150px">
+      <path d="M58 38 L126 80 L58 122 Z"/>
+    </svg>
+  </div>
+  <div class="a h" id="lab3" style="left:1280px;top:680px;width:460px;font-size:30px;line-height:1.25;color:#F4F4F1;opacity:0">Render the video</div>
+
+  <!-- Footer -->
+  <div class="a" id="fmark" style="left:160px;top:936px;width:14px;height:14px;background:var(--c);opacity:0"></div>
+  <div class="a m" id="footer" style="left:188px;top:930px;font-size:22px;letter-spacing:5px;color:rgba(244,244,241,0.55);opacity:0">BRIEF IN — VIDEO OUT</div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.fromTo("#emark", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 0.2);
+  tl.fromTo("#eyebrow", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25);
+  tl.fromTo("#tag", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.35);
+  tl.fromTo("#heading", { opacity: 0, y: 46 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.4);
+  tl.fromTo("#hlword", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 0.85);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, 1.0);
+
+  // Step 1
+  tl.fromTo("#n1", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.6);
+  tl.fromTo("#box1", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 1.75);
+  tl.fromTo("#lab1", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.05);
+
+  // Connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.5);
+  tl.fromTo("#dot1", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 2.85);
+
+  // Step 2
+  tl.fromTo("#n2", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.95);
+  tl.fromTo("#box2", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 3.1);
+  tl.fromTo("#lab2", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.4);
+
+  // Connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 3.95);
+  tl.fromTo("#dot2", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 4.3);
+
+  // Step 3
+  tl.fromTo("#n3", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.4);
+  tl.fromTo("#box3", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 4.55);
+  tl.fromTo("#lab3", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 4.85);
+
+  // Footer
+  tl.fromTo("#fmark", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 5.7);
+  tl.fromTo("#footer", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.75);
+
+  // Final accent pulse on the play step
+  tl.fromTo("#box3", { scale: 1 }, { scale: 1.07, duration: 0.35, ease: "power2.inOut", yoyo: true, repeat: 1 }, 6.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,706 @@
+[REASONING]
+Let's plan this composition.
+
+Brief B2: A 9-second 3-step explainer with icons.
+- Heading "How it works"
+- 3 columns. Each column has a number (01/02/03), a simple inline SVG icon (pencil/document, brackets </>, play triangle), and a label: "Write a brief", "Model writes the code", "Render the video"
+- Steps appear sequentially with connector lines between them.
+
+Brand identity C dark:
+- Background #0E0E0E (body)
+- Ink #F4F4F1
+- Cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as a band behind #111 text (class `hl`, text is #111)
+- Fonts: var(--display) for headings (class h: uppercase, heavy, wide), var(--body), var(--mono) (class m: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emojis.
+
+Layout plan (1920x1080, 100px margin):
+- Top area: eyebrow (mono label) + heading "How it works" with a yellow hl band on "works".
+- 3 columns: each column about 440px wide. Total usable width: 1920 - 200 = 1720. 3 columns of about 460px each, with connectors between them.
+
+Let's calculate: columns at left positions. Column width 460px. Positions: col1 left 160, col2 left 730, col3 left 1300. Spacing between: 730 - (160+460) = 110. So the connector line spans the 110px gap, positioned at the icon's vertical center.
+
+Actually, let's center the content: total = 3*460 + 2*110 = 1380 + 220 = 1600. Margin = (1920-1600)/2 = 160.
+
+Column structure (each column):
+- Number "01" (mono, cyan/magenta/yellow? No — yellow is only for the hl band. Use cyan and magenta as accents, ink for the number). Let's do this: number in mono, color var(--c) cyan for step 1, var(--m) magenta for step 2, ink for step 3? Or keep numbers in ink and use brand colors for the icons. Let's use accent colors: 01 cyan, 02 magenta, 03 ink (#F4F4F1). Icons in corresponding colors, stroke width 6.
+
+Icon design (inline SVG, stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill):
+
+1. Pencil/document: draw a document (rectangle with folded corner) + lines, or a pencil. Simple document: rect 0,0 to 100x120? Let's use a 120x120 viewBox. Document: path M20 10 H80 L100 30 V110 H20 Z, with fold line M80 10 V30 H100. Inner lines: M35 55 H85, M35 75 H85, M35 95 H65. Stroke cyan.
+
+2. Brackets </>: left angle bracket: M45 30 L15 60 L45 90; right: M75 30 L105 60 L75 90; slash: M65 25 L55 95. Stroke magenta.
+
+3. Play triangle: triangle M40 25 L100 60 L40 95 Z — no fill, stroke ink, stroke-linejoin miter (no rounded corners... stroke-linejoin round is fine? "No rounded corners" refers to border-radius; stroke-linecap round is probably fine, but to be safe use miter/square caps). Actually, to be safe, use stroke-linecap="square" or "butt". Hmm, square caps look chunkier. Let's use butt caps and miter joins — sharp, fits the brand.
+
+Actually, for the play triangle, a flat fill might be better: fill #F4F4F1, no stroke. The rules allow "no fill or flat fill". A filled play triangle looks more solid. Let's do a filled triangle with fill var(--ink)? CSS variable in SVG fill: fill="#F4F4F1" works.
+
+Icon size: 120x120 viewBox, displayed at about 120px.
+
+Column layout (vertical):
+- Icon at the top of the column, y around 430
+- Number below or above the icon? Brief: "each with a number (01/02/03), a simple inline SVG icon, and a label". Order: number, icon, label. Let's stack vertically: number (mono 28px) at top, icon in the middle, label at the bottom.
+
+Let's define the vertical layout:
+- Eyebrow: top 140, "Process / 03 steps"
+- Heading: top 180, font-size 130px: "How it works" with "works" in the hl band. Width estimate: "HOW IT " — display font uppercase, about 0.66em per letter at 130px? The rules say at 150px, uppercase letters are about 100px wide (0.66em). "HOW IT WORKS" = 12 characters including 2 spaces. Space is about 0.3em. So width ≈ 10*100 + 2*40 = 1080px at 130px... wait, at 150px letters are 100px, so at 130px letters are about 87px. 10 letters * 87 = 870 + 2 spaces * 35 = 70 → about 940px. Fits within the 1720 margin. Good.
+
+Actually, heading top 170, height about 130. Then columns start around 420.
+
+Column elements:
+- Number: top 400, mono 30px, e.g. "01"
+- Icon: top 460, 120x120
+- Label: top 630, body font 40px? Label: "Write a brief", "Model writes the code", "Render the video". Body font, probably 42px. Column width 460px. "Model writes the code" is 21 characters, at 42px body (average about 0.5em = 21px) → about 440px. Hmm, tight. Let's make the label 38px, or allow 2 lines. Better: 2 lines? Keep 1 line at 36px: 21 chars * 18 = 378px, fits within 460. Or 40px: 21*20=420, fits. Let's use 40px body.
+
+Hmm, but the label might be better as a mono uppercase label? The brief says "label", and class m is for uppercase labels. But the label text is given in sentence case. We can use body font. Let's use body font, 40px, color ink.
+
+- Below the label, a small mono caption? Not needed. Keep it clean.
+
+Connector lines: horizontal lines between columns at the icon's vertical center (icon top 460 + 60 = 520). Connector 1: from x 620 (col1 right edge 160+460=620) to 730 (col2 left). Width 110, height 4-6px, top 517. Connector 2: from 1190 (730+460) to 1300.
+
+Connectors animate with scaleX from 0, origin left, appearing when the next step appears.
+
+Also, a full-width bottom rule below the heading? A thin rule below the heading: left 160, top about 350, width 1720? Or a short accent rule. Let's add a full-width hairline below the heading area: top 360, width 1600, height 2px, color rgba? Solid #2A2A2A? The brand only allows specific colors... "ink #F4F4F1, cyan, magenta, yellow only as a band". A dark gray rule might be off-brand. Use cyan for the rule? Or use a low-opacity ink. Opacity is fine. Let's use a 2px rule in ink at opacity 0.25. Hmm, the linter probably doesn't check color, but the brand rules say only those colors. Let's use cyan for the accent rule.
+
+Actually, let's add a footer strip: a mono label at the bottom "gw — generative workflow" or similar? Keep it minimal: bottom-left mono "Step 01 — 03" and a progress bar? A progress indicator at the bottom that fills as steps appear would be a nice touch: a 3-segment bar at the bottom, each segment fills cyan as a step appears. This adds motion. Let's add a bottom progress bar: 3 segments, each 200px wide, 6px tall, with 20px gaps, left 160, top 940. Each segment fills (scaleX) as a step appears. Colors: cyan, magenta, ink? Or all cyan. Let's match each step's accent: cyan, magenta, ink (#F4F4F1).
+
+Wait — yellow is only for the hl band. Cyan and magenta are usable as general accents. Ink is fine.
+
+Timeline (9s, 24fps):
+- 0.0–0.4: background exists; eyebrow fades in at 0.2 (opacity 0→1, 0.4s)
+- 0.3: heading fromTo y 40 → 0, opacity, 0.6s, power2.out
+- 0.8: rule scaleX 0→1, 0.7s
+- Steps: step 1 at 1.4, step 2 at 3.0, step 3 at 4.6. Each step: number fades/slides in (0.4s), icon draws? Draw animation: can we animate stroke-dashoffset? Not in the allowed list — only opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height. So no dashoffset. Instead, icon appears with scale 0.6→1 + opacity, or a y slide. Let's do: icon fromTo opacity 0, scale 0.5, rotation -8 → opacity 1, scale 1, rotation 0, 0.5s, power2.out (back-ish? use "power3.out"). Label fromTo y 20→0, opacity, 0.5s, slightly after the icon.
+- Connector 1 at 2.6 (before step 2 at 3.0): scaleX 0→1, 0.4s. Connector 2 at 4.2.
+- Progress segments: seg1 at 1.4, seg2 at 3.0, seg3 at 4.6, each scaleX 0→1, 0.5s.
+- 6.2–9.0: hold. Maybe a subtle final touch: all icons pulse? Keep the hold clean; a small "loop" hint? No, hold.
+
+Maybe add a subtle staggered "settle" — like the heading hl band. The hl band is part of the heading text (span.hl). No problem.
+
+Also, add a small mono tag "01" etc. above each icon. And a thin vertical divider? Connectors are enough.
+
+Icon draw alternative: since dashoffset isn't allowed, we can animate each SVG path individually with opacity + scale, giving a "build" feel. E.g., for the document: the outline scales in, then the lines slide in from the left (x -20→0, opacity). This is nice: animate the inner lines with x offset. GSAP can target SVG elements by class/selector. Let's give the paths IDs: #doc-body, #doc-l1, #doc-l2, #doc-l3. Animate with x and opacity. GSAP transforms on SVG elements work (it sets transform). Allowed properties: x, y, opacity — no problem.
+
+But note rule 4: don't put CSS transform on elements GSAP animates. No problem, we won't.
+
+Let's design each icon with staggered sub-animations:
+
+Icon 1 (document + pencil? The brief says pencil/document — either). Let's do a document with lines, and a small pencil? A diagonal pencil over the document might get complex. A document with a fold and 3 lines reads as "brief". Good.
+
+viewBox 0 0 120 120, stroke width 6, stroke cyan #12A9E6, no fill, linecap butt, linejoin miter.
+
+- Body path: M24 8 H78 L96 26 V112 H24 Z — wait, height 120: V112 is fine (stroke 6 → 112+3=115 <120 OK; top 8-3=5 OK).
+- Fold: M78 8 V26 H96
+- Lines: M38 50 H82; M38 70 H82; M38 90 H64
+
+Icon 2 (code brackets):
+- Left: M40 30 L14 60 L40 90
+- Right: M80 30 L106 60 L80 90
+- Slash: M66 24 L54 96
+Stroke magenta #FF2D92.
+
+Icon 3 (play):
+- Triangle: M42 26 L98 60 L42 94 Z, fill #F4F4F1, no stroke. Or stroke ink, no fill. A flat-filled triangle is bolder. Let's fill with ink. Maybe add a small "frame" around it? A play button inside a rectangle (like a video frame): a rect frame stroke ink + a filled triangle. Video frame: rect x14 y22 w92 h76 (stroke 6, no fill) + triangle M52 44 L84 60 L52 76 Z fill cyan? Hmm, colors: step 3's accent is ink. Frame stroke ink, triangle fill ink. That works, reads as "video".
+
+Actually, to match the "Render the video" label, a play triangle inside a frame is best.
+
+Number colors: 01 cyan, 02 magenta, 03 ink.
+
+Now, exact positions:
+
+Canvas 1920x1080, margin 100+.
+
+- Eyebrow: left 160, top 150, mono 26px, color var(--c): "Process / Three steps"
+- Heading: left 160, top 190, font-size 128px, class h: "How it <span class=hl>works</span>". Height about 128. Ends around 330.
+- Rule: left 160, top 372, width 1600, height 4px, background var(--c)? Full-width cyan rule might be heavy; width 1600, 3px. Actually, let's do a rule with a magenta segment? Keep it simple: 3px ink at 0.2 opacity? Use cyan, height 3. Hmm. Let's do a 1600-wide, 3px-tall rule in cyan.
+
+Wait, the heading with the hl band: the band is a yellow background behind the "works" text, text #111. Good contrast on the dark background.
+
+- Columns: top area.
+  - Number: top 430, mono 30px
+  - Icon: top 490, 120x120 → center y 550
+  - Connector: top 547, height 4px
+  - Label: top 660, body 40px
+  
+  Column x positions: col1 160, col2 730, col3 1300, width 460.
+
+  Connector 1: left 620, width 110. Connector 2: left 1190, width 110. Top 547 (center 550 - 2).
+
+  Hmm, a 110px connector is short; that's fine.
+
+  Actually, we could make the columns wider and the connectors longer. Column width 440: total = 1320 + 2*140 (connectors) = 1600. col1 160, col2 740 (160+440+140), col3 1320. Connector 1: left 600, width 140. Connector 2: left 1180, width 140.
+
+  Label width 440: "Model writes the code" at 40px body: 21 chars * about 20 = 420. Tight but OK. Maybe use 38px. Let's use 38px to be safe → about 400px. Good.
+
+- Bottom progress: top 940. Segments: left 160, each width 240, gap 24: seg1 160, seg2 424, seg3 688. Height 6px. Colors cyan, magenta, ink.
+  Plus a mono label to the right of the segments? E.g., "01 — 03" at left 980? Or a bottom-right label "GW / Explainer". Let's add a bottom-right mono 22px "Generative workflow — explainer" at left 1160, top 932, right-aligned... position absolute with left 1160, width 600, text-align right. Good.
+
+Wait, margin: bottom 1080 - 940 - 6 = 134. Good.
+
+Also, a large ghost number behind the icon? Might be cluttered. Skip.
+
+Timeline details:
+
+t=0: everything hidden (set opacity 0 at the start with fromTo, or tl.set at 0).
+
+- tl.set: set initial states at 0 (or rely on fromTo).
+- Eyebrow: tl.fromTo("#eyebrow", {opacity:0, x:-20}, {opacity:1, x:0, duration:0.4, ease:"power2.out"}, 0.2)
+- Heading: tl.fromTo("#heading", {opacity:0, y:40}, {opacity:1, y:0, duration:0.6, ease:"power3.out"}, 0.35)
+- Rule: tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.7, ease:"power2.inOut"}, 0.9), transform-origin left center in CSS.
+
+Step function (manual):
+Step 1 at t=1.5:
+- num1: fromTo {opacity:0, y:16} → {opacity:1, y:0, 0.4, power2.out}, 1.5
+- Icon 1 parts:
+  - #ic1-body: fromTo {opacity:0, scale:0.6, transformOrigin center} — transform-origin on SVG: GSAP handles it; but rule 4 says don't put CSS transform; transform-origin in CSS is fine. For SVG, set transformOrigin "50% 50%" and transformBox "fill-box"? GSAP handles SVG transform origin reasonably with the transformOrigin property. Let's include transformOrigin: "50% 50%" in the tween vars (allowed? It's a GSAP property, not a CSS transform on the element — should be fine; the rule only restricts which properties to animate, and transformOrigin is an option). Hmm, "use only tl.set / tl.to / tl.from / tl.fromTo with an absolute start time" and "animate opacity, x, y, ...". transformOrigin is a helper, not an animated property. I think it's acceptable. Alternatively, avoid scale on SVG and only use opacity + x. Safer: animate SVG paths with opacity and x/y only (no scale/rotation), and scale the whole icon container div. That's cleaner: the icon wrapper div gets scale 0.6→1, and the inner paths get staggered opacity/x.
+
+So:
+- #icon1 (div wrapper 120x120): fromTo {opacity:0, scale:0.55} → {opacity:1, scale:1, 0.5, power3.out}, 1.55, transform-origin center in CSS.
+- #ic1-body path: fromTo {opacity:0} → {opacity:1, 0.3}, 1.6
+- #ic1-l1: fromTo {opacity:0, x:-16} → {opacity:1, x:0, 0.35, power2.out}, 1.85
+- #ic1-l2: same, 2.0
+- #ic1-l3: same, 2.15
+- #label1: fromTo {opacity:0, y:20} → {opacity:1, y:0, 0.5, power2.out}, 1.75
+- #seg1: fromTo {scaleX:0} → {scaleX:1, 0.5, power2.inOut}, 1.5
+
+Connector 1 at 2.7:
+- #conn1: fromTo {scaleX:0} → {scaleX:1, 0.45, power2.inOut}, 2.7, transform-origin left center.
+
+Step 2 at 3.1:
+- num2 3.1, icon2 3.15, parts 3.3/3.45/3.6, label2 3.35, seg2 3.1.
+Step 3 at 4.7:
+- num3 4.7, icon3 4.75, parts 4.9/5.1, label3 4.95, seg3 4.7.
+Connector 2 at 4.3.
+
+Icon 2 parts: left bracket, right bracket, slash:
+- #ic2-l: fromTo {opacity:0, x:-14} → 1, 0.35, 3.3
+- #ic2-r: fromTo {opacity:0, x:14} → 1, 0.35, 3.45
+- #ic2-s: fromTo {opacity:0, y:-14} → 1, 0.35, 3.6
+
+Icon 3 parts: frame rect, triangle:
+- #ic3-frame: fromTo {opacity:0} → 1, 0.35, 4.9
+- #ic3-play: fromTo {opacity:0, x:-10} → 1, 0.35, 5.1 — a filled triangle sliding in.
+
+Ending: after 5.5, everything is in. Hold until 9. Add a subtle final: the heading hl band pulses? Or the connectors "flow": a small square moving along the connectors? That would need continuous motion — only allowed if it ends at the hold frame... "Everything that should be visible at the end of the clip must be animated in and at opacity 1 at the hold frame." A moving dot would be moving at the end; better to end the motion before the hold. We could add a dot that moves from col1 to col3 between 5.6 and 6.8 and then fades? Fading out would make it invisible at the end — that's fine (it's not something that "should be visible at the end"). A signal dot traveling along the connector line: a 12px cyan square moving from x 600 to 1320+? Let's do this: a dot at the connector level (top 544), moving from left 600 to 1320 over 1.2s, ease power1.inOut, opacity in at 5.6, out at 6.9. This adds life and reinforces the "flow" narrative. Animate x: from 0 to 720 (600 → 1320). Dot width 12, height 12, top 544. Start left 594 (center 600). x 0 → 732 (center 1326, col3 center is 1320+220=1540? Hmm, the dot should end at the center of col3's icon: col3 left 1320, width 440, center 1540. But the connectors only span the gaps; a dot traveling the full width would cross the icons. Better: the dot travels along the entire row: from col1 center (160+220=380) to col3 center (1540), passing through the icon centers at y 550. It would overlap the icons — the dot at y 544-556 overlaps the icons (icons span 490-610). The dot passes behind/in front of the icons. If the dot is drawn on top (later in DOM), it passes over the icons — might look like a scan. Actually, a scanline effect: a vertical line sweeping across all 3 columns? That could be nice: a 4px cyan vertical line sweeping from left 160 to 1480 (end x 1480+?) from 5.6 to 7.0, then fading. But it overlaps the icons and text — a scan effect is common and looks intentional. Hmm, but it might visually clash with the icons.
+
+Alternative: keep it simple, no dot; instead, after all steps are in, the heading or a bottom caption "From brief to video in three steps." fades in at 5.8 as a closing line, at the bottom center? That's a good narrative close: a mono or body caption. Let's add a caption: left 160, top 800, body 30px, color ink, opacity 0.6? "From brief to video — three steps, no detours." Hmm, keep it short: "Brief in. Video out." That's punchy. Position: left 160, top 800, body 34px. Fade in at 5.9, y 16→0.
+
+Wait, the bottom progress is at 940 and the caption at 800 — spacing is fine (label bottom around 660+48=708; caption 800; progress 940). Good.
+
+Also, maybe the caption uses a small yellow hl? "Video out" in hl? The caption: "Brief in. <span class=hl>Video out.</span>" — body 34px, band behind "Video out." Nice.
+
+Let's also double-check text widths:
+- Heading 128px display: "HOW IT WORKS" — 10 letters * about 84px (0.66*128=84.5) = 845 + 2 spaces * about 33 = 66 → about 911px. From left 160 → ends around 1071. Good.
+- Label 38px body: "Model writes the code" 21 chars; body font average about 0.5em → 19px → 400px. Column width 440. OK.
+- Caption 34px: "Brief in. Video out." about 20 chars * 17 = 340px. No problem.
+
+Eyebrow: "Process / 03 steps" mono 26px, about 18 chars * 15.6 = 280px. No problem.
+
+Bottom-right label: "GW — Explainer B2" mono 22px, right-aligned. Position left 1200, width 560, text-align right, top 932.
+
+Now, CSS: use classes from gw.css? gw.css has font + brand tokens; classes like .h, .m, .hl, .a are probably defined in gw.css (the example uses them without defining, so they're in gw.css). The example uses class "a", "m", "h", "hl" — assume they're defined in gw.css. We'll use them.
+
+For elements GSAP scales, we need transform-origin in CSS: #rule, #conn1, #conn2, #seg1-3 (left center), #icon1-3 (center).
+
+Set initial hidden state with tl.set or fromTo — use fromTo everywhere, but also add an opacity 0 fallback? The rules say to set the initial hidden state with tl.set or fromTo, not with CSS transform. The example sets opacity:0 in the eyebrow's inline style... actually, the example has opacity:0 in the eyebrow's inline style, plus tl.to for opacity. For safety, use fromTo (which sets the start state at the tween start), and also add tl.set at 0 for elements that appear later. Since the renderer is frame-based starting from t=0, before the first tween of an element, its state is the natural CSS state — if we don't set opacity 0 in CSS, it would be visible before its tween! Important: for frame-based rendering, at t=0.0-1.5, step 1 elements would be visible unless hidden. fromTo only applies the "from" during the tween; before the tween start, the element is at its natural state. So we must hide with CSS opacity:0 or tl.set at 0. The example uses inline opacity:0. Let's add inline `opacity:0` to all animated elements, and use fromTo for the animation (fromTo sets opacity 0 at start anyway). That's the safest.
+
+So: add opacity:0 to the inline styles of all animated elements. fromTo tweens handle the reveal.
+
+Connector/segments/rule: they use scaleX; also set opacity 0? They appear with scaleX 0, so they're invisible even at opacity 1 (scaleX 0). But before the tween starts, the natural scaleX is 1 → visible! So we need to set the initial state with tl.set at 0: tl.set("#rule", {scaleX:0}, 0). That's allowed (tl.set with absolute start time). Let's add tl.set at 0 for all scaleX-based elements. Or inline style... we can't put CSS transform inline (rule 4). So tl.set at 0.
+
+For elements that animate opacity with inline opacity:0, no problem.
+
+Also, the icon wrapper is animated with scale — we need tl.set at 0 for scale 0.55? Before the tween (t<1.55), the icon div has inline opacity 0, so it's invisible anyway. The scale is irrelevant until the opacity tween. fromTo sets both. No problem.
+
+Let's also verify: "no CSS animation or transition" — none. "no repeat:-1" — none.
+
+GSAP ease names: "power2.out", "power3.out", "power2.inOut", "power1.inOut" — fine.
+
+SVG details:
+
+Icon 1 (document), viewBox "0 0 120 120":
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <path id="ic1-body" d="M24 8 H78 L96 26 V112 H24 Z" stroke="#12A9E6" stroke-width="6"/>
+  <path id="ic1-fold" d="M78 8 V26 H96" stroke="#12A9E6" stroke-width="6"/>
+  <path id="ic1-l1" d="M38 52 H82" stroke="#12A9E6" stroke-width="6"/>
+  <path id="ic1-l2" d="M38 72 H82" stroke="#12A9E6" stroke-width="6"/>
+  <path id="ic1-l3" d="M38 92 H64" stroke="#12A9E6" stroke-width="6"/>
+</svg>
+```
+Animate: body+fold together (body), then lines staggered. Fold can be part of the body's timing.
+
+Icon 2 (brackets):
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <path id="ic2-l" d="M40 32 L14 60 L40 88" stroke="#FF2D92" stroke-width="6"/>
+  <path id="ic2-r" d="M80 32 L106 60 L80 88" stroke="#FF2D92" stroke-width="6"/>
+  <path id="ic2-s" d="M66 26 L54 94" stroke="#FF2D92" stroke-width="6"/>
+</svg>
+```
+
+Icon 3 (video frame + play):
+```svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <rect id="ic3-frame" x="12" y="24" width="96" height="72" stroke="#F4F4F1" stroke-width="6"/>
+  <path id="ic3-play" d="M50 44 L84 60 L50 76 Z" fill="#F4F4F1"/>
+</svg>
+```
+Triangle check: frame x 12-108, y 24-96, center (60,60). Triangle points (50,44), (84,60), (50,76): centroid x = (50+84+50)/3 = 61.3, y=60. Slightly right of center — visually the play triangle should be slightly right of the geometric center; no problem, actually standard.
+
+Number styling: mono, 30px, letter-spacing? Class m is probably uppercase. Text "01". Color per step.
+
+Also, a small tick below the number? Not needed.
+
+Label: body font 38px, color #F4F4F1.
+
+Now, let's write the timeline code:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// initial states
+tl.set(["#rule","#conn1","#conn2","#seg1","#seg2","#seg3"], { scaleX: 0 }, 0);
+
+// header
+tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.35);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.9);
+
+// step 1
+tl.fromTo("#num1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+tl.fromTo("#icon1", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 1.55);
+tl.fromTo("#ic1-body", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.65);
+tl.fromTo("#ic1-fold", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.8);
+tl.fromTo("#ic1-l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.9);
+tl.fromTo("#ic1-l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.05);
+tl.fromTo("#ic1-l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.2);
+tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.75);
+tl.fromTo("#seg1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+// connector 1
+tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.75);
+
+// step 2
+tl.fromTo("#num2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.15);
+tl.fromTo("#icon2", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 3.2);
+tl.fromTo("#ic2-l", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.35);
+tl.fromTo("#ic2-r", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.5);
+tl.fromTo("#ic2-s", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 3.65);
+tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.4);
+tl.fromTo("#seg2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.15);
+
+// connector 2
+tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 4.4);
+
+// step 3
+tl.fromTo("#num3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.8);
+tl.fromTo("#icon3", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 4.85);
+tl.fromTo("#ic3-frame", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 4.95);
+tl.fromTo("#ic3-play", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.15);
+tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.0);
+tl.fromTo("#seg3", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.8);
+
+// caption
+tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.9);
+tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.1);
+
+window.__timelines["main"] = tl;
+```
+
+Wait — the icon wrapper is opacity 0 until 1.55, and the inner paths are also individually opacity 0. The wrapper's opacity multiplies; the inner paths animate their own opacity — both need to be 1 at the end. The wrapper reaches opacity 1 at 2.05; the inner paths reach 1 by 2.55. No problem.
+
+But note: the inner path animations start (1.65) while the wrapper is still fading in — the combined effect is fine.
+
+One concern: GSAP animating `x` on an SVG `<path>` — it applies a transform; no problem.
+
+Also, the `#ic1-fold` path is animated with opacity only — no problem.
+
+Hold frame check at t=9: all main elements are opacity 1. The caption is in. The footer is in.
+
+Duration: data-duration="9".
+
+Now, let's assemble the HTML with positions:
+
+Header:
+- #eyebrow: left 160, top 150, font-size 26, color var(--c), class "a m", opacity 0. Text: "Process / 03 steps"
+- #heading: left 160, top 190, font-size 128, class "a h", opacity 0. Text: How it <span class="hl">works</span>
+- #rule: left 160, top 372, width 1600, height 3, background var(--c), transform-origin left center.
+
+Hmm, heading top 190, 128px font — cap height about 90-100, so text occupies about 190-320 (line box about 128*1.1=141 → 190-331). Rule at 372 is fine.
+
+Columns (top positions):
+- Number: top 430, font-size 30, mono.
+- Icon: top 490, 120x120.
+- Label: top 660, font-size 38.
+- Connector: top 547, height 4.
+
+Column 1: number left 160; icon left 160; label left 160, width 440.
+Column 2: left 740.
+Column 3: left 1320.
+
+Connector 1: left 600, width 140, top 547, height 4, background var(--c)? The connector between step 1 (cyan) and 2 (magenta) — use ink? Use ink #F4F4F1 at 0.3 opacity? Keep brand colors: conn1 cyan, conn2 magenta? Or both ink. Let's do both ink #F4F4F1 — neutral flow. Hmm, on a dark background, 4px ink lines are visible. Good. Actually, to tie the steps together, conn1 could be a cyan→? gradient — not allowed. Keep ink.
+
+Wait, connectors at icon center: icon top 490, height 120 → center 550. Connector top 548, height 4 → center 550.
+
+Progress segments: top 940, height 6:
+- #seg1: left 160, width 240, background var(--c)
+- #seg2: left 424, width 240, background var(--m)
+- #seg3: left 688, width 240, background #F4F4F1
+transform-origin left center.
+
+Caption: left 160, top 790, body 34px, color ink: "Brief in. <span class=hl>Video out.</span>" — class "a" with font-family var(--body).
+
+Footer right: left 1240, top 932, width 520, text-align right, mono 22px, color ink, opacity 0.55? Use color #F4F4F1 with opacity... but the element's opacity animates to 1; we want the final opacity to be 1 (rule 7: at the hold frame, opacity 1). So set the color to a darker tone? We can't use arbitrary gray? The brand allows ink; a darker gray might be off-brand. Let's animate to opacity 1 and use color var(--c)? A cyan footer label is fine. Or keep ink. Let's do: "GW / Explainer — B2" mono 22, color var(--c). Hmm, or ink. Let's use ink.
+
+Actually, rule 7 says everything that should be visible at the end must be at opacity 1 at the hold frame — so the final opacity of the footer is 1. No problem.
+
+Also, a vertical hairline divider? No.
+
+Number text: "01", "02", "03", class "a m", font-size 30, colors: #num1 var(--c), #num2 var(--m), #num3 #F4F4F1.
+
+Label: class "a", font-family var(--body), font-size 38, color #F4F4F1, width 440.
+
+Wait, does gw.css define a default font for body? We'll set font-family inline to be safe: font-family: var(--body).
+
+Icon wrapper: class "a" with transform-origin: center center; opacity 0.
+
+Let's also double-check rule 5: "Keep all text within the canvas with at least 100px margin" — left margin 160 ✓, right: footer right edge 1760 = 1920-160 ✓. Top 150 ✓. Bottom: segments at 940+6=946, margin 134 ✓.
+
+"Text must not overlap other text" — check the label (660-708) and the caption (790-834): no overlap. Number 430-460 and icon 490: no problem.
+
+Heading and eyebrow: eyebrow 150-176, heading 190-331: no problem.
+
+Now, one more consideration: the .h class probably sets uppercase + display font + letter-spacing. The heading "How it works" will render as "HOW IT WORKS". The hl span inside: "WORKS" with a yellow band. Good.
+
+The .m class is probably mono uppercase. The number "01" is fine.
+
+Let's also add a small tick mark below each label? Not needed.
+
+Edge: the rule element uses scaleX with transform-origin left center — set in CSS.
+
+Segments: transform-origin left center in CSS.
+
+Icons: transform-origin center center in CSS.
+
+Now, let's write the final HTML.
+
+Also, verify: no external files other than the specified ones. Inline SVGs are OK.
+
+Let's write it:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — 3-step explainer</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  /* helpers for transform origins (no CSS transforms) */
+  #rule, #conn1, #conn2, #seg1, #seg2, #seg3 { transform-origin: left center; }
+  #icon1, #icon2, #icon3 { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:26px;color:var(--c);opacity:0">Process / 03 steps</div>
+  <div class="a h" id="heading" style="left:160px;top:190px;font-size:128px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:372px;width:1600px;height:3px;background:var(--c)"></div>
+
+  <!-- step 1 -->
+  <div class="a m" id="num1" style="left:160px;top:430px;font-size:30px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:160px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic1-body" d="M24 8 H78 L96 26 V112 H24 Z" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-fold" d="M78 8 V26 H96" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l1" d="M38 52 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l2" d="M38 72 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l3" d="M38 92 H64" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label1" style="left:160px;top:660px;width:440px;font-family:var(--body);font-size:38px;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  <!-- connector 1 -->
+  <div class="a" id="conn1" style="left:600px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 2 -->
+  <div class="a m" id="num2" style="left:740px;top:430px;font-size:30px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="icon2" style="left:740px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic2-l" d="M40 32 L14 60 L40 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-r" d="M80 32 L106 60 L80 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-s" d="M66 26 L54 94" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label2" style="left:740px;top:660px;width:440px;font-family:var(--body);font-size:38px;color:#F4F4F1;opacity:0">Model writes the code</div>
+
+  <!-- connector 2 -->
+  <div class="a" id="conn2" style="left:1180px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 3 -->
+  <div class="a m" id="num3" style="left:1320px;top:430px;font-size:30px;color:#F4F4F1;opacity:0">03</div>
+  <div class="a" id="icon3" style="left:1320px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect id="ic3-frame" x="12" y="24" width="96" height="72" stroke="#F4F4F1" stroke-width="6" opacity="0"/>
+      <path id="ic3-play" d="M50 44 L84 60 L50 76 Z" fill="#F4F4F1" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label3" style="left:1320px;top:660px;width:440px;font-family:var(--body);font-size:38px;color:#F4F4F1;opacity:0">Render the video</div>
+
+  <!-- caption -->
+  <div class="a" id="caption" style="left:160px;top:790px;font-family:var(--body);font-size:34px;color:#F4F4F1;opacity:0">Brief in. <span class="hl">Video out.</span></div>
+
+  <!-- progress -->
+  <div class="a" id="seg1" style="left:160px;top:940px;width:240px;height:6px;background:var(--c)"></div>
+  <div class="a" id="seg2" style="left:424px;top:940px;width:240px;height:6px;background:var(--m)"></div>
+  <div class="a" id="seg3" style="left:688px;top:940px;width:240px;height:6px;background:#F4F4F1"></div>
+  <div class="a m" id="foot" style="left:1200px;top:932px;width:560px;text-align:right;font-size:22px;color:#F4F4F1;opacity:0">GW / Explainer — B2</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set(["#rule", "#conn1", "#conn2", "#seg1", "#seg2", "#seg3"], { scaleX: 0 }, 0);
+
+  // header
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.35);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.9);
+
+  // step 01
+  tl.fromTo("#num1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 1.55);
+  tl.fromTo("#ic1-body", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.65);
+  tl.fromTo("#ic1-fold", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.8);
+  tl.fromTo("#ic1-l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.9);
+  tl.fromTo("#ic1-l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.05);
+  tl.fromTo("#ic1-l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.2);
+  tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.75);
+  tl.fromTo("#seg1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+  // connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.75);
+
+  // step 02
+  tl.fromTo("#num2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.15);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 3.2);
+  tl.fromTo("#ic2-l", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.35);
+  tl.fromTo("#ic2-r", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.5);
+  tl.fromTo("#ic2-s", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 3.65);
+  tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.4);
+  tl.fromTo("#seg2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.15);
+
+  // connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 4.4);
+
+  // step 03
+  tl.fromTo("#num3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.8);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 4.85);
+  tl.fromTo("#ic3-frame", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 4.95);
+  tl.fromTo("#ic3-play", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.15);
+  tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.0);
+  tl.fromTo("#seg3", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.8);
+
+  // close
+  tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.9);
+  tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait: the icon wrapper has inline opacity 0, and the inner paths also have inline opacity 0. The wrapper's fromTo animates opacity 0→1, and the inner paths animate their own opacity — both are fine.
+
+One issue: `#ic1-fold` — the fold path "M78 8 V26 H96" shares an edge with the body; no problem.
+
+Connector visibility: conn1 is set to scaleX 0 at t=0 via tl.set, and the fromTo at 2.75 animates it. Between 0 and 2.75, it's scaleX 0 → invisible. Good.
+
+Segments: set to scaleX 0 at 0, then animated. Good.
+
+Rule: set to scaleX 0 at 0, then fromTo at 0.9. Good.
+
+Icon wrappers: inline opacity 0 → invisible before the tween. fromTo at 1.55 handles both opacity and scale. Good.
+
+Check "text must not overlap other text": the caption at top 790, width? "Brief in. Video out." about 340px wide, from 160 → 500. The seg1 area is at 940 — no overlap.
+
+Footer: "GW / Explainer — B2" — an em dash in the mono font is fine.
+
+Hmm, one more check: heading font-size 128 — the .h class probably has letter-spacing; "HOW IT WORKS" with wide tracking might be wider than my estimate. 10 letters * 84 = 840 + tracking 0.1em*10=128 + spaces → about 1030. Still < 1600. No problem.
+
+Label 2 "Model writes the code" at 38px: 21 chars. Body font (probably a grotesque) average 0.52em → about 19.8px → 416px. Column width 440 — fits, but close. If the font is wider (0.55em) → 439px. Very tight. Reduce to 36px → about 410px max. Let's use 36px for all labels to be safe. Or widen the columns to 460 with 120 gaps: total = 3*460+2*120 = 1620 > 1600. Margin becomes 150. Hmm. Keep 440 columns, labels 36px. "Model writes the code" at 36px: 21*19.8 (0.55em=19.8) = 416 < 440 ✓.
+
+Actually, let me recalculate the columns: 440*3 + 140*2 = 1320+280 = 1600. Margins (1920-1600)/2 = 160. ✓ (col1 160, col2 160+440+140=740, col3 740+440+140=1320, right edge 1760, margin 160 ✓).
+
+Also, the number "01" is 30px mono, no problem.
+
+Another idea: add a small "step" tick below the number? Skip.
+
+Also, the brief says "steps appear sequentially with connector lines between them" ✓.
+
+Check rule 3: only tl.set/tl.to/tl.from/tl.fromTo with absolute start times as the 3rd argument ✓. No repeat, no random, no Date, no setTimeout, no rAF, no CSS animation ✓.
+
+Rule 4: no CSS transform on animated elements — our <style> only sets transform-origin ✓.
+
+Rule 5: position absolute via class .a (assumed in gw.css; the example uses it) with explicit left/top/width in px. The icon div has width ✓. SVG paths don't need positioning. The caption has no width — "explicit left/top/width in px" — the caption should have a width. Let's add width:600px to the caption. The footer has width ✓. The eyebrow — add width 400px? The rule says for positioned elements "explicit left/top/width in px". Let's add width to the eyebrow (300px) and the heading (1200px). The numbers get width 200px. The rule/connector/segments have width ✓.
+
+Let's add widths:
+- eyebrow: width 400px
+- heading: width 1400px
+- num1-3: width 200px
+- caption: width 700px
+
+All good.
+
+Also, the icon svg is inside a positioned div — no problem.
+
+Font for the caption: body. hl span inside the caption: the band is behind "Video out." — the .hl class handles the background.
+
+I think this is solid. Let's also double-check the icon 3 triangle: fill #F4F4F1, x slide -12→0. Good.
+
+Final check on the hold: at t=9, everything is static and visible. Timeline duration 9 ✓.
+
+One more subtle point: the `#ic1-*` paths have inline `opacity="0"` (SVG attribute) — GSAP animates the CSS opacity; the attribute vs. style: GSAP sets the style.opacity, which overrides the presentation attribute. At the end, style opacity 1 ✓. Initial: attribute 0 → invisible ✓.
+
+Also, the icon wrapper div's inline style has opacity:0 — GSAP's fromTo sets style opacity. ✓.
+
+Let's finalize. Maybe add `letter-spacing` to the labels? Not needed.
+
+Title: "How it works — Explainer B2".
+
+I'll write the final answer as a single html code block, with minimal explanation (the instructions say to reply with one complete file in a single ```html block, and nothing else of substance).
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Explainer B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #rule, #conn1, #conn2, #seg1, #seg2, #seg3 { transform-origin: left center; }
+  #icon1, #icon2, #icon3 { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;width:400px;font-size:26px;color:var(--c);opacity:0">Process / 03 steps</div>
+  <div class="a h" id="heading" style="left:160px;top:190px;width:1400px;font-size:128px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:372px;width:1600px;height:3px;background:var(--c)"></div>
+
+  <!-- step 01 -->
+  <div class="a m" id="num1" style="left:160px;top:430px;width:200px;font-size:30px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:160px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic1-body" d="M24 8 H78 L96 26 V112 H24 Z" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-fold" d="M78 8 V26 H96" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l1" d="M38 52 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l2" d="M38 72 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l3" d="M38 92 H64" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label1" style="left:160px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  <!-- connector 1 -->
+  <div class="a" id="conn1" style="left:600px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 02 -->
+  <div class="a m" id="num2" style="left:740px;top:430px;width:200px;font-size:30px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="icon2" style="left:740px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic2-l" d="M40 32 L14 60 L40 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-r" d="M80 32 L106 60 L80 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-s" d="M66 26 L54 94" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label2" style="left:740px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Model writes the code</div>
+
+  <!-- connector 2 -->
+  <div class="a" id="conn2" style="left:1180px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 03 -->
+  <div class="a m" id="num3" style="left:1320px;top:430px;width:200px;font-size:30px;color:#F4F4F1;opacity:0">03</div>
+  <div class="a" id="icon3" style="left:1320px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect id="ic3-frame" x="12" y="24" width="96" height="72" stroke="#F4F4F1" stroke-width="6" opacity="0"/>
+      <path id="ic3-play" d="M50 44 L84 60 L50 76 Z" fill="#F4F4F1" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label3" style="left:1320px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Render the video</div>
+
+  <!-- close line -->
+  <div class="a" id="caption" style="left:160px;top:790px;width:700px;font-family:var(--body);font-size:34px;color:#F4F4F1;opacity:0">Brief in. <span class="hl">Video out.</span></div>
+
+  <!-- progress -->
+  <div class="a" id="seg1" style="left:160px;top:940px;width:240px;height:6px;background:var(--c)"></div>
+  <div class="a" id="seg2" style="left:424px;top:940px;width:240px;height:6px;background:var(--m)"></div>
+  <div class="a" id="seg3" style="left:688px;top:940px;width:240px;height:6px;background:#F4F4F1"></div>
+  <div class="a m" id="foot" style="left:1200px;top:932px;width:560px;text-align:right;font-size:22px;color:#F4F4F1;opacity:0">GW / Explainer — B2</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states for scale-based elements
+  tl.set(["#rule", "#conn1", "#conn2", "#seg1", "#seg2", "#seg3"], { scaleX: 0 }, 0);
+
+  // header
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.35);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.9);
+
+  // step 01 — write a brief
+  tl.fromTo("#num1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 1.55);
+  tl.fromTo("#ic1-body", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.65);
+  tl.fromTo("#ic1-fold", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.8);
+  tl.fromTo("#ic1-l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.9);
+  tl.fromTo("#ic1-l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.05);
+  tl.fromTo("#ic1-l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.2);
+  tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.75);
+  tl.fromTo("#seg1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+  // connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.75);
+
+  // step 02 — model writes the code
+  tl.fromTo("#num2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.15);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 3.2);
+  tl.fromTo("#ic2-l", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.35);
+  tl.fromTo("#ic2-r", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.5);
+  tl.fromTo("#ic2-s", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 3.65);
+  tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.4);
+  tl.fromTo("#seg2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.15);
+
+  // connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 4.4);
+
+  // step 03 — render the video
+  tl.fromTo("#num3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.8);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 4.85);
+  tl.fromTo("#ic3-frame", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 4.95);
+  tl.fromTo("#ic3-play", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.15);
+  tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.0);
+  tl.fromTo("#seg3", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.8);
+
+  // close
+  tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.9);
+  tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

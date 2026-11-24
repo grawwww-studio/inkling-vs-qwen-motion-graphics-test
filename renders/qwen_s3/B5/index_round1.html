@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, Delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- persistent frame -->
+  <img id="kicon" class="a" src="assets/icon.svg" alt="" style="left:160px;top:146px;width:48px;height:48px;opacity:0;transform-origin:center center" />
+  <div id="kicker" class="a m" style="left:228px;top:154px;width:700px;font-size:26px;color:var(--c);opacity:0">GRAWWWW STUDIO / TEASER</div>
+  <div id="tr" class="a m" style="left:1400px;top:154px;width:360px;font-size:24px;color:var(--c);text-align:right;opacity:0">TEASER / 10S</div>
+
+  <!-- scene 1 : slam lines -->
+  <div id="l1" class="a h" style="left:160px;top:250px;width:1500px;font-size:150px;opacity:0;transform-origin:left center">AGENTS.</div>
+  <div id="l2" class="a h" style="left:160px;top:434px;width:1500px;font-size:150px;opacity:0;transform-origin:left center">AUTOMATIONS.</div>
+  <div id="l3" class="a h" style="left:160px;top:618px;width:1500px;font-size:150px;opacity:0;transform-origin:left center">VIDEO.</div>
+
+  <!-- scene 2 : feature chips -->
+  <div id="c1" class="a" style="left:170px;top:480px;width:500px;height:120px;border:2px solid var(--c);opacity:0">
+    <svg class="a" style="left:36px;top:38px;width:44px;height:44px" viewBox="0 0 48 48" fill="none" stroke="#12A9E6" stroke-width="6">
+      <rect x="14" y="14" width="20" height="20" />
+      <path d="M20 14 V6 M28 14 V6 M20 34 V42 M28 34 V42 M14 20 H6 M14 28 H6 M34 20 H42 M34 28 H42" />
+    </svg>
+    <div class="a m" style="left:104px;top:45px;width:370px;font-size:26px;color:#F4F4F1">RUNS ON YOUR HARDWARE</div>
+  </div>
+
+  <div id="c2" class="a" style="left:710px;top:480px;width:500px;height:120px;border:2px solid var(--m);opacity:0">
+    <svg class="a" style="left:36px;top:38px;width:44px;height:44px" viewBox="0 0 48 48" fill="none" stroke="#FF2D92" stroke-width="6">
+      <circle cx="24" cy="24" r="15" />
+      <path d="M13.4 13.4 L34.6 34.6" />
+    </svg>
+    <div class="a m" style="left:104px;top:45px;width:370px;font-size:26px;color:#F4F4F1">NO PER-TOKEN BILL</div>
+  </div>
+
+  <div id="c3" class="a hl" style="left:1250px;top:480px;width:500px;height:120px;background:var(--y);color:#111;opacity:0">
+    <svg class="a" style="left:36px;top:38px;width:44px;height:44px" viewBox="0 0 48 48" fill="none" stroke="#111" stroke-width="6">
+      <rect x="11" y="22" width="26" height="18" />
+      <path d="M17 22 V15 A7 7 0 0 1 31 15 V22" />
+    </svg>
+    <div class="a m" style="left:104px;top:45px;width:370px;font-size:26px;color:#111">YOUR DATA STAYS PUT</div>
+  </div>
+
+  <!-- scene 3 : logo card -->
+  <img id="logo" class="a" src="assets/logo-negative.png" alt="Grawwww Studio" style="left:740px;top:264px;width:440px;opacity:0;transform-origin:center center" />
+  <div id="rule" class="a" style="left:880px;top:772px;width:160px;height:4px;background:var(--c);transform-origin:center center"></div>
+  <div id="tag" class="a h" style="left:460px;top:808px;width:1000px;font-size:60px;text-align:center;opacity:0">LOCAL AI, <span class="hl">DELIVERED.</span></div>
+
+  <!-- persistent footer -->
+  <div id="foot" class="a m" style="left:160px;top:956px;width:700px;font-size:22px;color:var(--c);opacity:0">LOCAL-FIRST / NO CLOUD REQUIRED</div>
+  <div id="bar" class="a" style="left:160px;top:1012px;width:1600px;height:6px;background:var(--c);transform-origin:left center"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // frame
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 10, ease: "none" }, 0);
+  tl.fromTo("#foot", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.1);
+  tl.fromTo("#kicon", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, 0.15);
+  tl.fromTo("#kicker", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.25);
+  tl.fromTo("#tr", { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.25);
+
+  // scene 1 : slam in
+  tl.fromTo("#l1", { opacity: 0, x: -90, scale: 1.06 }, { opacity: 1, x: 0, scale: 1, duration: 0.45, ease: "power4.out" }, 0.4);
+  tl.fromTo("#l2", { opacity: 0, x: -90, scale: 1.06 }, { opacity: 1, x: 0, scale: 1, duration: 0.45, ease: "power4.out" }, 1.05);
+  tl.fromTo("#l3", { opacity: 0, x: -90, scale: 1.06 }, { opacity: 1, x: 0, scale: 1, duration: 0.45, ease: "power4.out" }, 1.7);
+
+  // scene 1 : clear
+  tl.to("#l1", { opacity: 0, x: 70, duration: 0.3, ease: "power2.in" }, 2.5);
+  tl.to("#l2", { opacity: 0, x: 70, duration: 0.3, ease: "power2.in" }, 2.56);
+  tl.to("#l3", { opacity: 0, x: 70, duration: 0.3, ease: "power2.in" }, 2.62);
+
+  // scene 2 : chips stagger
+  tl.fromTo("#c1", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.0);
+  tl.fromTo("#c2", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.3);
+  tl.fromTo("#c3", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.6);
+
+  // scene 2 : clear
+  tl.to("#c1", { opacity: 0, y: -34, duration: 0.3, ease: "power2.in" }, 6.45);
+  tl.to("#c2", { opacity: 0, y: -34, duration: 0.3, ease: "power2.in" }, 6.51);
+  tl.to("#c3", { opacity: 0, y: -34, duration: 0.3, ease: "power2.in" }, 6.57);
+
+  // scene 3 : logo card
+  tl.fromTo("#logo", { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power3.out" }, 7.15);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 7.55);
+  tl.fromTo("#tag", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 7.85);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

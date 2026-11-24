@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Three Steps</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080" style="overflow:hidden">
+
+  <!-- Header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:96px;width:900px;font-size:24px;color:var(--c);letter-spacing:6px;opacity:0">Process / Explainer</div>
+  <div class="a h" id="heading" style="left:160px;top:138px;width:1600px;font-size:112px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:292px;width:560px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- Step 1 -->
+  <div class="a h" id="num1" style="left:215px;top:398px;width:200px;font-size:56px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:215px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <path d="M26 10 h42 l18 18 v82 H26 Z" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <path d="M68 10 v18 h18" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="38" y1="50" x2="64" y2="50" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="38" y1="68" x2="56" y2="68" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="60" y1="98" x2="90" y2="68" stroke="#FF2D92" stroke-width="8"/>
+      <path d="M87.2 65.2 L102 56 L92.8 70.8 Z" fill="#F4F4F1"/>
+    </svg>
+  </div>
+  <div class="a h" id="label1" style="left:215px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Write a brief</div>
+
+  <!-- Connector 1 -->
+  <div class="a" id="conn1" style="left:652px;top:545px;width:86px;height:4px;background:var(--c);transform-origin:left center"></div>
+  <div class="a" id="dot1" style="left:722px;top:538px;width:18px;height:18px;background:var(--c);opacity:0"></div>
+
+  <!-- Step 2 -->
+  <div class="a h" id="num2" style="left:745px;top:398px;width:200px;font-size:56px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="icon2" style="left:745px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <path d="M44 30 L20 60 L44 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+      <path d="M76 30 L100 60 L76 90" fill="none" stroke="#F4F4F1" stroke-width="7"/>
+      <line x1="66" y1="26" x2="54" y2="94" stroke="#FF2D92" stroke-width="7"/>
+    </svg>
+  </div>
+  <div class="a h" id="label2" style="left:745px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Model writes the code</div>
+
+  <!-- Connector 2 -->
+  <div class="a" id="conn2" style="left:1182px;top:545px;width:86px;height:4px;background:var(--m);transform-origin:left center"></div>
+  <div class="a" id="dot2" style="left:1252px;top:538px;width:18px;height:18px;background:var(--m);opacity:0"></div>
+
+  <!-- Step 3 -->
+  <div class="a h" id="num3" style="left:1275px;top:398px;width:200px;font-size:56px;opacity:0"><span class="hl">03</span></div>
+  <div class="a" id="icon3" style="left:1275px;top:478px;width:140px;height:140px;opacity:0">
+    <svg viewBox="0 0 120 120" width="140" height="140">
+      <circle cx="60" cy="60" r="42" fill="none" stroke="#F4F4F1" stroke-width="6"/>
+      <path d="M50 40 L86 60 L50 80 Z" fill="#12A9E6"/>
+    </svg>
+  </div>
+  <div class="a h" id="label3" style="left:1275px;top:656px;width:430px;font-size:36px;line-height:1.2;opacity:0">Render the video</div>
+
+  <!-- Footer -->
+  <div class="a" id="footer-rule" style="left:160px;top:916px;width:1600px;height:2px;background:rgba(244,244,241,0.16);transform-origin:left center"></div>
+  <div class="a m" id="footer-left" style="left:160px;top:938px;width:600px;font-size:20px;color:rgba(244,244,241,0.55);letter-spacing:3px;opacity:0">The pipeline — 03 steps</div>
+  <div class="a m" id="footer-right" style="left:1150px;top:938px;width:610px;font-size:20px;color:var(--c);letter-spacing:3px;text-align:right;opacity:0">Brief → Code → Video</div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.fromTo("#eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+  tl.fromTo("#heading", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.5);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 1.1);
+
+  // Step 1
+  tl.fromTo("#num1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 1.75);
+  tl.fromTo("#label1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 2.0);
+
+  // Connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.55);
+  tl.fromTo("#dot1", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 2.95);
+
+  // Step 2
+  tl.fromTo("#num2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.15);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 3.4);
+  tl.fromTo("#label2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 3.65);
+
+  // Connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.2);
+  tl.fromTo("#dot2", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 4.6);
+
+  // Step 3
+  tl.fromTo("#num3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 4.85);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 5.1);
+  tl.fromTo("#label3", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 5.35);
+
+  // Footer
+  tl.fromTo("#footer-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 6.1);
+  tl.fromTo("#footer-left", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.35);
+  tl.fromTo("#footer-right", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.45);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

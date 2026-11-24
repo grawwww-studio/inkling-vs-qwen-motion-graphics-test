@@ -1,0 +1,319 @@
+[REASONING]
+Let me design a title card: 5 seconds, 1920x1080.
+
+Elements:
+- Eyebrow: "EP05 / EXPERIMENT" mono, cyan, above title.
+- Title: "LOCAL AI," then "REAL VIDEO" — actually title "Local AI, real video" in huge uppercase. Words: "LOCAL", "AI,", "REAL", "VIDEO". Word "real" gets yellow marker band wiping in from left.
+- Thin rule that draws across below.
+- Hold for last second.
+
+Layout: centered or left-aligned. Let's do left-aligned at left:160px. Title font-size ~150px uppercase. Width: "LOCAL AI," on line 1, "REAL VIDEO" on line 2? Or all one line? At 150px, uppercase letter ~100px wide. "LOCAL AI, REAL VIDEO" = 20 chars → too wide. Better two lines: "LOCAL AI," (9 chars incl comma ≈ 850px) and "REAL VIDEO" (10 chars ≈ 950px). Fits in 1920 with 160 margins (160..1760 = 1600px wide). Good.
+
+Words stagger in one by one: LOCAL (0.3), AI, (0.5), REAL (0.7), VIDEO (0.9). Each word slides in (y or x + opacity). "REAL" gets yellow band wipe from left: the band is a span behind text, scaleX 0→1 origin left. The word "REAL" text color #111 on yellow band (class hl). Actually class `hl` has yellow background and #111 text. The wipe: animate the band's scaleX. Implementation: wrap "REAL" in a span with position relative; inside, a band div with position absolute inset 0, background yellow, scaleX 0 origin left; text relative z-index 1. Or use background-size trick — but transforms allowed. Use a span.hl with a child? Simpler: `.hl` class with padding; animate a child `.band`.
+
+Alternative: animate the word "REAL" with a ::before — can't animate pseudo-elements with GSAP easily (can with CSS? no). Use child div.
+
+Structure:
+
+<div class="a h" id="line1">LOCAL <span id="w-ai">AI,</span></div>
+Hmm, words need individual animation. Let's make each word a span with display:inline-block, animated separately.
+
+Title container at left:160, top:~380, width:1600.
+
+Line 1: "LOCAL" + "AI," — spans. Line 2: "REAL" (with band) + "VIDEO".
+
+Font size: 150px? "LOCAL AI," = 9 chars × ~100px = 900px fine. Could go bigger, 170px → 9 chars ~ 110px wide each = 990px. Fine. Let's use 160px.
+
+Actually display font wide: at 150px an uppercase letter ~100px wide. "VIDEO" 5 chars = 500px. Line 2 "REAL VIDEO" 10 chars = 1000px. OK.
+
+Eyebrow: mono, cyan, letter-spacing, font-size 26px, "EP05 / EXPERIMENT".
+
+Rule: thin line height 4px, cyan or magenta, draws across (scaleX 0→1) below title. Width maybe 900px or full 1600. "draws across" — let's make it 1200px wide, magenta? Brand colors: cyan, magenta, yellow. Eyebrow cyan, rule magenta, highlight yellow. Good.
+
+Also maybe a small index number or corner marks for style. Keep simple but polished. Maybe add small mono label bottom-left "GW / CHANNEL" and bottom-right "EP05". Keep minimal.
+
+Timing (5s):
+- 0.0: eyebrow set opacity 0
+- 0.2: eyebrow fades in (0.4s)
+- 0.35: LOCAL slides in (y 60 → 0, opacity)
+- 0.55: AI, slides in
+- 0.75: REAL slides in + band wipes (scaleX 0→1, 0.45s, ease power3.out)
+- 1.05: VIDEO slides in
+- 1.45: rule draws (scaleX 0→1, 0.7s)
+- 2.2 onward: hold (last second = 4.0–5.0 hold). Maybe add subtle extra: a small "▸" marker? Keep clean.
+
+Hold for last second: ensure everything at opacity 1 at end.
+
+Words slide from where? "words slide/stagger in one by one" — slide up with slight rotation maybe. Use y:80 → 0 with opacity 0→1, ease power3.out, duration 0.55.
+
+For the band: parent span position:relative; band div absolute left:-0.08em top:0.02em width:calc(100% + 0.16em)? Simpler: band absolute inset:0, but yellow band should extend slightly beyond text like a marker. Use left:-10px; right:-10px; top:8%; height:84%. scaleX 0 origin left.
+
+The text inside "REAL" should be #111? The class hl text is #111. But the word slides in — the text and band both animate. If band is child of the word span, word slides in with band at scaleX 0, then band wipes. Good: tl.fromTo("#real-word", {opacity:0, y:80}, {opacity:1, y:0,...}, 0.75) and tl.fromTo("#real-band", {scaleX:0}, {scaleX:1, duration:0.5, ease:"power3.inOut"}, 0.95).
+
+Word spans: display:inline-block; white-space:nowrap.
+
+Title: font-size 160px, line-height 1.05, uppercase, class h.
+
+Eyebrow top: 300px? Title top: 360px. Let's compute: eyebrow at top 300, font 26px. Title top 360, two lines at 160px*1.05 ≈ 168px per line → 336px tall → ends ~700. Rule at top 760. Bottom labels at 980.
+
+Hmm canvas 1080 tall. Let's set:
+- eyebrow: left 160, top 285, font-size 28, letter-spacing 6px, color cyan. Add small square before? Could add a 14px cyan square inline. Keep as text with a leading "// "? Use "EP05 / EXPERIMENT".
+- title: left 160, top 340, width 1600.
+- rule: left 160, top 780, width 1100, height 5px, background magenta, transform-origin left center.
+- bottom-left mono small: "LOCAL AI / REAL VIDEO" no... maybe "EP05 — TITLE CARD"? Keep: bottom-left "GW / EP05" mono 20px color #888? Brand ink #F4F4F1 with opacity. Use color rgba? Use color: #8a8a86? Brand says ink #F4F4F1; muted could be a gray. Fine to use a gray.
+
+Also maybe big ghost number "05" on right side? Could add subtle magenta outline text. Keep it simple but a little flair: a small mono tag bottom-right "TITLE CARD — 5S". Hmm, brief says title card. I'll add bottom row: left "EP05 / EXPERIMENT"? No, eyebrow already. Bottom-left: "LOCAL AI" small? Let me do bottom-left: "GW / CHANNEL" and bottom-right: "2025"? No dates. Bottom-right: "TITLE CARD". Fine.
+
+Actually keep it minimal: eyebrow, title, rule, plus small corner marks. Maybe a thin frame border? A full-bleed 4px border inset 40px? Could be nice: a thin rect outline. Adds polish. Let's add a 1px-ish border: div at left:40,top:40,width:1840,height:1000, border:2px solid #2a2a2a. No animation needed (or fade in). Keep opacity 1 static — but rule says everything visible at end must be animated in and at opacity 1. Static elements are fine (they're visible throughout). But "Everything that should be visible at the end of the clip must have been animated in" — static elements are visible at start; that's fine? The rule says everything that should be visible at end must have been animated in and be at opacity 1 at hold. Safer to fade the frame in quickly too. I'll fade frame in at 0.
+
+Also add a yellow small square accent near eyebrow? The hl class is reserved for yellow band with #111 text. Fine.
+
+GSAP animations: use tl.set for initial states? The example uses inline style opacity:0. I'll set initial states via inline styles (opacity:0) and animate with tl.to / fromTo. For words, fromTo y.
+
+Words:
+Line 1: "LOCAL" (id w1), "AI," (id w2)
+Line 2: "REAL" (id w3, with band), "VIDEO" (id w4)
+
+Line 1 and line 2 as separate divs or spans? Use two divs inside title container, each display:block. Words as inline-block spans with margin-right ~0.35em.
+
+Note: words within a line: "LOCAL AI," — LOCAL ends with space then AI,. Use margin-right on span.
+
+Band inside REAL: span.real (position relative) > span.band (absolute) + text node? Text must be inside span. Structure:
+
+<span class="word" id="w3"><span class="band" id="real-band"></span>REAL</span>
+
+CSS: .word{position:relative; display:inline-block;} .band{position:absolute; left:-12px; top:6%; width:calc(100% + 24px); height:88%; background:var(--y); z-index:-1; transform-origin:left center;}
+
+Wait z-index -1 with parent stacking — parent .word has no z-index/position creates stacking context? position:relative + z-index:-1 on child puts band behind the word's text but also behind... it goes behind parent's background (none) — fine, it will render behind text but above title background (transparent). Actually z-index:-1 child of a positioned parent with no z-index: child renders behind the parent's content but still within parent's stacking context? If parent doesn't create stacking context, the child with negative z-index renders behind parent's background and possibly behind ancestors' backgrounds. Ancestors have no background, so fine — it will show. Safer: put band with z-index:0 and text in a span with position:relative z-index:1. Let's do:
+
+<span class="word" id="w3"><span class="band" id="real-band"></span><span class="rt">REAL</span></span>
+.rt{position:relative; z-index:1; color:#111;}
+.band{position:absolute; left:-14px; top:4%; height:92%; width:calc(100% + 28px); background:var(--y); z-index:0; transform-origin:left center;}
+
+Text color #111 on yellow — matches hl class semantics. Good.
+
+But wait — the .hl class already exists in gw.css presumably as yellow bg + #111 text. I could just use class hl on the word and animate... the wipe needs a separate element. I'll keep custom band.
+
+Font sizes: h class — check gw.css? Not available; assume .h defines font-family var(--display), uppercase, heavy. I'll style inline: font-size:160px; letter-spacing maybe -2px? Display font wide; keep default. Add line-height 1.02.
+
+Eyebrow: class m, font-size 26px, letter-spacing 8px, color cyan, text-transform uppercase.
+
+Rule: height 5px, width 1150px, background magenta (var(--m)? brand says cyan #12A9E6, magenta #FF2D92, yellow #FFD400). CSS vars: --c cyan, --m magenta? Example uses var(--c) for cyan and var(--m) for magenta in rule. Yes example: `<div ... background:var(--m)>` for rule and eyebrow color var(--c). So --c = cyan, --m = magenta. Yellow: var(--y)? Not sure of var name. Example uses class hl for yellow band. I'll use var(--y) with fallback #FFD400: background:#FFD400 directly to be safe. Actually use background:var(--y, #FFD400).
+
+Bottom labels: left 160 top 960: "GW / CHANNEL" mono 20px color #777. Right: left 1520 top 960 width 240 text-align right "TITLE CARD". Keep margins ≥100px: 160 left ok, right: 1520+240=1760, margin 160. Good.
+
+Frame: 2px border #262626 at 40px inset.
+
+Timing plan (total 5.0s):
+- 0.1: frame fade in (opacity 0→1, 0.5)
+- 0.25: eyebrow fade+slide (opacity 0→1, y 20→0, 0.45)
+- 0.45: w1 LOCAL (y 90→0, opacity, 0.55, power3.out)
+- 0.65: w2 AI,
+- 0.85: w3 REAL slides in (0.55) + band wipe at 1.15 (0.5s, power3.inOut)
+- 1.15: w4 VIDEO (0.55)
+- 1.6: rule scaleX 0→1 (0.8, power2.inOut)
+- 2.1: bottom labels fade in (0.4)
+- Hold from ~2.5 to 5.0.
+
+Hmm "Hold for the last second" — the last second (4.0–5.0) should be static hold. All animations done by 2.5, so fine.
+
+Duration attribute: 5.
+
+Inline initial states: opacity:0 on eyebrow, words, labels; rule scaleX:0 via inline style? Rule: set transform-origin in CSS and use fromTo scaleX 0→1. Inline style transform would violate rule 4? Rule 4 says never put CSS transform on element GSAP animates. scaleX via gsap fromTo is fine; initial scaleX:0 must be set via tl.set or fromTo — fromTo handles it. So don't put transform in CSS for rule; use fromTo. Same for band: fromTo scaleX 0→1. For words: fromTo with y — don't put transform inline; use fromTo. Opacity inline 0 is fine (not transform). But fromTo with opacity will set it anyway; inline opacity:0 ensures pre-timeline state. Actually with paused timeline, before timeline plays, elements show initial CSS. Inline opacity:0 keeps hidden until animated. Good. For words, inline opacity:0 and fromTo y from 90.
+
+Band: inline opacity? Band should be hidden because scaleX 0 — but before the timeline starts (t=0), band at scaleX 1 would show. So set inline style="opacity:0" on band? Then animate opacity too? Simpler: tl.set("#real-band", {scaleX:0}) at time 0, then fromTo? fromTo at 1.15 sets scaleX 0→1 anyway, but between 0 and 1.15 the band would be at its CSS default (scaleX 1) since timeline paused — that would show the band before the word slides in. So set initial via inline style? Can't use transform inline (rule 4). Use tl.set("#real-band", { scaleX: 0 }, 0) — that's allowed (tl.set). Good. Similarly rule: tl.set("#rule", {scaleX: 0}, 0) then to. Or fromTo with absolute start — fromTo sets start state at its start time, but before that time the element shows CSS state. So set at 0 via tl.set. I'll use tl.set at 0 for rule and band, then tl.to later. Actually fromTo at time 1.15: at time 0–1.15, set() at 0 keeps scaleX 0. Good.
+
+Words: inline opacity:0; fromTo opacity 0→1, y 90→0 at start times. Before start, opacity 0 inline. Good.
+
+Eyebrow: inline opacity:0; tl.to opacity 1 at 0.25. Also y? Use fromTo y 24→0. Inline opacity 0.
+
+Labels: inline opacity 0; tl.to at 2.1.
+
+Frame: inline opacity 0; tl.to at 0.1.
+
+Also maybe add a small cyan square accent before eyebrow text: skip, keep clean. Maybe add a magenta "//" prefix? Eyebrow text "EP05 / EXPERIMENT" is fine.
+
+Text sizes check: title font-size 150px. "LOCAL" 5 chars × 100px = 500 + margins. Line 1 width ~ 500 + 0.35em(52px) + "AI," 3 chars 300 = ~860px. Line 2: "REAL" 400 + margin + "VIDEO" 500 = ~950px. Width 1600 fine. Could bump to 170px: 5 chars × 113 = 565; line2 10 chars ×113 = 1130 + margins. Fine. Use 160px.
+
+Height: two lines × 160 × 1.05 = 336px. Title top 350 → ends 686. Rule top 760. Eyebrow top 290 (26px text). Frame at 40..1040. Bottom labels top 950.
+
+Let me also add a subtle detail: a small magenta square at left of rule start? The rule draws across; a small square at its left end that appears with it. Skip — keep minimal but polished. Maybe add "EP05" big ghost number on right? Could clutter. Skip.
+
+Actually a nice touch: yellow highlight only on "real" — the word "REAL" in title. Good.
+
+Write CSS:
+
+.a{position:absolute;}
+.h{font-family:var(--display); text-transform:uppercase; font-weight:800?} — gw.css likely defines .h. I'll rely on classes but add font-size inline.
+
+Title container: left:160px; top:345px; width:1600px.
+
+Line divs: .line{display:block;}
+
+Word spans: display:inline-block; margin-right:0.32em; last-child margin 0.
+
+Band CSS:
+.band{position:absolute; left:-16px; top:5%; height:90%; width:calc(100% + 32px); background:#FFD400; z-index:0; transform-origin:left center;}
+.rt{position:relative; z-index:1; color:#111;}
+
+Wait: band width calc(100% + 32px) with left:-16px extends 16px each side. Good.
+
+Rule: position absolute; left:160px; top:770px; width:1150px; height:5px; background:#FF2D92; transform-origin:left center.
+
+Eyebrow: left:160px; top:285px; font-size:26px; letter-spacing:10px; color:#12A9E6; font-family var(--mono). Use class m.
+
+Bottom labels: .blabel{left:160px; top:950px; font-size:20px; letter-spacing:6px; color:#7d7d78;} right one: left:1200px; width:560px; text-align:right; same top.
+
+Frame: left:40px; top:40px; width:1840px; height:1000px; border:2px solid #232323; opacity 0 inline.
+
+Now GSAP timeline:
+
+const tl = gsap.timeline({paused:true});
+tl.set("#rule", {scaleX:0}, 0);
+tl.set("#real-band", {scaleX:0}, 0);
+tl.to("#frame", {opacity:1, duration:0.5, ease:"power1.out"}, 0.1);
+tl.fromTo("#eyebrow", {opacity:0, y:24}, {opacity:1, y:0, duration:0.45, ease:"power2.out"}, 0.3);
+tl.fromTo("#w1", {opacity:0, y:90}, {opacity:1, y:0, duration:0.55, ease:"power3.out"}, 0.5);
+tl.fromTo("#w2", {opacity:0, y:90}, {opacity:1, y:0, duration:0.55, ease:"power3.out"}, 0.7);
+tl.fromTo("#w3", {opacity:0, y:90}, {opacity:1, y:0, duration:0.55, ease:"power3.out"}, 0.9);
+tl.to("#real-band", {scaleX:1, duration:0.5, ease:"power3.inOut"}, 1.2);
+tl.fromTo("#w4", {opacity:0, y:90}, {opacity:1, y:0, duration:0.55, ease:"power3.out"}, 1.15);
+tl.to("#rule", {scaleX:1, duration:0.8, ease:"power2.inOut"}, 1.7);
+tl.to("#bl-left", {opacity:1, duration:0.4}, 2.2);
+tl.to("#bl-right", {opacity:1, duration:0.4}, 2.3);
+
+Wait: fromTo on #eyebrow with inline opacity 0 — fine.
+
+Note: y transform on inline-block spans — GSAP handles transforms on inline-block fine (it sets display inline-block? It may set transform which works on inline-block). Words are inline-block. Good.
+
+One catch: .word spans with margin-right — y transform moves them; fine.
+
+Also the band is inside w3 which slides in; band scaleX animates separately. Band is child of w3; when w3 slides with y, band moves along. Good.
+
+Check text fits: font-size 160px display font. "LOCAL AI," — I'll write as two spans. Width of container 1600px; line 1 ~ 5*100 + 0.32em(51) + 3*100 = 851px. Fine.
+
+Eyebrow letter-spacing 10px at 26px font: "EP05 / EXPERIMENT" = 17 chars × (26*0.6 + 10) ≈ 17 × 25.6 = 435px. Fine.
+
+Bottom labels: "GW / CHANNEL" 12 chars × (20*0.6+6)=12×18=216px. Right "TITLE CARD" 10 chars ≈ 180px. Fine.
+
+Duration: data-duration="5".
+
+Hold: after 2.3 everything static until 5.0. Good — "Hold for the last second" satisfied (last second static).
+
+Maybe add a subtle blinking cursor? No — no repeats allowed. Keep static.
+
+Let me double check rule 3: "Use only tl.set / tl.to / tl.from / tl.fromTo with an absolute start time as 3rd argument." Yes.
+
+Rule 4: no CSS transform on animated elements. Band CSS has no transform (transform-origin only — allowed). Rule CSS: transform-origin only. Words: no transform. Good.
+
+Rule 5: position absolute with explicit left/top/width. Title container: left/top/width. Lines inside — they're inside container; visible elements must be children of root? "Every visible element is a child of it" — hmm, strictly every visible element is a child of #root. But words are spans inside title div... The example has spans inside #t1 (class h) — `<div class="a h" id="t1">Hello <span class="hl">world</span></div>` — so nested spans are fine. Good.
+
+The band div inside word span — nested, fine.
+
+Frame div: class a, border only.
+
+Let me also consider the yellow band wipe direction: "wipes in from the left" — scaleX origin left, 0→1. Good.
+
+Maybe also animate the rule with a small square at the end? Skip.
+
+Font sizes: h class in gw.css — I don't know its exact styling; set font-size inline 160px. Also add letter-spacing? Keep default.
+
+Title top: let's center vertically-ish. Eyebrow 285, title 345–680, rule 770, labels 950. Slightly top-heavy? Total content 285–950, center ~617 vs canvas center 540. Move up: eyebrow 270, title 330, rule 755, labels 940. Fine.
+
+Actually let's compute title height more carefully: font-size 160px, line-height 1.02 → 163px per line, two lines = 327px. Title top 330 → bottom 657. Rule top 745. Labels top 940. Good.
+
+Also add a small cyan "//" before eyebrow? I'll add a small square: span.sq inline-block 16px cyan, margin-right 18px, vertical-align middle? With letter-spacing mono. Simpler: text only. Actually a tiny square adds craft. I'll add span#eyebrow-sq 14px cyan inline-block, animated with eyebrow? It's inside eyebrow div; eyebrow fades as a whole. Good.
+
+Eyebrow div: display:flex; align-items:center; gap:18px. Flex is fine (not transform).
+
+Write the file now.
+
+One more consideration: `data-duration="5"`.
+
+Check linter: exactly one root element with the attributes. Script after root inside body. window.__timelines.
+
+Colors: background #0E0E0E body from gw.css. Frame border #262626. Labels gray #8a8a85.
+
+Eyebrow color: var(--c) cyan. Rule: var(--m) magenta.
+
+Let me write it.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>EP05 — Title Card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a { position: absolute; }
+  .band {
+    position: absolute;
+    left: -16px;
+    top: 4%;
+    width: calc(100% + 32px);
+    height: 92%;
+    background: #FFD400;
+    z-index: 0;
+    transform-origin: left center;
+  }
+  .rt { position: relative; z-index: 1; color: #111; }
+  .word { display: inline-block; margin-right: 0.34em; }
+  .word:last-child { margin-right: 0; }
+  .line { display: block; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+
+  <div class="a" id="frame" style="left:40px;top:40px;width:1840px;height:1000px;border:2px solid #242424;opacity:0"></div>
+
+  <div class="a m" id="eyebrow" style="left:160px;top:268px;width:1200px;font-size:26px;letter-spacing:10px;color:var(--c);opacity:0;display:flex;align-items:center;gap:20px">
+    <span style="display:inline-block;width:16px;height:16px;background:var(--c)"></span>
+    <span>EP05 / EXPERIMENT</span>
+  </div>
+
+  <div class="a h" id="title" style="left:160px;top:330px;width:1600px;font-size:160px;line-height:1.04;text-transform:uppercase;letter-spacing:-2px;color:var(--ink)">
+    <span class="line">
+      <span class="word" id="w1" style="opacity:0">LOCAL</span><span class="word" id="w2" style="opacity:0">AI,</span>
+    </span>
+    <span class="line">
+      <span class="word" id="w3" style="opacity:0"><span class="band" id="real-band"></span><span class="rt">REAL</span></span><span class="word" id="w4" style="opacity:0">VIDEO</span>
+    </span>
+  </div>
+
+  <div class="a" id="rule" style="left:160px;top:748px;width:1150px;height:5px;background:var(--m);transform-origin:left center"></div>
+
+  <div class="a m" id="bl-left" style="left:160px;top:940px;width:500px;font-size:20px;letter-spacing:6px;color:#7d7d78;opacity:0">GW / CHANNEL</div>
+  <div class="a m" id="bl-right" style="left:1160px;top:940px;width:600px;font-size:20px;letter-spacing:6px;color:#7d7d78;text-align:right;opacity:0">TITLE CARD</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.set("#rule", { scaleX: 0 }, 0);
+  tl.set("#real-band", { scaleX: 0 }, 0);
+
+  tl.to("#frame", { opacity: 1, duration: 0.5, ease: "power1.out" }, 0.1);
+
+  tl.fromTo("#eyebrow", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 0.3);
+
+  tl.fromTo("#w1", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.5);
+  tl.fromTo("#w2", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.7);
+  tl.fromTo("#w3", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.9);
+  tl.to("#real-band", { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, 1.2);
+  tl.fromTo("#w4", { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 1.15);
+
+  tl.to("#rule", { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.7);
+
+  tl.to("#bl-left", { opacity: 1, duration: 0.4, ease: "power1.out" }, 2.2);
+  tl.to("#bl-right", { opacity: 1, duration: 0.4, ease: "power1.out" }, 2.3);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

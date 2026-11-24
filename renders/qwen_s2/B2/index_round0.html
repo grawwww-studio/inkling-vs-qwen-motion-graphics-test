@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works — Explainer B2</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #rule, #conn1, #conn2, #seg1, #seg2, #seg3 { transform-origin: left center; }
+  #icon1, #icon2, #icon3 { transform-origin: center center; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;width:400px;font-size:26px;color:var(--c);opacity:0">Process / 03 steps</div>
+  <div class="a h" id="heading" style="left:160px;top:190px;width:1400px;font-size:128px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:372px;width:1600px;height:3px;background:var(--c)"></div>
+
+  <!-- step 01 -->
+  <div class="a m" id="num1" style="left:160px;top:430px;width:200px;font-size:30px;color:var(--c);opacity:0">01</div>
+  <div class="a" id="icon1" style="left:160px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic1-body" d="M24 8 H78 L96 26 V112 H24 Z" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-fold" d="M78 8 V26 H96" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l1" d="M38 52 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l2" d="M38 72 H82" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+      <path id="ic1-l3" d="M38 92 H64" stroke="#12A9E6" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label1" style="left:160px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Write a brief</div>
+
+  <!-- connector 1 -->
+  <div class="a" id="conn1" style="left:600px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 02 -->
+  <div class="a m" id="num2" style="left:740px;top:430px;width:200px;font-size:30px;color:var(--m);opacity:0">02</div>
+  <div class="a" id="icon2" style="left:740px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path id="ic2-l" d="M40 32 L14 60 L40 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-r" d="M80 32 L106 60 L80 88" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+      <path id="ic2-s" d="M66 26 L54 94" stroke="#FF2D92" stroke-width="6" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label2" style="left:740px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Model writes the code</div>
+
+  <!-- connector 2 -->
+  <div class="a" id="conn2" style="left:1180px;top:548px;width:140px;height:4px;background:#F4F4F1"></div>
+
+  <!-- step 03 -->
+  <div class="a m" id="num3" style="left:1320px;top:430px;width:200px;font-size:30px;color:#F4F4F1;opacity:0">03</div>
+  <div class="a" id="icon3" style="left:1320px;top:490px;width:120px;height:120px;opacity:0">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect id="ic3-frame" x="12" y="24" width="96" height="72" stroke="#F4F4F1" stroke-width="6" opacity="0"/>
+      <path id="ic3-play" d="M50 44 L84 60 L50 76 Z" fill="#F4F4F1" opacity="0"/>
+    </svg>
+  </div>
+  <div class="a" id="label3" style="left:1320px;top:660px;width:440px;font-family:var(--body);font-size:36px;color:#F4F4F1;opacity:0">Render the video</div>
+
+  <!-- close line -->
+  <div class="a" id="caption" style="left:160px;top:790px;width:700px;font-family:var(--body);font-size:34px;color:#F4F4F1;opacity:0">Brief in. <span class="hl">Video out.</span></div>
+
+  <!-- progress -->
+  <div class="a" id="seg1" style="left:160px;top:940px;width:240px;height:6px;background:var(--c)"></div>
+  <div class="a" id="seg2" style="left:424px;top:940px;width:240px;height:6px;background:var(--m)"></div>
+  <div class="a" id="seg3" style="left:688px;top:940px;width:240px;height:6px;background:#F4F4F1"></div>
+  <div class="a m" id="foot" style="left:1200px;top:932px;width:560px;text-align:right;font-size:22px;color:#F4F4F1;opacity:0">GW / Explainer — B2</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // initial hidden states for scale-based elements
+  tl.set(["#rule", "#conn1", "#conn2", "#seg1", "#seg2", "#seg3"], { scaleX: 0 }, 0);
+
+  // header
+  tl.fromTo("#eyebrow", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+  tl.fromTo("#heading", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.35);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.9);
+
+  // step 01 — write a brief
+  tl.fromTo("#num1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.5);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 1.55);
+  tl.fromTo("#ic1-body", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.65);
+  tl.fromTo("#ic1-fold", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.8);
+  tl.fromTo("#ic1-l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.9);
+  tl.fromTo("#ic1-l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.05);
+  tl.fromTo("#ic1-l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 2.2);
+  tl.fromTo("#label1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.75);
+  tl.fromTo("#seg1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 1.5);
+
+  // connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 2.75);
+
+  // step 02 — model writes the code
+  tl.fromTo("#num2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.15);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 3.2);
+  tl.fromTo("#ic2-l", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.35);
+  tl.fromTo("#ic2-r", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 3.5);
+  tl.fromTo("#ic2-s", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 3.65);
+  tl.fromTo("#label2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.4);
+  tl.fromTo("#seg2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 3.15);
+
+  // connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 4.4);
+
+  // step 03 — render the video
+  tl.fromTo("#num3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.8);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 4.85);
+  tl.fromTo("#ic3-frame", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 4.95);
+  tl.fromTo("#ic3-play", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.15);
+  tl.fromTo("#label3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.0);
+  tl.fromTo("#seg3", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.8);
+
+  // close
+  tl.fromTo("#caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.9);
+  tl.fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 6.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

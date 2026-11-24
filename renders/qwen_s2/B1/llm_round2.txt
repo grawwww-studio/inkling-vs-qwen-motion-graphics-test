@@ -1,0 +1,784 @@
+[REASONING]
+The user wants a complete index.html file in a single ```html code block. Let me carefully build this according to all the hard rules.
+
+Brief B1: Title card with kinetic type (5 s)
+
+Requirements:
+- Title "Local AI, real video" in huge uppercase display type
+- Words slide/stagger in one by one
+- The word "real" gets a yellow marker band that wipes in from the left
+- Small mono eyebrow "EP05 / Experiment" above
+- A thin rule that draws across below
+- Hold for the last second
+
+Duration = 5s. 1920x1080, 24fps.
+
+Let me plan the layout:
+- Root: `<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">`
+- Background #0E0E0E is already the body.
+- Eyebrow: mono, "EP05 / EXPERIMENT" — wait, brief says "EP05 / Experiment". The mono class is uppercase labels, so it'll be uppercased via CSS. Let me keep the text as "EP05 / Experiment" and let CSS uppercase it, or just write it uppercase. Actually the class `m` is uppercase labels per the brand. Let me write "EP05 / Experiment" and let the CSS handle it. Actually to be safe I'll write it as given.
+
+- Title: "Local AI, real video" in huge uppercase display type. Words slide/stagger in one by one.
+
+Let me think about the word layout. "LOCAL AI, REAL VIDEO" — that's 4 words: LOCAL, AI, REAL, VIDEO. Actually "Local AI, real video" — words: "Local", "AI,", "real", "video". Hmm, the comma. Let me think.
+
+The title is "Local AI, real video". In uppercase: "LOCAL AI, REAL VIDEO".
+
+I want huge display type. Let me consider putting it on multiple lines to make it huge. Like:
+- Line 1: LOCAL
+- Line 2: AI, REAL
+- Line 3: VIDEO
+
+Or maybe:
+- Line 1: LOCAL AI,
+- Line 2: REAL VIDEO
+
+Let me think about the display font width. "At 150 px an uppercase letter is about 100 px wide." So at 150px font-size, each uppercase letter ~100px wide.
+
+Canvas width 1920, with 100px margin on each side = usable 1720px.
+
+If I want words to be huge, let me pick a font size. Let's say 200px. Then each letter ~133px. "LOCAL" = 5 letters ~ 667px. That fits.
+
+Actually let me design a strong composition. Let me do:
+
+Line 1: "LOCAL AI," 
+Line 2: "REAL VIDEO"
+
+Where "REAL" has the yellow marker band.
+
+Let me estimate widths. At font-size 190px, letter ~ 127px wide.
+
+"LOCAL AI," = L O C A L space A I , = 7 letters + space + comma. Roughly 7*127 = 889 + space ~40 + comma ~40 = ~970px. Hmm.
+
+"REAL VIDEO" = R E A L space V I D E O = 8 letters + space = 8*127 = 1016 + 40 = ~1056px.
+
+Both fit within 1720px. Good.
+
+Actually, let me make it even more dramatic. Let me put each word on its own consideration but keep two lines for the two-line layout. Actually the brief says "words slide/stagger in one by one" — so I need each word to be a separate element that animates in with stagger.
+
+Let me structure:
+- Line 1: LOCAL (word), AI, (word)
+- Line 2: REAL (word, with marker), VIDEO (word)
+
+Each word is a span with class for animation. I'll animate them with GSAP stagger.
+
+Wait, but the rule says "Never put a CSS transform on an element that GSAP animates". So I'll use tl.fromTo for each word with opacity and y (or x). Let me use x slide-in since "slide/stagger in". Actually "slide/stagger in one by one" — slide from left, stagger.
+
+Let me use x from -80 to 0 with opacity 0 to 1, staggered.
+
+For the marker band behind "real": I'll create a yellow band element positioned behind the word REAL. It wipes in from the left using scaleX from 0 to 1 with transform-origin left center. The band is class `hl`? No — the `hl` class is the yellow band behind #111 text. Let me re-read.
+
+"yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)"
+
+So the `hl` class creates a yellow band with #111 text. So I can wrap the word "REAL" in a `<span class="hl">` and it'll have the yellow background band with dark text. Then I animate the band wiping in from the left.
+
+Hmm, but if the band is the background of the span, how do I "wipe in from the left"? I could animate the span's background... but GSAP animates properties. Better approach: create a separate band element (a div with background #FFD400) positioned behind the word, and animate its scaleX from 0 to 1 with transform-origin left center. Then the word "real" text sits on top in #111 color.
+
+Actually, let me reconsider. The `hl` class — I don't know its exact CSS since it's in lib/gw.css which I don't have. But the brief describes it: "yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)". So `.hl` likely has `background: #FFD400; color: #111;` and maybe some padding. 
+
+But to control the wipe animation precisely, I think it's cleaner to:
+1. Have the word "REAL" as a span.
+2. Have a separate band div behind it (absolute positioned) with background #FFD400.
+3. Animate the band's scaleX from 0 to 1 (transform-origin left center).
+4. The REAL text should be #111 (dark) so it's readable on yellow.
+
+But wait — if I use the `hl` class on the word, it already has yellow background. Then the "wipe" would need to be a mask or a separate overlay. That's complex.
+
+Let me go with the separate band approach for clean control. I'll make the REAL word dark (#111) and place a yellow band behind it that wipes in.
+
+Actually, let me reconsider the whole thing. Let me make it robust and clean:
+
+Structure:
+```
+<div id="root" ...>
+  <!-- eyebrow -->
+  <div class="a m" id="eyebrow" style="...">EP05 / Experiment</div>
+  
+  <!-- title line 1 -->
+  <div class="a h" id="line1" style="...">
+    <span class="w" id="w1">Local</span>
+    <span class="w" id="w2">AI,</span>
+  </div>
+  
+  <!-- title line 2 -->
+  <div class="a h" id="line2" style="...">
+    <span class="w" id="w3" style="color:#111">real</span>
+    <span class="w" id="w4">video</span>
+  </div>
+  
+  <!-- marker band behind real -->
+  <div class="a" id="band" style="...;background:var(--y)"></div>
+  
+  <!-- rule -->
+  <div class="a" id="rule" style="...;background:var(--ink);transform-origin:left center"></div>
+</div>
+```
+
+Wait, but I need the band to be behind the word "real". If the band is a sibling positioned absolutely, I need to position it exactly over the "real" word. That requires knowing the exact position of the word, which is tricky because the words are inline within a flex/inline container.
+
+Alternative: Put the band INSIDE the word span, as a pseudo-element or a child. But GSAP animates elements, and I need the band to be a separate element.
+
+Let me think differently. I can make each word its own absolutely-positioned element (not inline flow). That gives me precise control over positions, and I can position the band precisely behind "real".
+
+So:
+- "LOCAL" at left:160, top:380
+- "AI," at left: X, top:380
+- "REAL" at left:160, top:600
+- "VIDEO" at left: X, top:600
+- band behind REAL at left:150, top:600 (slightly bigger), width matching REAL
+
+But I need to know the widths to position "AI," and "VIDEO" after their preceding words. Since the display font is wide and I know "at 150 px an uppercase letter is about 100 px wide", I can estimate.
+
+Hmm, this is getting complicated with absolute positioning of each word. Let me reconsider.
+
+Actually, a cleaner approach: use inline spans within a line container, and for the band, use the `hl` class on the REAL span (which gives it yellow bg + dark text), and then animate a "wipe" by... hmm.
+
+Wait. Let me reconsider. What if the band is a child of the REAL span, positioned absolutely to fill the span, and I animate the band's scaleX? The span would be `position: relative` and the band `position:absolute; inset:0`. But the rule says "Position everything with position:absolute". A child band with position:absolute inside a relatively-positioned span... the span itself is in inline flow. That should be fine — the rule about absolute positioning is about the main canvas layout.
+
+But there's a subtlety: "Never put a CSS transform on an element that GSAP animates". The band will have transform-origin in CSS (allowed) and GSAP animates scaleX. Good.
+
+But the band is a child of the span. If I set the span to `position: relative` and the band to `position: absolute; left:0; top:0; width:100%; height:100%`, that works. But then the band needs to be behind the text. If the band has the text on top... Let me structure:
+
+```
+<span class="w" id="w3" style="position:relative; color:#111">
+  <span class="band" id="band"></span>
+  real
+</span>
+```
+
+Where `.band { position:absolute; left:-8px; top:-8px; width:calc(100% + 16px); height:calc(100% + 16px); background:var(--y); transform-origin:left center; }`
+
+Hmm, but calc with % for width — the rule says "explicit left/top/width in px". That's for the main layout elements. For the band inside, using calc might be okay but let me avoid it to be safe. Actually the rule says "Position everything with position:absolute (class a) and explicit left/top/width in px on the 1920x1080 canvas." This is about canvas-level positioning. The band is a sub-element. But to be safe, maybe I should position the band at the canvas level.
+
+Let me go with the fully-absolute-positioned-words approach. It's cleaner for the linter and gives precise control. Let me compute positions.
+
+Let me choose font-size for the title. Let me use 200px for a huge display. At 200px, letter width ~ 133px (100px per 150px → 133px per 200px).
+
+Let me lay out:
+Line 1 (top ~ 360): "LOCAL" then "AI,"
+Line 2 (top ~ 590): "REAL" then "VIDEO"
+
+Let me compute widths:
+- "LOCAL" = 5 letters. At 200px, ~5 * 133 = 665px. Plus letter-spacing if any. Let's say ~680px.
+- "AI," = A, I, comma. A ~133, I ~60 (I is narrow), comma ~40. ~233px. Let's say ~250px.
+- "REAL" = R, E, A, L. ~4 * 133 = 532px. ~540px.
+- "VIDEO" = V, I, D, E, O. V~133, I~60, D~140, E~120, O~140 = ~593px. ~600px.
+
+Layout line 1:
+- LOCAL at left:160, width ~680 → ends at 840.
+- AI, at left:880 (with 40px gap), width ~250 → ends at 1130.
+
+Line 2:
+- REAL at left:160, width ~540 → ends at 700.
+- VIDEO at left:740 (gap 40), width ~600 → ends at 1340.
+
+Hmm, these are left-aligned. That's fine for a kinetic type title. Let me make sure everything stays within 100px margins: left 160 (≥100 ✓), right edge 1340 (≤1820 ✓).
+
+Vertical: 
+- Eyebrow at top ~ 280.
+- Line 1 at top ~ 360 (font 200, so text height ~200, baseline... the top of the box). Let me think about vertical spacing.
+
+Canvas height 1080. Let me center the title block vertically-ish.
+
+Let me place:
+- Eyebrow: top 300, left 160.
+- Line 1: top 360, font-size 200. The text box height ~ 200 (line-height 1). So occupies 360–560.
+- Line 2: top 590, font-size 200. Occupies 590–790.
+- Rule: below line 2, at top 830, left 160, width 1600.
+
+Wait, that might be too low. Let me reconsider. Actually with 200px font and two lines, the block is 360 to 790 = 430px tall, centered around 575. That's a bit low. Let me shift up.
+
+Let me do:
+- Eyebrow: top 260, left 160.
+- Line 1: top 330, font-size 190.
+- Line 2: top 560, font-size 190.
+- Rule: top 800, left 160, width 1600.
+
+At 190px, letter ~127px.
+- LOCAL = 5*127 = 635 → ~650.
+- AI, = ~240.
+- REAL = 4*127 = 508 → ~520.
+- VIDEO = ~570.
+
+Line 1: LOCAL left 160 (ends 810), AI, left 850 (ends 1090).
+Line 2: REAL left 160 (ends 680), VIDEO left 720 (ends 1290).
+
+Vertical: line 1 top 330, height ~190 → 330–520. Line 2 top 560 → 560–750. Gap between lines 520–560 = 40px. Good.
+
+Rule at top 800, width 1600. That's below line 2 (750). Good.
+
+Actually, let me reconsider — I want it to feel balanced. Let me center the whole thing a bit more. The title block spans 330–750 (420px), center at 540. Canvas center is 540. 
+
+Eyebrow at 260 (above line 1 at 330, gap 70). Rule at 800 (below line 2 at 750, gap 50). 
+
+Hmm, let me nudge: eyebrow top 250, line1 top 340, line2 top 570, rule top 810.
+
+Let me also add a subtle detail to make it feel crafted: maybe a small index number or a corner mark. But I should keep it clean per the brief. The brief is specific: eyebrow, title with stagger, marker on "real", rule. Let me add a small detail like a "05" or a small dot/plus mark in a corner for craft, but not overdo it. Actually, let me keep focused but add one tasteful extra: a small mono label in the bottom corner like "GHOSTWORKS / LOCAL SERIES" or a page marker. Hmm, the brief doesn't ask for that. Let me add a subtle corner mark — a small "N°05" in bottom right, and maybe a small cross/plus in top right. Actually, I'll keep it minimal but add a little life: a small blinking-ish... no, no CSS animations allowed and no repeat. 
+
+Let me add a subtle secondary element: a small mono tag in the bottom-left "24 FPS / 1920×1080" or "SERIES 01". And a small plus mark top-right. These add craft without cluttering. But I must ensure they don't overlap text and animate in.
+
+Actually, let me be careful not to over-engineer. The brief is a 5s title card. Let me focus on making the core elements excellent, and add just 1-2 small supporting details.
+
+Let me add:
+- Bottom-left mono tag: "SERIES 01 / LOCAL" — small, appears with the rule.
+- Top-right: a small "N°05" mono or a plus mark.
+
+Hmm, let me reconsider. Let me keep it tight. I'll add a small corner registration mark (plus) top-right and a small mono label bottom-left. These give it a broadcast/title-card feel.
+
+Now the animation timeline (5s total, hold last 1s → active animation in first 4s):
+
+Let me plan timings:
+- 0.0–0.3: eyebrow fades/slides in (opacity 0→1, y 10→0). Actually let me have eyebrow slide from left a bit.
+- 0.15: eyebrow starts.
+- Words stagger in: start at 0.4, each word ~0.5s, stagger 0.18s.
+  - w1 (LOCAL): 0.4
+  - w2 (AI,): 0.58
+  - w3 (REAL): 0.76
+  - w4 (VIDEO): 0.94
+  Each: x from -60 to 0, opacity 0→1, duration 0.5, ease power3.out.
+- Marker band behind REAL: wipes in after REAL lands. REAL lands around 0.76+0.5 = 1.26. Let me start band at 1.1, scaleX 0→1, duration 0.5, ease power2.inOut. So band completes at 1.6.
+- Rule: draws across after words. Start at 1.5, scaleX 0→1, duration 0.7, ease power3.out. Completes at 2.2.
+- Corner details: fade in around 1.8–2.2.
+- Hold from ~2.5 to 5.0 (last 1s definitely hold; actually more than 1s hold which is fine).
+
+Wait, "Hold for the last second" — the last 1s (4.0–5.0) should be a hold. My animations complete by ~2.2, so 4.0–5.0 is definitely a hold. Good. Actually I could tighten to complete around 3.5 for a more dynamic feel, but 2.2 is fine and gives a longer hold. Let me spread it a bit more for pacing. Let me push things slightly:
+
+- Eyebrow: 0.15 → 0.55 (0.4 dur)
+- Words: start 0.45, stagger 0.2, dur 0.55:
+  - w1: 0.45
+  - w2: 0.65
+  - w3: 0.85
+  - w4: 1.05 → completes 1.6
+- Band: 1.3 → 1.9 (0.6 dur)
+- Rule: 1.7 → 2.6 (0.9 dur)
+- Corners: 2.2 → 2.7
+- Hold: 2.7 → 5.0 (2.3s hold, includes the required last 1s)
+
+That's good pacing. Everything visible at end at opacity 1. ✓
+
+Now let me make sure the band is behind the REAL text. Since I'm using absolute-positioned words, I'll position the band as a canvas-level element behind REAL.
+
+REAL is at left 160, top 570, font 190. The text box: I'll give the word a fixed width and the band slightly larger, positioned to overlap nicely.
+
+Let me define REAL word: left 160, top 570, font-size 190, color #111 (dark, so it reads on yellow). Width: let me set width to ~520 (the text). Actually for inline text I don't strictly need width, but the rule says explicit width in px. Let me give words explicit widths.
+
+Hmm, but if I set a fixed width on the word and the text is wider, it might wrap. Let me set widths generously and use white-space: nowrap. Actually the words are single words, no wrap issue if width is enough. Let me set:
+- w1 LOCAL: width 660
+- w2 AI,: width 260
+- w3 REAL: width 540
+- w4 VIDEO: width 600
+
+And white-space: nowrap on the h class or each word.
+
+The band behind REAL: I want it to look like a marker highlight — slightly taller than the text, with some left/right padding, and maybe a slight vertical offset. Let me position:
+- band: left 150, top 585, width 560, height 160. transform-origin left center.
+
+Wait, REAL text top 570, font 190 → text vertical extent roughly 570 to 570+190 = 760 (line-height 1). The cap height is less than font-size. The visual glyph height for uppercase ~ 0.7 * font-size = 133px, sitting from baseline up. Baseline is at top + ascent. This is getting complicated. Let me just make the band cover the text area with some padding. If text box is 570–760 (190 tall), a marker band typically covers the x-height area, roughly the lower 60%. Let me make the band:
+- top 600, height 130 → covers 600–730. That's roughly the middle-lower part of the glyph. 
+
+Hmm, actually for a "marker band" behind text, it usually spans the full height of the letters or a bit more. Let me make it span most of the glyph height. Let me set band top 585, height 150 (585–735). With left 150, width 560.
+
+Actually, let me reconsider using the `hl` class as the brief explicitly mentions it. The brief says the word "real" gets a yellow marker band. And the brand says yellow is "only as a band behind #111 text (class hl, its text is #111)". This strongly implies I should use the `hl` class for the "real" word — it gives yellow bg + #111 text. Then I animate the "wipe in from the left" separately.
+
+But how to wipe the `hl` background in from the left? The `hl` background is on the span. I can't easily animate a background wipe with GSAP transform properties (only opacity, x, y, scale, etc.).
+
+Option: Overlay approach. Put the `hl` span (yellow bg + dark text) as the final state, but initially cover it with a masking element matching the background color (#0E0E0E) that slides away to reveal the yellow from the left. That's a "wipe" reveal.
+
+Actually simpler: The band is a separate element (yellow) that I scaleX in from the left (transform-origin left). The text "real" is #111 on top. This is the cleanest. I don't strictly need the `hl` class; I just need the visual result (yellow band + #111 text). The linter probably checks for valid structure, not specifically for `hl` usage. But to honor the brand, using `hl` is nice. However, the `hl` class would put yellow bg immediately (not wipe). 
+
+Let me do a hybrid: Use `hl` class on the REAL word for the text color and any padding, but the yellow background... hmm, if `hl` sets background, I can't wipe it.
+
+I think the safest, most controllable approach is:
+- REAL word: color #111, no background.
+- Separate band element: background #FFD400 (var(--y)), positioned behind REAL, scaleX 0→1 from left.
+
+This gives the exact visual: yellow band wiping in from left, dark text on top. Let me use var(--y) for the yellow. I need to confirm the CSS variable name. The brand says "yellow #FFD400". The example uses var(--c) for cyan, var(--m) for magenta. So likely var(--y) for yellow, var(--ink) for ink, var(--bg) for background. Let me use var(--y) but also I could hardcode #FFD400 to be safe. The rule says "yellow #FFD400 only as a band behind #111 text". Let me use var(--y) — but if the variable isn't defined, it breaks. The example uses var(--c) and var(--m) which are presumably defined in gw.css. So var(--y) is likely defined too. To be safe, I'll use var(--y) with a fallback: `var(--y, #FFD400)`. That's robust.
+
+Actually, let me use the CSS variables as the example does, but add fallbacks for safety. `background: var(--y, #FFD400)`. Good.
+
+Now, the band is behind the text. In DOM order, the band should come before the REAL word (so it's behind), or I use z-index. Let me put the band before the word in DOM and both absolute; the word will paint on top if it comes later. Actually with absolute positioning, later DOM elements paint on top (without z-index). So band first, then word → word on top. 
+
+But wait, the band needs to be behind ALL of line 2 or just REAL? Just REAL. Since band is positioned only over REAL's area, and VIDEO is to the right (not overlapping), it's fine. Let me order: band, then w3 (REAL), then w4 (VIDEO). Actually order among absolute elements: band (behind REAL), w1, w2, w3, w4. As long as band is before w3, w3 paints on top of band. Good.
+
+Let me now also handle the "slide in" for words. I'll use x from -60 to 0. But the band is behind REAL; when REAL slides in from x:-60, the text moves over the band area. The band wipes in at 1.3, after REAL has landed (REAL lands ~1.4). Hmm, let me make sure REAL is fully landed before band wipes. REAL: start 0.85, dur 0.55 → lands at 1.4. Band start 1.3 — slightly before. Let me push band to 1.45. Band: 1.45 → 2.05 (0.6 dur). Then rule 1.9 → 2.8. Corners 2.4 → 2.9. Hold 2.9 → 5.0.
+
+Actually, let me reconsider the marker timing for better effect. A nice effect: the band wipes in and the text is already there in dark. That reads well. Let me set band start 1.4.
+
+Let me also reconsider: should the "real" text be dark from the start, or should it change color when the band arrives? If the text is dark (#111) on the dark background (#0E0E0E) before the band arrives, it would be nearly invisible (dark on dark)! That's a problem. 
+
+Options:
+1. The "real" text starts in ink (#F4F4F1) like other words, and when the band wipes in behind it, the text... stays light? Then it'd be light text on yellow band = low contrast (light on yellow). Not great.
+2. The "real" text is dark (#111) from the start — but then it's invisible on dark bg before the band. Bad.
+3. The "real" text animates in (slides) in ink color, and simultaneously/after, the band wipes in AND the text color changes to #111. 
+
+Hmm. Let me think about the cleanest visual. 
+
+Actually, a common kinetic-type effect: the word "real" slides in in the normal ink color, then a yellow marker wipes in behind it, and the word turns dark. But changing color via GSAP is allowed? The rule says "Animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height." It does NOT list color. So I should NOT animate color. 
+
+So I can't animate the text color. Therefore the "real" text must be a fixed color throughout.
+
+Given that, the best approach: "real" text is dark (#111) from the start. But then before the band arrives, dark text on dark bg is invisible. 
+
+Solution: Make the band arrive BEFORE or AS the "real" word slides in. So the sequence: band wipes in first (revealing yellow area), then "real" text slides in on top of the yellow band. That way the dark text is always on yellow (visible). 
+
+Let me reorder: 
+- w1 LOCAL, w2 AI, slide in.
+- Band wipes in (yellow area appears) at ~0.9.
+- w3 REAL (dark text) slides in on top of the band at ~1.1.
+- w4 VIDEO slides in at ~1.3.
+
+But wait, the band is on line 2, and LOCAL/AI are on line 1. The stagger "one by one" is LOCAL, AI, REAL, VIDEO. If the band appears between AI and REAL, that's fine — it's part of the "real" word's entrance. 
+
+Actually, let me reconsider. Let me have the band wipe in just before REAL slides in. So:
+- t=0.45: w1 LOCAL slides in
+- t=0.65: w2 AI, slides in
+- t=0.95: band wipes in (scaleX 0→1, left origin), dur 0.5 → done 1.45
+- t=1.15: w3 REAL (dark) slides in on top of band, dur 0.5 → done 1.65
+- t=1.35: w4 VIDEO slides in, dur 0.5 → done 1.85
+- t=1.9: rule draws, dur 0.8 → done 2.7
+- t=2.3: corners fade in, dur 0.5 → done 2.8
+- Hold 2.8 → 5.0
+
+This works! The dark "real" text slides in over the already-present yellow band, so it's always visible. 
+
+But hold on — the band wipes in at 0.95 and REAL slides in at 1.15. There's a 0.2s where the band is present but REAL is still sliding (starts at 1.15). Actually REAL starts sliding at 1.15, and the band finishes at 1.45. So during 1.15–1.45, the band is still extending while REAL slides in. The dark text sliding in over a partially-wiped band — the left part of REAL is over yellow (visible), the right part is over dark bg (invisible) until the band reaches it. This could look slightly odd but actually it's a nice "reveal" effect — the text appears as the marker sweeps. Actually it might look like the text is being "written" by the marker. That's a cool effect! Let me keep it but maybe make the band slightly faster so it's mostly done before the text is fully in.
+
+Alternatively, simpler and cleaner: band wipes in fully first, THEN text slides in. Let me make band dur 0.45 (0.95→1.4) and REAL start 1.4. Then text slides in over complete band. Cleaner. Let me do:
+- t=0.95: band wipes in, dur 0.45 → done 1.4
+- t=1.4: w3 REAL slides in, dur 0.5 → done 1.9
+- t=1.6: w4 VIDEO slides in, dur 0.5 → done 2.1
+
+Hmm, but then the stagger isn't perfectly even (LOCAL 0.45, AI 0.65, [band 0.95], REAL 1.4, VIDEO 1.6). The gap between AI (0.65) and REAL (1.4) is 0.75, which includes the band. That's okay — the band is the "real" entrance.
+
+Actually, you know what, let me reconsider whether dark-on-dark is really a problem. #111 on #0E0E0E — both very dark. Yes, essentially invisible. So I must avoid it. My solution (band before/with text) handles it.
+
+Let me also double check: is it weird that "real" is dark while other words are light? Yes, that's the point — it's highlighted with the marker. The dark text on yellow band is the emphasis. Good, that's the intended design ("real" gets the marker).
+
+Let me finalize positions and the band size relative to REAL.
+
+REAL word: left 160, top 570, font-size 190, color #111, width 540, white-space nowrap.
+The glyph "REAL" at 190px: cap height ~0.72*190 = 137px. The text baseline sits at top + (ascent). For a typical font, the top of caps is roughly at top + 0.2*fontsize from the top of the em box... this is font-dependent. Let me just position the band to cover the visible glyph area with padding.
+
+If text box is top 570 to 570+190 = 760 (assuming line-height 1, font-size 190). The caps occupy roughly the upper 70% of the em box (from ~top+15 to top+15+137 = 585 to 722). Let me make the band cover from ~575 to ~735 (height 160) with some padding, and left from ~150 to ~710 (width 560). Let me set:
+- band: left 148, top 578, width 566, height 156.
+
+Hmm, let me make the band a bit tighter to look like a marker (not a full box). Markers usually cover the x-height/cap area with small overhang. Let me do:
+- band: left 150, top 590, width 556, height 130.
+
+This covers roughly the cap area (590–720) with small horizontal padding (150 to 706, while text is 160–700). Looks like a marker highlight. Good.
+
+Wait, but the text is dark #111 and the band is yellow. If the band is only 130 tall and the text caps are ~137 tall, the top of the caps might stick above the band (dark on dark bg) — slightly. Let me make the band a bit taller to fully contain the caps: top 580, height 150 (580–730). Text caps ~585–722, so band contains them with small margin. Good. Let me use top 580, height 150.
+
+Actually, let me reconsider the font metrics. Different fonts have different cap heights and baselines. To be safe, let me make the band generously cover the text: top 575, height 160 (575–735), left 148, width 570 (148–718). Text is 160–700 horizontally, 570–760 vertically (em box). The band 575–735 covers most of the glyph. Good enough. The exact look depends on the font, but this should be a clean marker.
+
+Hmm, I realize I'm overthinking the exact pixel alignment of the band. Since I can't see the render, let me make the band clearly a highlight: slightly larger than the text with visible padding on all sides, positioned to roughly center on the text. Let me set:
+- REAL text: left 160, top 570, font-size 190, width 540.
+- band: left 144, top 582, width 572, height 148.
+
+The band left 144 is 16px left of text (160), band right 716 is 16px right of text (700). Vertically band 582–730, text em 570–760. The band is centered-ish on the glyph. Good.
+
+Now let me reconsider the overall vertical layout with these numbers:
+- Eyebrow: top 250, left 160, font-size 26 (mono).
+- Line 1 (LOCAL, AI,): top 340, font-size 190.
+- Line 2 (REAL, VIDEO): top 570, font-size 190.
+- Rule: top 810, left 160, width 1600, height 6.
+- Bottom-left tag: top 1000, left 160, font-size 22 (mono).
+- Top-right corner mark: top 250, right area.
+
+Wait, line 1 top 340 + 190 = 530. Line 2 top 570. Gap 530–570 = 40px. Good.
+Line 2 top 570 + 190 = 760. Rule at 810. Gap 50. Good.
+Eyebrow top 250, line 1 top 340. Gap 90 (eyebrow is small). Good.
+
+Bottom tag at top 1000 (near bottom, margin 1080-1000-22 = 58... that's less than 100px margin from bottom). The rule says "Keep all text inside the canvas with at least 100 px margin". So text should be at least 100px from the bottom edge. Bottom edge is 1080. So text bottom should be ≤ 980. If tag is at top 1000 with font 22, its bottom is ~1022, which is < 1080 but only 58px from bottom — violates the 100px margin rule!
+
+Let me move the bottom tag up. Text bottom ≤ 980. So tag top ≤ 980 - 22 = 958. Let me put bottom tag at top 940. Bottom = 962. Margin from bottom = 1080-962 = 118 ≥ 100. ✓. 
+
+Hmm wait, but the rule is at top 810. Bottom tag at 940. That's fine, 130px below the rule.
+
+Actually, let me reconsider the whole vertical balance. Maybe I'm overcomplicating with the bottom tag. Let me reconsider: do I want a bottom tag? It adds craft. Let me keep it but position carefully.
+
+Let me also reconsider the top-right corner mark. A small plus "+" or "N°05". Let me put a small mono "N°05" at top-right, top 250, right-aligned. Position: left 1560, top 250, width 200, text-align right, font-size 24. Right edge at 1760, margin from right = 1920-1760 = 160 ≥ 100. ✓. But wait, does it overlap the eyebrow? Eyebrow is at left 160 (left side), N°05 at right (1560+). No overlap. Good.
+
+Hmm, but actually the eyebrow "EP05 / Experiment" already says EP05. Having "N°05" too is redundant. Let me change the top-right to something else, like a small plus/cross registration mark, or "LOCAL SERIES", or a small logo. 
+
+Actually, I have a logo asset: assets/logo-negative.png. I could place it top-right! That's a nice touch. Let me use the logo top-right. But I need to know its dimensions. I'll place it with a fixed width and let height auto. But the rule wants explicit width in px. Let me set width 120, and height auto (or a fixed height). Logos can be tricky. Let me set width 140, top 250, left 1620. Hmm, but if the logo aspect ratio is unknown, height auto is fine for display. But the rule says explicit width in px — I'll give width 140 and let height be auto. Actually for safety with the "explicit left/top/width in px" rule, I'll give left, top, width. Height auto is okay for an image (it's not text). Let me include it.
+
+Wait, but the logo might not be a good fit and could look off. Let me reconsider. The brief is a title card. A logo in the corner is a reasonable brand touch. Let me include it top-right, small. If it looks off, it's still a valid element. Let me use it.
+
+Actually, let me reconsider — the brief says "Small mono eyebrow 'EP05 / Experiment' above, a thin rule that draws across below." It's quite specific about the elements: eyebrow, title, marker, rule. Adding a logo and corner tags are extra. I think a couple of subtle extras are fine for craft, but let me not overload. Let me include:
+- The logo top-right (small, brand touch).
+- A small mono tag bottom-left (e.g., "LOCAL SERIES — EP 05" or "24 FPS / 1920×1080").
+
+Actually, let me keep it to just the logo top-right and maybe skip the bottom tag to avoid clutter and margin issues. Or keep the bottom tag and skip the logo. Hmm.
+
+Let me do both but keep them subtle and well-positioned. Actually, let me reconsider the bottom tag text. Something that fits the "Local AI, real video" theme: "SERIES 01 / GHOSTWORKS" or "RENDERED LOCALLY" or "24 FPS · 1920×1080". Let me use "RENDERED LOCALLY · 24 FPS" — thematic (local AI) and technical. Or keep it simple: "LOCAL SERIES — EP 05". 
+
+Hmm, the eyebrow already says EP05. Let me make the bottom tag different: "RENDERED LOCALLY · 24 FPS". That's a nice detail that reinforces "Local AI". 
+
+Let me finalize:
+- Top-right: logo (assets/logo-negative.png), width 150.
+- Bottom-left: mono tag "RENDERED LOCALLY · 24 FPS", font-size 22.
+
+Wait, the "·" is a middle dot, not an emoji, should be fine.
+
+Now let me reconsider the rule. "a thin rule that draws across below." Below the title. Let me make it span most of the width. left 160, width 1600 (160 to 1760). Height 4 (thin). background ink (#F4F4F1) or a brand color. Let me use ink, or maybe make it a brand color for pop. The brief says "thin rule" — let me use ink (#F4F4F1) or a subtle color. Actually, let me use the cyan or keep it ink. Let me use ink for a clean look, or a 2-tone. Let me just use ink. Actually, to add a bit of brand color, maybe make it a short accent. No, keep it a clean thin rule in ink. Hmm, or I could make it magenta for a pop. Let me use ink to keep it elegant, since the yellow marker is the color pop.
+
+Actually, let me reconsider: a thin rule in ink on dark bg is subtle. That's fine and elegant. Let me use ink.
+
+Now, let me also add a very subtle background detail for depth — like faint grid lines or a large faint element. But the brief is a clean title card. Let me add a very subtle background element: maybe a large faint outlined shape or a subtle vignette. But no gradients allowed. Let me add faint hairline grid or a couple of thin vertical/horizontal lines for a "frame" feel. Actually, let me keep the background clean (just #0E0E0E) to let the type shine. Maybe add one subtle element: a large faint "05" watermark in the background? That could be nice — a huge faint "05" behind the title. But it might overlap/conflict with the title. Let me skip it to keep clean. 
+
+Hmm, but "make it feel alive" — a title card with just type is inherently kinetic due to the animation. I think that's sufficient. Let me add subtle corner frame marks (small L-shaped corners or plus marks) at the four corners for a "broadcast frame" feel. That's a nice craft touch. Let me add small plus marks or corner ticks. Actually, let me add thin corner brackets (like a viewfinder) at the four corners — that gives a "video frame" feel fitting "real video". 
+
+Let me add 4 corner brackets, each an L-shape made of two thin lines, in a subtle color (e.g., a dimmed ink or a brand color at low opacity). They can fade in early. This frames the composition nicely.
+
+Actually, this is getting complex. Let me be judicious. Let me add:
+1. Four corner brackets (viewfinder style) — subtle, fade in at start.
+2. Logo top-right.
+3. Bottom-left mono tag.
+
+Wait, if I have corner brackets AND a logo top-right, the top-right bracket and logo might conflict. Let me position the logo inside the top-right bracket. Or drop the logo and keep corner brackets + bottom tag. 
+
+Let me simplify to a clean, strong composition:
+- Eyebrow (top-left)
+- Title (2 lines, 4 words)
+- Marker on "real"
+- Rule (below)
+- Bottom-left mono tag
+- Four corner brackets (viewfinder frame)
+
+That's a solid, crafted title card. Let me drop the logo to avoid conflict, OR keep the logo and drop corner brackets. 
+
+I think corner brackets (viewfinder) fit the "video" theme really well. Let me go with corner brackets + logo? Let me place the logo in the top-right corner, and the corner brackets around the whole canvas. The top-right bracket would be at the very corner (e.g., left 100, top 100 area), and the logo below it (top 250). No conflict. Let me do:
+- Corner brackets at the four corners of a "frame" inset ~100px from edges. Frame: left 100, top 100, right 1820, bottom 980. Each corner bracket is an L at these corners.
+- Logo top-right: inside the frame, top 160, left 1560 (right-aligned to ~1760).
+- Eyebrow top-left: top 160, left 160.
+
+Wait, but the frame corners at 100px inset and the content at 160px — there's 60px between frame and content. That works.
+
+Hmm, but the eyebrow at top 160 and logo at top 160 — both near the top. Let me align them. Eyebrow left 160 top 170, logo right side top 160. 
+
+Let me reconsider. This is getting complicated. Let me step back and design a clean layout:
+
+Canvas 1920x1080.
+
+Frame (viewfinder corners) inset 90px: corners at (90,90), (1830,90), (90,990), (1830,990). Each corner bracket ~40px arms.
+
+Top area (y ~ 150-200):
+- Eyebrow "EP05 / EXPERIMENT" at left 160, top 175, mono, font 24, color cyan (var(--c)) for a pop.
+- Logo at right: left 1560, top 165, width 150. (right edge ~1710, within frame at 1830). Hmm, or align to right margin. Let me put logo at left 1620, top 160, width 140. Right edge 1760.
+
+Wait, the logo — I don't know its exact look. "logo-negative.png" suggests a negative (light/white) logo, good for dark bg. Let me place it. If it's a wide logo, width 140 might crop. Let me use width 160.
+
+Middle area (the title):
+- Line 1 top 340: LOCAL (left 160), AI, (left 850)
+- Line 2 top 570: REAL (left 160, dark, on band), VIDEO (left 720)
+
+Bottom area:
+- Rule at top 810, left 160, width 1600.
+- Bottom tag "RENDERED LOCALLY · 24 FPS" at left 160, top 940, mono, font 22, color dimmed.
+- Maybe a bottom-right element: "1920×1080" or a timecode. Let me add a small timecode bottom-right for video feel: "00:00:05:00" or "TC 00:00:00:00". A timecode is a nice "video" detail! Let me add a mono timecode bottom-right. But it's static (can't animate frames easily without many keyframes, and no repeat). I could show a fixed timecode like "TC 00:00:00:00". Or animate it counting? That would need many keyframes. Let me keep it static: "TC 00:00:00:00" bottom-right. Actually, a static timecode is fine as a detail. Or I could show "REC ●" — but ● is a bullet, and "REC" with a red dot is a classic video detail. But no emojis; ● is a geometric character, might be okay but risky. Let me avoid. Let me use "TC 00:00:00:00" as a clean mono timecode. Hmm, or skip it.
+
+Let me finalize the extra elements to keep it clean but crafted:
+1. Four viewfinder corner brackets (subtle, dim ink).
+2. Eyebrow top-left (cyan).
+3. Logo top-right.
+4. Title (4 words) + marker.
+5. Rule.
+6. Bottom-left tag "RENDERED LOCALLY · 24 FPS".
+7. Bottom-right timecode "TC 00:00:00:00".
+
+That's a full, crafted broadcast-style title card. Let me make sure none overlap and all within margins.
+
+Let me lay out precisely:
+
+Frame corners (inset 90):
+- TL bracket: horizontal arm from (90,90) to (130,90); vertical arm from (90,90) to (90,130). I'll make each bracket as a div with border-top and border-left (for TL). But borders create the L. Actually, easier: each bracket is a div with two child lines, or use border. Let me use a div with width 40, height 40, border-top 3px, border-left 3px for TL. Position absolute at left 90, top 90. 
+- TR bracket: left 1790, top 90, width 40, height 40, border-top 3px, border-right 3px.
+- BL bracket: left 90, top 950, width 40, height 40, border-bottom 3px, border-left 3px.
+- BR bracket: left 1790, top 950, width 40, height 40, border-bottom 3px, border-right 3px.
+
+Wait, frame inset 90 means the frame rectangle is from (90,90) to (1830,990). So:
+- TL at (90,90)
+- TR at (1830,90) → bracket div at left 1790 (1830-40), top 90.
+- BL at (90,990) → div at left 90, top 950 (990-40).
+- BR at (1830,990) → div at left 1790, top 950.
+
+Good. These are decorative, color dim (e.g., #3a3a3a or a low-opacity ink). Let me use a dim color like #2E2E2E or rgba. Since no gradients, a solid dim color is fine. Let me use #333 or a brand color at low opacity. Let me use a subtle cyan-ish or just dim ink #3A3A3A. Actually, to tie in brand, let me make the brackets a dim version — I'll use #2A2A2A. Hmm, might be too subtle. Let me use #444. Or use the cyan at low opacity for a techy feel: rgba(18,169,230,0.35). Let me use a dim neutral #3D3D3D for the brackets to keep them subtle, and maybe make them slightly visible. Actually, let me make them a subtle brand color for interest: I'll use var(--c) at low opacity. But I can't easily do opacity on a color without rgba. Let me just use a solid dim color #383838.
+
+Hmm, let me reconsider. For a strong title card, subtle frame corners in a mid-gray work well. Let me use #3A3A3A.
+
+Now content:
+
+Eyebrow: left 160, top 175, font-size 24, mono, color var(--c, #12A9E6). Text "EP05 / EXPERIMENT". Width ~ 400 (auto, but give explicit width 400). Actually mono text "EP05 / EXPERIMENT" = 16 chars. At 24px mono, char ~14px. 16*14 = 224px. Let me give width 400 to be safe.
+
+Logo: left 1600, top 160, width 160. (right edge 1760, within frame 1830). Let me align it to the right margin better: right margin should be ~160 to match left. So right edge at 1760 → left = 1760 - 160 = 1600. Good, left 1600, width 160.
+
+Hmm wait, but the logo height is unknown. If it's tall, it might extend down. Let me constrain with a max-height or fixed height. Let me set width 160 and let height be auto. If the logo is very tall it'd look off, but "logo-negative.png" is probably a standard logo. Let me also give it a height to be safe? If I set both width and height, it might distort. Let me set width 160 and height auto (omit height). Actually the rule wants explicit width in px (I have it). Height auto is fine.
+
+Wait, actually, I realize I should double check: does the logo exist and what does it look like? I can't see it. It's a risk. Let me include it but keep it small so if it's odd, it's not dominant. Alternatively, skip the logo and use a text-based brand mark. Hmm. Let me include the logo — it's a provided asset meant to be used. I'll place it modestly.
+
+Actually, let me reconsider: the brief doesn't mention a logo. Adding it is a judgment call. It's a provided asset, so using it is reasonable and shows brand awareness. Let me include it, small, top-right. Fine.
+
+Title:
+- w1 LOCAL: left 160, top 340, font-size 190, color var(--ink, #F4F4F1), width 660.
+- w2 AI,: left 850, top 340, font-size 190, color ink, width 260.
+- band: left 144, top 582, width 572, height 148, background var(--y, #FFD400), transform-origin left center.
+- w3 REAL: left 160, top 570, font-size 190, color #111, width 540.
+- w4 VIDEO: left 720, top 570, font-size 190, color ink, width 600.
+
+Let me double-check horizontal extents:
+- LOCAL: 160 to 820 (width 660). 
+- AI,: 850 to 1110 (width 260). Gap between LOCAL end (820) and AI, start (850) = 30px. Good.
+- REAL: 160 to 700 (width 540).
+- band: 144 to 716 (width 572). Covers REAL (160-700) with padding. Good.
+- VIDEO: 720 to 1320 (width 600). Gap between REAL end (700) and VIDEO start (720) = 20px. Good.
+
+All within 160 to 1320 horizontally, well within 100-1820 margins. 
+
+But wait — will "LOCAL" actually fit in 660px at 190px font? Earlier I estimated LOCAL (5 letters) ~650px at 190px. 660 is tight but should fit. Let me give more: width 700. Then LOCAL 160-860. AI, start 890. Let me recompute:
+- LOCAL: left 160, width 700 → ends 860.
+- AI,: left 890, width 260 → ends 1150.
+- REAL: left 160, width 560 → ends 720.
+- band: left 144, width 592 → ends 736.
+- VIDEO: left 750, width 620 → ends 1370.
+
+Hmm, let me reconsider the actual widths more carefully. The display font is "wide: at 150 px an uppercase letter is about 100 px wide." So at 190px, letter ≈ 190/150 * 100 = 126.7px wide (average). But not all letters are the same width. Let me estimate per word using average 127px/letter, adjusting for narrow (I) and wide (M, W) letters:
+
+- LOCAL: L(127) O(130) C(120) A(127) L(127) ≈ 631px. Add letter-spacing if any (assume none or small). ~640px.
+- AI,: A(127) I(60) ,(40) ≈ 227px. ~230px.
+- REAL: R(127) E(120) A(127) L(127) ≈ 501px. ~510px.
+- VIDEO: V(127) I(60) D(135) E(120) O(130) ≈ 572px. ~580px.
+
+So:
+- LOCAL ~640, AI, ~230. Line 1 total with gap: 640 + 40 + 230 = 910.
+- REAL ~510, VIDEO ~580. Line 2 total: 510 + 40 + 580 = 1130.
+
+Let me set widths with a little buffer:
+- w1 LOCAL: width 660 (160 → 820)
+- w2 AI,: left 860, width 240 (860 → 1100)
+- w3 REAL: width 530 (160 → 690)
+- band: left 146, width 560 (146 → 706)
+- w4 VIDEO: left 730, width 600 (730 → 1330)
+
+Gaps: LOCAL end 820, AI, start 860 → 40px. REAL end 690, VIDEO start 730 → 40px. Good.
+
+All within 160 to 1330. 
+
+Now, one concern: if the actual font renders wider than my estimate, "AI," at width 240 might clip, or "VIDEO" at 600 might clip. To be safe, let me add white-space: nowrap and overflow visible so text isn't clipped (it just might extend beyond the width, but since these are the last elements in their rows and there's space, that's fine). Actually, if text overflows the width, it could overlap the next word. Hmm. But I've left 40px gaps and the widths have buffer. Let me keep overflow visible and trust the estimates. Actually, to be safe against overlap, let me increase gaps to 50px and give words a bit more width. Let me finalize:
+
+- w1 LOCAL: left 160, width 680 → ends 840
+- w2 AI,: left 890, width 250 → ends 1140
+- w3 REAL: left 160, width 540 → ends 700
+- band: left 146, width 568 → ends 714
+- w4 VIDEO: left 750, width 610 → ends 1360
+
+Gaps: 840→890 = 50. 700→750 = 50. Good.
+
+Rule: left 160, top 810, width 1600 → ends 1760. height 4.
+
+Bottom tag: left 160, top 945, font 22, mono, width 500. Text "RENDERED LOCALLY · 24 FPS". Bottom = 945+22 = 967. Margin from bottom (1080) = 113 ≥ 100. ✓.
+
+Timecode: right side, bottom. left 1400, top 945, font 22, mono, width 360, text-align right → ends 1760. Text "TC 00:00:00:00". Bottom 967, margin 113. ✓.
+
+Wait, does the timecode overlap the bottom tag? Bottom tag ends at 160+500 = 660. Timecode starts at 1400. No overlap. Good.
+
+Now the frame corners are at inset 90 (90 to 1830 / 90 to 990). The content is within 160 to 1760. So content is inside the frame. Good. The bottom tag at top 945 is above the bottom frame line (990). Good. The timecode too.
+
+Let me reconsider vertical: eyebrow at top 175 (below top frame line 90, good). Logo at top 160. Title lines at 340 and 570. Rule at 810. Bottom tags at 945. All within frame (90 to 990). Good.
+
+Now let me reconsider the marker band vertical alignment with REAL text at top 570, font 190. The em box is 570 to 760. The band at top 582, height 148 → 582 to 730. That covers the cap area (roughly 570+0.2*190=585 to 570+0.9*190=741... hmm). Let me reconsider. For many fonts, the baseline is at about 0.8 of the em box from top, and cap height is about 0.7 of em. So caps from (0.8-0.7)=0.1 to 0.8 of em box = 0.1*190=19 to 0.8*190=152 from top → 589 to 722. So caps occupy 589 to 722. My band 582 to 730 covers 589-722 with ~7px top padding and ~8px bottom padding. 
+
+Actually, this depends heavily on the font. Let me make the band a bit more generous to be safe: top 578, height 158 → 578 to 736. Covers caps 589-722 with more padding. Let me use top 578, height 156 → 578 to 734. Good.
+
+Hmm, but if the font's caps are higher (e.g., 575 to 720), the band top 578 would slightly clip the top. Let me make band top 574, height 162 → 574 to 736. That should safely cover. Let me use top 574, height 160 → 574 to 734. 
+
+Let me also make the band horizontal padding good: text 160 to 700, band 146 to 714 → 14px left padding, 14px right padding. Good, looks like a marker with slight overhang.
+
+OK here's a concern: the band is behind REAL (dark text). But the band also — is it behind anything else? It's at 146-714 horizontally, 574-734 vertically. Line 2 is at top 570. The band overlaps the REAL text area only. VIDEO is at 750+ (no overlap). Line 1 is at top 340-530 (no overlap with band at 574+). Good. So band only overlaps REAL. 
+
+Now the animation. Let me write the timeline.
+
+Elements and their initial states (set via tl.set or fromTo):
+- eyebrow: opacity 0 initially.
+- w1, w2, w3, w4: opacity 0 initially.
+- band: scaleX 0 initially (transform-origin left center).
+- rule: scaleX 0 initially (transform-origin left center).
+- corners (4): opacity 0 initially.
+- logo: opacity 0 initially.
+- bottom tag: opacity 0.
+- timecode: opacity 0.
+
+Timeline:
+1. Corners fade in first (frame appears): 
+   tl.to corners opacity 0→1, duration 0.5, at 0.1. Actually let me stagger them or just fade all. Let me fade all 4 at once, or stagger slightly. Let me fade all at 0.1, dur 0.6.
+   Actually, a nice touch: corners draw in (scale) rather than fade. But they're L-shapes; scaling an L looks odd. Let me just fade them in. Or I could animate each arm. Too complex. Fade in is fine.
+
+2. Eyebrow: slide in from left + fade. tl.fromTo("#eyebrow", {opacity:0, x:-30}, {opacity:1, x:0, duration:0.5, ease:"power2.out"}, 0.3).
+
+3. Logo: fade in. tl.to("#logo", {opacity:1, duration:0.5}, 0.4). Or fromTo with a slight y. Let me do fromTo opacity 0→1, y 10→0.
+
+4. Words stagger:
+   - w1 LOCAL: fromTo {opacity:0, x:-70} → {opacity:1, x:0}, dur 0.55, ease power3.out, at 0.5.
+   - w2 AI,: at 0.7.
+   - band: wipes in. But band is on line 2, before REAL. Let me time band after w2.
+   
+   Let me reconsider the order. The words are LOCAL, AI, REAL, VIDEO. The band is part of REAL's entrance. So:
+   - w1 LOCAL: 0.5
+   - w2 AI,: 0.72
+   - band: 0.98 (wipes in, dur 0.5, left origin) → done 1.48
+   - w3 REAL: 1.2 (slides in over band, dur 0.5) → done 1.7
+   
+   Wait, if band starts 0.98 and REAL starts 1.2, then during 1.2-1.48 the band is still wiping while REAL slides in. The dark REAL text slides in; its left portion is over the (nearly complete) band, visible; as it slides right, it's over the band (which is mostly there). Should look fine. Actually, let me make the band finish before REAL fully slides in, OR start REAL after band is mostly done. Let me set band 0.95 dur 0.45 → done 1.4. REAL 1.35 dur 0.5 → done 1.85. So band done at 1.4, REAL starts 1.35 (band 90% done). Close enough, looks like the marker is there as the word lands. Good.
+   
+   - w4 VIDEO: 1.55 dur 0.5 → done 2.05.
+   
+   Hmm, let me make the stagger feel even. Let me use:
+   - w1: 0.5
+   - w2: 0.72
+   - band: 0.95 (dur 0.45)
+   - w3: 1.35
+   - w4: 1.55
+   
+   The word cadence: 0.5, 0.72, 1.35, 1.55. Gaps: 0.22, 0.63, 0.2. The 0.63 gap is where the band happens. That's intentional (the marker moment). OK.
+
+   Actually, let me reconsider to make it smoother. Maybe:
+   - w1 LOCAL: 0.45
+   - w2 AI,: 0.68
+   - band: 0.92 (dur 0.5) → done 1.42
+   - w3 REAL: 1.15 (dur 0.5) → done 1.65
+   - w4 VIDEO: 1.38 (dur 0.5) → done 1.88
+   
+   Word cadence: 0.45, 0.68, 1.15, 1.38. Gaps: 0.23, 0.47, 0.23. The 0.47 gap for the band. Fine.
+
+5. Rule: draws across after words. tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.7, ease:"power3.out"}, 1.7). → done 2.4.
+
+6. Bottom tag + timecode: fade in after rule. 
+   - bottom tag: fromTo opacity 0→1, y 15→0, dur 0.5, at 2.1.
+   - timecode: fromTo opacity 0→1, y 15→0, dur 0.5, at 2.25.
+
+7. Hold: everything at opacity 1 from ~2.5 to 5.0. ✓ (last 1s is hold).
+
+Let me verify all elements end at opacity 1:
+- corners: 1 ✓
+- eyebrow: 1 ✓
+- logo: 1 ✓
+- w1-w4: 1 ✓
+- band: scaleX 1 (opacity 1, it's always opacity 1) ✓
+- rule: scaleX 1 ✓
+- bottom tag: 1 ✓
+- timecode: 1 ✓
+
+Good.
+
+Now let me reconsider: the band is always opacity 1 (I only animate scaleX). Initially scaleX 0 → invisible. At end scaleX 1 → visible. Good. But I should set initial scaleX 0 via tl.set or fromTo. Let me use fromTo for the band: tl.fromTo("#band", {scaleX:0}, {scaleX:1, duration:0.5, ease:"power2.inOut"}, 0.92). The fromTo sets the start state (scaleX 0) at the start time. But before 0.92, what's the band's state? With fromTo, GSAP sets the "from" values at the start of the tween, but before that, the element is at its natural CSS state (scaleX 1, visible!). That's a problem — the band would be visible (scaleX 1) from t=0 until 0.92, then jump to scaleX 0 and animate to 1. 
+
+To avoid this, I need to set the initial state (scaleX 0) at t=0 via tl.set, OR use the fromTo's immediateRender. Actually, gsap fromTo by default renders the "from" state immediately when the timeline is created? No. Let me think.
+
+In GSAP, when you create a fromTo tween, by default `immediateRender` is true for `from` tweens, but for `fromTo`... Let me recall. Actually, the safest approach is to explicitly tl.set the initial state at time 0. Let me do:
+tl.set("#band", {scaleX:0}, 0);
+tl.to("#band", {scaleX:1, duration:0.5, ease:"power2.inOut"}, 0.92);
+
+Similarly for rule:
+tl.set("#rule", {scaleX:0}, 0);
+tl.to("#rule", {scaleX:1, duration:0.7, ease:"power3.out"}, 1.7);
+
+And for words, use fromTo but also ensure initial opacity 0. Actually for opacity, if I use fromTo {opacity:0,...}→{opacity:1,...}, before the start time the element is at natural state (opacity 1, visible). Same problem! The words would be visible from t=0 until their start time.
+
+So I must set initial states at t=0. Let me use tl.set for all initial states at time 0:
+tl.set(["#w1","#w2","#w3","#w4","#eyebrow","#logo","#tag","#tc"], {opacity:0}, 0);
+tl.set("#band", {scaleX:0}, 0);
+tl.set("#rule", {scaleX:0}, 0);
+tl.set(corners, {opacity:0}, 0);
+
+Then use tl.to / tl.fromTo for the animations. Since initial states are set at 0, fromTo is fine (the from values match the set values, no jump). Actually, with initial set at 0, I can just use tl.to for most. Let me use tl.to for opacity and x (since initial x is 0, but I want to animate x from -70 to 0). Hmm, if initial x is 0 (natural), and I want to slide from -70 to 0, I need to set initial x to -70 at 0, then to 0. Let me set initial x for words at 0:
+tl.set(["#w1","#w2","#w3","#w4"], {opacity:0, x:-70}, 0);
+Then tl.to each to {opacity:1, x:0}.
+
+Wait, but if I set x:-70 at t=0 and the word is also opacity 0, it's invisible anyway. Then I animate opacity 0→1 and x -70→0. Good.
+
+Let me structure the timeline cleanly:
+
+```
+const tl = gsap.timeline({ paused: true });
+
+// initial states
+tl.set(["#w1","#w2","#w3","#w4"], { opacity: 0, x: -70 }, 0);
+tl.set("#eyebrow", { opacity: 0, x: -30 }, 0);
+tl.set("#logo", { opacity: 0, y: 12 }, 0);
+tl.set(["#tag","#tc"], { opacity: 0, y: 15 }, 0);
+tl.set(["#cTL","#cTR","#cBL","#cBR"], { opacity: 0 }, 0);
+tl.set("#band", { scaleX: 0 }, 0);
+tl.set("#rule", { scaleX: 0 }, 0);
+
+// frame corners
+tl.to(["#cTL","#cTR","#cBL","#cBR"], { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.1);
+
+// eyebrow
+tl.to("#eyebrow", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.35);
+
+// logo
+tl.to("#logo", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.5);
+
+// words
+tl.to("#w1", { opacity: 1, x: 0, duration: 0.55, ease: "power3.out" }, 0.45);
+tl.to("#w2", { opacity: 1, x: 0, duration: 0.55, ease: "power3.out" }, 0.68);
+
+// marker band
+tl.to("#band", { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 0.92);
+
+// real + video
+tl.to("#w3", { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.15);
+tl.to("#w4", { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 1.38);
+
+// rule
+tl.to("#rule", { scaleX: 1, duration: 0.7, ease: "power3.out" }, 1.7);
+
+// bottom details
+tl.to("#tag", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.1);
+tl.to("#tc", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.25);
+
+window.__timelines["main"] = tl;
+```
+
+Wait, there's an issue with the band and w3 (REAL). The band is behind REAL. When I set band scaleX 0 at t=0, it's invisible. At 0.92 it wipes to scaleX 1. REAL (w3) is opacity 0 until 1.15, then slides in. So the sequence: band wipes in (0.92-1.42), REAL slides in (1.15-1.65). During 1.15-1.42, band is still wiping while REAL slides in. The dark REAL text: as it slides from x:-70 to 0, its left part is over the band (visible), and it moves right. Since the band is mostly there by 1.15 (band started 0.92, so at 1.15 it's 46% done... hmm, 1.15-0.92=0.23 of 0.5 = 46%). So at 1.15 the band is 46% extended (covers left 46% of the band area). REAL starts at x:-70 (its left edge at 160-70=90). As REAL slides right, its left portion is over the band's left portion (which is present). The right portion of REAL is over the not-yet-extended band (dark bg) → dark text on dark bg → invisible temporarily. Then as REAL reaches x:0 and the band completes, it's fully visible. This might look like the text is "emerging" with the marker. It's a bit risky but could look cool. 
+
+To make it cleaner, let me start REAL after the band is mostly done. Let me set band 0.9 dur 0.45 → done 1.35. REAL 1.3 dur 0.5 → done 1.8. So at 1.3, band is (1.3-0.9)/0.45 = 89% done. REAL slides in over a nearly-complete band. Cleaner. Let me use:
+- band: 0.9, dur 0.45 → done 1.35
+- w3 REAL: 1.3, dur 0.5 → done 1.8
+- w4 VIDEO: 1.5, dur 0.5 → done 2.0
+
+Word cadence: 0.45, 0.68, 1.3, 1.5. Gaps: 0.23, 0.62, 0.2. The 0.62 gap for the band. OK.
+
+Actually, let me reconsider — maybe it's cleaner to have the band wipe in and then the REAL word is already there (dark on yellow). But REAL needs to slide in too (it's one of the staggered words). So the order must be: band first, then REAL slides in. That's what I have. Good.
+
+Alternatively, I could have REAL slide in FIRST (in ink color, visible on dark bg), then the band wipes in behind it, and... but then REAL is ink (light) and the band is yellow behind it → light text on yellow = low contrast. Bad. So REAL must be dark, and band must be there first. My approach is correct.
+
+Hmm, wait. Let me reconsider. What if REAL is dark (#111) and slides in first, but it's invisible on dark bg (dark on dark), and then the band wipes in to reveal it? That would be: REAL slides in (invisible, dark on dark), band wipes in (yellow appears), and now REAL (dark) is visible on yellow. But the "slide" happened while invisible, so the viewer doesn't see REAL slide — they only see it appear when the band arrives. That loses the "slide in" effect for REAL. Not ideal.
+
+My current approach (band wipes in, then REAL slides in over it) preserves the slide effect AND visibility. Let me keep it.
+
+But actually, let me reconsider the timing so the band is fully done before REAL slides in, to avoid the "partially visible" issue:
+- band: 0.85, dur 0.45 → done 1.3
+- w3 REAL: 1.35, dur 0.5 → done 1.85
+- w4 VIDEO: 1.55, dur 0.5 → done 2.05
+
+Now band done at 1.3, REAL starts 1.35 (band fully there). Clean. Word cadence: 0.45, 0.68, 1.35, 1.55. Gaps: 0.23, 0.67, 0.2. Fine.
+
+Let me also reconsider: is 0.67 gap too long? It's the "marker moment" — a slight pause for the band to wipe. That's a nice beat. OK.
+
+Let me finalize timings:
+- corners: 0.1, dur 0.6 → done 0.7
+- eyebrow: 0.35, dur 0.5 → done 0.85
+- logo: 0.5, dur 0.5 → done 1.0
+- w1: 0.45, dur 0.55 → done 1.0
+- w2: 0.68, dur 0.55 → done 1.23
+- band: 0.85, dur 0.45 → done 1.3
+- w3: 1.35, dur 0.5 → done 1.85
+- w4: 1.55, dur 0.5 → done 2.05
+- rule: 1.7, dur 0.7 → done 2.4
+- tag: 2.1, dur 0.5 → done 2.6
+- tc: 2.25, dur 0.5 → done 2.75
+- hold: 2.75 → 5.0
+
+Total active: 0 to 2.75. Hold 2.75 to 5.0 (2.25s). Last 1s (4.0-5.
+[CONTENT]

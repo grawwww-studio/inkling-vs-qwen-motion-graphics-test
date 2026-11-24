@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Pinned local HyperFrames CLI (hyperframes 0.8.176, installed with `npm install hyperframes@0.8.176 gsap@3.14.2` in this folder).
+# Telemetry, update checks, background auto-install and skills sync are off; HOME stays inside this folder (.home/).
+# Set HYPERFRAMES_BROWSER_PATH to a headless Chromium / chrome-headless-shell if you do not want it to find its own.
+D="$(cd "$(dirname "$0")" && pwd)"
+export HOME="$D/.home"; mkdir -p "$HOME"
+export HYPERFRAMES_NO_TELEMETRY=1 DO_NOT_TRACK=1 HYPERFRAMES_NO_UPDATE_CHECK=1 HYPERFRAMES_NO_AUTO_INSTALL=1 HYPERFRAMES_SKIP_SKILLS=1
+export PRODUCER_BROWSER_GPU_MODE=software   # CPU only: Chrome must not use the GPU
+unset GEMINI_API_KEY GOOGLE_API_KEY OPENROUTER_API_KEY HYPERFRAMES_API_KEY   # no external vision/AI calls from the CLI
+cd "${HF_PROJECT:?}"
+exec node "$D/node_modules/hyperframes/bin/hyperframes.mjs" "$@"

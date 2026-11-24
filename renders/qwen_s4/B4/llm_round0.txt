@@ -1,0 +1,210 @@
+[REASONING]
+The brief: a lower-third at the bottom-left over a plain dark plate. 4 seconds. Name "Lara Quinn" in display typeface, role line "Presenter, Grawwww" in monospace, a cyan accent bar that wipes in first, then the text slides in, hold, then everything wipes out in the last 0.5 seconds.
+
+Let me design this:
+
+- 1920x1080 canvas, 4 seconds, 24fps.
+- A lower-third at the bottom-left. Position it with about 100px margin from the left and bottom.
+- Structure:
+  - A cyan accent bar (vertical bar) to the left of the text block, wipes in first (scaleY 0 -> 1, or scaleX).
+  - Name "Lara Quinn" display typeface, large.
+  - Role line "Presenter, Grawwww" monospace uppercase.
+- Timeline:
+  - 0.0–0.4: bar wipes in (scaleY from 0 to 1, transform-origin top).
+  - 0.3–0.8: name slides in from the left (x: -60 -> 0, opacity 0->1).
+  - 0.5–1.0: role line slides in.
+  - Hold until 3.5 seconds.
+  - 3.5–4.0: everything wipes out. "Wipes out" — I could animate a scaleX wipe, or slide out to the left. The brief says "everything wipes out in the last 0.5 seconds." A wipe means the content gets covered by something, or it scales. Simplest and most robust approach: animate the whole lower-third group with scaleX to 0 (transform-origin left) — that's a wipe. Or slide out to the left. "Wipe" suggests a scale-based reveal. Let me do this: at 3.5, animate the group with scaleX 1->0, transform-origin left center, duration 0.5, ease power2.in. That's a clean wipe out.
+
+Actually, "wipes in first" for the bar: the bar is a thin vertical bar; wipe in = scaleY 0->1. Good.
+
+Text slides in: x from -80 to 0, opacity 0 -> 1.
+
+Layout:
+- Bottom-left. Let's put the block in the area around left 120px, top ~760px.
+- Bar: vertical, width 14px, height ~180px, cyan #12A9E6, left 120px, top 770px.
+- Name: "Lara Quinn" display typeface. Display font is wide: at 150px, uppercase letters are about 100px wide. "LARA QUINN" is 10 characters including the space. At 150px that's ~1000px wide. Hmm, that's big. Lower-third names are usually around 90–110px. Let me use font-size 96px. Uppercase letters are about 64px wide (scaling: 100px at 150px → 64px at 96px). "LARA QUINN" = 10 chars → about 640px + space. Fits comfortably.
+
+Actually, class `h` is uppercase, heavy, wide. Let me use font-size 100px. 10 chars * ~67px = 670px. Left starts at 170px (bar at 120, gap 50). 170+670 = 840. No problem.
+
+- Role line: monospace, uppercase, letter-spacing, font-size 30px, color maybe a slightly dimmer ink (#F4F4F1 with opacity 0.7?). The brand says ink #F4F4F1. I could use color var(--ink) or a dimmer tone. Keep it simple: color #F4F4F1, maybe opacity 0.75. Actually, the rule says ink #F4F4F1; using opacity on the element is fine.
+
+Vertical layout:
+- Bar: top 780, height 170.
+- Name baseline: name top ~770, font 100px → line height ~100-120.
+- Role: below the name, top ~905, font 30px.
+
+Let me calculate: name top 768, height ~120 (font-size 100px, line-height 1.1 → 110). Role top 900, height ~40. Total block from 768 to 940. Bottom margin: 1080 - 940 = 140 ≥ 100. Good. Left margin: bar at left 120 ≥ 100. Good.
+
+Bar height: from 768 to 940 → 172px. Let me set bar top 768, height 172, width 14.
+
+Text left: 120 + 14 + 44 = 178. Use 180.
+
+Wipe out: group everything in a wrapper? The rules say every visible element should be a child of root — but nesting is allowed ("all visible elements are children of it" means within the root tree). I can wrap bar + name + role in a group div for the wipe out. But the rule says position everything with position:absolute (class a) and explicit left/top/width in px. The wrapper can be absolute full-size and its children also absolute. Actually simpler: animate each element with scaleX to 0 with transform-origin left? That would wipe each element individually from the left — the name would wipe from the left, and the role too. That's consistent, and it reads as a wipe. But the bar is vertical; scaleX on the bar makes it shrink horizontally, which is fine.
+
+Alternatively, use a wrapper div #lt with position absolute, left 0 top 0, width 1920, height 1080, and animate the wrapper with scaleX 0 (transform-origin left center). Children keep their positions. That's clean: one wipe out. But rule 4: never put a CSS transform on an element that GSAP animates. transform-origin in CSS is fine. So wrapper with transform-origin: left center, tl.to("#lt", {scaleX: 0, duration: 0.5, ease: "power2.in"}, 3.5).
+
+Hmm, but a scaleX wipe from the left will make the text compress toward the left edge — reads as a wipe. Good.
+
+But wait — the bar also wipes in with scaleY. If the bar is inside the wrapper, that's fine, separate element, separate transform.
+
+Also, "transparent-looking over a dark plate" — the background is already #0E0E0E (body). Should I add a subtle plate behind the lower-third? "Over a plain dark gradient-free plate" — the plate is the background. I could add a slightly lighter panel behind the text (e.g., #161616) to make it look like a lower-third card. Brand: no rounded corners, no gradients. A flat #151515 panel would work. But is that desirable? "Transparent-looking" suggests the lower-third itself has no solid background — the text sits directly over the plate. Let me keep it minimal: no panel, just bar + text over the dark background. That matches "transparent-looking."
+
+Maybe add a thin baseline rule under the role? Keep it minimal per the brief: bar, name, role.
+
+Should I add a small logo? The brief doesn't ask for it. assets/logo-negative.png exists but isn't required. Skip it — the brief is specific. Actually, a small logo on the right side of the lower-third could be nice, but the brief says name + role + bar. Stick to the brief.
+
+Timeline (4 seconds):
+- 0.15: bar scaleY 0->1, duration 0.45, ease power3.out, transform-origin top center.
+- 0.45: name slides in: fromTo x -70 -> 0, opacity 0->1, duration 0.5, ease power2.out.
+- 0.6: role slides in: fromTo x -50 -> 0, opacity 0->1, duration 0.45.
+- Hold until 3.5.
+- 3.5: wrapper scaleX 1 -> 0, duration 0.5, ease power2.in. Ends at 4.0.
+
+Initial states: set bar scaleY 0 with tl.set (or use fromTo). Name/role opacity 0 with tl.set. Wrapper scaleX 1 by default.
+
+Rule 3: only tl.set / tl.to / tl.from / tl.fromTo with absolute start time as the third argument. Good.
+
+Rule 7: everything visible at the end must have been animated in and be opacity 1 at the hold frame — but here we wipe out at the end, so the end state is hidden, which is what the brief asks for. The hold frame (before 3.5) is fully visible.
+
+Let me also double-check the text width: name "LARA QUINN" — class h uppercase. Font-size 100px. 10 glyphs including the space. Per the hint, at 150px an uppercase letter is about 100px wide → at 100px about 67px per letter. "LARA QUINN": L,A,R,A,space,Q,U,I,N,N = 10 → ~600-670px. Left 180 → end ~850. Fine.
+
+Role: "PRESENTER, GRAWWWW" = 18 chars, monospace 30px. Monospace char width ~0.6em = 18px → ~324px + letter-spacing 6px*18 = 108 → ~430px. Fine.
+
+Should I add letter-spacing to the role for style? Class m is uppercase label; maybe gw.css already has letter-spacing. To be safe, I'll add explicit letter-spacing: 4px.
+
+Colors: bar cyan var(--c)? The brand token for cyan is #12A9E6 — in the example they used `color:var(--c)`. So --c exists. Use background:var(--c) for the bar.
+
+Name color: var(--ink)? The example used #F4F4F1 for text; the token is probably --ink. The example's eyebrow used var(--c) and rule used var(--m) (magenta?). Hmm, `background:var(--m)` for the rule — --m is probably magenta. The class `m` is monospace. Tokens: --display, --body, --mono, --c (cyan), --m (magenta), probably --ink, --y (yellow). To be safe, use hex #F4F4F1 for the ink text, and var(--c) for the cyan since the example used it.
+
+Font sizes: name 100px. Actually, for a lower-third, 110px might look better. 10 chars * 73 = 730, left 180 → 910. Still fine. Let me use 104px. Meh, 100px is fine.
+
+Bar: width 16px, top 762, height 186? Let me align: name top 764, font-size 100, line-height 1 → cap height ~70-75. Role top 906, font 30. Block bottom = 906+38 = 944. Bar from 764 to 944 = 180. Set bar top 764, height 180.
+
+Hmm, name top 764 with 100px font: text baseline is around 764+95. Role at 906 gives a gap of about 40px below the name box. Name box height with line-height 1 is 100 → name bottom 864. Role top 906 → 42px gap. Good.
+
+Bottom margin: 1080-944 = 136 ≥ 100 ✓.
+
+Let me write the file.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+  <div class="a" id="lt" style="left:0;top:0;width:1920px;height:1080px;transform-origin:left center">
+    <div class="a" id="bar" style="left:120px;top:764px;width:16px;height:180px;background:var(--c)"></div>
+    <div class="a h" id="name" style="left:180px;top:764px;font-size:100px;color:#F4F4F1;opacity:0">Lara Quinn</div>
+    <div class="a m" id="role" style="left:182px;top:906px;font-size:30px;letter-spacing:4px;color:#F4F4F1;opacity:0">Presenter, Grawwww</div>
+  </div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.set("#bar", { scaleY: 0, transformOrigin: "top center" }, 0);
+  tl.to("#bar", { scaleY: 1, duration: 0.45, ease: "power3.out" }, 0.15);
+  tl.fromTo("#name", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.45);
+  tl.fromTo("#role", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.6);
+  tl.to("#lt", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait: the initial scaleY of the bar — rule 4 says set the initial hidden state with tl.set or fromTo, not with a CSS transform. I'm using tl.set with transformOrigin. But transformOrigin in tl.set — is that allowed? The rule says only tl.set/tl.to/tl.from/tl.fromTo with absolute start time as the third argument — that's about the call form, and setting transformOrigin in the vars is fine. Alternatively, put transform-origin: top center in the CSS (allowed — only `transform:` is forbidden). Let me put transform-origin in the CSS for the bar, and just tl.set("#bar", {scaleY: 0}, 0). Cleaner.
+
+Also note: the wrapper #lt has transform-origin: left center in the CSS — that's allowed.
+
+One concern: the wrapper #lt covers the whole canvas; GSAP animates scaleX on it. That's fine.
+
+Should the name's initial opacity be 0 in the CSS? Rule 4: "Set the initial hidden state with tl.set or fromTo, not with a CSS transform." That's about transforms. Opacity in CSS is fine, but the example also used opacity:0 in CSS. I'm using fromTo, which sets the start state, so CSS opacity isn't needed. But to be safe against a flash at frame 0 before the timeline starts? The renderer probably renders at t=0 with the timeline at 0; fromTo at 0.45 means before 0.45 the element is in its natural state (opacity 1) — GSAP's fromTo doesn't apply the "from" state before the tween starts unless immediateRender is true, which is the default for fromTo... Actually, for fromTo tweens, immediateRender defaults to true, so the from state renders immediately at timeline creation. So opacity 0 before 0.45. Good. But to be extra safe, I'll also add opacity:0 in CSS. The example did that. Let me include opacity:0 in the CSS for name and role.
+
+For the bar, the CSS transform-origin top center is fine; tl.set scaleY 0 at time 0.
+
+Duration check: 4 seconds. Wipe out 3.5→4.0. Ends exactly at 4.0.
+
+Text overlap check: name top 764 height ~100 (line-height 1?) — the display font's line-height might be 1.1 → 110, bottom 874. Role top 906. Gap 32px. Good, no overlap.
+
+Left margin: bar at 120 ≥ 100 ✓. Bottom: 1080-944=136 ✓.
+
+Also, "Grawwww" — the brief spells it with four w's: "Grawwww". Keep it as is.
+
+Should the role be dimmer? I could use color #F4F4F1 with opacity — but the element opacity is animated; setting color to a dimmer tone like #B9B9B4? The brand says ink #F4F4F1; a dimmer tone isn't in the palette. Keep #F4F4F1, but the monospace uppercase at 30px reads as secondary anyway. Fine.
+
+Add a small yellow accent? No — the brief is specific.
+
+Another consideration: "a cyan accent bar that wipes in first" — vertical bar wipes in top to bottom. Good.
+
+"then the text slides in" — slides from the left. Good.
+
+"hold" — 1.05 to 3.5. Good.
+
+"then everything wipes out in the last 0.5 seconds" — wrapper scaleX to 0, 3.5–4.0. Good.
+
+Let me finalize. I'll also add a small comment header? Keep it clean.
+
+Font-size for the name: let me reconsider the width. Display font "wide... at 150px an uppercase letter is about 100px wide." So per-px factor is 0.667. At 100px → 66.7px per letter. "LARA QUINN" 10 chars → 667px. Left 180 → right edge 847. Fine.
+
+Role monospace: 18 chars, 30px, monospace width ~0.6em=18px → 324 + letter-spacing 4px*17 = 68 → ~392. Right edge ~574. Fine.
+
+Done. Writing the final file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B4 — Lower Third</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <!-- lower third group: wipes out as one unit in the final 0.5 s -->
+  <div class="a" id="lt" style="left:0px;top:0px;width:1920px;height:1080px;transform-origin:left center">
+
+    <!-- cyan accent bar -->
+    <div class="a" id="bar" style="left:120px;top:764px;width:16px;height:180px;background:var(--c);transform-origin:top center"></div>
+
+    <!-- name -->
+    <div class="a h" id="name" style="left:180px;top:764px;font-size:100px;color:#F4F4F1;opacity:0">Lara Quinn</div>
+
+    <!-- role -->
+    <div class="a m" id="role" style="left:182px;top:906px;font-size:30px;letter-spacing:4px;color:#F4F4F1;opacity:0">Presenter, Grawwww</div>
+
+  </div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // 1) cyan bar wipes in first (top to bottom)
+  tl.set("#bar", { scaleY: 0 }, 0);
+  tl.to("#bar", { scaleY: 1, duration: 0.45, ease: "power3.out" }, 0.15);
+
+  // 2) name slides in from the left
+  tl.fromTo("#name", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.45);
+
+  // 3) role line slides in just after
+  tl.fromTo("#role", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.6);
+
+  // hold 1.05 -> 3.5
+
+  // 4) everything wipes out in the last 0.5 s
+  tl.to("#lt", { scaleX: 0, duration: 0.5, ease: "power2.in" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

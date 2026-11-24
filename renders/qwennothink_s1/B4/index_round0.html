@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Lower Third — Lara Quinn</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+
+  <!-- Plate: plain dark, gradient-free, fills the frame -->
+  <div class="a" id="plate" style="left:0;top:0;width:1920px;height:1080px;background:#0E0E0E"></div>
+
+  <!-- Lower third block, bottom-left -->
+  <div class="a m" id="eyebrow" style="left:204px;top:752px;font-size:24px;color:var(--c);letter-spacing:2px;opacity:0">Grawwww / Broadcast</div>
+
+  <div class="a" id="bar" style="left:160px;top:800px;width:10px;height:118px;background:var(--c);transform-origin:left center"></div>
+
+  <div class="a h" id="name" style="left:204px;top:792px;font-size:112px;opacity:0">Lara Quinn</div>
+
+  <div class="a m" id="role" style="left:206px;top:928px;font-size:30px;color:var(--ink);letter-spacing:2px;opacity:0">Presenter, Grawwww</div>
+
+  <!-- Exit wipe: dark bar travels across to reveal the plate -->
+  <div class="a" id="wipe" style="left:-160px;top:720px;width:1920px;height:200px;background:#0E0E0E"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // 1) Cyan accent bar wipes in first
+  tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 0.2);
+
+  // 2) Text slides in
+  tl.fromTo("#eyebrow", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.55);
+  tl.fromTo("#name",    { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.7);
+  tl.fromTo("#role",    { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 0.85);
+
+  // Hold until 3.5s
+
+  // 3) Everything wipes out in the last 0.5s
+  tl.fromTo("#wipe", { x: 0 }, { x: 1920, duration: 0.5, ease: "power2.inOut" }, 3.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

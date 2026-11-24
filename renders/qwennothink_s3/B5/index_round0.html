@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  .a { position:absolute; box-sizing:border-box; }
+  .h { font-family:var(--display); text-transform:uppercase; font-weight:800; letter-spacing:0.02em; line-height:0.92; color:var(--ink); }
+  .m { font-family:var(--mono); text-transform:uppercase; letter-spacing:0.16em; }
+  .b { font-family:var(--body); color:var(--ink); }
+  .hl { background:var(--y); color:#111; padding:0 0.08em; display:inline-block; }
+  .chip { border:2px solid #2a2a2a; padding:30px 40px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- corner wordmark -->
+  <div class="a m" id="wm" style="left:100px;top:96px;font-size:22px;color:var(--c);opacity:0">Grawwww / Studio</div>
+
+  <!-- beat 1 : slamming lines -->
+  <div class="a h" id="l1" style="left:100px;top:250px;font-size:170px;opacity:0">Agents.</div>
+  <div class="a h" id="l2" style="left:100px;top:440px;font-size:170px;opacity:0">Automations.</div>
+  <div class="a h" id="l3" style="left:100px;top:630px;font-size:170px;opacity:0">Video.</div>
+
+  <!-- beat 2 : feature chips -->
+  <div class="a m" id="chipslbl" style="left:100px;top:230px;font-size:24px;color:var(--c);opacity:0">Why it ships</div>
+  <div class="a chip" id="c1" style="left:100px;top:300px;width:540px;height:200px;opacity:0">
+    <div class="a m" style="left:40px;top:34px;font-size:22px;color:var(--c)">01</div>
+    <div class="a h" style="left:40px;top:80px;font-size:46px;width:460px">Runs on your<br>hardware</div>
+  </div>
+  <div class="a chip" id="c2" style="left:690px;top:300px;width:540px;height:200px;opacity:0">
+    <div class="a m" style="left:40px;top:34px;font-size:22px;color:var(--c)">02</div>
+    <div class="a h" style="left:40px;top:80px;font-size:46px;width:460px">No per-token<br>bill</div>
+  </div>
+  <div class="a chip" id="c3" style="left:1280px;top:300px;width:540px;height:200px;opacity:0">
+    <div class="a m" style="left:40px;top:34px;font-size:22px;color:var(--c)">03</div>
+    <div class="a h" style="left:40px;top:80px;font-size:46px;width:460px">Your data<br>stays put</div>
+  </div>
+
+  <!-- beat 3 : logo + tagline -->
+  <div class="a" id="logo" style="left:735px;top:300px;width:450px;opacity:0">
+    <img src="assets/logo-negative.png" alt="Grawwww" style="width:450px;height:auto;display:block" />
+  </div>
+  <div class="a h" id="tag" style="left:100px;top:720px;width:1720px;text-align:center;font-size:88px;opacity:0">Local AI, <span class="hl">delivered</span>.</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // corner wordmark
+  tl.to("#wm", { opacity: 1, duration: 0.3 }, 0.2);
+
+  // beat 1 : slam lines
+  tl.fromTo("#l1", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0.3);
+  tl.fromTo("#l2", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.0);
+  tl.fromTo("#l3", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.7);
+
+  // clear beat 1
+  tl.to(["#l1","#l2","#l3"], { opacity: 0, y: -30, duration: 0.3, ease: "power2.in" }, 2.8);
+
+  // beat 2 : chips staggered
+  tl.to("#chipslbl", { opacity: 1, duration: 0.3 }, 3.0);
+  tl.fromTo("#c1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.1);
+  tl.fromTo("#c2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.5);
+  tl.fromTo("#c3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.9);
+
+  // clear beat 2
+  tl.to(["#c1","#c2","#c3","#chipslbl"], { opacity: 0, duration: 0.3, ease: "power2.in" }, 6.8);
+
+  // beat 3 : logo + tagline
+  tl.fromTo("#logo", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, 7.2);
+  tl.fromTo("#tag", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 7.8);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

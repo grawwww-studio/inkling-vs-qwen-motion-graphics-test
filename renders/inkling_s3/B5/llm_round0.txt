@@ -1,0 +1,360 @@
+[REASONING]
+Let me plan the video:
+
+- 1920x1080 canvas, 10s duration.
+- Brand: dark #0E0E0E background, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 as highlight band (class `hl`, text #111).
+- Fonts via CSS variables: --display for headings (class `h`), --body, --mono (class `m`).
+- Assets: `assets/logo-negative.png` (centre, appears at end) and `assets/icon.svg`.
+
+Beat sheet:
+- 0-3s: three short lines slam in: "Agents." "Automations." "Video." — slam in means quick scale from large/blur to normal with maybe a shake. Use fromTo scale 1.6 -> 1 with opacity, power4.out, staggered ~0.8s apart.
+- 3-7s: row of three feature chips: "Runs on your hardware", "No per-token bill", "Your data stays put" staggered in.
+- 7-10s: everything clears (fade out) and logo fades/scales in with tagline "Local AI, delivered." under it.
+
+Design details:
+- Eyebrow at top: "GRAWWWW STUDIO" mono label maybe. Actually the brief says teaser for "Grawwww Studio: local AI, delivered". So maybe eyebrow "GRAWWWW STUDIO" at top.
+- 0-3s: lines slam in. Maybe each line is large display text, stacked or one at a time? "three short lines slam in" — could be three lines stacked, each slamming in. Or one at a time. Let's do three stacked lines, each slamming in at 0.2, 0.9, 1.6. Each with a small colored accent.
+
+Actually "slam in" — dramatic. Use scale from 2.2 -> 1, opacity 0->1, duration 0.35, ease power4.out, plus maybe slight y. And a small underline bar per line? Keep clean.
+
+- 3-7s: chips row. Chips: mono uppercase labels in boxes with border. Staggered at 3.2, 3.8, 4.4. Each chip has an icon? Could include small inline SVG icons (chip/cpu, coin/no-token, lock). Inline SVG stroke #F4F4F1 or brand colour, stroke-width 6. Icons: hardware (cpu chip), bill (circle with slash or coin), data stays put (lock or shield). Let's do:
+  - Runs on your hardware: CPU icon (rect with inner rect and pins).
+  - No per-token bill: a "no" circle with slash over a coin? Simpler: a slashed circle. Or a tag. Let's do a circle with a diagonal line (no-bill).
+  - Your data stays put: lock icon.
+
+- 7-10s: everything clears — fade out lines and chips (opacity to 0, y maybe), then logo fades/scales in at ~7.3, tagline under at ~8.2. Hold at end.
+
+Also maybe a yellow highlight band behind "Video." or one of the lines? The yellow hl class is for highlight band behind #111 text. Could use it on "Automations." maybe. Or on the tagline? The tagline "Local AI, delivered." — could highlight "delivered." with yellow band. That's a nice touch. But the hl class text is #111 — on dark background, yellow band with dark text. Nice.
+
+Let me structure:
+
+Elements:
+1. Eyebrow top-left: "GRAWWWW STUDIO" mono, cyan, letter-spaced. Appears at 0.1.
+2. Three lines (class h, font-size ~120px):
+   - "Agents." at top ~340px
+   - "Automations." at ~470px (with hl band? maybe "Automations." plain, and "Video." with hl)
+   - "Video." at ~600px
+   Actually stacking three 120px lines: total ~3*150 = 450px. Place at left 160px, starting top 330.
+   Colors: "Agents." ink, "Automations." cyan? Brand colors: cyan and magenta accents. Maybe: "Agents." ink, "Automations." magenta, "Video." ink with yellow hl? Hmm. Let's do: "Agents." with cyan period, "Automations." ink, "Video." with yellow hl band. Actually keep it simple: all ink with colored periods: Agents. cyan, Automations. magenta, Video. yellow? Yellow period might be too much. Let's do periods colored: cyan, magenta, cyan? Or the whole line colored. Display font heavy — colored lines look bold. Let's do:
+   - "Agents." ink with cyan period
+   - "Automations." cyan
+   - "Video." with .hl yellow band behind "Video."? The hl band behind #111 text — that looks like a highlight marker. Nice for the third slam.
+
+   Actually, maybe simpler and cleaner: each line has a small mono index "01 /" "02 /" "03 /" to the left? Could clutter. Keep it simple: three stacked lines, each with colored period.
+
+3. Chips row at ~y 760-900: three chips, each width ~520px, height ~110px, border 2px solid #F4F4F1 (or cyan), mono text uppercase 28px, with small SVG icon on left. Row: left 160, gap 40. 3 chips * 520 + 2*40 = 1680 > 1600 available (1920-320). Let's compute: available width 1920 - 2*160 = 1600. 3 chips with gap 32: chip width = (1600 - 64)/3 = 512. Good, 512px each.
+
+   Chip content: icon 40px + text. Text "Runs on your hardware" at 26px mono uppercase — width? Mono uppercase ~0.6em per char. 26px * 0.62 ≈ 16px/char. "RUNS ON YOUR HARDWARE" = 21 chars ≈ 340px. Plus icon 50 + padding. 512 wide chip: padding 24 each side = 464 inner; icon 44 + gap 16 = 60; text 404. Tight but ok. Maybe font-size 24px. "YOUR DATA STAYS PUT" = 19 chars ≈ 300px. Fine.
+
+   Chips appear with y from 60 -> 0 and opacity, staggered 3.2/3.75/4.3, duration 0.5.
+
+4. Bottom-left mono label maybe "LOCAL AI — TEASER" small? Could add a small mono footer "GRAWWWW STUDIO — LOCAL AI, DELIVERED" at bottom. Keep minimal.
+
+5. Logo: `assets/logo-negative.png` — centre. Need to check its aspect. Unknown; assume it's a wide logo. I'll set width ~700px, height auto. Position: left 50% translateX(-50%) — but GSAP animates transforms; better to set left: 610px (1920-700)/2 = 610px, top ~380px, width 700px. Height unknown — I can't know the image's aspect ratio. Safer: set width 640px and let height auto; top ~360px. If it's square-ish, 640x640 fits. If wide, 640 wide could be short. Alternatively set height: 380px and width auto, left: 50% with margin-left negative? GSAP animating scale on the element with xPercent -50... GSAP can animate scale and xPercent together fine. I'll set left:50%, top:380px, width:640px, and use xPercent:-50 via tl.set initial, then animate scale from 0.8. Actually animating scale with xPercent -50: GSAP handles combined transforms fine.
+
+   Simpler: left: 640px; top: 360px; width: 640px; height: 400px; object-fit: contain. That's safe: image fits inside box, centered. Use object-fit: contain.
+
+6. Tagline "Local AI, delivered." under logo at ~top 800px, centered, display font ~64px. With hl on "delivered."? Yellow band behind "delivered." — nice. Text: "LOCAL AI, " ink + hl "DELIVERED." Let's do tagline in display font uppercase? Tagline "Local AI, delivered." — keep case as given but class h is uppercase via CSS. gw.css likely defines .h as uppercase. Fine.
+
+   Hmm, the logo appears at end and tagline under it. Also maybe the icon.svg appears somewhere — brief says "Use assets/logo-negative.png (centre, appears at the end) and assets/icon.svg". So icon.svg should be used somewhere — maybe as a small mark at top-left corner or as the eyebrow icon. Let's put icon.svg as a small mark next to the eyebrow "GRAWWWW STUDIO" at top-left, and maybe also it can appear in the final frame next to tagline? Keep it at top-left throughout, and it fades out at 7s with the rest, then... Actually at the end, everything clears and logo fades in. If icon stays at top-left in the final frame, that's fine — "everything clears" refers to the lines/chips. But safer: fade everything out including eyebrow/icon, then logo + tagline. Or keep the small icon mark at top-left in the final frame as a brand anchor — that's nice. But "everything clears" — I'll fade the three lines and chips out, keep eyebrow? Hmm.
+
+   Let me design the final frame: logo centre, tagline under it, and small icon.svg mark above the logo? Actually icon.svg could be a small mark above the logo, appearing with it. That uses icon.svg at the end. And at the start, the eyebrow could be plain text "GRAWWWW STUDIO" without icon.
+
+   Plan:
+   - Eyebrow top-left: "GRAWWWW STUDIO" mono cyan, appears 0.1, fades out at 7.0.
+   - Three lines slam in 0.2/0.95/1.7.
+   - Chips stagger in 3.2/3.75/4.3.
+   - 7.0-7.6: lines, chips, eyebrow fade out (opacity to 0, y up/down, scale).
+   - 7.4: icon.svg small (80px) fades/scales in above logo? Or logo itself. Let's do: logo scales from 0.85 + opacity 0 -> 1 at 7.4, duration 0.7. Tagline at 8.2, y from 24 -> 0, opacity. Small icon above tagline? Maybe icon.svg at top-left corner persists? The brief says "Use ... assets/icon.svg" — doesn't say where. I'll use it as a small mark above the logo in the final frame. Actually, logo-negative.png is probably the logo lockup; icon.svg is the mark. Put icon.svg at top-left as eyebrow mark during beats 1-2, then fade out at 7.0, and in final frame place icon.svg small above logo at ~7.6. That's a bit redundant. Alternative: icon.svg sits at top-left throughout including final frame — it's a brand mark, fine.
+
+   Decision: top-left corner mark: icon.svg 56px + "GRAWWWW STUDIO" mono text, appears at 0.1. At 7.0 it fades out. Final frame: icon.svg 96px centered above logo at ~7.3, logo at 7.5, tagline at 8.1. That uses both assets meaningfully.
+
+Timeline details (absolute times, 10s total):
+
+- 0.1: eyebrow set opacity 0 -> to 1 (0.3)
+- 0.2: line1 fromTo {opacity 0, scale 2.4, y -30} -> {opacity 1, scale 1, y 0, duration 0.35, ease power4.out}
+- 0.95: line2 same
+- 1.7: line3 same
+- 3.2: chip1 fromTo {opacity 0, y 70} -> {opacity 1, y 0, 0.5, power3.out}
+- 3.75: chip2
+- 4.3: chip3
+- 7.0: lines fade out: to opacity 0, y -60, duration 0.5 (stagger via separate tweens at 7.0/7.05/7.1 or same time)
+- 7.0: chips fade out: to opacity 0, y 60, duration 0.45
+- 7.0: eyebrow fade out 0.4
+- 7.35: icon.svg fromTo {opacity 0, scale 0.6} -> {opacity 1, scale 1, 0.5}
+- 7.5: logo fromTo {opacity 0, scale 0.82} -> {opacity 1, scale 1, 0.7, power3.out}
+- 8.15: tagline fromTo {opacity 0, y 30} -> {opacity 1, y 0, 0.55}
+- Maybe a yellow rule under tagline? Tagline has hl band already.
+
+Also a subtle background accent: maybe a thin cyan rule at top? Keep minimal. Maybe a small "B5" tag? Not needed.
+
+Also add a progress bar? Not requested. Keep clean.
+
+Initial states: set everything hidden via tl.set at time 0 (or use fromTo which sets initial). fromTo handles initial. For elements that never animate opacity from 0... all do. Eyebrow: fromTo opacity 0->1.
+
+Important: "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame." Final visible: icon, logo, tagline. Good.
+
+Also the hl class: yellow band behind #111 text. In tagline, "DELIVERED." inside .hl. The hl band — check gw.css for .hl definition; presumably background yellow, padding, color #111. I'll trust it.
+
+Fonts: --display etc. via gw.css. Class h for headings, m for mono labels.
+
+Line heights: three lines at 130px font. Widths: "Automations." is 12 chars uppercase display at 130px — display font wide: ~0.75em per char? "at 150 px an uppercase letter is about 100 px wide" — so at 130px, ~87px per letter. "AUTOMATIONS." = 12 chars ≈ 1044px. Fits in 1600. Good.
+
+Layout:
+- Eyebrow: left 160, top 90, font-size 24, cyan, letter-spacing.
+- Lines: left 160, tops: 300, 440, 580? 130px font with line-height ~1.0 → each line ~135px tall. tops: 290, 425, 560. Ends at ~700. Chips at top 780, height 110 → ends 890. Bottom margin 190. Good. Hmm, lines might overlap chips if line3 bottom = 560+135 = 695 < 780. Good.
+
+Actually let's center lines vertically more: eyebrow at 90; lines block from 260 to 700; chips 760-890.
+
+- Chips: top 770, height 110. Icons 44px inside.
+
+Chip styling: border: 2px solid rgba(244,244,241,0.25)? Brand has no rounded corners. Use border 2px solid #F4F4F1 at low opacity? gw.css might have chip styles — unknown. I'll define inline styles: border: 2px solid #2a2a2a? Better: border: 2px solid rgba(18,169,230,0.5)? Keep: border: 2px solid #F4F4F1; background #161616? No gradients, flat fills fine. Chip bg: #141414 with 2px border #F4F4F1 at 0.2? Use border-color: #3a3a3a and icon colored cyan/magenta/yellow? Yellow reserved for hl band. Icons: cyan, magenta, cyan? Let's do cyan, magenta, ink. Chip text ink mono.
+
+Hmm, actually chips could have colored left border accent: border-left: 8px solid cyan etc. Nice.
+
+Final frame layout:
+- icon.svg: 100px, centered: left 910, top 300, width 100, height 100.
+- logo: left 610, top 430, width 700, height 380, object-fit contain.
+- tagline: centered: left 0, width 1920, text-align center, top 830, font-size 60px. "LOCAL AI, DELIVERED." — 20 chars at 60px display ≈ 40px/char = 800px. Fits.
+
+Wait — logo height 380 with object-fit contain; if the logo is wide (e.g., 2:1), it'll render 700x350? contain fits within 700x380 box. Fine.
+
+Tagline top 830 + ~70px height = 900. Bottom margin 180. Good.
+
+Also maybe a thin cyan rule under tagline? Skip.
+
+Now the slam effect: lines slam in — from scale 2.4, opacity 0, y -40, ease power4.out, duration 0.3. Add a tiny "impact" — maybe a quick scale pulse: fromTo scale 2.4->1 with power4.out is fine. Could also add a small x shake: x from -20 -> 0. Keep simple.
+
+Chips: fromTo opacity 0, y 60 -> 1, y 0.
+
+Also add staggered colored period spans: line1 "Agents." → <span style color cyan>.</span>. Actually class h uppercase via CSS — the period inherits. Wrap: "AGENTS<span style='color:var(--c)'>.</span>". gw.css defines --c? The example uses `color:var(--c)` — yes, --c is cyan presumably. And --m magenta, --y yellow. I'll use var(--c) and var(--m).
+
+Line 3 "Video." — with hl: <span class="hl">VIDEO.</span>. hl band behind #111 text. 
+
+Chips icons inline SVG:
+- CPU: rect x=6 y=6 w=20 h=20? Let's draw 48x48 viewBox 0 0 48 48, stroke-width 4? Brief says stroke-width 6. Use stroke-width 5-6. CPU: outer rect (12,12,24,24), inner rect (20,20,8,8), pins: lines at top/bottom/left/right.
+- No-bill: circle cx24 cy24 r14, diagonal line from 15,15 to 33,33? That's a "no" sign. Maybe a coin with slash: circle + slash. Good enough.
+- Lock: rect x=13 y=22 w=22 h=16, shackle path M18 22 v-6 a6 6 0 0 1 12 0 v6.
+
+Stroke color: #F4F4F1 or brand colour. Use cyan for chip1, magenta for chip2, ink for chip3? Or all cyan. I'll do cyan, magenta, ink.
+
+Eyebrow: mono 24px, cyan, letter-spacing 4px: "GRAWWWW STUDIO — LOCAL AI, DELIVERED"? That's long. "GRAWWWW STUDIO" + small square bullet. Keep "GRAWWWW STUDIO".
+
+Footer bottom-left? Skip.
+
+Now the fade-out at 7s: lines to opacity 0, y -50, duration 0.45, ease power2.in. Chips to opacity 0, y 50, duration 0.4. Eyebrow to opacity 0, duration 0.35.
+
+Final: icon at 7.35 (scale 0.5->1, opacity 0->1, 0.45, power3.out), logo at 7.55 (opacity 0->1, scale 0.8->1, 0.7, power3.out), tagline at 8.2 (opacity 0->1, y 26->0, 0.5). Hold until 10.
+
+Also maybe a subtle final underline rule: a 6px cyan bar under tagline scaling in at 8.6, width 260 centered. Nice touch. left: 830, top: 920? Tagline at 830 height ~70 → rule at 915. Hmm bottom margin: 915+6=921, fine. Let's include: rule width 240, left 840, top 912, scaleX 0->1, origin center.
+
+Wait, tagline text-align center with full-width container: left 0, width 1920, text-align center. Text must be within canvas margins — it's centered so fine.
+
+Logo: I should double check the logo file exists — it's in assets/. Use <img src="assets/logo-negative.png">. And icon: <img src="assets/icon.svg"> or inline? The brief says use assets/icon.svg — an <img> is fine. Inline SVG is for icons drawn ourselves; using the asset file is correct.
+
+GSAP animating img scale: fine.
+
+One concern: GSAP fromTo with scale on img with object-fit contain — fine.
+
+Text sizes and widths:
+- h class at 130px: "AUTOMATIONS." — display font wide, ~87px/char * 12 = 1044px. Left 160 → ends 1204. Fine.
+- Chips text 24px mono: "RUNS ON YOUR HARDWARE" 21 chars * ~15px = 315px. Chip inner width 512 - 48 padding - 44 icon - 16 gap = 404. Fits.
+
+Chip height 110, icon 44 centered vertically.
+
+Let me also consider the "slam" — maybe add a brief yellow flash? Skip.
+
+Also add a subtle background grid or side accent? Brand says no gradients. A thin top rule: 4px cyan bar across top? Could add: top-left eyebrow with a small square. Keep minimal but polished: add a thin 2px line at very top (cyan, scaleX from 0 at 0.1 to 1 at 1.0)? Nice subtle. And a bottom-right mono "B5 / TEASER" label? Might add clutter; skip. Actually a small bottom-right mono label "GRAWWWW STUDIO — B5" adds production feel. Keep: bottom-left mono 20px, color #666, "LOCAL AI, DELIVERED — TEASER". It fades with everything at 7s.
+
+Hmm, keep it simple: eyebrow top-left, three lines, three chips, final logo scene. Plus maybe a small "01/02/03" index next to each line? Adds design. Skip — keep clean.
+
+Let me now write the code.
+
+CSS inline styles per element (position absolute, class a). The .a class presumably sets position:absolute. I'll include class="a" and inline left/top/width.
+
+Chips: display flex? Flex inside absolute div is fine. Chip: position absolute, display flex, align-items center, gap 18px, padding 0 26px, height 110px, border 2px solid #2E2E2E, border-left 8px solid var(--c). Background #141414.
+
+Text inside chip: mono, 23px, letter-spacing 1px, color #F4F4F1, uppercase.
+
+Line elements: class "a h", font-size 128px, line-height 1, color ink, left 160.
+
+Tops: line1 top 262, line2 top 404, line3 top 546. Each ~128px tall → line3 ends 674. Chips top 756, height 110 → ends 866. Bottom margin 214. Good.
+
+Eyebrow: left 160, top 96, font-size 22, letter-spacing 6px, color var(--c), mono.
+
+Final frame:
+- icon img: left 910, top 296, width 100, height 100.
+- logo img: left 610, top 424, width 700, height 380, object-fit contain.
+- tagline: left 0, top 828, width 1920, text-align center, font-size 58px, class h.
+- rule: left 840, top 912, width 240, height 6, background var(--c), transform-origin center.
+
+Hmm wait: tagline with hl band — hl has padding presumably; band height ~ 58px + padding. Fine.
+
+Total duration 10.
+
+Timeline:
+
+tl.set? Use fromTo for everything.
+
+tl.fromTo("#eyebrow", {opacity:0, y:-14}, {opacity:1, y:0, duration:0.4, ease:"power2.out"}, 0.15);
+tl.fromTo("#l1", {opacity:0, scale:2.3, y:-46}, {opacity:1, scale:1, y:0, duration:0.32, ease:"power4.out"}, 0.35);
+tl.fromTo("#l2", {opacity:0, scale:2.3, y:-46}, {opacity:1, scale:1, y:0, duration:0.32, ease:"power4.out"}, 1.05);
+tl.fromTo("#l3", {opacity:0, scale:2.3, y:-46}, {opacity:1, scale:1, y:0, duration:0.32, ease:"power4.out"}, 1.75);
+tl.fromTo("#chip1", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.25);
+tl.fromTo("#chip2", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 3.8);
+tl.fromTo("#chip3", {opacity:0, y:64}, {opacity:1, y:0, duration:0.5, ease:"power3.out"}, 4.35);
+tl.to("#l1", {opacity:0, y:-56, duration:0.45, ease:"power2.in"}, 7.0);
+tl.to("#l2", {opacity:0, y:-56, duration:0.45, ease:"power2.in"}, 7.05);
+tl.to("#l3", {opacity:0, y:-56, duration:0.45, ease:"power2.in"}, 7.1);
+tl.to("#chip1", {opacity:0, y:56, duration:0.4, ease:"power2.in"}, 7.0);
+tl.to("#chip2", {opacity:0, y:56, duration:0.4, ease:"power2.in"}, 7.05);
+tl.to("#chip3", {opacity:0, y:56, duration:0.4, ease:"power2.in"}, 7.1);
+tl.to("#eyebrow", {opacity:0, duration:0.35}, 7.0);
+tl.fromTo("#icon", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 7.45);
+tl.fromTo("#logo", {opacity:0, scale:0.8}, {opacity:1, scale:1, duration:0.7, ease:"power3.out"}, 7.6);
+tl.fromTo("#tagline", {opacity:0, y:28}, {opacity:1, y:0, duration:0.55, ease:"power3.out"}, 8.25);
+tl.fromTo("#rule", {scaleX:0}, {scaleX:1, duration:0.5, ease:"power2.out"}, 8.75);
+
+Lines need transform-origin left center for scale slam (scale from left). Set CSS transform-origin: left center on lines. Chips: origin center.
+
+Note: GSAP scale on lines with transform-origin left center — good.
+
+One more consideration: the hl band — check gw.css defines .hl. The example uses it, so yes.
+
+Also the logo image: since we don't know aspect, object-fit contain in a 700x380 box. If logo is wide (e.g., 3:1), it renders 700x233 centered vertically — fine.
+
+Also should the logo have a background? "logo-negative" suggests white logo on transparent. Fine on dark.
+
+Also add data-duration 10.
+
+Eyebrow text: "GRAWWWW STUDIO" — maybe with a small cyan square before it. Use a span square inline-block. Fine.
+
+Also, "everything clears" — at 7s everything clears except final scene. Good.
+
+Let me also double check text width of tagline: "LOCAL AI, DELIVERED." at 58px display: ~0.62*58 ≈ 36px/char * 20 chars = 720px. Fits centered.
+
+Chips: text might wrap if too long — set white-space: nowrap? If it overflows it could clip. "RUNS ON YOUR HARDWARE" at 23px mono: mono char width ~0.6em = 13.8px * 21 = 290px. Inner available ~404. OK, nowrap safe.
+
+Line 2 "AUTOMATIONS." at 128px: 12 chars * ~0.78*128 ≈ 95px = 1140px. Left 160 → 1300. OK.
+
+Eyebrow letter-spacing 6px at 22px mono: 15 chars * (13.2+6) = 279px. Fine.
+
+Write the final HTML. Also include <title>. Ensure no CSS animations/transitions. No rounded corners. No box-shadow. No gradients.
+
+One more: the hl class text color #111 — inside tagline, "DELIVERED." gets yellow band. Nice.
+
+Also maybe highlight "Video." in yellow band during beat 1 — yes, line3: <span class="hl">VIDEO.</span>. That gives yellow band mid-clip. Good use of brand.
+
+Icon SVG assets: <img src="assets/icon.svg" alt="Grawwww Studio icon" />.
+
+Now write it.
+
+Also ensure `window.__timelines = window.__timelines || {};` then register.
+
+Edge: fromTo with y on lines — initial y -46 then to 0. Good.
+
+I'll also add a subtle bottom-left footer "TEASER — B5" mono 18px color #555 that fades out at 7s. Adds production feel. Bottom margin: top 1000, left 160. Actually keep it; it's small.
+
+Hmm, "Keep all text inside the canvas with at least 100 px margin" — footer at left 160 top 1000, height ~24 → ends 1024, bottom margin 56px. Violates 100px margin? The rule says text must not overlap other text and keep inside canvas with at least 100px margin. Bottom margin 56 < 100. Move footer to top? Put footer at top-right instead: right 160, top 96, mono 20px, color #777: "B5 — TEASER". Top margin 96... needs ≥100. top 100, right 160. OK.
+
+Actually simpler to skip footer. I'll skip it to avoid clutter. Or keep eyebrow only. Yes, skip.
+
+Final check on chip border-left accent colors: chip1 cyan, chip2 magenta, chip3 ink (#F4F4F1). Icons match.
+
+Write the file.
+[CONTENT]
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Grawwww Studio — Local AI, delivered</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+
+  <!-- Eyebrow -->
+  <div class="a m" id="eyebrow" style="left:160px;top:100px;font-size:22px;letter-spacing:6px;color:var(--c);opacity:0;white-space:nowrap">
+    <span style="display:inline-block;width:14px;height:14px;background:var(--c);margin-right:16px;vertical-align:-2px"></span>GRAWWWW STUDIO
+  </div>
+
+  <!-- Beat 1: slam-in lines -->
+  <div class="a h" id="l1" style="left:160px;top:262px;font-size:128px;line-height:1;color:var(--ink);opacity:0;transform-origin:left center;white-space:nowrap">Agents<span style="color:var(--c)">.</span></div>
+  <div class="a h" id="l2" style="left:160px;top:404px;font-size:128px;line-height:1;color:var(--m);opacity:0;transform-origin:left center;white-space:nowrap">Automations<span style="color:var(--ink)">.</span></div>
+  <div class="a h" id="l3" style="left:160px;top:546px;font-size:128px;line-height:1;color:var(--ink);opacity:0;transform-origin:left center;white-space:nowrap"><span class="hl">Video.</span></div>
+
+  <!-- Beat 2: feature chips -->
+  <div class="a" id="chip1" style="left:160px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid var(--c);display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#12A9E6" stroke-width="5" stroke-linecap="square">
+      <rect x="13" y="13" width="22" height="22"/>
+      <rect x="20" y="20" width="8" height="8"/>
+      <line x1="18" y1="4" x2="18" y2="13"/><line x1="24" y1="4" x2="24" y2="13"/><line x1="30" y1="4" x2="30" y2="13"/>
+      <line x1="18" y1="35" x2="18" y2="44"/><line x1="24" y1="35" x2="24" y2="44"/><line x1="30" y1="35" x2="30" y2="44"/>
+      <line x1="4" y1="18" x2="13" y2="18"/><line x1="4" y1="24" x2="13" y2="24"/><line x1="4" y1="30" x2="13" y2="30"/>
+      <line x1="35" y1="18" x2="44" y2="18"/><line x1="35" y1="24" x2="44" y2="24"/><line x1="35" y1="30" x2="44" y2="30"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">Runs on your hardware</span>
+  </div>
+  <div class="a" id="chip2" style="left:704px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid var(--m);display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#FF2D92" stroke-width="5" stroke-linecap="square">
+      <circle cx="24" cy="24" r="15"/>
+      <line x1="13" y1="13" x2="35" y2="35"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">No per-token bill</span>
+  </div>
+  <div class="a" id="chip3" style="left:1248px;top:756px;width:512px;height:110px;background:#141414;border:2px solid #2E2E2E;border-left:8px solid #F4F4F1;display:flex;align-items:center;gap:18px;padding:0 24px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#F4F4F1" stroke-width="5" stroke-linecap="square">
+      <rect x="12" y="21" width="24" height="17"/>
+      <path d="M17 21 v-6 a7 7 0 0 1 14 0 v6"/>
+      <line x1="24" y1="28" x2="24" y2="33"/>
+    </svg>
+    <span class="m" style="font-size:23px;letter-spacing:1px;color:var(--ink);white-space:nowrap">Your data stays put</span>
+  </div>
+
+  <!-- Beat 3: final logo scene -->
+  <img id="icon" class="a" src="assets/icon.svg" alt="Grawwww Studio icon" style="left:910px;top:292px;width:100px;height:100px;object-fit:contain;opacity:0" />
+  <img id="logo" class="a" src="assets/logo-negative.png" alt="Grawwww Studio" style="left:610px;top:424px;width:700px;height:380px;object-fit:contain;opacity:0" />
+  <div class="a h" id="tagline" style="left:0px;top:828px;width:1920px;text-align:center;font-size:58px;color:var(--ink);opacity:0;white-space:nowrap">Local AI, <span class="hl">delivered.</span></div>
+  <div class="a" id="rule" style="left:840px;top:914px;width:240px;height:6px;background:var(--c);transform-origin:center center;scaleX:0"></div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Eyebrow
+  tl.fromTo("#eyebrow", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+
+  // Beat 1: three lines slam in
+  tl.fromTo("#l1", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 0.35);
+  tl.fromTo("#l2", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 1.05);
+  tl.fromTo("#l3", { opacity: 0, scale: 2.3, y: -46 }, { opacity: 1, scale: 1, y: 0, duration: 0.32, ease: "power4.out" }, 1.75);
+
+  // Beat 2: chips stagger in
+  tl.fromTo("#chip1", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.25);
+  tl.fromTo("#chip2", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 3.80);
+  tl.fromTo("#chip3", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 4.35);
+
+  // Beat 3: everything clears
+  tl.to("#l1", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.00);
+  tl.to("#l2", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.05);
+  tl.to("#l3", { opacity: 0, y: -56, duration: 0.45, ease: "power2.in" }, 7.10);
+  tl.to("#chip1", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.00);
+  tl.to("#chip2", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.05);
+  tl.to("#chip3", { opacity: 0, y: 56, duration: 0.40, ease: "power2.in" }, 7.10);
+  tl.to("#eyebrow", { opacity: 0, duration: 0.35, ease: "power1.in" }, 7.00);
+
+  // Beat 3: logo scene
+  tl.fromTo("#icon", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 7.45);
+  tl.fromTo("#logo", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" }, 7.60);
+  tl.fromTo("#tagline", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 8.25);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 8.75);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```

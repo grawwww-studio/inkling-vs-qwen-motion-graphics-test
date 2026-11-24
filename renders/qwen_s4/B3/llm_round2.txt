@@ -1,0 +1,803 @@
+[REASONING]
+The user wants a HyperFrames video composition for "Brief B3: Chart reveal from small JSON (8 s)". Let me carefully follow all the hard rules.
+
+Data:
+```json
+{"title":"Render time per card (s)","unit":"s","rows":[{"label":"Title","value":42},{"label":"Explainer","value":58},{"label":"Chart","value":51},{"label":"Lower third","value":23}]}
+```
+
+Requirements:
+- Horizontal bars, cyan, growing from zero with staggered timing
+- Value labels counting up or fading in at the bar end
+- The largest bar highlighted by a yellow band behind its value
+- Chart title from the JSON
+- Bars must be proportional to the values
+
+Let me plan the layout on 1920x1080 canvas with 100px margins.
+
+Values: Title=42, Explainer=58, Chart=51, Lower third=23
+Max = 58 (Explainer) — this is the largest, gets the yellow band behind its value.
+
+Let me think about the chart area. I'll set up:
+- A title at the top
+- A chart area with 4 horizontal bars
+- Each bar has a label on the left, the bar itself, and a value at the end
+
+Let me plan proportions. Let's say the maximum bar width corresponds to 58. I'll pick a scale where the max bar is, say, 900px wide (leaving room for label + value).
+
+Layout:
+- Left margin: 100px
+- Labels: start at 100px, width ~220px
+- Bars: start at ~360px
+- Max bar width: let's say the bar area goes from 360px to 1260px = 900px for value 58.
+
+Actually, let me reconsider. Let me give more room. Let me compute:
+- Bar start x = 380px
+- Scale: value 58 → 880px. So 1 unit = 880/58 = 15.172px
+- Title 42 → 42 * 15.172 = 637px
+- Explainer 58 → 880px
+- Chart 51 → 774px
+- Lower third 23 → 349px
+
+Value labels at bar end. For the largest (Explainer), yellow band behind value.
+
+Let me set up vertical layout for 4 bars. Chart area from top ~300px to ~900px. Each row height ~140px.
+
+Row positions (top of bar):
+- Row 1 (Title): top = 340px
+- Row 2 (Explainer): top = 480px
+- Row 3 (Chart): top = 620px
+- Row 4 (Lower third): top = 760px
+
+Bar height: 64px
+
+Let me lay out:
+- Title (chart title): top ~140px, left 100px
+- Eyebrow: maybe a small label above
+
+Actually the brief says "Chart title from the JSON". So the title is "Render time per card (s)".
+
+Let me structure:
+- Eyebrow at top: "B3 / Render time" or similar... Actually let me keep it clean. Let me use the title as the main heading.
+
+Let me do:
+- Small mono eyebrow: "B3 · Performance" 
+- Main title (h): "RENDER TIME PER CARD" with "(s)" maybe in a different color. Actually the title is "Render time per card (s)". Since it's uppercase display font, I'll render "RENDER TIME PER CARD (S)" or keep "(s)" as unit.
+
+Hmm, the unit is "s". Let me make the title "RENDER TIME PER CARD" and put the unit "S" as a small mono tag. Actually, let me just include the full title. Let me do the title as "RENDER TIME PER CARD" and a small "(s)" unit badge.
+
+Let me think about width. Display font at 150px, uppercase letter ~100px wide. "RENDER TIME PER CARD" is 18 chars + spaces. That's too wide for 150px. Let me use a smaller font size, maybe 90px. At 90px, uppercase letter ~60px wide. "RENDER TIME PER CARD" = 20 chars including spaces → ~1200px. That fits within 1920-200 = 1720px. Good.
+
+Actually let me measure more carefully. "RENDER TIME PER CARD" — R,E,N,D,E,R (6) space T,I,M,E (4) space P,E,R (3) space C,A,R,D (4) = 17 letters + 3 spaces = 20 chars. At 90px display, letter ~60px → 17*60 = 1020 + 3 spaces*~30 = 90 → ~1110px. Fits.
+
+Let me use font-size 92px for the title.
+
+Now for the bars. Let me finalize the scale.
+- Bar start x = 400px
+- Value 58 → 860px (max)
+- 1 unit = 860/58 = 14.828px
+- Title 42 → 622.8 → 623px
+- Explainer 58 → 860px
+- Chart 51 → 756px
+- Lower third 23 → 341px
+
+Value labels: placed at bar end + some gap. For each bar, value text at left = 400 + barWidth + 24px.
+
+For Explainer (largest), yellow band behind value. The yellow band is a rectangle behind the value text.
+
+Let me think about the value labels. The brief says "value labels counting up or fading in at the bar end". I'll do a fade in + slight x movement. Counting up requires text manipulation which is harder in GSAP without plugins. Actually, I can do counting up with a GSAP tween on an object and onUpdate... but wait, the rules say "Use only tl.set / tl.from / tl.fromTo with an absolute start time as 3rd argument." Hmm, that restricts to those methods. onUpdate would be a callback, not a separate method. Let me re-read.
+
+"Use only tl.set / tl.from / tl.fromTo with an absolute start time as 3rd argument."
+
+So I can only use tl.set, tl.from, tl.to, tl.fromTo. No onUpdate callbacks. So counting up via onUpdate is not allowed. Let me do fade in instead. That's cleaner and allowed.
+
+Actually wait, "Animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height." So I can animate width for the bars. Good.
+
+Let me do value labels fade in (opacity 0→1) with a slight x movement.
+
+Now the yellow band behind the largest value. It's a rectangle (class hl) with #FFD400 background and #111 text on top. Wait, the brief says "The largest bar highlighted by a yellow band behind its value." So the yellow band is behind the value label of the largest bar (Explainer, 58).
+
+So I'll have a yellow rectangle positioned behind the "58" value, and the "58" text in #111 on top.
+
+Let me structure each row:
+- Label (mono or body): left = 100px
+- Bar (cyan): left = 400px, height 64px, width = barWidth
+- Value: positioned at bar end
+
+Let me think about labels. Labels: "Title", "Explainer", "Chart", "Lower third". These are the card types. I'll use body font, maybe uppercase mono for a data look. Let me use mono uppercase for labels — that gives a technical data feel. Actually, let me use the body font for labels to be readable, or mono. The brand says mono is for uppercase labels. Let me use mono uppercase for the row labels.
+
+Hmm, "Lower third" in mono uppercase at ~22px. Let me check width. "LOWER THIRD" = 11 chars. At 22px mono, char ~13px → 143px. Fits in 220px label column. Good.
+
+Let me set label column: left 100px, width 260px. Bar start at 400px.
+
+Wait, I need labels to fit before 400px. 100 + 260 = 360 < 400. Good, 40px gap.
+
+Now let me think about the bar track. Maybe add a subtle track line behind bars? The brand is minimal dark. Let me add a thin baseline track for each row (a faint line) to give structure. Actually, let me keep it clean but add a vertical axis line at x=400px and maybe gridlines. Let me add subtle vertical gridlines at value intervals (0, 20, 40, 60) with mono labels at the bottom. That would make it look like a real chart and be nice.
+
+Let me add:
+- A vertical axis line at x=400px (the zero line)
+- Gridlines at 0, 20, 40, 60 s
+- Bottom axis labels: "0", "20", "40", "60"
+
+Gridline x positions (value * 14.828 + 400):
+- 0 → 400
+- 20 → 696.6 → 697
+- 40 → 993.1 → 993
+- 60 → 1289.7 → 1290
+
+Bottom axis labels centered at those x, at y ~ 860px.
+
+Let me reconsider vertical layout to fit everything:
+- Eyebrow: top 120px
+- Title: top 160px (font 92px, so it occupies ~160-260)
+- Rule/line: top ~280px
+- Chart rows: 
+  - Row 1 bar top: 340px
+  - Row 2 bar top: 470px
+  - Row 3 bar top: 600px
+  - Row 4 bar top: 730px
+  - Bar height 60px
+  - So row 4 bottom: 790px
+- Axis labels: top ~820px
+- Maybe a footer note at bottom
+
+Total height 1080. Bottom margin 100px → content should end by ~980px. Axis labels at 820-850. Good.
+
+Let me refine. Let me use bar height 56px, row spacing 130px.
+
+Row bar tops:
+- Row 1: 350
+- Row 2: 480
+- Row 3: 610
+- Row 4: 740
+- Row 4 bottom: 796
+
+Axis labels at top 830.
+
+Labels vertically centered on bar: bar top + (56-26)/2 ≈ bar top + 15. So label top ≈ bar top + 15. Let me just set label top = bar top + 14px.
+
+Actually, let me align label baseline with bar center. Bar center = bar top + 28. Label font 22px, so label top = bar center - 11 = bar top + 17.
+
+Value labels: font ~30px mono, positioned at bar end. Value top = bar top + 13 (to center on 56px bar).
+
+Let me now write the actual bar widths. Scale 14.828 px/unit. Let me recompute precisely with a cleaner scale. Let me use scale = 15 px/unit for simplicity? Then:
+- 42 → 630
+- 58 → 870
+- 51 → 765
+- 23 → 345
+
+Max 870. Bar start 400 → max end 1270. Value label for Explainer at 1270+24 = 1294. Value "58" width ~40px → ends ~1334. Plus yellow band padding. That's fine, well within 1820 (1920-100). 
+
+Actually with scale 15, gridlines:
+- 0 → 400
+- 20 → 700
+- 40 → 1000
+- 60 → 1300
+
+Clean numbers. Let me use scale = 15 px/unit. Bar widths:
+- Title 42 → 630px
+- Explainer 58 → 870px
+- Chart 51 → 765px
+- Lower third 23 → 345px
+
+Value label x = 400 + width + 24:
+- Title: 400+630+24 = 1054
+- Explainer: 400+870+24 = 1294
+- Chart: 400+765+24 = 1189
+- Lower third: 400+345+24 = 769
+
+Yellow band behind Explainer value: I'll make a rectangle at left 1294-? Let me make the band a bit bigger than the text. "58" at 30px mono ~ 2 chars * 18 = 36px. Band width ~ 76px, height ~ 56px. Position band left = 1288, top = bar top + 0 (full bar height) or centered. Let me make the band the full bar height (56px) and width 80px, positioned so text sits centered in it.
+
+Actually, let me make the yellow band a "chip" that's slightly taller than the text but not full bar height. Let me do band height 52px, width 84px, top = bar top + 2. Text centered in band.
+
+Hmm, but the value label position and band position need to align. Let me make the band and value a group. Band left = 1288, value text left = 1300 (centered-ish). Let me just place band and put value text inside with padding.
+
+Let me set:
+- Explainer band: left 1286, top = 480+2 = 482, width 84, height 52
+- Explainer value text: left 1302, top = 480+14 = 494, color #111
+
+Wait, I need the value text to be centered in the band. Band width 84, text "58" ~36px. Padding left = (84-36)/2 = 24. So text left = 1286+24 = 1310. Let me set value left 1310.
+
+Hmm, let me just be careful. Let me define the band and center text using text-align center and make the band the text container. Actually simpler: make a div with class hl that contains the value text, and give it padding. Then I only animate the band's opacity/scale and the text.
+
+But the rule: "Never put a CSS transform on an element that GSAP animates". If I animate the band with scaleX, I need transform-origin in CSS. That's fine.
+
+Let me structure the Explainer value as:
+```html
+<div class="a hl" id="band2" style="left:1286px;top:482px;width:84px;height:52px;display:flex;align-items:center;justify-content:center">
+  <span class="m" id="val2" style="font-size:30px;color:#111">58</span>
+</div>
+```
+Wait, but .hl has #FFD400 bg and #111 text. The span inside would inherit. Let me set the span color explicitly to #111.
+
+Hmm, but I'm animating the band (scaleX) and the text (opacity). If the band has a child, animating band scaleX scales the child too. That might be OK — the whole chip scales in. Let me animate the band with scaleX 0→1 (transform-origin left center) and the text opacity 0→1. Actually if band scales X, text scales too which looks fine (a chip growing). Let me do that.
+
+Actually, simpler and cleaner: animate band opacity + scaleX, text opacity. Let me keep text as child.
+
+Let me reconsider: for non-largest bars, the value is just cyan text at bar end. For the largest, it's a yellow chip.
+
+Let me write value labels:
+- Title: `<div class="a m" id="v1" style="left:1054px;top:362px;font-size:30px;color:var(--c)">42</div>`
+- Explainer: yellow chip with "58"
+- Chart: `<div class="a m" id="v3" style="left:1189px;top:622px;font-size:30px;color:var(--c)">51</div>`
+- Lower third: `<div class="a m" id="v4" style="left:769px;top:752px;font-size:30px;color:var(--c)">23</div>`
+
+Now vertical positions. Let me finalize bar tops:
+- Row 1 (Title): top 350, bar height 56, center 378. Label top = 378-11 = 367. Value top = 378-15 = 363.
+- Row 2 (Explainer): top 480, center 508. Label top 497. Band top 482, value inside.
+- Row 3 (Chart): top 610, center 638. Label top 627. Value top 623.
+- Row 4 (Lower third): top 740, center 768. Label top 757. Value top 753.
+
+Let me set labels:
+- L1: left 100, top 367
+- L2: left 100, top 497
+- L3: left 100, top 627
+- L4: left 100, top 757
+
+Label font 22px mono uppercase.
+
+Bars:
+- B1: left 400, top 350, width 630, height 56, bg cyan
+- B2: left 400, top 480, width 870, height 56, bg cyan
+- B3: left 400, top 610, width 765, height 56, bg cyan
+- B4: left 400, top 740, width 345, height 56, bg cyan
+
+Bars animate scaleX 0→1 with transform-origin left center.
+
+Gridlines: vertical lines at x 400, 700, 1000, 1300. From top 340 to bottom 800 (height 460). Faint color. Let me use a subtle line color like rgba or a dark gray. Brand colors: ink #F4F4F1, cyan, magenta, yellow. For gridlines I'll use a low-opacity ink. Let me use a thin 2px line with color like #2A2A2A (a dark gray). But the rules say no gradients, no box-shadow. A flat dark gray is fine. Actually let me use opacity on ink. Let me use a color like #262626 for gridlines. Hmm, but is that allowed? The brand palette is limited. Let me use a low opacity of ink via a separate approach — I'll set background to #F4F4F1 with low opacity... but opacity affects the whole element. For a thin line that's fine. Let me use `background:var(--ink); opacity:0.08` — but then I animate opacity? No, gridlines are static. I'll set them with a fixed low opacity. But wait, I need them visible at the end. I can set opacity 0.08 in CSS and animate them in with a scaleX or opacity from 0 to 0.08? That's tricky with the "opacity" animation. 
+
+Actually, let me just set gridlines with a fixed subtle color. Let me use a color that's part of the palette-ish. I'll use `#232323` for gridlines (a neutral dark). It's not a brand color but it's a neutral for structure. The rules don't forbid neutral grays for structure; they just define the palette for the main elements. To be safe, let me use ink at low opacity via a wrapper. Hmm.
+
+Let me reconsider. I'll make gridlines as thin divs with `background:#F4F4F1` and set their opacity to a low value. But I want them to animate in. I can animate opacity from 0 to 0.1. That works — opacity is an allowed animation. At the end they're at 0.1. Good.
+
+Actually, animating opacity to 0.1 is fine. Let me do that for gridlines and axis labels.
+
+Let me also add a zero-line (axis) that's slightly more prominent, maybe cyan-tinted or just ink at 0.25.
+
+Let me also add bottom axis labels: "0", "20", "40", "60" at x 400, 700, 1000, 1300, centered. Font 20px mono. Top 815. Each centered on gridline x, so left = x - 15 (approx half of 2-3 char width). Let me set:
+- "0" at left 392, top 815
+- "20" at left 686, top 815
+- "40" at left 986, top 815
+- "60" at left 1286, top 815
+
+And a unit label "SECONDS" or "S" at the far right of the axis, e.g., left 1320, top 815. Or place "(s)" at the end. Let me add a small "(s)" unit at the right end: left 1310, top 815. Hmm, might overlap "60". Let me put unit label at top 815, left 1340. "60" ends at ~1300. So unit at 1340 is fine.
+
+Actually, let me place the unit as part of the axis: after 60, put "(s)". Let me set it at left 1330.
+
+Let me reconsider the title area. 
+- Eyebrow: "B3 · PERFORMANCE" mono, cyan, top 120, left 100, font 24px
+- Title: "RENDER TIME PER CARD" h, top 155, left 100, font 92px. Then "(s)" as a unit — maybe I include it in title or separate. The JSON title is "Render time per card (s)". Let me render the title as "RENDER TIME PER CARD" and a separate small "(s)" tag. Actually, let me just include "(s)" in the title text but style it. Since .h is one element, I can put a span. Let me do: `RENDER TIME PER CARD <span style="color:var(--c)">(S)</span>`. Hmm, but the display font for "(S)" would be wide. Let me keep it simple: title "RENDER TIME PER CARD" and a separate mono unit chip "(S)" to the right.
+
+Let me place a unit chip: `<div class="a m" style="left:...;top:...;font-size:22px;color:var(--c)">(S)</div>`. Position it after the title. Title "RENDER TIME PER CARD" at 92px ≈ 1110px wide, ends at 100+1110 = 1210. So unit chip at left 1230, top ~200 (aligned with title baseline). Let me set top 205.
+
+Actually, let me reduce title font to 88px to be safe and fit. At 88px, "RENDER TIME PER CARD" ≈ 17 letters * 57 = 969 + 3 spaces*28 = 84 → ~1053px. Ends at 1153. Unit chip at 1180.
+
+Let me just use 90px. Fine.
+
+Let me add a rule/line under the title: from left 100, top 290, width ~1720, height 4px, cyan or ink. Let me make it a thin ink line at low opacity, or a short cyan accent. Let me do a full-width thin line at low opacity + a short cyan accent segment. Actually, let me do a cyan accent line of width 120px at left 100 top 290, plus a faint full line. Let me keep it simple: one rule, cyan, width 160px, height 6px, at top 290. And maybe a faint full-width line behind. Let me do the faint full line first (ink 0.08) then cyan accent on top.
+
+Hmm, that's getting complex. Let me simplify: 
+- Full-width faint line: left 100, top 292, width 1720, height 2px, ink low opacity
+- Cyan accent: left 100, top 286, width 140, height 8px, cyan
+
+Let me now think about the timeline (8 seconds total).
+
+Timeline plan:
+- 0.0: root visible (bg is body)
+- 0.1: eyebrow fades in (opacity 0→1), maybe slight y
+- 0.3: title fades in + y
+- 0.5: unit chip fades in
+- 0.6: rule scaleX in
+- 0.7: gridlines fade in (opacity 0→0.1), axis labels fade in
+- 0.9: bar 1 scaleX 0→1 (cyan), duration 0.9
+- 1.1: label 1 fades in (labels appear with bars or before). Let me fade labels in just before bars grow. Actually, let me have labels fade in at 0.9 with bars.
+- Stagger bars: bar1 at 0.9, bar2 at 1.15, bar3 at 1.4, bar4 at 1.65. Duration 0.9 each.
+- Value labels: fade in as each bar finishes. Bar1 finishes ~1.8, value1 fade at 1.7. Bar2 finishes ~2.05, value2 (chip) at 2.0. Bar3 ~2.3, value3 at 2.2. Bar4 ~2.55, value4 at 2.45.
+- After all bars, maybe a subtle "peak" pulse on the largest bar or the yellow chip. The yellow chip could scale in with a pop.
+- 3.0-8.0: hold. Everything visible. Maybe a gentle continuous element? The rules say no CSS animations, no repeat. So the hold is static from ~3.5 to 8. That's fine — "Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame."
+
+Let me make the reveal take about 3.5 seconds, then hold until 8.
+
+Let me reconsider timing to be a bit more dramatic but still finish by ~3.5s:
+- 0.15: eyebrow
+- 0.35: title
+- 0.55: unit chip
+- 0.65: rule
+- 0.85: gridlines + axis labels (fade to low opacity)
+- 1.0: label 1 + bar 1 (bar scaleX 0→1, dur 0.85)
+- 1.25: label 2 + bar 2
+- 1.5: label 3 + bar 3
+- 1.75: label 4 + bar 4
+- Bars finish: bar1 at 1.85, bar2 at 2.1, bar3 at 2.35, bar4 at 2.6
+- Values: v1 at 1.75, v2 (chip) at 2.05, v3 at 2.3, v4 at 2.55
+- 2.8: maybe a highlight sweep or the yellow chip pops (scaleX 0→1 with overshoot). Actually the chip is the value of bar2 which appears at 2.05. Let me make the chip do a nice pop at 2.1.
+- 3.2: everything settled. Hold to 8.
+
+Actually, let me make the yellow chip reveal a bit later for emphasis — like a "callout" that lands after all bars. Let me have bar2's value be a plain cyan "58" first? No, the brief says the largest bar is highlighted by a yellow band behind its value. So the value of the largest bar should be in the yellow band. Let me just reveal the yellow chip at the same time as bar2's bar finishes, with a pop.
+
+Let me also add a subtle "peak marker" — maybe a small triangle or the word "PEAK" near the largest bar. That could be a nice touch. Let me add a small mono tag "PEAK" above the largest bar or near the chip. Actually, let me add it to the right of the chip: a small "PEAK" label. Hmm, might get cluttered. Let me add a small magenta tag "PEAK" below the Explainer bar or near the chip. Actually, let me keep focus. I'll add a small "▲ PEAK" — no emojis, and triangle as SVG. Let me add a small magenta "PEAK" mono label to the right of the yellow chip at the end, fading in at 3.0. That emphasizes the largest bar.
+
+Wait, the chip is at left 1286, width 84 → ends 1370. "PEAK" at left 1390, top ~495, magenta, font 20px. That fits within 1820. Good.
+
+Actually, let me reconsider — maybe put "PEAK" as a small tag with a magenta underline or just magenta text. Let me do magenta text "PEAK" with a small magenta square bullet. Keep it simple: magenta "PEAK" text.
+
+Let me now also double check the "no overlap" rule for text. Labels are in the left column (100-360). Bars start at 400. Values are at bar ends (769+). Title at top (155-260). Axis labels at bottom (815). No overlaps. Good.
+
+Let me verify value label positions don't overlap bars of other rows — they're at different y, so fine.
+
+Now, one concern: the value label for the largest bar (Explainer) is at x 1294, and the yellow chip. The bar2 ends at 400+870 = 1270. Chip at 1286. Good, 16px gap.
+
+Let me also verify the gridline at 1300 (value 60) — the chip is at 1286-1370, which overlaps the 1300 gridline. That's fine, the chip is on top (drawn after). Actually gridlines are behind bars and values. Let me make sure z-order: gridlines first (background), then bars, then values/chip on top. Since they're absolutely positioned in DOM order, later elements are on top. Let me order: gridlines, axis labels, then rows (labels, bars, values). Actually labels and bars are at the row level. Let me just put gridlines and axis first, then the 4 rows.
+
+Wait, but the axis labels are at the bottom (y 815) and gridlines span y 340-800. The bars are at y 350-796. So gridlines pass behind bars. Good, gridlines first in DOM.
+
+Let me now also reconsider: should bars have a track (full-width faint bar) behind them? That would show the "scale" nicely. Let me add a faint track for each row from x 400 to x 1300 (width 900) at the bar's y, height 56, very faint ink (opacity 0.05). Then the cyan bar grows on top. That gives a nice "growing within a track" effect. Let me add tracks.
+
+Track: left 400, top = bar top, width 900, height 56, bg ink low opacity (0.05). These are static (visible from start or fade in with gridlines). Let me fade them in with the gridlines at 0.85.
+
+Hmm, but if track is full width 900 and bar grows on top, that's a nice effect. Let me do it.
+
+Actually, wait — with tracks, the value labels at bar ends might overlap the track (track extends to 1300). The value label is at bar end + 24, which is within the track area for shorter bars. E.g., Lower third bar ends at 745, value at 769, track extends to 1300. The value "23" sits on the faint track. That's fine visually (value on faint track). Actually it might look a bit odd to have the value on a faint track. But it's common in charts. Let me keep tracks very faint (opacity 0.05) so values read clearly on top.
+
+Alternatively, skip tracks and just have bars grow from the zero line. That's cleaner and more "reveal" like. Let me skip full tracks to keep it clean and let the gridlines provide the scale reference. Actually, the gridlines already provide scale. Let me skip tracks. Cleaner.
+
+Hmm, let me reconsider. The brief emphasizes "growing from zero with staggered timing." Growing from the zero line (x=400) with scaleX. That's the key effect. Gridlines give scale. Good, no tracks needed.
+
+Let me finalize the design and write the HTML.
+
+Let me reconsider colors:
+- bg: #0E0E0E (body)
+- ink: #F4F4F1
+- cyan: #12A9E6
+- magenta: #FF2D92
+- yellow: #FFD400 (band, text #111)
+
+Bars: cyan.
+Labels: ink (#F4F4F1) or a slightly muted. Let me use ink for labels, maybe at full. Actually for a data chart, labels in ink is fine. Let me use ink for row labels.
+Values: cyan (matching bars) for non-largest. Largest: yellow chip with #111 text.
+Gridlines: ink low opacity.
+Axis labels: ink low opacity (or a muted gray). Let me use ink at 0.4 opacity for axis labels to be readable but subtle. Hmm, but I'm animating opacity. Let me animate to 0.45.
+
+Wait, if I animate opacity to 0.45, that's the final state. Good.
+
+Let me reconsider the eyebrow. "B3 · PERFORMANCE" — the brief is B3. Let me use "B3 · RENDER BENCHMARK" or "B3 · PERFORMANCE". Let me use "B3 · PERFORMANCE".
+
+Actually, let me make the eyebrow reference the data: "B3 · CARD RENDER COST" or just "B3 · PERFORMANCE". I'll use "B3 · PERFORMANCE".
+
+Now let me write the code.
+
+For the .h class: uppercase, heavy, wide (from gw.css). For .m: mono uppercase labels. For .a: position absolute.
+
+Let me check: the example uses class "a m" and "a h". So .a is position:absolute, .m is mono, .h is display heading. Good.
+
+Let me write:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>B3 · Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <!-- Eyebrow -->
+  <div class="a m" id="eyebrow" style="left:100px;top:120px;font-size:24px;letter-spacing:4px;color:var(--c);opacity:0">B3 · PERFORMANCE</div>
+
+  <!-- Title -->
+  <div class="a h" id="title" style="left:100px;top:150px;font-size:90px;opacity:0">RENDER TIME PER CARD</div>
+
+  <!-- Unit chip -->
+  <div class="a m" id="unit" style="left:1180px;top:205px;font-size:24px;letter-spacing:2px;color:var(--c);opacity:0">(S)</div>
+
+  <!-- Rule -->
+  <div class="a" id="ruleFaint" style="left:100px;top:292px;width:1720px;height:2px;background:var(--ink);opacity:0"></div>
+  <div class="a" id="rule" style="left:100px;top:286px;width:140px;height:8px;background:var(--c);transform-origin:left center;opacity:0"></div>
+
+  <!-- Gridlines -->
+  <div class="a" id="g0" style="left:400px;top:340px;width:2px;height:460px;background:var(--ink);opacity:0"></div>
+  <div class="a" id="g20" style="left:700px;top:340px;width:2px;height:460px;background:var(--ink);opacity:0"></div>
+  <div class="a" id="g40" style="left:1000px;top:340px;width:2px;height:460px;background:var(--ink);opacity:0"></div>
+  <div class="a" id="g60" style="left:1300px;top:340px;width:2px;height:460px;background:var(--ink);opacity:0"></div>
+
+  <!-- Axis labels -->
+  <div class="a m" id="a0" style="left:392px;top:815px;font-size:20px;color:var(--ink);opacity:0">0</div>
+  <div class="a m" id="a20" style="left:686px;top:815px;font-size:20px;color:var(--ink);opacity:0">20</div>
+  <div class="a m" id="a40" style="left:986px;top:815px;font-size:20px;color:var(--ink);opacity:0">40</div>
+  <div class="a m" id="a60" style="left:1286px;top:815px;font-size:20px;color:var(--ink);opacity:0">60</div>
+  <div class="a m" id="aunit" style="left:1330px;top:815px;font-size:20px;color:var(--c);opacity:0">(S)</div>
+
+  <!-- Row 1: Title 42 -->
+  <div class="a m" id="l1" style="left:100px;top:367px;font-size:22px;letter-spacing:2px;color:var(--ink);opacity:0">TITLE</div>
+  <div class="a" id="b1" style="left:400px;top:350px;width:630px;height:56px;background:var(--c);transform-origin:left center;opacity:1"></div>
+  <div class="a m" id="v1" style="left:1054px;top:363px;font-size:30px;color:var(--c);opacity:0">42</div>
+
+  <!-- Row 2: Explainer 58 (largest, yellow chip) -->
+  <div class="a m" id="l2" style="left:100px;top:497px;font-size:22px;letter-spacing:2px;color:var(--ink);opacity:0">EXPLAINER</div>
+  <div class="a" id="b2" style="left:400px;top:480px;width:870px;height:56px;background:var(--c);transform-origin:left center;opacity:1"></div>
+  <div class="a hl" id="chip2" style="left:1286px;top:482px;width:84px;height:52px;display:flex;align-items:center;justify-content:center;transform-origin:left center;opacity:0"><span class="m" id="v2" style="font-size:30px;color:#111">58</span></div>
+  <div class="a m" id="peak" style="left:1392px;top:495px;font-size:20px;letter-spacing:2px;color:var(--m);opacity:0">PEAK</div>
+
+  <!-- Row 3: Chart 51 -->
+  <div class="a m" id="l3" style="left:100px;top:627px;font-size:22px;letter-spacing:2px;color:var(--ink);opacity:0">CHART</div>
+  <div class="a" id="b3" style="left:400px;top:610px;width:765px;height:56px;background:var(--c);transform-origin:left center;opacity:1"></div>
+  <div class="a m" id="v3" style="left:1189px;top:623px;font-size:30px;color:var(--c);opacity:0">51</div>
+
+  <!-- Row 4: Lower third 23 -->
+  <div class="a m" id="l4" style="left:100px;top:757px;font-size:22px;letter-spacing:2px;color:var(--ink);opacity:0">LOWER THIRD</div>
+  <div class="a" id="b4" style="left:400px;top:740px;width:345px;height:56px;background:var(--c);transform-origin:left center;opacity:1"></div>
+  <div class="a m" id="v4" style="left:769px;top:753px;font-size:30px;color:var(--c);opacity:0">23</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.fromTo("#eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+  tl.fromTo("#title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+  tl.fromTo("#unit", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.55);
+  tl.fromTo("#ruleFaint", { opacity: 0 }, { opacity: 0.12, duration: 0.5, ease: "power1.out" }, 0.6);
+  tl.fromTo("#rule", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 0.65);
+
+  // Grid + axis
+  tl.fromTo("#g0", { opacity: 0 }, { opacity: 0.22, duration: 0.5 }, 0.85);
+  tl.fromTo("#g20", { opacity: 0 }, { opacity: 0.1, duration: 0.5 }, 0.9);
+  tl.fromTo("#g40", { opacity: 0 }, { opacity: 0.1, duration: 0.5 }, 0.95);
+  tl.fromTo("#g60", { opacity: 0 }, { opacity: 0.1, duration: 0.5 }, 1.0);
+  tl.fromTo("#a0", { opacity: 0 }, { opacity: 0.5, duration: 0.4 }, 0.9);
+  tl.fromTo("#a20", { opacity: 0 }, { opacity: 0.5, duration: 0.4 }, 0.95);
+  tl.fromTo("#a40", { opacity: 0 }, { opacity: 0.5, duration: 0.4 }, 1.0);
+  tl.fromTo("#a60", { opacity: 0 }, { opacity: 0.5, duration: 0.4 }, 1.05);
+  tl.fromTo("#aunit", { opacity: 0 }, { opacity: 0.8, duration: 0.4 }, 1.1);
+
+  // Bars (staggered) + labels
+  tl.fromTo("#l1", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.0);
+  tl.fromTo("#b1", { scaleX: 0 }, { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.05);
+  tl.fromTo("#v1", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.75);
+
+  tl.fromTo("#l2", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.25);
+  tl.fromTo("#b2", { scaleX: 0 }, { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.3);
+  tl.fromTo("#chip2", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.45, ease: "back.out(1.7)" }, 2.05);
+  tl.fromTo("#peak", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+
+  tl.fromTo("#l3", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.5);
+  tl.fromTo("#b3", { scaleX: 0 }, { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.55);
+  tl.fromTo("#v3", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.25);
+
+  tl.fromTo("#l4", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.75);
+  tl.fromTo("#b4", { scaleX: 0 }, { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.8);
+  tl.fromTo("#v4", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>
+```
+
+Wait, I need to double-check the bars. I set `opacity:1` in CSS for bars but animate scaleX 0→1. Since I use fromTo with scaleX, the initial scaleX is 0 (from state). But the bar has opacity 1 in CSS. At t=0, before the fromTo kicks in, the bar would be at scaleX 0 (fromTo sets it at start). Actually, fromTo sets the "from" values at the start time. But before the start time (0 to 1.05), what's the bar's state? GSAP fromTo with immediateRender — by default, from tweens render immediately (at timeline time 0) unless immediateRender is false. Actually, for fromTo, the "from" values are applied at the tween's start time, but GSAP may render them immediately when the timeline is created. Hmm.
+
+Let me think. The rule says "Set initial hidden state with tl.set or fromTo, not by CSS transform." So I should ensure the bar is hidden (scaleX 0) at t=0. 
+
+For a fromTo tween, GSAP by default renders the "from" state immediately when the timeline is at time 0 (immediateRender defaults to true for from and fromTo when the tween is at the start). Actually, immediateRender for fromTo: "Immediate render: true by default for from() tweens, and false for fromTo() tweens unless the tween is at the very beginning of the timeline." Hmm, this is getting complicated.
+
+To be safe, let me add explicit tl.set for the bars to scaleX 0 at time 0. That guarantees the initial state. Let me add:
+```js
+tl.set(["#b1","#b2","#b3","#b4"], { scaleX: 0 }, 0);
+```
+And for the chip, tl.set scaleX 0, opacity 0 at 0. Actually the chip I animate opacity 0→1 and scaleX 0→1 via fromTo. Let me add tl.set for chip too to be safe. But if I tl.set opacity 0 at 0, and then fromTo opacity 0→1, that's consistent.
+
+Actually, to keep it clean and avoid conflicts, let me use tl.set for all the initial hidden states, then use tl.to for the animations. But the rule says "Use only tl.set / tl.from / tl.fromTo with an absolute start time as 3rd argument." Wait, it lists tl.set / tl.from / tl.fromTo. But earlier it says "one paused GSAP timeline ... Use only tl.set / tl.from / tl.fromTo". Hmm, but the example uses tl.to and tl.fromTo. Let me re-read.
+
+"Animation: one paused GSAP timeline `const tl = gsap.timeline({ paused: true });` registered as `window.__timelines["main"] = tl;`. Use only tl.set / tl.from / tl.fromTo with an absolute start time as 3rd argument."
+
+But the example uses `tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);`. So tl.to is also used in the example. The instruction lists tl.set / tl.from / tl.fromTo but the example uses tl.to. I think the intent is: use GSAP timeline methods (set/from/to/fromTo) with absolute start times. The example clearly uses tl.to. So tl.to is allowed. Let me use a mix but ensure initial states are set.
+
+To be safe and match the example, I'll use tl.fromTo for most (which sets both from and to), and add tl.set for the bars' initial scaleX 0 to guarantee they're hidden at t=0. Actually, fromTo should handle it. Let me test my understanding:
+
+When you do `tl.fromTo("#b1", {scaleX:0}, {scaleX:1, duration:0.85}, 1.05)`, GSAP will set #b1 to scaleX:0 at time 1.05 (start of tween) and animate to 1 at 1.9. Before 1.05, what's the state? For fromTo, immediateRender is true by default ONLY if the tween is the first tween on the target or at timeline start. Since there are other tweens, it might not render immediately. So at t=0, #b1 might be at scaleX 1 (its natural CSS state, since I didn't set a CSS transform and default scaleX is 1). That means the bar would be visible at full width from t=0 to 1.05, then snap to 0 and grow. That's bad.
+
+So I MUST set the initial state. Let me add tl.set at time 0 for all bars (scaleX 0), chip (scaleX 0, opacity 0), and all the fade-in elements (opacity 0). Actually, I already set opacity:0 in CSS for the fade-in text elements. But for bars, I set opacity:1 and need scaleX 0. Let me add tl.set.
+
+Actually, the cleanest: set initial hidden states via tl.set at time 0, then animate with tl.to. Let me restructure to use tl.set + tl.to. That's clean and guaranteed.
+
+Wait, but the rule says never put CSS transform on GSAP-animated elements. tl.set with scaleX sets a transform via GSAP, which is fine (it's GSAP-managed). And I don't put transform in CSS. Good.
+
+Let me restructure:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// Initial hidden states
+tl.set(["#eyebrow","#title","#unit","#ruleFaint","#rule","#g0","#g20","#g40","#g60","#a0","#a20","#a40","#a60","#aunit","#l1","#l2","#l3","#l4","#v1","#v3","#v4","#peak"], { opacity: 0 }, 0);
+tl.set(["#b1","#b2","#b3","#b4"], { scaleX: 0 }, 0);
+tl.set("#chip2", { opacity: 0, scaleX: 0 }, 0);
+
+// Header
+tl.to("#eyebrow", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+...
+```
+
+Wait, but for the eyebrow I want it to start at y:14 and go to y:0. If I set opacity 0 at 0 but don't set y, then at 0.15 I animate to y:0 but from what y? The element's CSS y is 0 (no transform). So it'd animate from 0 to 0 (no movement) — no, I need the from state. Let me use tl.fromTo for the ones with movement, OR set the initial y in the tl.set.
+
+Hmm. Let me just use tl.fromTo for everything, but ALSO add tl.set at time 0 for the bars and chip to guarantee hidden initial state. For text elements, I set opacity:0 in CSS, so they're hidden at t=0 regardless. For bars, I need scaleX 0 at t=0, so tl.set.
+
+Actually, the issue is only with elements where the "from" state differs from the natural CSS state AND the tween doesn't start at 0. For text with opacity:0 in CSS, the from state (opacity 0) matches CSS, so even if fromTo doesn't render immediately, the element is hidden (opacity 0 from CSS). Good. For bars, CSS has no transform (scaleX 1 natural), so I need to force scaleX 0 at t=0 via tl.set.
+
+But wait — if I set opacity:0 in CSS for text AND use tl.fromTo with opacity 0→1, that's consistent. The fromTo will animate opacity from 0 to 1 at the right time. Before that, CSS opacity 0 keeps it hidden. 
+
+So my plan:
+- Text elements: opacity:0 in CSS + tl.fromTo (opacity 0→1, plus y/x movement).
+- Bars: opacity:1 in CSS, scaleX 0 via tl.set at 0, then tl.fromTo scaleX 0→1. But if I tl.set scaleX 0 at 0 and then tl.fromTo scaleX 0→1 at 1.05, the fromTo's from state (scaleX 0) matches the set state. Good. Actually I can just use tl.to for bars after setting scaleX 0. Let me use tl.fromTo for consistency: tl.fromTo("#b1", {scaleX:0}, {scaleX:1,...}, 1.05). With the tl.set at 0 ensuring hidden before 1.05.
+
+Hmm, but do I even need the tl.set if fromTo is there? The concern is the gap between t=0 and t=1.05 where the bar might show at scaleX 1. To be 100% safe, add tl.set. Let me add it. It doesn't hurt.
+
+Actually, let me reconsider: GSAP's fromTo with immediateRender. From GSAP docs: "immediateRender — true by default for from() tweens. For fromTo() tweens, it's true if the tween is at the very beginning of the timeline (start time 0 relative) OR if there's no other tween on the same target before it." Since my bars' fromTo start at 1.05+ and there's a tl.set on them at 0, the fromTo won't render immediately, so the bar stays at whatever the tl.set put it (scaleX 0). So the tl.set at 0 handles it. 
+
+So: tl.set scaleX 0 at 0 for bars → bar hidden from 0 to 1.05. Then fromTo animates 0→1. 
+
+Let me also make sure the chip: tl.set opacity 0, scaleX 0 at 0 → hidden. Then fromTo at 2.05.
+
+OK here's a cleaner approach. Let me just set ALL initial states with tl.set at 0 (including the y offsets for movement), then use tl.to for all animations. This is the most robust. Let me do that.
+
+Initial states (tl.set at 0):
+- eyebrow: opacity 0, y 14
+- title: opacity 0, y 24
+- unit: opacity 0, y 10
+- ruleFaint: opacity 0
+- rule: opacity 0, scaleX 0
+- g0..g60: opacity 0
+- a0..a60, aunit: opacity 0
+- l1..l4: opacity 0, x -12
+- b1..b4: scaleX 0
+- v1, v3, v4: opacity 0, x -10
+- chip2: opacity 0, scaleX 0
+- peak: opacity 0, x -8
+
+Then tl.to for each to final state.
+
+This is clean. Let me write it.
+
+Actually, mixing many tl.set is verbose but fine. Let me group where possible.
+
+Let me write:
+```js
+tl.set(["#eyebrow","#title","#unit","#ruleFaint","#g0","#g20","#g40","#g60","#a0","#a20","#a40","#a60","#aunit","#v1","#v3","#v4","#chip2"], { opacity: 0 }, 0);
+tl.set("#eyebrow", { y: 14 }, 0);
+tl.set("#title", { y: 24 }, 0);
+tl.set("#unit", { y: 10 }, 0);
+tl.set("#rule", { opacity: 0, scaleX: 0 }, 0);
+tl.set(["#l1","#l2","#l3","#l4"], { opacity: 0, x: -12 }, 0);
+tl.set(["#b1","#b2","#b3","#b4"], { scaleX: 0 }, 0);
+tl.set(["#v1","#v3","#v4"], { x: -10 }, 0);
+tl.set("#peak", { x: -8 }, 0);
+```
+
+Wait, I put v1,v3,v4 in the opacity:0 group AND x:-10 group. That's fine, two sets.
+
+Then animations with tl.to:
+```js
+tl.to("#eyebrow", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.15);
+tl.to("#title", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
+tl.to("#unit", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.55);
+tl.to("#ruleFaint", { opacity: 0.12, duration: 0.5, ease: "power1.out" }, 0.6);
+tl.to("#rule", { opacity: 1, scaleX: 1, duration: 0.5, ease: "power2.out" }, 0.65);
+
+tl.to("#g0", { opacity: 0.22, duration: 0.5 }, 0.85);
+tl.to("#g20", { opacity: 0.1, duration: 0.5 }, 0.9);
+tl.to("#g40", { opacity: 0.1, duration: 0.5 }, 0.95);
+tl.to("#g60", { opacity: 0.1, duration: 0.5 }, 1.0);
+tl.to("#a0", { opacity: 0.5, duration: 0.4 }, 0.9);
+tl.to("#a20", { opacity: 0.5, duration: 0.4 }, 0.95);
+tl.to("#a40", { opacity: 0.5, duration: 0.4 }, 1.0);
+tl.to("#a60", { opacity: 0.5, duration: 0.4 }, 1.05);
+tl.to("#aunit", { opacity: 0.8, duration: 0.4 }, 1.1);
+
+tl.to("#l1", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.0);
+tl.to("#b1", { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.05);
+tl.to("#v1", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 1.75);
+
+tl.to("#l2", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.25);
+tl.to("#b2", { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.3);
+tl.to("#chip2", { opacity: 1, scaleX: 1, duration: 0.45, ease: "back.out(1.7)" }, 2.05);
+tl.to("#peak", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+
+tl.to("#l3", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.5);
+tl.to("#b3", { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.55);
+tl.to("#v3", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.25);
+
+tl.to("#l4", { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.75);
+tl.to("#b4", { scaleX: 1, duration: 0.85, ease: "power3.out" }, 1.8);
+tl.to("#v4", { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 2.5);
+```
+
+This looks good. Total reveal finishes at ~2.95s, hold until 8s.
+
+Now let me double check the "no CSS transform on GSAP-animated elements" rule. The bars have `transform-origin:left center` in CSS (allowed, only `transform:` is forbidden). The rule has `transform-origin:left center`. The chip has `transform-origin:left center`. Good, no `transform:` property. 
+
+Wait, the chip2 also has `display:flex;align-items:center;justify-content:center`. That's fine, not a transform.
+
+Now, one issue: the chip2 contains a span v2. When I animate chip2 scaleX, the span scales too. That's fine (chip grows). The span v2 has no separate animation. Good.
+
+Let me reconsider the yellow chip. Class `hl` gives #FFD400 bg and #111 text (per brand). The span inside has color:#111 explicitly. Good. The chip is 84x52. The span "58" at 30px mono. Let me verify it fits: "58" ~2 chars * 18px = 36px, plus the chip is 84px wide with flex centering. Fits with padding. Good.
+
+Now, does the chip overlap the "60" gridline (x=1300)? Chip is at 1286-1370. Yes it overlaps the 1300 gridline and the "60" axis label is at 1286-1300 (y 815, far below). The chip is at y 482-534, so no overlap with axis label (y 815). The gridline at 1300 passes behind the chip — fine, chip is on top (later in DOM). Good.
+
+Wait, actually the "PEAK" label at left 1392, top 495. Chip ends at 1370. PEAK at 1392-1392+~70 = 1462. Within 1820. Good. No overlap with chip (1392 > 1370). Good.
+
+Let me reconsider vertical centering of value labels on bars.
+- Bar height 56. Value font 30px. To center, value top = bar top + (56-30)/2 = bar top + 13.
+- Row1 bar top 350 → value top 363. ✓ (I have 363)
+- Row2 bar top 480 → chip top 482 (chip height 52, so (56-52)/2=2 → 482). ✓. Value inside centered by flex.
+- Row3 bar top 610 → value top 623. ✓
+- Row4 bar top 740 → value top 753. ✓
+
+Labels: font 22px, center on bar: label top = bar top + (56-22)/2 = bar top + 17.
+- Row1: 350+17 = 367. ✓
+- Row2: 480+17 = 497. ✓
+- Row3: 610+17 = 627. ✓
+- Row4: 740+17 = 757. ✓
+
+Good.
+
+Now let me reconsider the title width and unit chip position. Title "RENDER TIME PER CARD" at 90px. Let me estimate width more carefully. Display font, uppercase, heavy, wide. At 90px, a typical uppercase letter is ~0.7*90 = 63px for a medium, but "wide" and "heavy" display fonts can be wider, ~0.75-0.85. Let me estimate 0.72*90 = 65px per letter. 17 letters = 1105px. Plus 3 spaces at ~0.3*90 = 27px each = 81px. Total ~1186px. Ends at 100+1186 = 1286. 
+
+Hmm, that would put the unit chip at 1180 overlapping the title! Let me move the unit chip further right or reduce title font.
+
+Let me reduce title font to 80px. At 80px, letter ~0.72*80 = 57.6px. 17 letters = 979px. 3 spaces ~24px each = 72px. Total ~1051px. Ends at 1151. Unit chip at 1180. Gap of 29px. OK but tight. Let me move unit chip to 1170 and reduce title to 78px to be safe.
+
+Actually, let me reconsider. The brief says "size boxes so text fits on its line (display font is wide: at 150 px an uppercase letter is about 100 px wide)." So the ratio is 100px per letter at 150px font = 0.667 per letter per px of font. So at font size F, letter width ≈ 0.667*F.
+
+At 90px: letter = 60px. 17 letters = 1020px. Spaces: a space is typically ~0.3 of letter width in these fonts, or less. Let me estimate space ~0.35*60 = 21px. 3 spaces = 63px. Total = 1083px. Ends at 1183.
+
+At 80px: letter = 53.3px. 17 = 907px. Space ~18.7px * 3 = 56px. Total = 963px. Ends at 1063. Unit chip at 1100.
+
+Let me use 80px title and unit chip at 1100. Let me set unit chip left 1100, top 200.
+
+Hmm, actually, let me reconsider whether to put "(s)" as a separate chip or just include it in the title. The JSON title is "Render time per card (s)". Maybe I should render the full title including "(s)". But "(s)" in display font would be wide and the "s" is lowercase. The .h class is uppercase, so it'd render "(S)". That's fine. But it adds width. Let me instead render the title as "RENDER TIME PER CARD" and a separate small mono "(S)" unit tag. That's cleaner and the mono "(S)" is clearly the unit.
+
+Let me set title font 82px. letter = 54.7px. 17 = 930px. space ~19px*3 = 57. Total 987. Ends at 1087. Unit chip at 1110.
+
+Let me go with title 82px, unit chip left 1110, top 205.
+
+Actually, to be safe with the "wide" display font, let me reduce to 78px and put unit at 1100. Let me just pick 80px and unit at 1100. If the title is a bit wider than estimated, 1100 gives a 40px buffer. Should be OK. Let me go with 80px.
+
+Hmm, let me reconsider — I want the title to be prominent. 80px is decent. Let me keep 80px.
+
+Actually, you know what, let me reconsider the whole top area. Let me make the title bigger and drop the separate unit chip, instead putting the unit inline in a smaller style. Or, let me keep title at 88px and move the unit chip to the right side aligned with the title's vertical center, at a safe x.
+
+Let me measure 88px: letter = 0.667*88 = 58.7px. 17 letters = 1000px. space ~20.5*3 = 61. Total 1061. Ends at 1161. Unit chip at 1185.
+
+I'll go with title 88px, unit chip left 1185, top 200. Buffer: if title is 1061 wide ending at 1161, chip at 1185 gives 24px gap. If title is wider (say 1100 wide, ending 1200), it'd overlap. Risky.
+
+Let me be conservative: title 80px (ends ~1063), unit chip at 1100. Safe. Final.
+
+Let me also reconsider: maybe I don't need the unit chip at all — the axis already shows "(S)" and the title has "(s)" implied. But the brief says "Chart title from the JSON" and the JSON title includes "(s)". To be faithful, let me include the unit. I'll keep the unit chip.
+
+Actually, simplest faithful approach: title = "RENDER TIME PER CARD (S)" all in one .h element. Let me measure: 17 + 2 (the "(S)" minus... let me count "RENDER TIME PER CARD (S)"). Characters: R,E,N,D,E,R,space,T,I,M,E,space,P,E,R,space,C,A,R,D,space,(,S,) = let me count letters: RENDER(6) TIME(4) PER(3) CARD(4) = 17 letters. Then " (S)" = space, (, S, ) = the S is a letter (uppercase), ( and ) are parens (narrow). So letters = 18, parens = 2, spaces = 4. At 80px: 18*53.3 = 959, parens ~2*20 = 40, spaces 4*18.7 = 75. Total ~1074. Ends at 1174. That's fine within 1820. And no separate chip needed. 
+
+But mixing "(S)" in the same display font as the title is fine. Let me do that — it's the most faithful to the JSON title. Title = "RENDER TIME PER CARD (S)". At 80px, ends ~1174. Good, no overlap issues, no separate chip.
+
+Wait, but then the unit is part of the title in display font. That's fine. Let me do it. Actually, let me make the "(S)" slightly different color (cyan) to distinguish the unit. I can wrap it in a span with color cyan. But .h is one element; I can add a span inside. The span would inherit display font. Let me do:
+```html
+<div class="a h" id="title" style="...">RENDER TIME PER CARD <span style="color:var(--c)">(S)</span></div>
+```
+That's nice. The "(S)" in cyan.
+
+Let me reconsider width with this: "RENDER TIME PER CARD " then "(S)". Same as above ~1174. Fine.
+
+OK let me also double check: at 80px, is 1174px end OK with 100px right margin? 1920-100 = 1820. 1174 < 1820. 
+
+Now, let me reconsider the gridline/axis. The bars start at x=400 (zero line). Gridlines at 400 (0), 700 (20), 1000 (40), 1300 (60). The max bar is 870px ending at 1270 (value 58). So the 60 gridline at 1300 is just past the max bar. Good, gives headroom. The value labels for bars are at bar end + 24. For Explainer, chip at 1286 (just past 1270). For the "60" gridline at 1300, the chip (1286-1370) overlaps it. That's fine visually (chip on top). 
+
+Actually, wait — should the axis go up to 60 or should I make it cleaner? Max value is 58. A 60 max axis is reasonable. Good.
+
+Let me reconsider the bottom of the chart. Bars end at row4 bottom = 740+56 = 796. Gridlines go from 340 to 800 (height 460). So gridlines extend 4px past the last bar. Axis labels at 815. Good.
+
+Let me reconsider top of gridlines: 340. Row1 bar top is 350. So gridlines start 10px above the first bar. Good, they frame the chart.
+
+Now, is there a top border/label for the chart? Let me add a small "SECONDS" or the axis title. Actually the "(S)" unit at the end of the axis (aunit) covers it. Good.
+
+Let me also add a subtle vertical line at the top and bottom? No, keep it clean.
+
+Let me reconsider the eyebrow. "B3 · PERFORMANCE" — the middle dot "·" is fine (not an emoji). Good.
+
+Now let me reconsider the overall composition balance. The chart occupies the left ~1370px and the right ~450px (1370-1820) is empty except the PEAK label. That's a bit empty on the right. But it's a data chart, so some whitespace is OK. Actually, let me reconsider — maybe I'm using too much left margin. Let me shift the chart to use more width.
+
+Hmm, the max bar is 870px. If I want it bigger, I could increase the scale. But then bars might get too long. Let me keep scale 15 (max 870px). The chart spans x 400-1370. That's reasonable for a 1920 canvas. The right side whitespace is acceptable for a clean data viz.
+
+Alternatively, I could add a small summary stat on the right (e.g., "AVG 43.5s" or "TOTAL 174s"). That would fill the space and add value. Let me add a small stat block on the right:
+- "TOTAL" label + "174s" 
+- "AVG" label + "43.5s"
+- "PEAK" label + "58s"
+
+Total = 42+58+51+23 = 174. Avg = 174/4 = 43.5. Peak = 58.
+
+Let me add a right-side stat panel. Position: left 1450, top 350. Three stats stacked.
+
+Hmm, but that might clutter. Let me add a compact stat panel on the right:
+- Panel at left 1440, top 360, width 380.
+- "TOTAL RENDER" mono label, top 360
+- "174S" big number, top 385
+- divider
+- "AVERAGE" label
+- "43.5S" number
+- "PEAK" label
+- "58S" number (with yellow accent)
+
+Actually, this could be a nice addition but let me be careful not to overlap and to keep it clean. Let me add a right column with 3 stats. Let me position:
+- Right panel x = 1460, width 360 (1460-1820).
+- Stat 1: label "TOTAL" at top 380, value "174S" at top 405 (font 44px)
+- Stat 2: label "AVG" at top 510, value "43.5S" at top 535
+- Stat 3: label "PEAK" at top 640, value "58S" at top 665 (yellow)
+
+Hmm, this adds complexity. Let me reconsider if it's worth it. The brief is specifically about the chart reveal. Adding stats is a nice touch but not required. However, it fills the empty right space and makes the composition more complete and "designed." Let me add it, but keep it simple and ensure no overlap.
+
+Actually, let me reconsider the layout to better use the space. Let me make the bars a bit longer (increase scale) so they extend further right, reducing the empty space. Let me use scale 18px/unit:
+- 42 → 756
+- 58 → 1044
+- 51 → 918
+- 23 → 414
+Max 1044, ending at 400+1044 = 1444. Value labels at bar end + 24. Explainer chip at 1468. PEAK at 1570. That uses more width. Gridlines at 0,20,40,60 → 400, 760, 1120, 1480. 
+
+Hmm, 60 gridline at 1480, and the max bar ends at 1444 (value 58). Chip at 1468, PEAK at 1570. That extends to ~1640. Right margin: 1920-1640 = 280. Better balance. But now I lose the right stat panel space.
+
+Alternatively, keep scale 15 and add the stat panel. Let me go with scale 15 + a compact right stat panel. That gives a richer composition.
+
+Let me finalize with scale 15 and add a right-side stat panel with 3 stats. Let me position carefully:
+
+Right panel: x 1440 to 1820 (width 380).
+- Stat 1 (TOTAL): 
+  - label "TOTAL" mono, left 1440, top 400, font 20px, color ink 0.6
+  - value "174S" h (or mono?), left 1440, top 425, font 48px, color ink
+  - Actually, let me use display font for the numbers to make them pop. But display is uppercase heavy. "174S" in display. Let me use font 46px.
+- Stat 2 (AVG):
+  - label "AVG", left 1440, top 530
+  - value "43.5S", left 1440, top 555
+- Stat 3 (PEAK):
+  - label "PEAK", left 1440, top 660
+  - value "58S", left 1440, top 685, color yellow? No, yellow is only for band behind #111 text. Let me make PEAK value magenta or cyan. Let me make it cyan to match the bars, or magenta to match the PEAK tag. Let me use magenta for the peak value to tie it to the largest bar. Hmm, but the largest bar is cyan with a yellow chip. Let me make the peak stat value in cyan with a small yellow underline. Or just cyan. Let me keep it cyan for consistency, and the "PEAK" label in magenta.
+
+Wait, I already have a "PEAK" tag next to the chip. Adding another "PEAK" in the stat panel is redundant. Let me remove the "PEAK" tag next to the chip and instead rely on the yellow chip + the stat panel's PEAK. Or keep the tag and make the stat panel different.
+
+Let me simplify: Remove the "PEAK" tag next to the chip (the yellow chip already highlights the largest). Add a right stat panel with TOTAL, AVG, PEAK. The PEAK stat in the panel ties to the largest bar.
+
+Actually, having the yellow chip on the bar AND a PEAK stat is good reinforcement. Let me keep both but make them distinct. The chip is on the bar (inline), the PEAK stat is in the panel. Fine.
+
+Hmm, let me reconsider. This is getting complex. Let me step back and decide on a clean, strong composition:
+
+Option A: Chart only (bars + gridlines + axis + title + eyebrow). Clean, focused. Right side has whitespace.
+
+Option B: Chart + right stat panel. Richer, fills space.
+
+I'll go with Option B for a more complete, designed look, but keep the stat panel clean. Let me finalize positions to avoid overlap.
+
+Let me reconsider the full layout with the stat panel:
+
+Left region (chart): x 100-1370
+Right region (stats): x 1440-1820
+
+Chart:
+- Eyebrow: left 100, top 120
+- Title: left 100, top 150, font 80px
+- Rule: left 100, top 286
+- Gridlines: x 400,700,1000,1300; y 340-800
+- Axis labels: y 815
+- Rows: as before (bars at x 400, widths 630/870/765/345)
+- Chip: left 1286, top 482
+- (No PEAK tag next to chip — removed)
+
+Right stat panel:
+- A vertical divider line at x 1400, y 340-800 (faint), to separate chart from stats. Optional.
+- Stat 1 TOTAL: label top 400, value top 428
+- Stat 2 AVG: label top 530, value top 558
+- Stat 3 PEAK: label top 660, value top 688
+
+Let me set:
+- Divider: left 1400, top 340,
+[CONTENT]

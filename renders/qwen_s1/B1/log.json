@@ -1,0 +1,26 @@
+{
+ "brief": "B1",
+ "name": "Title card with kinetic type (5 s)",
+ "rounds": [
+  {
+   "round": 0,
+   "llm_s": 500.3,
+   "prompt_tokens": 1317,
+   "completion_tokens": 18991,
+   "finish": "stop",
+   "check_s": 1.6,
+   "check_errors": [],
+   "render_s": 6.3
+  }
+ ],
+ "model": "qwen",
+ "seed": "1",
+ "t0": 1795360168.173236,
+ "render_ok": true,
+ "fix_rounds": 0,
+ "llm_s": 500.3,
+ "prompt_tokens": 1317,
+ "completion_tokens": 18991,
+ "t1": 1795360676.4081187,
+ "wall_s": 508.2
+}

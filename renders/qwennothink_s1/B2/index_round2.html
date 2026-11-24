@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>How it works</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+
+  <!-- Header -->
+  <div class="a m" id="eyebrow" style="left:160px;top:150px;font-size:28px;color:var(--c);opacity:0">Product / Overview</div>
+  <div class="a h" id="title" style="left:156px;top:198px;font-size:150px;opacity:0">How it <span class="hl">works</span></div>
+  <div class="a" id="rule" style="left:160px;top:432px;width:920px;height:6px;background:var(--m);transform-origin:left center"></div>
+
+  <!-- Connector lines (horizontal, between columns) -->
+  <div class="a" id="conn1" style="left:590px;top:630px;width:120px;height:6px;background:#3A3A3A;transform-origin:left center"></div>
+  <div class="a" id="conn2" style="left:1210px;top:630px;width:120px;height:6px;background:#3A3A3A;transform-origin:left center"></div>
+
+  <!-- Step 01 : Write a brief (pencil) -->
+  <div class="a m" id="num1" style="left:160px;top:516px;font-size:64px;color:var(--c);opacity:0">01</div>
+  <svg id="icon1" class="a" style="left:160px;top:604px;width:100px;height:100px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="var(--c)" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M82 22 L98 38 L40 96 L24 100 L28 84 Z"/>
+    <path d="M76 28 L92 44"/>
+    <path d="M40 96 L52 84"/>
+  </svg>
+  <div class="a h" id="lab1" style="left:160px;top:760px;font-size:44px;opacity:0">Write a brief</div>
+
+  <!-- Step 02 : Model writes the code (brackets) -->
+  <div class="a m" id="num2" style="left:710px;top:516px;font-size:64px;color:var(--c);opacity:0">02</div>
+  <svg id="icon2" class="a" style="left:710px;top:604px;width:100px;height:100px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="var(--c)" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M44 34 L20 60 L44 86"/>
+    <path d="M76 34 L100 60 L76 86"/>
+    <path d="M68 30 L52 90"/>
+  </svg>
+  <div class="a h" id="lab2" style="left:710px;top:760px;font-size:44px;opacity:0">Model writes<br />the code</div>
+
+  <!-- Step 03 : Render the video (play) -->
+  <div class="a m" id="num3" style="left:1330px;top:516px;font-size:64px;color:var(--c);opacity:0">03</div>
+  <svg id="icon3" class="a" style="left:1330px;top:604px;width:100px;height:100px;opacity:0" viewBox="0 0 120 120" fill="none" stroke="var(--c)" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M48 38 L86 60 L48 82 Z"/>
+    <path d="M48 38 L48 82"/>
+  </svg>
+  <div class="a h" id="lab3" style="left:1330px;top:760px;font-size:44px;opacity:0">Render the video</div>
+
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // Header
+  tl.to("#eyebrow", { opacity: 1, duration: 0.4 }, 0.2);
+  tl.fromTo("#title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.4);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.0);
+
+  // Step 01
+  tl.to("#num1", { opacity: 1, duration: 0.3 }, 1.6);
+  tl.fromTo("#icon1", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 1.7);
+  tl.to("#lab1", { opacity: 1, duration: 0.4 }, 1.9);
+
+  // Connector 1
+  tl.fromTo("#conn1", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 2.5);
+
+  // Step 02
+  tl.to("#num2", { opacity: 1, duration: 0.3 }, 3.1);
+  tl.fromTo("#icon2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 3.2);
+  tl.to("#lab2", { opacity: 1, duration: 0.4 }, 3.4);
+
+  // Connector 2
+  tl.fromTo("#conn2", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 4.2);
+
+  // Step 03
+  tl.to("#num3", { opacity: 1, duration: 0.3 }, 4.8);
+  tl.fromTo("#icon3", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 4.9);
+  tl.to("#lab3", { opacity: 1, duration: 0.4 }, 5.1);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

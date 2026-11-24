@@ -1,0 +1,718 @@
+[REASONING]
+The user wants a complete index.html file for a HyperFrames video composition. Let me carefully follow all the rules:
+
+1. File layout: Link `lib/gw.css` and `vendor/gsap.min.js` exactly as shown.
+2. One root element: `<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">` — duration is 8 seconds per the brief.
+3. One paused GSAP timeline registered as `window.__timelines["main"] = tl;`. Use only tl.set / tl.to / tl.from / tl.fromTo with absolute start time. Animate only: opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height. No repeat, no Math.random, no Date.now, no setTimeout, no requestAnimationFrame, no CSS animations/transitions.
+4. Never put CSS `transform` on elements GSAP animates. Use tl.fromTo for initial states. transform-origin in CSS is fine.
+5. Position everything with `position:absolute` (class `a`) and explicit left/top/width in px. Keep text within canvas with at least 100px margin. Text must not overlap. Display font is wide: at 150px, uppercase letters are about 100px wide.
+6. Icons as inline SVG (stroke #F4F4F1 or brand color, stroke-width 6, no fill or flat fill).
+7. Everything visible at end must be at opacity 1 at hold frame.
+
+Brand (identity C dark): bg #0E0E0E, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400 only as band behind #111 text (class `hl`, text is #111). Fonts: `var(--display)` for headings (class `h`: uppercase, heavy, wide), `var(--body)`, `var(--mono)` (class `m`: uppercase labels). No rounded corners, no box-shadow, no gradients, no emojis.
+
+Data:
+- title: "Render time per card (s)"
+- unit: "s"
+- rows:
+  - Title: 42
+  - Explainer: 58
+  - Chart: 51
+  - Lower third: 23
+
+Horizontal bars, cyan, growing from zero with staggered timing. Value labels counting up or fading in at bar end. Largest bar (Explainer, 58) highlighted with yellow band behind its value. Chart title from JSON. Bars proportional to values.
+
+Let me design the layout:
+
+Canvas: 1920x1080.
+
+Margins: at least 100px on all sides. So content area is roughly x: 100-1820, y: 100-980.
+
+Layout plan:
+- Eyebrow (mono label): "DATA / RENDER PIPELINE" or similar at top-left, say left:100px... actually let me use left:120px, top:120px.
+- Title: "RENDER TIME PER CARD (S)" — this is the chart title from JSON. Class `h`, uppercase. Font size maybe 64-72px. At 72px, uppercase letters would be about 48px wide. Title is "RENDER TIME PER CARD (S)" = 24 chars. At 72px, roughly 24 * ~45px = ~1080px wide. That fits within 1920-200 = 1720px. Good.
+
+Actually, let me think about the display font width more carefully. The rule says "at 150 px an uppercase letter is about 100 px wide" — so the ratio is about 0.67 of font-size per letter. At 72px, a letter is about 48px wide. "RENDER TIME PER CARD (S)" — 24 chars including spaces. Spaces are narrower. Rough estimate: 24 * 48 = 1152px. Fits.
+
+- Chart area: 4 horizontal bars.
+  - Each row: label on left (mono or body), bar, value at end.
+  - Bar area: let's say bars start at x=560 (after labels) and max width for value 58 is... let me compute proportionally.
+  
+  Max value 58. Let's say max bar width = 1000px. So:
+  - Title: 42 → 42/58 * 1000 = 724px
+  - Explainer: 58 → 1000px
+  - Chart: 51 → 879px
+  - Lower third: 23 → 397px
+
+  Row layout:
+  - Labels: left:120px, width ~380px, right-aligned? Actually with absolute positioning, I can place labels at left:120px and bars at left:560px.
+  - Bar height: 64px. Row spacing: 110px.
+  - Rows at top: 420, 530, 640, 750? Let me calculate.
+
+Let me plan vertical layout:
+- Eyebrow: top:110px
+- Title: top:150px, font-size 72px (height ~72px, so occupies 150-222)
+- Subtitle/legend or unit note: top:250px or so
+- Rule line under title: top:280px
+- Chart rows: start at top:380px
+  - Row 1 (Title): label top:380, bar top:376 (bar height 72, label vertically centered)
+  - Row spacing 120px: rows at 380, 500, 620, 740
+  - Last row bottom: 740 + 72 = 812. Good, within 980.
+- Footer: top:900px — maybe a mono note like "UNIT: S · SOURCE: BUILD LOG" or similar.
+
+Actually let me be more careful with vertical centering of labels vs bars. Bar height 72px. Label font-size 30px mono. To center label text on bar: label top = bar top + (72 - 30)/2 ≈ bar top + 21. Let me just set label top = bar top + 18px or so. Close enough visually.
+
+Actually, simpler: give each row a fixed bar top, and set label top = bar top + 20px (for 32px font).
+
+Let me define:
+- Bar track (background): left:560px, width:1000px, height:72px, background: #1A1A1A or similar dark. Hmm, brand says no gradients, but a solid dark track is fine. Actually, is a track allowed? It's not prohibited. Let me use a very subtle track: #161616 or #1C1C1C. That's fine — it's a solid color.
+
+Wait, the brand colors are: bg #0E0E0E, ink #F4F4F1, cyan #12A9E6, magenta #FF2D92, yellow #FFD400. A track in a neutral dark gray is reasonable for a chart. I'll use #1E1E1E for the track.
+
+- Bars: cyan #12A9E6, animate scaleX from 0 to 1 with transform-origin left center.
+
+Wait — rule 4 says never put CSS `transform` on GSAP-animated elements, but transform-origin in CSS is fine. So I'll set `transform-origin:left center` in CSS for bars and animate scaleX 0→1.
+
+- Value labels: at bar end. "Value labels counting up or fading in at bar end." I could do count-up with GSAP — but count-up requires updating textContent, which needs a tween with an onUpdate... hmm. The rules say use only tl.set/tl.to/tl.from/tl.fromTo. Can I tween a text counter? I'd need to animate a proxy object and update text in onUpdate. That's technically a tl.to with an onUpdate callback. The rule says "Use only tl.set / tl.to / tl.from / tl.fromTo with an absolute start time as 3rd argument." It doesn't prohibit onUpdate callbacks. But it says "Animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height" — that's the list of animatable properties. Animating a proxy object's `val` property and updating text in onUpdate might violate the spirit.
+
+Safer: fade in the value labels at bar end (the brief explicitly allows "counting up OR fading in"). I'll fade in the value labels, positioned at the end of each bar. That's clean and safe.
+
+Actually, I could do a count-up with tl.to on an object with an onUpdate — but the linter might flag properties other than the allowed list. Let me stick with fade-in. The brief says "value labels counting up or fading in at bar end" — fade-in is explicitly allowed.
+
+- Largest bar (Explainer, 58): yellow band behind its value. Class `hl` — yellow #FFD400 background, text #111. So the value label for Explainer gets the `hl` class: `<div class="a m hl">58s</div>` with yellow bg and #111 text. I need padding for the band to look right. Padding is fine (not transform). Let me add padding via inline style or a CSS class. Inline style padding is fine.
+
+Let me structure the value labels:
+- Each value label positioned at the end of its bar: left = 560 + barWidth + 24px.
+  - Title: 560 + 724 + 24 = 1308px
+  - Explainer: 560 + 1000 + 24 = 1584px
+  - Chart: 560 + 879 + 24 = 1463px
+  - Lower third: 560 + 397 + 24 = 981px
+
+Wait, let me recompute bar widths exactly:
+- Scale: 1000px per 58s → 17.2414 px/s.
+- 42 → 724.1 → 724px
+- 58 → 1000px
+- 51 → 879.3 → 879px
+- 23 → 396.6 → 397px
+
+These are proportional. Good.
+
+Value label positions (left):
+- Title: 560 + 724 + 28 = 1312px
+- Explainer: 560 + 1000 + 28 = 1588px — label width ~120px → ends at 1708px. Within 1820 margin. Good.
+- Chart: 560 + 879 + 28 = 1467px
+- Lower third: 560 + 397 + 28 = 985px
+
+The Explainer hl band: with padding 10px 18px, width maybe 110px. 1588 + 110 = 1698 < 1820. Good.
+
+Labels (row names):
+- "TITLE" at left:120px
+- "EXPLAINER"
+- "CHART"
+- "LOWER THIRD"
+
+Mono font, font-size 30px, color #F4F4F1 or slightly dimmer. Mono uppercase. Widths: at 30px mono, char width ~18px. "LOWER THIRD" = 11 chars → ~200px. Fits in 380px column (120 to 500, bar starts at 560). Good.
+
+Maybe right-align labels to the bar start for a cleaner look. With absolute positioning and fixed left, right-aligning requires width + text-align:right. I can set width:400px on labels, left:120px, text-align:right → text ends at 520px, bar starts at 560px. That's cleaner. Let me do that.
+
+Hmm wait, but rule 5 says "size boxes so text fits on its line" — with text-align right and width 400px, "LOWER THIRD" at 30px mono is ~200px wide, fits. Good.
+
+Now the timeline (8 seconds):
+
+- 0.0: root visible, bg dark.
+- 0.2: eyebrow fades in (opacity 0→1, maybe y 20→0).
+- 0.4: title fades/slides in.
+- 0.7: rule scaleX 0→1.
+- 0.8-1.0: tracks fade in (opacity 0→1). Or tracks present from start? Better to fade in with a subtle stagger.
+- Bars grow with stagger: start ~1.2s, each 0.9s, stagger 0.25s:
+  - Bar 1 (Title): 1.2 → 2.1
+  - Bar 2 (Explainer): 1.45 → 2.35
+  - Bar 3 (Chart): 1.7 → 2.6
+  - Bar 4 (Lower third): 1.95 → 2.85
+- Value labels fade in slightly after each bar completes (or at 80% of bar):
+  - Value 1: 1.9
+  - Value 2: 2.15
+  - Value 3: 2.4
+  - Value 4: 2.65
+  With a slight x offset (x: 16→0) and opacity.
+- Highlight band for Explainer: maybe a pulse — but no repeat allowed. A single scale pulse is fine: band scales from 1 to 1.06 and back? That requires two tweens. Or the band fades in with the value and stays. Maybe add a subtle one-time "pop": fromTo scale 0.8→1.05→1? I can do: tl.fromTo(band, {scale:0.6, opacity:0}, {scale:1, opacity:1, duration:0.4, ease:"power2.out"}, 2.15). That's a nice pop. And maybe a marker/arrow? Keep it simple.
+
+Actually, to emphasize the largest bar, I could also make the Explainer bar slightly different — but the brief says bars are cyan and the largest is highlighted with yellow band behind its value. So keep all bars cyan, and the yellow band behind "58s".
+
+- Footer note fades in at ~3.2s: "UNIT: S · LARGEST: EXPLAINER" or "SOURCE: BUILD LOG · UNIT: S". Mono, small, at bottom.
+- Hold: everything at opacity 1 from ~3.5s to 8s.
+
+Also maybe a small "MAX" tag near the Explainer band? The band itself is the highlight. Maybe add a small mono label "MAX" above the band? Could be nice but risks clutter/overlap. The band with "58s" is enough. Actually, let me add a small "MAX" indicator — hmm, let me think about overlap. Band is at left:1588, top of row 2. A "MAX" label above would be at top ~ 500 - 40 = 460... row 1 bar ends at 380+72=452. Close. Might be tight. Let me skip MAX, or put it inside the band: "58s MAX"? Band text: "58s" with a small "MAX" — could do "58s · MAX" in one label. Hmm, mono font: "58S" — wait, mono class is uppercase. So "58S" reads as 58s. Fine.
+
+Actually, let me include the unit in each value label: "42S" "58S" "51S" "23S". Since class `m` uppercases, I write "42s" and it displays "42S". Good.
+
+For the Explainer: `<span class="hl">58s</span>`? The brief says yellow band behind its value. Class `hl` is the yellow band with #111 text. So the value label for Explainer should be `<div class="a m hl" id="v2" ...>58s</div>` with padding.
+
+Let me check the example: `<span class="hl">world</span>` inside a heading. So `.hl` is defined in gw.css as yellow bg with #111 text. I'll apply it to the whole value div and add padding inline.
+
+Now, icons: rule 6 says draw icons as inline SVG if I use them. I don't strictly need icons. Maybe a small clock icon next to the eyebrow (render time theme)? A simple clock SVG: circle + hands, stroke #F4F4F1, stroke-width 6, no fill. That'd be a nice touch. Let me add a small clock icon before the eyebrow text.
+
+Clock SVG:
+```html
+<svg id="clock" width="44" height="44" viewBox="0 0 44 44" style="...">
+  <circle cx="22" cy="22" r="16" stroke="#12A9E6" stroke-width="6" fill="none"/>
+  <line x1="22" y1="22" x2="22" y2="12" stroke="#F4F4F1" stroke-width="6"/>
+  <line x1="22" y1="22" x2="30" y2="26" stroke="#F4F4F1" stroke-width="6"/>
+</svg>
+```
+Position at left:120px, top:104px. Eyebrow text at left:180px, top:112px.
+
+Hmm, but the eyebrow is a div with class `a m`. The clock is a separate absolutely positioned svg. Fine.
+
+Wait — should I animate the clock? Maybe a rotation of the hands? Rotation is in the allowed list. I could rotate the minute hand line once. But rotating a line around the center requires transform-origin at 22,22 in SVG user units — tricky with GSAP on SVG elements. GSAP handles SVG transforms fine, but transform-origin in SVG can be finicky. Safer: fade the clock in with the eyebrow, no rotation. Or animate the whole clock with a slight scale pop. Let me keep it simple: fade in with opacity, maybe a slight scale from 0.8. Scale on an absolutely positioned svg div wrapper... I can wrap the svg in a div. Actually, GSAP can animate opacity on the svg directly. Let me wrap in a div for safety: `<div class="a" id="clock" ...><svg>...</svg></div>` and animate opacity + scale on the div.
+
+Now the title: "RENDER TIME PER CARD (S)". Class `h`. Font-size: let me compute. 24 chars. At 80px, letter ~53px → 24*53 = 1272px. From left 120 → ends at 1392. Fits within 1820. Let me use 76px. Actually, I want to make sure it fits with the wide display font. The rule says at 150px, uppercase letters ~100px wide (0.667 ratio). At 76px → ~50.7px/letter. 24 chars → ~1216px. Ends at 1336px. Safe.
+
+Title top: 150px. Height ~76px → bottom 226.
+
+Rule line: top: 260px, left:120px, width: 1680px? Full width rule looks good: from 120 to 1800 → width 1680. Height 6px. Color: maybe #2A2A2A neutral, or cyan. Let me use a neutral dark line #262626 with a cyan segment? Simpler: single rule, background #2A2A2A. Hmm, or make it cyan for brand pop. Let me do a thin full-width rule in #242424, and a small cyan accent block at the left end (width 120px, height 6px, cyan) that scales in. That's a nice detail.
+
+Actually, let me keep it: rule (neutral, full width) + accent (cyan, 160px) overlapping at the left. Both scaleX from left.
+
+Unit note: maybe on the right side of the rule row: "UNIT: S" mono, right-aligned at left:1560px, top:240px? Let me place a small mono "UNIT: S" at top:234px, left:1640px, width:160px, text-align:right. Hmm, might collide with rule at 260. Text at 234 with font 24 → bottom ~258. Rule at 260. OK, tight but no overlap. Actually let me move the unit note to top:232, font-size 22. Bottom ≈ 254. Rule top 262. Fine.
+
+Alternatively, put "UNIT: S" in the footer. Let me do both in the footer: "UNIT: S · SOURCE: BUILD LOG · N=4". And keep the top-right clean. Actually, a small "UNIT: S" top-right balances the layout. Let me include it.
+
+Chart rows:
+- Bar area left: 560px, max width 1000px (ends at 1560).
+- Row tops: 380, 500, 620, 740. Bar height 72.
+  - Row 1: 380–452
+  - Row 2: 500–572
+  - Row 3: 620–692
+  - Row 4: 740–812
+- Gap between rows: 48px. Good.
+
+Labels: left:120px, width:400px, text-align:right, font-size:30px, mono, color #F4F4F1. Top: bar top + 19px (to center 30px text on 72px bar: (72-30)/2 = 21; use 20).
+
+Actually, mono font-size 30 → line-height ~30-36. Let me set line-height:1 in CSS for labels? I can add inline style line-height:1. Then top = bar top + (72-30)/2 = bar top + 21.
+
+Row label tops: 401, 521, 641, 761.
+
+Tracks: left:560, width:1000, height:72, bg #1D1D1D. Same top as bars.
+
+Bars: left:560, height:72, widths: 724, 1000, 879, 397. bg cyan #12A9E6. transform-origin:left center. Animate scaleX 0→1.
+
+Hmm — one consideration: should the Explainer bar (max) be a slightly different shade? Brand says bars are cyan. Keep all cyan. The yellow band differentiates.
+
+Value labels: mono, font-size 34px, color #F4F4F1. Top: bar top + 17 (center 34px in 72px: (72-34)/2=19; use 19).
+- v1: left:1312, top:399
+- v2 (hl): left:1588, top:519, with padding: 8px 16px → then vertical centering shifts. With padding 8 top/bottom, total height = 34 + 16 = 50. Center: top = bar top + (72-50)/2 = 500 + 11 = 511. Let me set top:511.
+- v3: left:1467, top:639
+- v4: left:985, top:759
+
+Wait, I need to double check v2 right edge: "58S" at 34px mono ≈ 3 chars * ~20px = 60px + padding 32 = ~92px. 1588 + 92 = 1680 < 1820. Good.
+
+Also, should values be placed at the bar's end even before the bar grows? They fade in after the bar reaches that point, so final position at bar end is correct.
+
+Footer: top:900px, left:120px: "SOURCE: BUILD LOG · N=4 CARDS · UNIT: S" mono 22px, color #8A8A8A (dimmed ink). Hmm, brand colors... a dimmed neutral is fine. Or use #F4F4F1 at low opacity. Let me use color:#777777. Actually, let me stick with a neutral: #6F6F6F.
+
+Maybe also a footer right: "MAX: EXPLAINER" at left:1520, width:280, text-align:right, top:900. That reinforces the highlight. But the yellow band already does that. Let me add "LARGEST: EXPLAINER 58S" on the right? Might be redundant. Let me keep footer left only, and add a small "MAX" marker.
+
+Hmm, actually, let me add a small "MAX" tag: a mono label in cyan above the hl band? Position: left:1588, top:470 (above band at 511). Row 1 value v1 is at top 399, left 1312, width ~90 → ends at 1402. "MAX" at 1588 doesn't overlap v1 (different x). Row 1 bar ends at 380+72=452; MAX at top 470 is below that. Band at 511. MAX height ~22 → 470-492. No overlap with band (511).
+
+Actually wait — is "MAX" necessary? It adds clarity. Let me include it: `<div class="a m" id="maxtag" style="left:1588px;top:468px;font-size:20px;color:var(--c)">MAX</div>`. Hmm, but it might look like it's floating. Alternatively, put "MAX" inside the band: "58S — MAX"? The band is the highlight; "58S MAX" reads well. Let me do that: v2 text = "58S · MAX"? Mono uppercase: "58S · MAX". Width: 9 chars * 20 = 180 + padding = ~212. 1588+212 = 1800 — right at the margin limit (1820). Tight. Let me shorten: "58S MAX" (7 chars ≈ 140 + 32 = 172 → ends at 1760). OK.
+
+Hmm, but the brief says "the largest bar highlighted by a yellow band behind its value" — the value is "58". Adding MAX is extra text, still fine. But to be safe and clean, let me keep the band as just "58S" and add a separate small "MAX" tag above. Actually, simpler and safer: band = "58S", and I'll skip MAX. The yellow band is the highlight per brief. Keep it minimal.
+
+Hmm, let me reconsider: a "MAX" tag adds design interest. Let me include it, positioned carefully: left:1588px, top:462px, font-size:20px, color:var(--c) (cyan). Verify no overlap:
+- v1 "42S": left 1312, top 399, font 34 → occupies x 1312–1390, y 399–433. MAX at x 1588–1635, y 462–484. No overlap. ✓
+- Band v2: x 1588–1680, y 511–561. MAX bottom 484 < 511. ✓
+- Row 2 bar: y 500–572, x 560–1560. MAX x starts at 1588 > 1560. ✓
+
+Good.
+
+Timeline plan (8s total, hold from ~4s):
+
+- 0.00: everything hidden (set opacity 0 via fromTo or initial inline opacity:0 — the example uses inline opacity:0 plus tl.to; but rule 4 says set initial hidden state with tl.set or fromTo, not CSS transform — CSS opacity:0 is fine per the example. The example uses inline opacity:0. I'll use inline opacity:0 where appropriate, and fromTo for transforms.)
+
+Actually, to be safe with rule 7 ("Everything that should be visible at the end of the clip must have been animated in and be at opacity 1 at the hold frame"), I'll animate everything in.
+
+Timeline:
+- tl.set: initial states at 0 for things needing transform: bars scaleX 0 (via fromTo), rule scaleX 0 (fromTo), accent scaleX 0 (fromTo).
+- 0.15: clock fade in (opacity 0→1, duration 0.4) + slight scale 0.8→1? Scale on the div. fromTo.
+- 0.2: eyebrow opacity 0→1, y 16→0, duration 0.5.
+- 0.45: title fromTo opacity 0, y 36 → 0, duration 0.7, ease power3.out.
+- 0.7: unit note opacity 0→1, duration 0.4.
+- 0.8: rule fromTo scaleX 0→1, duration 0.7, ease power2.inOut.
+- 0.95: accent fromTo scaleX 0→1, duration 0.5.
+- 1.05: tracks fade in: each opacity 0→1, duration 0.4, stagger 0.12 → 1.05, 1.17, 1.29, 1.41. Or all at once. Staggered is nicer.
+- 1.1: row labels fade in with stagger: 1.1, 1.25, 1.4, 1.55, each opacity 0→1, x -20→0? x from -16 to 0, duration 0.45.
+- Bars grow:
+  - b1: 1.3 → duration 0.9, ease power2.out
+  - b2: 1.55 → 0.9
+  - b3: 1.8 → 0.9
+  - b4: 2.05 → 0.9
+  (stagger 0.25)
+- Values fade in (slightly before bar end, ~70% through):
+  - v1: 1.95 (bar1 ends 2.2)
+  - v2: 2.2 (bar2 ends 2.45)
+  - v3: 2.45 (bar3 ends 2.7)
+  - v4: 2.7 (bar4 ends 2.95)
+  Each: fromTo opacity 0, x 14 → 0, duration 0.45, ease power2.out.
+- v2 band pop: maybe scale 0.7→1 with power2.out at 2.2. But v2 is a text div with padding; scaling is fine. Let me do fromTo scale 0.6→1.05? Can't do two phases in one tween. Use ease "back.out(1.7)"? Ease is allowed (not restricted). back.out gives a slight overshoot. But is back.out allowed? The rules don't restrict eases. The example uses power2.out/power2.inOut. back.out is a standard GSAP ease, fine. Let me use ease:"back.out(2)" for the band pop. Hmm, but the band contains text — scaling text is fine.
+
+Actually, simpler: v2 fades in like others (x 14→0, opacity), and the band is part of it. Then add a separate subtle emphasis: a thin cyan underline? No. Let me just do the pop with back.out — it's a nice moment.
+
+- MAX tag: fade in at 2.5, opacity 0→1, y 8→0, duration 0.4.
+- Footer: 3.1, opacity 0→1, duration 0.5.
+- Hold: 3.6 → 8.0 static.
+
+Total duration 8. Good.
+
+Let me double-check rule 3: "Use only tl.set / tl.to / tl.from / tl.fromTo with an absolute start time as 3rd argument." All my tweens have absolute start times. ✓. No repeat. ✓
+
+Rule 4: no CSS transform on animated elements. Bars have CSS transform-origin (allowed). Rule/accent have transform-origin:left center (allowed). No CSS `transform:` anywhere. ✓
+
+Rule 5: all positioned with class `a` (position:absolute) and explicit left/top/width in px. Hmm — "explicit left/top/width in px". Should every element have width? The example has the rule with width but the eyebrow doesn't have width. Let me add width where reasonable; for text labels I'll give width where I need text-align. For bars/tracks I have width. For value labels, width auto is fine but the rule says explicit width... The example eyebrow has no width, so it's not strictly enforced per element. But to be safe, I'll add width to most elements. For value labels, I can set width:120px (text-align left). For v2 with padding, width auto is better for the band to hug the text. Hmm, if I set fixed width on the hl band, the yellow area would be wider than the text — that's actually fine visually (band behind value). Let me set width:120px on v2? "58S" at 34px mono ≈ 60px; with padding 16px each side and width 120, the text would be left-aligned within. Let me set text-align:center on v2 for a centered band. Width 120, padding 8px 0. Then band: x 1588–1708, y 511–561.
+
+Wait, I computed v2 top:511 with height 50 (34 + 16 padding). With line-height 1, font 34, padding 8 top/bottom → height 50. Top 511 → bottom 561. Bar row 2: 500–572. Centered. ✓
+
+Other value labels: font 34, line-height 1, top = bar top + 19:
+- v1: 380+19 = 399
+- v3: 620+19 = 639
+- v4: 740+19 = 759
+Width: 100px each, text-align:left.
+
+Row labels: font 30, line-height 1, top = bar top + 21:
+- l1: 401, l2: 521, l3: 641, l4: 761
+Left:120, width:400, text-align:right.
+
+Hmm wait, "LOWER THIRD" at 30px mono: 11 chars. Mono char width ≈ 0.6em = 18px → 198px. Fits in 400. ✓
+"EXPLAINER": 9 chars → 162px. ✓
+
+Title: left:120, top:148, font-size:76, width:1600 (to be safe). Class h.
+Eyebrow: left:180 (after clock at 120–164), top:112, font-size:24, width:600. Text: "PIPELINE / PERFORMANCE" or "BUILD REPORT / RENDER". Let me use "BUILD REPORT — RENDER TIMES". Hmm, keep it short: "BUILD REPORT / RENDER".
+
+Clock: left:120, top:104, width:44, height:44. Eyebrow top:112, font 24 → text center ~124. Clock center ~126. Close enough.
+
+Unit note: "UNIT: S" at left:1660, top:232, width:140, text-align:right, font 22. Right edge 1800. ✓ (margin 120 ≥ 100 ✓)
+
+Rule: left:120, top:262, width:1680, height:4, bg #262626.
+Accent: left:120, top:262, width:160, height:4, bg cyan.
+
+Wait, rule top 262 and unit note top 232 (bottom ~254). OK.
+
+Row area starts at 380. Gap from rule (266) to first bar (380) = 114. Good.
+
+Footer: left:120, top:906, width:900, font 22, color #707070. Text: "SOURCE: BUILD LOG · N=4 · SCALE: 1PX ≈ 0.058S". Hmm, that scale note is nerdy-cool: 1000px/58s = 17.24 px/s, so 1px ≈ 0.058s. Nice detail. Or simpler: "SOURCE: BUILD LOG · N=4 CARDS · UNIT: S". Since unit is already top-right, footer: "SOURCE: BUILD LOG · N=4 CARDS · SCALE 17.2PX/S". Let me do: "SOURCE: BUILD LOG · N=4 CARDS · SCALE 17.2 PX/S".
+
+Also a footer right: maybe "T+08S"? No, skip.
+
+Also, a subtle grid? Vertical gridlines in the bar area would be a nice chart touch: lines at 0, 250, 500, 750, 1000px from 560 → x = 560, 810, 1060, 1310, 1560. Thin 2px lines, color #1E1E1E, from y 360 to 830. With axis labels "0" "15" "30" "45" "60"? Values: 250px = 14.5s, 500 = 29, 750 = 43.5, 1000 = 58. Ugly numbers. Better gridlines at value 20, 40, 58? 20s → 344.8px → x 904.8; 40s → 689.7 → x 1249.7; 58 → 1000 → x 1560. Labels "20" "40" "58"? The 58 line coincides with the max. Hmm.
+
+Gridlines add complexity and risk of overlap with bars (bars drawn over gridlines — fine, bars are opaque cyan). But labels below the axis might clutter. Let me add subtle vertical gridlines without labels, or with small labels at the bottom (top:830, font 18, color #555). Gridlines at x=560 (0), 905 (20), 1250 (40), 1560 (58→"MAX"?). Hmm, "0 20 40 58" is a nice touch.
+
+Let me compute precisely: px/s = 1000/58 = 17.2414.
+- 20s → 344.83 → x = 560 + 344.83 = 904.83 → 905
+- 40s → 689.66 → x = 1249.66 → 1250
+- 58s → 1000 → x = 1560
+
+Gridlines: width 2px, height from 356 to 828 (height 472). Color #1C1C1C. The x=560 one is the axis — make it slightly brighter #2A2A2A, height maybe 3px.
+
+Bottom labels: top:836, font 18, mono, color #5A5A5A, width 40, text-align:center:
+- "0" at left:545 (560-15)
+- "20" at left:885 (905-20)
+- "40" at left:1230 (1250-20)
+- "58" at left:1540 (1560-20)
+
+Wait, "58" label under the max line — nice, reinforces. But bar 4 (Lower third) ends at 560+397=957, y 740–812. Gridline labels at y 836+ are below all bars (bar 4 bottom 812). ✓ No overlap.
+
+Do gridlines overlap with value labels? v1 at x 1312–1412, y 399–433. Gridline at x 1250 (2px) — no. Gridline at x 905: v4 at x 985–1085 — no. ✓
+
+Gridlines vs tracks: tracks are #1D1D1D, gridlines #1C1C1C — gridlines would be nearly invisible behind tracks. That's fine — gridlines show in the gaps between rows. Actually, that might look weird: gridlines only visible in the 48px gaps. Alternative: don't use tracks, just gridlines + bars on dark bg. Bars growing from zero on dark bg with gridlines looks clean. Let me drop the tracks and keep gridlines. Hmm, but tracks give a "container" feel. Without tracks, the empty area shows gridlines — that's a proper chart look. Let me go without tracks. Simpler and cleaner.
+
+So: gridlines (5 vertical), bars (4), values, labels.
+
+Gridline fade in: opacity 0→1 at 1.0, duration 0.5, stagger 0.08.
+
+Bottom axis labels fade in at 1.2.
+
+Now, do gridlines overlap with row labels (x 120–520)? No, gridlines start at x 560. ✓
+
+Let me also double-check the bar widths are "proportional to the values": 724/1000 = 0.724 vs 42/58 = 0.7241 ✓; 879/1000 = 0.879 vs 51/58 = 0.8793 ✓; 397/1000 = 0.397 vs 23/58 = 0.3966 ✓. Good.
+
+Now let me write the HTML.
+
+Structure:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <!-- clock icon -->
+  <div class="a" id="clock" style="left:120px;top:104px;width:44px;height:44px;opacity:0">
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+      <circle cx="22" cy="22" r="16" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="22" y1="22" x2="22" y2="11" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="22" y1="22" x2="31" y2="26" stroke="#F4F4F1" stroke-width="6"/>
+    </svg>
+  </div>
+
+  <div class="a m" id="eyebrow" style="left:184px;top:112px;width:700px;font-size:24px;letter-spacing:2px;color:var(--c);opacity:0">BUILD REPORT / RENDER PIPELINE</div>
+
+  <div class="a h" id="title" style="left:120px;top:148px;width:1600px;font-size:76px;opacity:0">RENDER TIME PER CARD (S)</div>
+
+  <div class="a m" id="unit" style="left:1640px;top:232px;width:160px;font-size:22px;text-align:right;color:var(--ink);opacity:0">UNIT: S</div>
+
+  <div class="a" id="rule" style="left:120px;top:262px;width:1680px;height:4px;background:#262626;transform-origin:left center;opacity:1"></div>
+  <div class="a" id="accent" style="left:120px;top:262px;width:160px;height:4px;background:var(--c);transform-origin:left center"></div>
+```
+
+Wait — the rule should probably also fade in, or just scaleX. scaleX from 0 with initial opacity 1 is fine (it's invisible at scaleX 0). But a 4px line at scaleX 0 — invisible. OK. But the rule needs to be "animated in" — scaleX counts. Fine.
+
+Hmm, but the rule/accent: I set opacity:1 inline on rule, and accent has no opacity set (defaults to 1). Both animate scaleX. Good — no CSS transform, only transform-origin. ✓
+
+Gridlines:
+
+```html
+  <div class="a" id="g0" style="left:560px;top:356px;width:2px;height:472px;background:#2A2A2A;opacity:0"></div>
+  <div class="a" id="g1" style="left:905px;top:356px;width:2px;height:472px;background:#1C1C1C;opacity:0"></div>
+  <div class="a" id="g2" style="left:1250px;top:356px;width:2px;height:472px;background:#1C1C1C;opacity:0"></div>
+  <div class="a" id="g3" style="left:1560px;top:356px;width:2px;height:472px;background:#1C1C1C;opacity:0"></div>
+```
+
+Axis labels:
+
+```html
+  <div class="a m" id="a0" style="left:540px;top:838px;width:40px;font-size:18px;text-align:center;color:#5A5A5A;opacity:0">0</div>
+  <div class="a m" id="a1" style="left:885px;top:838px;width:40px;font-size:18px;text-align:center;color:#5A5A5A;opacity:0">20</div>
+  <div class="a m" id="a2" style="left:1230px;top:838px;width:40px;font-size:18px;text-align:center;color:#5A5A5A;opacity:0">40</div>
+  <div class="a m" id="a3" style="left:1540px;top:838px;width:40px;font-size:18px;text-align:center;color:#5A5A5A;opacity:0">58</div>
+```
+
+Gridline g3 at x1560 — but the "58" label at 1540–1580 is centered on 1560. ✓
+
+Rows: labels, bars, values.
+
+```html
+  <!-- Row 1: Title 42 -->
+  <div class="a m" id="l1" style="left:120px;top:401px;width:400px;font-size:30px;line-height:1;text-align:right;color:var(--ink);opacity:0">TITLE</div>
+  <div class="a" id="b1" style="left:560px;top:380px;width:724px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v1" style="left:1312px;top:399px;width:100px;font-size:34px;line-height:1;color:var(--ink);opacity:0">42S</div>
+
+  <!-- Row 2: Explainer 58 (MAX) -->
+  <div class="a m" id="l2" style="left:120px;top:521px;width:400px;font-size:30px;line-height:1;text-align:right;color:var(--ink);opacity:0">EXPLAINER</div>
+  <div class="a" id="b2" style="left:560px;top:500px;width:1000px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m hl" id="v2" style="left:1588px;top:511px;width:120px;height:50px;font-size:34px;line-height:1;text-align:center;padding:8px 0;opacity:0">58S</div>
+
+  <!-- Row 3: Chart 51 -->
+  <div class="a m" id="l3" style="left:120px;top:641px;width:400px;font-size:30px;line-height:1;text-align:right;color:var(--ink);opacity:0">CHART</div>
+  <div class="a" id="b3" style="left:560px;top:620px;width:879px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v3" style="left:1467px;top:639px;width:100px;font-size:34px;line-height:1;color:var(--ink);opacity:0">51S</div>
+
+  <!-- Row 4: Lower third 23 -->
+  <div class="a m" id="l4" style="left:120px;top:761px;width:400px;font-size:30px;line-height:1;text-align:right;color:var(--ink);opacity:0">LOWER THIRD</div>
+  <div class="a" id="b4" style="left:560px;top:740px;width:397px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v4" style="left:985px;top:759px;width:100px;font-size:34px;line-height:1;color:var(--ink);opacity:0">23S</div>
+```
+
+Wait: v2 with `hl` class — the `.hl` class presumably sets background #FFD400 and color #111. I set width:120px, height:50px, padding:8px 0, text-align:center. With box-sizing default (content-box), height 50 + padding 16 = total 66? Hmm. If box-sizing is border-box (common in resets), height 50 includes padding. gw.css might set box-sizing. Uncertain. To be safe, don't set height on v2; let it size naturally: font 34, line-height 1, padding 8px 0 → total 50. Top 511 → 511–561. ✓ (assuming no border-box height conflict; without explicit height, padding adds to content — either way total = 34+16 = 50.) Good, drop the height.
+
+Also, bars: should I add a slight edge detail? Like a 6px brighter cap at the bar end? That would need to move with the bar... skip. Keep bars flat cyan.
+
+MAX tag:
+```html
+  <div class="a m" id="maxtag" style="left:1588px;top:462px;width:120px;font-size:20px;color:var(--c);opacity:0">MAX</div>
+```
+Hmm, MAX above the band, left-aligned at 1588 (band left). ✓
+
+Footer:
+```html
+  <div class="a m" id="foot" style="left:120px;top:906px;width:1000px;font-size:22px;color:#6F6F6F;opacity:0">SOURCE: BUILD LOG · N=4 CARDS · SCALE 17.2 PX/S</div>
+```
+
+Wait, "·" is a middle dot — not an emoji, fine.
+
+Also a footer right: maybe "T+08S"? No, skip.
+
+Verify text widths:
+- Eyebrow: "BUILD REPORT / RENDER PIPELINE" = 30 chars, 24px mono ≈ 14.4px/char → 432px. Width 700 ✓.
+- Title 76px: 24 chars * ~50.7 = 1217 ✓ (width 1600).
+- Footer: 44 chars * 13.2 = 581 ✓.
+
+Now the timeline:
+
+```js
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+
+// intro
+tl.fromTo("#clock", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 0.15);
+tl.fromTo("#eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25);
+tl.fromTo("#title", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.45);
+tl.fromTo("#unit", { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.75);
+tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.85);
+tl.fromTo("#accent", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 1.0);
+
+// grid
+tl.to("#g0", { opacity: 1, duration: 0.4 }, 1.05);
+tl.to("#g1", { opacity: 1, duration: 0.4 }, 1.13);
+tl.to("#g2", { opacity: 1, duration: 0.4 }, 1.21);
+tl.to("#g3", { opacity: 1, duration: 0.4 }, 1.29);
+tl.to("#a0", { opacity: 1, duration: 0.4 }, 1.25);
+tl.to("#a1", { opacity: 1, duration: 0.4 }, 1.3);
+tl.to("#a2", { opacity: 1, duration: 0.4 }, 1.35);
+tl.to("#a3", { opacity: 1, duration: 0.4 }, 1.4);
+
+// row labels
+tl.fromTo("#l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.2);
+tl.fromTo("#l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.35);
+tl.fromTo("#l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.5);
+tl.fromTo("#l4", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.65);
+
+// bars
+tl.fromTo("#b1", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.35);
+tl.fromTo("#b2", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.6);
+tl.fromTo("#b3", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.85);
+tl.fromTo("#b4", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 2.1);
+
+// values
+tl.fromTo("#v1", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 2.0);
+tl.fromTo("#v2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 2.25);
+tl.fromTo("#v3", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 2.5);
+tl.fromTo("#v4", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 2.75);
+
+tl.fromTo("#maxtag", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.6);
+tl.fromTo("#foot", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.1);
+
+window.__timelines["main"] = tl;
+```
+
+Check: v2 uses scale — transform-origin defaults to center; fine.
+
+Wait — v2 with back.out(2) scale from 0.6: it overshoots to ~1.05 then settles at 1. Nice pop.
+
+One concern: `#v2` is a div with `hl` class. The `.hl` class in gw.css — I assume it sets background #FFD400 and color #111. The brief says "yellow #FFD400 only as band behind #111 text (class hl, its text is #111)". So `.hl` handles bg + color. My inline style sets layout only. ✓
+
+Also, bars: initial state via fromTo scaleX 0 — but before the timeline plays (at t=0), the frame at t=0: GSAP timeline paused at 0; fromTo sets the "from" state when the tween starts... actually, a paused timeline at position 0: tweens with start > 0 haven't applied their from state yet. At render time, HyperFrames seeks the timeline to each frame's time. When seeking to t=0, the fromTo tweens at 1.35 haven't started, so bars would show at scaleX 1 (full) at t=0? No — GSAP's fromTo, when the playhead is before the tween start, the element is at its natural state (scaleX 1) unless immediateRender is true. GSAP's fromTo has immediateRender default true for from tweens... actually, for fromTo, immediateRender defaults to true (like from). With immediateRender true, the from state is applied immediately when the timeline is created (at t=0 in timeline terms). Since the timeline is created and registered, the from state (scaleX 0) is applied immediately upon creation. So at t=0, bars are at scaleX 0. ✓
+
+Similarly, opacity 0 inline styles cover the text elements. And fromTo with immediateRender would set opacity 0 anyway. Double safety. Good.
+
+But wait — the rule/accent: fromTo scaleX 0 with immediateRender → scaleX 0 at creation. ✓
+
+Clock: fromTo opacity 0, scale 0.7 → applied at creation. ✓
+
+Now, one more check on rule 3: "Animate opacity, x, y, xPercent, scale, scaleX, scaleY, rotation, width, height." I animate opacity, x, y, scale, scaleX. ✓ All allowed.
+
+Rule: "Never repeat:-1" — no repeat. ✓ "no Math.random, no Date.now, no setTimeout, no requestAnimationFrame, no CSS animations or transitions" — none. ✓
+
+Rule 2: root with data-duration="8". ✓ All visible elements are children of root. ✓
+
+Rule 5: "Keep all text inside the canvas with at least 100 px margin" — leftmost text at x=120 ✓, rightmost: v2 band ends at 1588+120=1708 ✓, unit at 1640+160=1800 ✓ (120 margin), title ends ~1337 ✓, footer ends ~701 ✓. Top: clock at 104 ✓ (≥100). Bottom: footer at 906+22=928 ✓, axis labels at 838+18=856 ✓.
+
+"Text must not overlap other text" — checked above. Let me re-verify a few:
+- l1 "TITLE" at x 120–520 (right-aligned, ~90px wide → 430–520), y 401–431. v1 at 1312+. ✓
+- l2 "EXPLAINER" ~162px → 358–520, y 521–551. b2 bar at y 500–572, x 560–1560. No overlap (label ends at 520 < 560). ✓
+- maxtag at 1588–1635 (5 chars * 12 = 60px), y 462–482. v1 at 1312–1412, y 399–433. ✓ No overlap.
+- v3 "51S" at 1467–1567, y 639–673. Gridline g3 at x 1560 — that's a line, not text. ✓
+- Axis label a3 "58" at 1540–1580, y 838–856. b4 bar ends at x 957. ✓
+
+Bars overlap gridlines (visual layering, fine — bars are later in DOM, drawn on top).
+
+Bars vs value labels: v1 at x 1312, b1 ends at 1284. Gap 28. ✓ v3 at 1467, b3 ends at 1439. ✓ v4 at 985, b4 ends at 957. ✓ v2 at 1588, b2 ends at 1560. ✓
+
+Now, the `hl` band: I should double check it doesn't conflict with the "no rounded corners" — fine, it's a rectangle.
+
+Fonts: class `h` for title (uppercase heavy wide) — I write the text already uppercase; the class may also uppercase. Fine. Class `m` for mono labels. I use `var(--ink)` for ink color — is `--ink` defined? The brief says "ink #F4F4F1" and "Fonts via CSS variables: var(--display), var(--body), var(--mono)". It doesn't confirm color variable names. The example uses `color:var(--c)` for cyan, `background:var(--m)` for magenta. So `--c` = cyan, `--m` = magenta presumably. For ink, safer to use the literal #F4F4F1. Let me use #F4F4F1 directly for ink text to avoid undefined variable risk.
+
+Similarly for bar bg: use #12A9E6 directly? The example used var(--c) for cyan and it was in the example, so --c exists. I'll use var(--c) for cyan (proven in example) and literal hex for ink.
+
+Let me also reconsider the eyebrow text: "BUILD REPORT / RENDER PIPELINE" — good.
+
+Title from JSON: "Render time per card (s)" → displayed uppercase via class h: "RENDER TIME PER CARD (S)". I'll write it uppercase in HTML to be safe (class may uppercase anyway).
+
+One more design consideration: should bars have a subtle end-cap tick or a brighter edge? Keep it flat per brand (no gradients). Flat cyan is fine.
+
+Should I add a small "s" unit inside values? I have "42S" etc. Since class m uppercases, "42s" → "42S". Good.
+
+Let me also verify the clock SVG: stroke-width 6, stroke colors cyan + ink, no fill. ✓ viewBox 44. Circle r=16, center 22: stroke extends 3px → 22±19 = 3..41, within 44. ✓ Hand lines: minute hand up to (22,11) — inside circle (r16: top at y=6). 11 > 6 ✓. Hour hand to (31,26): distance from center = sqrt(81+16)=~9.85 < 16 ✓.
+
+Now, is `line-height:1` in inline styles OK? Yes, it's not transform/animation.
+
+Also I should ensure `.a` class exists in gw.css (position:absolute). The example uses class `a` for absolute. ✓
+
+Let me also add a subtle background element? The body is already #0E0E0E per the brief. I could add a faint frame/border around the canvas? Not necessary.
+
+One more: "value labels counting up or fading in at bar end" — I chose fade-in at bar end. ✓
+
+"the largest bar highlighted by a yellow band behind its value" — v2 has hl class (yellow band). ✓
+
+"Chart title from the JSON" — title text = "RENDER TIME PER CARD (S)". ✓
+
+"Bars must be proportional to the values" — ✓ (724:1000:879:397 ≈ 42:58:51:23).
+
+Let me reconsider the timing to make it feel good in 8s:
+- 0–1.0: header intro
+- 1.0–1.5: grid + labels
+- 1.35–3.0: bars grow (staggered)
+- 2.0–3.0: values appear
+- 3.1–3.6: footer
+- 3.6–8.0: hold (4.4s hold)
+
+That's a solid rhythm. Maybe extend the hold a bit more by starting slightly earlier? It's fine.
+
+Actually, let me push the bar stagger a bit wider for drama: stagger 0.3 instead of 0.25:
+- b1: 1.35 → 2.25
+- b2: 1.65 → 2.55
+- b3: 1.95 → 2.85
+- b4: 2.25 → 3.15
+Values:
+- v1: 2.0
+- v2: 2.3
+- v3: 2.6
+- v4: 2.9
+maxtag: 2.7
+foot: 3.3 → done 3.8. Hold 3.8–8.0 (4.2s). Good.
+
+Hmm, v2 pop at 2.3 with back.out — bar2 ends at 2.55, so the value appears just before the bar completes. The value is positioned at the bar's final end (x 1588), while the bar is still growing toward it — the label appears slightly ahead of the bar tip. That's a common effect, looks fine. Or delay values to bar end: v1 2.25, v2 2.55, v3 2.85, v4 3.15. Then maxtag 3.0, foot 3.4. Hold from 3.9. Let me do values at ~90% of bar completion for a snappier feel:
+- v1: 2.1
+- v2: 2.4
+- v3: 2.7
+- v4: 3.0
+- maxtag: 2.9
+- foot: 3.35
+
+Done ~3.85. Good.
+
+Row label stagger: 1.15, 1.3, 1.45, 1.6.
+
+Grid: 1.0–1.4. Axis labels 1.2–1.5.
+
+Let me finalize the code.
+
+Also, one detail: `tl.fromTo("#v2", { opacity: 0, scale: 0.6 }, ...)` — v2 has padding and is a block; scaling from center is fine.
+
+Double-check no CSS `transform` property anywhere: I only use `transform-origin`. ✓
+
+Check: "Exactly one root element" — one #root div. ✓ "Every visible element is a child of it" — yes, all inside. ✓
+
+Let me also make sure I don't use `var(--ink)` — I'll use #F4F4F1.
+
+For the dimmed footer/axis colors, I use hex grays (#6F6F6F, #5A5A5A) — neutral grays are acceptable (not in the forbidden list; brand colors are for accents). The bg is #0E0E0E; grays for secondary text are standard.
+
+Actually, to be safer with the brand, I could use #F4F4F1 with opacity for secondary text. But that would require animating opacity... no, the element opacity is animated to 1. I could set color with rgba: rgba(244,244,241,0.45). That's cleaner brand-wise. Let me use rgba(244,244,241,0.5) for axis labels and rgba(244,244,241,0.45) for footer. And gridlines: rgba(244,244,241,0.12) and axis line rgba(244,244,241,0.2). That keeps everything within the ink/cyan/magenta/yellow system.
+
+Rule line: rgba(244,244,241,0.18).
+
+Let me write it out.
+
+Final structure and code:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card (s)</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <div class="a" id="clock" style="left:120px;top:104px;width:44px;height:44px">
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="16" stroke="#12A9E6" stroke-width="6"/>
+      <line x1="22" y1="22" x2="22" y2="11" stroke="#F4F4F1" stroke-width="6"/>
+      <line x1="22" y1="22" x2="31" y2="26" stroke="#F4F4F1" stroke-width="6"/>
+    </svg>
+  </div>
+
+  <div class="a m" id="eyebrow" style="left:184px;top:112px;width:700px;font-size:24px;color:var(--c);opacity:0">BUILD REPORT / RENDER PIPELINE</div>
+
+  <div class="a h" id="title" style="left:120px;top:148px;width:1600px;font-size:76px;opacity:0">RENDER TIME PER CARD (S)</div>
+
+  <div class="a m" id="unit" style="left:1640px;top:232px;width:160px;font-size:22px;text-align:right;color:#F4F4F1;opacity:0">UNIT: S</div>
+
+  <div class="a" id="rule" style="left:120px;top:262px;width:1680px;height:4px;background:rgba(244,244,241,0.18);transform-origin:left center"></div>
+  <div class="a" id="accent" style="left:120px;top:262px;width:160px;height:4px;background:var(--c);transform-origin:left center"></div>
+
+  <!-- grid -->
+  <div class="a" id="g0" style="left:560px;top:356px;width:2px;height:472px;background:rgba(244,244,241,0.2);opacity:0"></div>
+  <div class="a" id="g1" style="left:905px;top:356px;width:2px;height:472px;background:rgba(244,244,241,0.08);opacity:0"></div>
+  <div class="a" id="g2" style="left:1250px;top:356px;width:2px;height:472px;background:rgba(244,244,241,0.08);opacity:0"></div>
+  <div class="a" id="g3" style="left:1560px;top:356px;width:2px;height:472px;background:rgba(244,244,241,0.08);opacity:0"></div>
+
+  <div class="a m" id="a0" style="left:540px;top:838px;width:40px;font-size:18px;text-align:center;color:rgba(244,244,241,0.5);opacity:0">0</div>
+  <div class="a m" id="a1" style="left:885px;top:838px;width:40px;font-size:18px;text-align:center;color:rgba(244,244,241,0.5);opacity:0">20</div>
+  <div class="a m" id="a2" style="left:1230px;top:838px;width:40px;font-size:18px;text-align:center;color:rgba(244,244,241,0.5);opacity:0">40</div>
+  <div class="a m" id="a3" style="left:1540px;top:838px;width:40px;font-size:18px;text-align:center;color:rgba(244,244,241,0.5);opacity:0">58</div>
+
+  <!-- row 1 -->
+  <div class="a m" id="l1" style="left:120px;top:401px;width:400px;font-size:30px;line-height:1;text-align:right;color:#F4F4F1;opacity:0">TITLE</div>
+  <div class="a" id="b1" style="left:560px;top:380px;width:724px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v1" style="left:1312px;top:399px;width:100px;font-size:34px;line-height:1;color:#F4F4F1;opacity:0">42s</div>
+
+  <!-- row 2 (max) -->
+  <div class="a m" id="l2" style="left:120px;top:521px;width:400px;font-size:30px;line-height:1;text-align:right;color:#F4F4F1;opacity:0">EXPLAINER</div>
+  <div class="a" id="b2" style="left:560px;top:500px;width:1000px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="maxtag" style="left:1588px;top:462px;width:120px;font-size:20px;color:var(--c);opacity:0">MAX</div>
+  <div class="a m hl" id="v2" style="left:1588px;top:511px;width:120px;font-size:34px;line-height:1;text-align:center;padding:8px 0;opacity:0">58s</div>
+
+  <!-- row 3 -->
+  <div class="a m" id="l3" style="left:120px;top:641px;width:400px;font-size:30px;line-height:1;text-align:right;color:#F4F4F1;opacity:0">CHART</div>
+  <div class="a" id="b3" style="left:560px;top:620px;width:879px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v3" style="left:1467px;top:639px;width:100px;font-size:34px;line-height:1;color:#F4F4F1;opacity:0">51s</div>
+
+  <!-- row 4 -->
+  <div class="a m" id="l4" style="left:120px;top:761px;width:400px;font-size:30px;line-height:1;text-align:right;color:#F4F4F1;opacity:0">LOWER THIRD</div>
+  <div class="a" id="b4" style="left:560px;top:740px;width:397px;height:72px;background:var(--c);transform-origin:left center"></div>
+  <div class="a m" id="v4" style="left:985px;top:759px;width:100px;font-size:34px;line-height:1;color:#F4F4F1;opacity:0">23s</div>
+
+  <div class="a m" id="foot" style="left:120px;top:906px;width:1100px;font-size:22px;color:rgba(244,244,241,0.45);opacity:0">SOURCE: BUILD LOG · N=4 CARDS · SCALE 17.2 PX/S</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  // header
+  tl.fromTo("#clock", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 0.15);
+  tl.fromTo("#eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25);
+  tl.fromTo("#title", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.45);
+  tl.fromTo("#unit", { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.75);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.85);
+  tl.fromTo("#accent", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 1.0);
+
+  // grid + axis
+  tl.to("#g0", { opacity: 1, duration: 0.4 }, 1.0);
+  tl.to("#g1", { opacity: 1, duration: 0.4 }, 1.08);
+  tl.to("#g2", { opacity: 1, duration: 0.4 }, 1.16);
+  tl.to("#g3", { opacity: 1, duration: 0.4 }, 1.24);
+  tl.to("#a0", { opacity: 1, duration: 0.4 }, 1.2);
+  tl.to("#a1", { opacity: 1, duration: 0.4 }, 1.26);
+  tl.to("#a2", { opacity: 1, duration: 0.4 }, 1.32);
+  tl.to("#a3", { opacity: 1, duration: 0.4 }, 1.38);
+
+  // row labels
+  tl.fromTo("#l1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.15);
+  tl.fromTo("#l2", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.3);
+  tl.fromTo("#l3", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.45);
+  tl.fromTo("#l4", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 1.6);
+
+  // bars
+  tl.fromTo("#b1", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.35);
+  tl.fromTo("#b2", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.65);
+  tl.fromTo("#b3", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 1.95);
+  tl.fromTo("#b4", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.out" }, 2.25);
+
+  // values
+  tl.fromTo("#v1", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 2.1);
+  tl.fromTo("#v2", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 2.4);
+  tl.fromTo("#v3", { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration
+[CONTENT]

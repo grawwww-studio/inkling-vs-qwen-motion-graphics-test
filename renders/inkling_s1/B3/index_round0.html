@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Render time per card (s)</title>
+<link rel="stylesheet" href="lib/gw.css" />
+<script src="vendor/gsap.min.js"></script>
+<style>
+  #root { position:relative; width:1920px; height:1080px; overflow:hidden; background:#0E0E0E; }
+  .a { position:absolute; }
+  .h { font-family:var(--display); text-transform:uppercase; font-weight:800; letter-spacing:1px; line-height:1.05; }
+  .m { font-family:var(--mono); text-transform:uppercase; }
+  .bar { background:#12A9E6; transform-origin:left center; }
+  .grid { background:#1E1E1E; }
+  .val { display:flex; align-items:center; color:#F4F4F1; }
+  .hl { background:#FFD400; color:#111; padding:0 16px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+
+  <div class="a" id="dot" style="left:160px;top:110px;width:14px;height:14px;background:#FF2D92;opacity:0"></div>
+  <div class="a m" id="eyebrow" style="left:190px;top:100px;width:900px;font-size:24px;letter-spacing:4px;color:#12A9E6;opacity:0">Perf / Render time — card pipeline</div>
+  <div class="a m" id="foot" style="left:1100px;top:100px;width:660px;font-size:20px;letter-spacing:3px;color:#6E6E68;text-align:right;opacity:0">Source: build pipeline · 4 cards · 8 s pass</div>
+
+  <div class="a h" id="title" style="left:160px;top:150px;width:1600px;font-size:64px;color:#F4F4F1;opacity:0">Render time per card (s)</div>
+  <div class="a" id="rule" style="left:160px;top:258px;width:1600px;height:4px;background:#12A9E6;transform-origin:left center"></div>
+
+  <div class="a grid" style="left:519px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a grid" style="left:700px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a grid" style="left:881px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a grid" style="left:1062px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a grid" style="left:1243px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a grid" style="left:1424px;top:330px;width:2px;height:560px;opacity:0"></div>
+  <div class="a" id="axis" style="left:518px;top:330px;width:4px;height:560px;background:#3A3A3A;opacity:0"></div>
+
+  <div class="a m tick" style="left:480px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">0</div>
+  <div class="a m tick" style="left:661px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">10</div>
+  <div class="a m tick" style="left:842px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">20</div>
+  <div class="a m tick" style="left:1023px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">30</div>
+  <div class="a m tick" style="left:1204px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">40</div>
+  <div class="a m tick" style="left:1385px;top:904px;width:80px;font-size:20px;color:#6E6E68;text-align:center;opacity:0">50</div>
+
+  <div class="a m" id="label-0" style="left:160px;top:382px;width:330px;height:48px;font-size:28px;letter-spacing:2px;color:#B9B9B3;display:flex;align-items:center;opacity:0">Title</div>
+  <div class="a bar" id="bar-0" style="left:520px;top:376px;width:762px;height:64px"></div>
+  <div class="a m val" id="val-0" style="left:1302px;top:382px;width:190px;height:52px;font-size:36px;opacity:0">0 s</div>
+
+  <div class="a m" id="label-1" style="left:160px;top:520px;width:330px;height:48px;font-size:28px;letter-spacing:2px;color:#B9B9B3;display:flex;align-items:center;opacity:0">Explainer</div>
+  <div class="a bar" id="bar-1" style="left:520px;top:514px;width:1050px;height:64px"></div>
+  <div class="a m val hl" id="val-1" style="left:1590px;top:520px;width:190px;height:52px;font-size:36px;opacity:0">0 s</div>
+
+  <div class="a m" id="label-2" style="left:160px;top:658px;width:330px;height:48px;font-size:28px;letter-spacing:2px;color:#B9B9B3;display:flex;align-items:center;opacity:0">Chart</div>
+  <div class="a bar" id="bar-2" style="left:520px;top:652px;width:923px;height:64px"></div>
+  <div class="a m val" id="val-2" style="left:1463px;top:658px;width:190px;height:52px;font-size:36px;opacity:0">0 s</div>
+
+  <div class="a m" id="label-3" style="left:160px;top:796px;width:330px;height:48px;font-size:28px;letter-spacing:2px;color:#B9B9B3;display:flex;align-items:center;opacity:0">Lower third</div>
+  <div class="a bar" id="bar-3" style="left:520px;top:790px;width:417px;height:64px"></div>
+  <div class="a m val" id="val-3" style="left:957px;top:796px;width:190px;height:52px;font-size:36px;opacity:0">0 s</div>
+
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.to("#dot", { opacity: 1, duration: 0.35 }, 0.2);
+  tl.to("#eyebrow", { opacity: 1, duration: 0.45 }, 0.25);
+  tl.to("#foot", { opacity: 1, duration: 0.45 }, 0.35);
+  tl.fromTo("#title", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.4);
+  tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.75);
+  tl.to("#axis", { opacity: 1, duration: 0.4 }, 1.05);
+  tl.to(".grid", { opacity: 1, duration: 0.35, stagger: 0.07 }, 1.05);
+  tl.to(".tick", { opacity: 1, duration: 0.35, stagger: 0.07 }, 1.15);
+
+  const rows = [
+    { bar: "#bar-0", label: "#label-0", val: "#val-0", v: 42, t: 1.55 },
+    { bar: "#bar-1", label: "#label-1", val: "#val-1", v: 58, t: 2.25 },
+    { bar: "#bar-2", label: "#label-2", val: "#val-2", v: 51, t: 2.95 },
+    { bar: "#bar-3", label: "#label-3", val: "#val-3", v: 23, t: 3.65 }
+  ];
+
+  rows.forEach((r) => {
+    tl.to(r.label, { opacity: 1, duration: 0.35 }, r.t - 0.25);
+    tl.fromTo(r.bar, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "power3.out" }, r.t);
+    tl.to(r.val, { opacity: 1, duration: 0.3 }, r.t + 0.1);
+    const obj = { v: 0 };
+    const el = document.querySelector(r.val);
+    tl.to(obj, {
+      v: r.v,
+      duration: 1.05,
+      ease: "power2.out",
+      onUpdate: () => { el.textContent = Math.round(obj.v) + " s"; }
+    }, r.t);
+  });
+
+  tl.fromTo("#val-1", { scale: 0.85 }, { scale: 1, duration: 0.5, ease: "back.out(2.5)", immediateRender: false }, 4.6);
+
+  window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

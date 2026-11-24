@@ -1,0 +1,739 @@
+[REASONING]
+The user wants a complete index.html file in a single ```html code block. Let me carefully construct this following all the hard rules.
+
+Brief B5: Product teaser with own assets (10 s)
+
+10 s teaser for "Grawwww Studio: local AI, delivered". Use `assets/logo-negative.png` (centre, appears at the end) and `assets/icon.svg`.
+
+Beat sheet:
+- 0-3 s: three short lines slam in ("Agents." "Automations." "Video.")
+- 3-7 s: a row of three feature chips ("Runs on your hardware", "No per-token bill", "Your data stays put") staggered
+- 7-10 s: everything clears and the logo fades/scales in with the tagline "Local AI, delivered." under it.
+
+Let me plan the composition carefully.
+
+Canvas: 1920x1080, 24 fps, duration 10s.
+
+Brand identity C dark:
+- background #0E0E0E (body)
+- ink #F4F4F1
+- cyan #12A9E6
+- magenta #FF2D92
+- yellow #FFD400 only as a band behind #111 text (class `hl`, its text is #111)
+- Fonts via CSS variables: `var(--display)` for headings (class `h`: uppercase, heavy, wide), `var(--body)`, `var(--mono)` (class `m`: uppercase labels)
+- No rounded corners, no box-shadow, no gradients, no emojis.
+
+Assets:
+- `assets/logo-negative.png` (centre, appears at the end)
+- `assets/icon.svg`
+
+Let me think about the layout.
+
+**Beat 1 (0-3s): three short lines slam in**
+"Agents." "Automations." "Video."
+
+These slam in one after another. Let me place them stacked vertically. Each line slams in with scale/opacity. Let me time:
+- Line 1 "Agents." at ~0.3s
+- Line 2 "Automations." at ~1.0s
+- Line 3 "Video." at ~1.7s
+
+They should hold until 3s, then clear.
+
+Actually, let me think about the "slam" effect. A slam is usually a fast scale from large to normal (impact) or from 0 to normal with a punchy ease. Let me use a scale from 1.4 to 1 with opacity 0 to 1, quick duration ~0.3s, ease power4.out or back.out. That gives a punchy slam.
+
+Let me place the three lines centered-ish, maybe left-aligned at x=160 for a strong editorial look. Actually center could work too. Let me do left-aligned big display text.
+
+Wait, the rule says: "Keep all text inside the canvas with at least 100 px margin". And "size boxes so text fits on its line (display font is wide: at 150 px an uppercase letter is about 100 px wide)."
+
+So at 150px font, an uppercase letter is ~100px wide. "Automations." is 12 characters. At 150px that would be ~1200px wide. That fits within 1920 with 160px left margin (160 + 1200 = 1360, right margin 560). Good.
+
+Actually let me reconsider. Let me use a large display size. Let me use font-size 150px for the slam lines. "Automations." = 12 chars * 100px = 1200px wide. Left at 160px, ends at 1360px. Fine.
+
+Let me place them stacked:
+- Line 1 top: 300px
+- Line 2 top: 470px
+- Line 3 top: 640px
+
+Hmm, with 150px font, line height ~150px. Let me space them 170px apart.
+
+Actually, let me reconsider the whole thing. Let me make the slam lines big and impactful.
+
+Let me use:
+- "Agents." — left 160, top 280, font 150
+- "Automations." — left 160, top 460, font 150
+- "Video." — left 160, top 640, font 150
+
+Wait, but I want to make sure they don't overlap. 150px font, top positions 280, 460, 640 — spacing 180px. Good, no overlap.
+
+Actually, let me reconsider. Maybe center them for a more "teaser" feel. But left-aligned editorial is more striking. Let me go left-aligned but maybe make them progressively... no, keep it clean.
+
+Hmm, actually for a teaser, having them slam in centered could be more dramatic. But let me keep the brand's editorial left-aligned approach. Let me actually think about what looks best.
+
+Let me do a mix: big lines left-aligned with an accent. Let me add a small mono eyebrow label at the top like "GRAWWWW STUDIO" or a number.
+
+Let me structure:
+
+**Global elements:**
+- A background (body is #0E0E0E). Maybe add subtle grid or corner marks for texture. But keep it clean.
+- A persistent corner mark / logo icon top-left? The brief says use `assets/icon.svg`. I can use the icon in the feature chips (each chip has an icon) or as a persistent brand mark. Let me use icon.svg in the chips and/or as a small mark.
+
+Actually, the brief says "Use `assets/logo-negative.png` (centre, appears at the end) and `assets/icon.svg`." So I should use both. The logo-negative appears at the end (center). The icon.svg I can use in the feature chips or as a small persistent mark.
+
+Let me use icon.svg in the three feature chips (each chip gets the icon, or I could use it as a bullet). Actually, using the same icon three times might look repetitive. Let me use it as a small mark in each chip as a leading element, or as a single brand mark.
+
+Hmm, let me think. I'll use icon.svg as a small mark in the top-left corner as a persistent brand element, AND in the chips. Actually, let me use it in the chips as the leading icon for each chip. That's clean.
+
+Wait — but I need to draw icons as inline SVG per rule 6: "Draw icons as inline SVG (stroke #F4F4F1 or a brand colour, stroke-width 6, no fill or flat fill). Do not load external icons."
+
+But the brief explicitly says to use `assets/icon.svg`. There's a tension. Rule 6 says draw icons as inline SVG and don't load external icons. But the brief says use `assets/icon.svg`.
+
+I think the resolution: `assets/icon.svg` is a provided asset I'm allowed to reference (it's listed as an available file in the project). Rule 6 is about not loading *external* icons (from CDNs). The `assets/icon.svg` is a local project asset. So I can use `<img src="assets/icon.svg">` or embed it.
+
+Hmm, but rule 6 says "Do not load external icons." The icon.svg is local, not external. And the brief explicitly instructs to use it. So I'll use it. I'll use `<img>` tags for the icon and logo. Actually for the logo I definitely use `<img src="assets/logo-negative.png">`.
+
+For icon.svg, I can use `<img src="assets/icon.svg">`. That's the cleanest way to "use" it. Let me use it in the chips.
+
+Actually, let me reconsider. To be safe and satisfy both, I'll use `assets/icon.svg` as an `<img>` in the feature chips (leading icon), and also maybe as a small corner mark. This clearly "uses" the asset. And I won't load any external/CDN icons.
+
+Let me now design the full timeline.
+
+**Timeline plan (10s):**
+
+Persistent:
+- Background #0E0E0E (body). 
+- Maybe a subtle top bar with mono label "GRAWWWW STUDIO" top-left and a small icon, and a frame number / "10S" top-right. These could persist or appear/disappear per beat. Let me have a persistent thin frame: top-left "GRAWWWW STUDIO" mono label with icon, top-right "LOCAL AI / 10S" or similar. Actually, let me keep persistent chrome minimal so the beats read clearly.
+
+Let me define persistent chrome:
+- Top-left: icon.svg (small, ~40px) + "GRAWWWW STUDIO" mono label. Appears at 0.2s, stays until ~7s (clears), then reappears? The brief says "everything clears" at 7s. So the chrome should clear too, and the logo scene is clean. Let me have the chrome fade out at 7s along with everything else, then the logo scene is just logo + tagline (maybe with a small persistent corner mark or not).
+
+Actually "everything clears and the logo fades/scales in" — so at 7s, all beat elements clear, then logo + tagline appear. Let me have the chrome (top bar) also clear at 7s, and for the logo scene keep it minimal — just logo center + tagline below. Maybe a thin rule or a small mono label. Let me keep it clean: logo center, tagline below, and maybe a small "GRAWWWW STUDIO" mono label above the logo or a thin rule. Actually the tagline is "Local AI, delivered." Let me put a small mono eyebrow above logo? No, logo is the star. Let me do: logo center, tagline below it. Maybe a thin rule between or a small label. Keep minimal.
+
+Let me reconsider the "clear" — I'll fade out beat 1 & 2 elements at ~6.8-7.0s, then logo fades/scales in at ~7.2s, tagline at ~7.8s. Hold until 10s.
+
+Let me detail.
+
+**Beat 1 (0-3s): Slam lines**
+
+Elements:
+- Eyebrow mono label (top-left area or above lines): "GRAWWWW STUDIO / 01" — appears 0.2s.
+- Line 1 "Agents." — slam in at 0.4s
+- Line 2 "Automations." — slam in at 1.1s
+- Line 3 "Video." — slam in at 1.8s
+- Maybe a yellow `hl` band on one word for accent. E.g., "Video." could have the period or the word in yellow band. Actually the `hl` class is a yellow band behind #111 text. Let me use it on "Video." to make it pop. Or on "Automations." Hmm. Let me put a yellow band behind "Video." for a strong accent. Actually, let me use color accents: make each line's period in a brand color (cyan/magenta/yellow). But `hl` is specifically yellow band. Let me use `hl` on one word.
+
+Let me design:
+- "Agents." — ink, with a cyan period? Or just ink.
+- "Automations." — ink
+- "Video." — with `hl` yellow band behind "VIDEO" so it's #111 text on yellow. That's a strong accent.
+
+Actually, let me make it cleaner: 
+- Line 1 "AGENTS." in ink
+- Line 2 "AUTOMATIONS." in ink
+- Line 3 "VIDEO." with the whole word in a yellow `hl` band (so it's #111 on yellow) — strong pop.
+
+Hmm, but the display font is uppercase via class `h`. So "Agents." becomes "AGENTS." Good.
+
+Let me add small mono index numbers to the left of each line: "01", "02", "03" in a brand color. That adds editorial structure. But careful about overlap. Let me place index numbers to the left of the text. If text starts at left 240, index at left 160. Let me do that.
+
+Actually, let me keep it simpler and more impactful. Big lines, no index numbers, but a colored accent per line. Let me do:
+- "AGENTS." — ink, period in cyan
+- "AUTOMATIONS." — ink
+- "VIDEO." — yellow `hl` band
+
+Hmm, mixing. Let me just do:
+- "AGENTS." ink
+- "AUTOMATIONS." ink
+- "VIDEO." with `hl` (yellow band, #111 text)
+
+And an eyebrow above: "GRAWWWW STUDIO — LOCAL AI" mono.
+
+Let me place:
+- Eyebrow: left 160, top 200, mono, font 26, color cyan. Text "GRAWWWW STUDIO / LOCAL AI"
+- Line 1: left 150, top 300, font 150, "AGENTS."
+- Line 2: left 150, top 480, font 150, "AUTOMATIONS."
+- Line 3: left 150, top 660, font 150, `<span class="hl">VIDEO.</span>`
+
+Wait, need to check "AUTOMATIONS." width at 150px. 12 chars * 100 = 1200px. Left 150 → ends 1350. Right margin 570. Good.
+
+"AGENTS." 7 chars * 100 = 700px. Fine.
+"VIDEO." 6 chars * 100 = 600px. Fine.
+
+Top positions: 300, 480, 660. Spacing 180. With 150px font, cap height ~105px, line box ~150-180px. Should be OK, no overlap. Let me verify: line 1 top 300, its baseline ~ 300+150 = 450ish. Line 2 top 480. Gap 30px between. Fine. Line 2 top 480, baseline ~630. Line 3 top 660. Fine.
+
+Actually with display font at 150px, the actual glyph height (cap) is roughly 0.7*150 = 105px, but the line box is font-size * line-height. If line-height is 1, box is 150px. So line 1 occupies 300-450, line 2 480-630, line 3 660-810. All within canvas (bottom 1080, margin 270). Good.
+
+Slam animation: fromTo scale 1.6 → 1, opacity 0 → 1, duration 0.35, ease "power4.out" (punchy). Actually a "slam" often comes in fast and overshoots slightly. Let me use ease "back.out(2)" for a slight overshoot, or "power4.out". Let me use a combination: quick scale down from 1.5 with back.out. Let me use ease "power3.out" with scale from 1.4. Hmm.
+
+Let me do: `tl.fromTo(line, { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" }, t)`. transform-origin should be left center so it slams from the left. Actually center is fine. Let me use left center for a "slam from left" feel. I'll set transform-origin in CSS.
+
+Wait, rule 4: "Never put a CSS `transform` on an element that GSAP animates." But transform-origin is fine (only `transform:` is not). So I set `transform-origin: left center;` in CSS. Good.
+
+Let me set transform-origin left center for the slam lines.
+
+Timing:
+- Line 1: 0.4
+- Line 2: 1.1
+- Line 3: 1.8
+Each duration 0.3, so they finish by 2.1. Hold until ~6.8s when they clear.
+
+Actually the beat is 0-3s for the slam lines, then 3-7s for chips. Do the slam lines stay visible during the chip beat? The beat sheet says "0-3 s three short lines slam in" and "3-7 s a row of three feature chips staggered". It implies the lines are the 0-3s content and chips are 3-7s content. So the lines should clear around 3s when chips come in. Let me clear the lines at ~2.8-3.0s as chips begin.
+
+Hmm, but "everything clears" is specifically at 7s. Let me re-read: "7-10 s everything clears and the logo fades/scales in". So "everything" (both lines and chips) clears at 7s. But what about the transition from lines to chips at 3s? The beat sheet implies lines are 0-3 and chips are 3-7, so they're sequential. The lines should leave before/when chips enter. Let me have lines fade/scale out at ~2.7-3.0s, and chips stagger in from 3.0-4.5s.
+
+Let me plan:
+- Lines slam in: 0.4, 1.1, 1.8 (each 0.3s)
+- Lines hold
+- Lines clear (fade + scale up slightly, or slide out): 2.7-3.0s
+- Chips stagger in: 3.0, 3.5, 4.0 (each 0.4s) — staggered
+- Chips hold
+- Everything clears: 6.8-7.0s (chips fade out, eyebrow fade out)
+- Logo fades/scales in: 7.2-7.8s
+- Tagline in: 7.8-8.2s
+- Hold to 10s
+
+Let me also add a subtle background element for texture — maybe faint grid lines or corner ticks. But keep it clean per brand (no gradients, no box-shadow). I could add thin rules. Let me add a persistent thin frame: a top rule and bottom rule, or corner marks. Actually, let me add a subtle background grid using thin lines? That might be overkill. Let me add corner tick marks (small L-shaped marks) in a brand color at the four corners for a "frame" feel. Or a thin border. Let me add a subtle frame: thin lines at top and bottom.
+
+Hmm, let me keep it minimal but not empty. Let me add:
+- A thin horizontal rule under the eyebrow in beat 1.
+- For the chip beat, the chips themselves.
+- For the logo beat, the logo + tagline + a thin rule.
+
+Let me also add a persistent small mono label in the bottom corners for a "teaser" feel, like bottom-left "GRAWWWW.STUDIO" and bottom-right "LOCAL AI / 2025". These could persist across all beats (chrome), then clear at 7s. Actually, let me have them persist through beats 1-2 and clear at 7s, then in the logo beat reappear or not. Let me keep them clearing with everything.
+
+Actually, to make "everything clears" meaningful, let me have:
+- Beat 1 chrome: eyebrow top + bottom labels
+- Beat 2 chrome: same bottom labels persist (continuous), chips in center
+- At 7s: all clear
+- Beat 3: logo + tagline + maybe a small "GRAWWWW STUDIO" mono label that fades in with it
+
+Let me simplify the chrome to reduce overlap risk:
+- Top-left: icon.svg (small) + "GRAWWWW STUDIO" mono. (persistent 0.2-7s)
+- Bottom-left: "LOCAL AI" mono (persistent 0.2-7s)
+- Bottom-right: "01 — 10" or a frame indicator. Hmm.
+
+Let me not overthink. Let me have:
+- Top-left corner: icon.svg (36px) at left 100 top 90, and "GRAWWWW STUDIO" mono label next to it.
+- These persist 0.2 → 7.0s, fade out at 6.9s.
+
+And for beat 1, the eyebrow can be part of the top-left or separate. Let me integrate: top-left has icon + "GRAWWWW STUDIO". Then the slam lines are the main content.
+
+Wait, but the slam lines start at top 300. The top-left chrome at top 90. No overlap. Good.
+
+Let me reconsider: maybe I don't need a separate eyebrow for beat 1; the top-left chrome serves as the label. Good.
+
+Let me finalize element list:
+
+Persistent chrome (0.2 → 7.0s):
+- `#iconTL`: img icon.svg, left 100, top 90, width 44, height 44 (or auto). 
+- `#brandTL`: mono label "GRAWWWW STUDIO", left 160, top 104, font 24, ink.
+- `#tagBR`: mono label bottom-right "LOCAL AI — 10S" or "TEASER / 10S", left ~1500, top 960, font 22.
+- `#tagBL`: mono label bottom-left "GRAWWWW.STUDIO", left 100, top 960, font 22.
+
+Hmm, that's a lot of chrome. Let me keep it to icon + brand top-left, and one bottom label. Let me do:
+- Top-left: icon + "GRAWWWW STUDIO"
+- Bottom-left: "LOCAL AI"
+- Bottom-right: "10S TEASER"
+
+Actually let me reduce to:
+- Top-left: icon + "GRAWWWW STUDIO"
+- Bottom-right: "LOCAL AI / TEASER"
+
+Two chrome elements. Clean.
+
+Beat 1 (0-3s):
+- `#line1`: "AGENTS." 
+- `#line2`: "AUTOMATIONS."
+- `#line3`: `<span class="hl">VIDEO.</span>`
+- Maybe a thin rule under the block or a big index. Let me add a vertical accent bar to the left of the lines? Or a big number. Let me keep it to the three lines + a small mono sub-label like "THREE WAYS TO RUN IT" above? That might be too much. Let me add a mono eyebrow above the lines: "THE STACK" or "WHAT IT DOES". Hmm.
+
+Actually, let me add a mono eyebrow above line 1: "WHAT IT DOES" at top 240, left 160. Then lines below. But top-left chrome is at top 90. Eyebrow at top 240. Lines at 300, 480, 660. Let me check spacing: eyebrow 240 (26px font, ~26px tall), line1 300. Gap 60. Fine.
+
+Hmm wait, I have chrome top-left at top 90-134, eyebrow at 240, line1 at 300. That's getting crowded on the left. Let me reconsider.
+
+Let me restructure the vertical layout for beat 1:
+- Top-left chrome: icon + "GRAWWWW STUDIO" at top ~90.
+- Main content (slam lines) centered vertically-ish, starting at top ~300.
+- A mono eyebrow could go above the lines but that crowds. Let me instead put the eyebrow to the right or as a small label. 
+
+Alternative: Put the slam lines and let the top-left chrome be the only label. No separate eyebrow. Cleaner. Let me do that.
+
+So beat 1:
+- Top-left chrome (icon + GRAWWWW STUDIO) — appears 0.2s
+- Line 1 "AGENTS." top 320
+- Line 2 "AUTOMATIONS." top 500
+- Line 3 "VIDEO." (hl) top 680
+- Bottom-right chrome "LOCAL AI / TEASER" — appears 0.2s
+
+Let me check line 3 at top 680, 150px font, box 680-830. Bottom-right chrome at top 960. Gap fine.
+
+Actually, let me reconsider the vertical centering. Canvas 1080. Three lines at 320, 500, 680. The block spans 320-830, center ~575. Canvas center 540. Close enough, slightly low. Let me shift up: 280, 460, 640. Block 280-790, center 535. Good. Let me use 280, 460, 640.
+
+Check: line1 280-430, line2 460-610, line3 640-790. Top-left chrome at 90-134. Gap 146. Good. Bottom-right chrome at 960. Gap from line3 (790) to 960 = 170. Good.
+
+Beat 2 (3-7s): three feature chips in a row, staggered.
+Chips:
+- "RUNS ON YOUR HARDWARE"
+- "NO PER-TOKEN BILL"
+- "YOUR DATA STAYS PUT"
+
+Each chip: a box with the icon.svg (small) + mono text. Let me design chips as horizontal boxes with a colored top border or a colored icon.
+
+Chip design:
+- A rectangle (no rounded corners) with a 1px border in a brand color? Or a filled band? Let me make each chip a bordered box with a colored left accent bar and the icon + text.
+
+Let me size chips. Text "RUNS ON YOUR HARDWARE" = 21 chars. In mono at, say, 30px, each char ~18px (mono is narrower than display). 21 * 18 = 378px. Plus icon 40px + padding. Chip width ~ 480px. Three chips in a row: 3 * 480 = 1440 + gaps. With left margin 160 and gaps 40: 160 + 480 + 40 + 480 + 40 + 480 = 1680. Right margin 240. Good, fits.
+
+Wait, let me reconsider mono font width. Mono fonts: at 30px, a character is roughly 0.6*30 = 18px wide. "RUNS ON YOUR HARDWARE" = 21 chars (including spaces). 21 * 18 = 378px. Icon 44 + gap 16 + text 378 = 438 + padding 2*24 = 486. Let me set chip width 470, but text might overflow. Let me be safe: use font 28px for chip text. 21 * 16.8 = 353px. Icon 40 + 14 + 353 = 407 + padding 40 = 447. Chip width 460. Let me set chip width 470 to be safe.
+
+Hmm, let me reconsider. Actually the mono class `m` is uppercase labels. The chips text should be mono (uppercase). Let me use font-size 26px for chip text to be safe. 21 * 15.6 = 328px. Icon 40 + 14 + 328 = 382 + padding 48 = 430. Chip width 440. 
+
+Let me set chip width 460, height 120. Icon 44 on left, text to the right.
+
+Chip layout (each):
+- Chip box: width 460, height 130, border 2px solid (brand color or ink at low opacity), background transparent or a very dark fill.
+- Icon: icon.svg, 44px, positioned left 24, vertically centered.
+- Text: mono, left 88, vertically centered.
+
+Actually, let me make chips more distinctive. Let me give each chip a colored top bar (a thin band) in a different brand color (cyan, magenta, yellow). And the icon in that color. And a small index number "01/02/03".
+
+Chip structure:
+- `#chip1`: box at left 160, top 400, width 460, height 150.
+  - top accent bar: height 6, full width, color cyan.
+  - icon: icon.svg 48px at left 28, top 40.
+  - index "01" mono small at top.
+  - text "RUNS ON YOUR HARDWARE" mono 26 at left 28, bottom area.
+
+Hmm, this is getting complex. Let me simplify each chip to:
+- A box (border 2px ink, or a colored border).
+- A colored square with the icon inside (top-left of chip).
+- The text below the icon.
+
+Let me do vertical chips:
+- Chip box: width 420, height 300.
+- Top: colored band (full width, height 8) in brand color.
+- Icon: 56px, centered or left, below band.
+- Index "01" mono.
+- Text: mono 28, wraps? "RUNS ON YOUR HARDWARE" — I want it on lines. Let me allow it to wrap to 2-3 lines within the chip.
+
+Actually wrapping text in a fixed box is fine. Let me make chips 420 wide, and let the text wrap. "RUNS ON YOUR HARDWARE" at 28px mono: "RUNS ON YOUR" (12 chars * 16.8 = 202px) fits in 420-padding. "HARDWARE" on next line. Good, 2 lines.
+
+Let me structure each chip:
+- Box: left X, top 380, width 420, height 320.
+- Border: 2px solid rgba(ink, 0.2) or a brand color.
+- Top band: height 8, brand color, full width.
+- Icon: icon.svg 56px at left 32, top 40.
+- Index: "01" mono 20 at left 32, top 120, brand color.
+- Text: mono 30 at left 32, top 160, width 356 (420-64). "RUNS ON YOUR HARDWARE" wraps.
+
+Let me check text fits: chip inner width 356px. At 30px mono, char ~18px. 356/18 = ~19 chars per line. "RUNS ON YOUR HARDWARE" = 21 chars. So it wraps to 2 lines: "RUNS ON YOUR" (12) + "HARDWARE" (8). Good. 2 lines * ~40px line height = 80px. Text top 160, ends 240. Chip height 320, so bottom padding 80. Fine. Actually let me reduce chip height to 280.
+
+Let me set chip height 280. Icon top 40 (56px, ends 96). Index top 116. Text top 156, 2 lines ends ~236. Bottom padding 44. Good.
+
+Positions for three chips (row):
+- Chip 1: left 160
+- Chip 2: left 160 + 420 + 60 = 640
+- Chip 3: left 640 + 420 + 60 = 1120
+- Chip 3 ends at 1120 + 420 = 1540. Right margin 380. Good.
+
+Hmm, that leaves a lot of right margin. Let me center the row. Total row width = 420*3 + 60*2 = 1260 + 120 = 1380. Center: left margin = (1920 - 1380)/2 = 270. So:
+- Chip 1: left 270
+- Chip 2: left 270 + 480 = 750
+- Chip 3: left 750 + 480 = 1230
+- Chip 3 ends at 1230 + 420 = 1650. Right margin 270. 
+
+Let me use left 270, 750, 1230. Top 380.
+
+Wait, but I also want a heading for the chip beat. Let me add a mono eyebrow above the chips: "WHY LOCAL" or "THE DEAL" at top 280, centered or left. Let me add "THE DEAL" mono at top 280, left 270 (aligned with chip 1). And the top-left chrome persists.
+
+Actually, let me add a small heading. Let me put a mono label "WHY GRAWWWW" or "THE DEAL" above the chips. Let me use "THE DEAL" — it's punchy. Position: left 270, top 270, font 26, color magenta.
+
+Hmm, but top-left chrome is at top 90. "THE DEAL" at top 270. Chips at 380. Fine.
+
+Let me also add index numbers or a small detail. Keep it.
+
+Chip stagger in: 
+- Chip 1: 3.0s
+- Chip 2: 3.4s
+- Chip 3: 3.8s
+Each: fromTo opacity 0, y 40 → opacity 1, y 0, duration 0.5, ease power3.out. Plus the top band scaleX 0→1.
+
+Actually "staggered" — let me stagger by 0.3s. 3.0, 3.3, 3.6. Duration 0.5. All in by 4.1. Hold until 6.8.
+
+Beat 3 (7-10s): logo fades/scales in center, tagline below.
+- `#logo`: img logo-negative.png, centered. Let me size it. Logo negative is presumably a white logo on transparent. Let me make it ~ 480px wide, centered horizontally. Center x = 960. If width 480, left = 960 - 240 = 720. Top: let me center vertically a bit above middle. Logo height unknown; assume aspect. Let me set width 520, and position top 380. Actually I don't know the logo's aspect ratio. Let me set a width and let height auto. But for positioning I need top. Let me place the logo with left and top, width fixed, height auto. Center horizontally: left = (1920 - width)/2. If width 520, left 700. Top 360.
+
+Hmm, I don't know the logo dimensions. Let me set width 560 and top 340. If the logo is wide (e.g., 3:1), height ~187, ends 527. If it's more square, taller. Let me assume a horizontal logo (wordmark) ~ 3:1 to 4:1. Let me set width 600, left 660, top 380. Height auto.
+
+Actually, to be safe with centering, let me set the logo width and use top such that it's roughly centered. Let me set width 560, left 680, top 400.
+
+- `#tagline`: "LOCAL AI, DELIVERED." below the logo. Position: centered. Let me use display font, size ~64px. "LOCAL AI, DELIVERED." = 20 chars. At 64px display, char ~43px (display is wide, at 150px char ~100px, so at 64px char ~43px). 20 * 43 = 860px. Centered: left = (1920 - 860)/2 = 530. Let me set left 530, top 640. Hmm, but I need to know logo bottom. If logo top 400, width 560, and aspect ~3:1 → height ~187 → bottom 587. Tagline top 640. Gap 53. Good.
+
+Actually, let me make the tagline a bit smaller and cleaner. "Local AI, delivered." in display uppercase = "LOCAL AI, DELIVERED." Let me use font 60px. 20 chars * 40 = 800px. Left 560. Let me center: (1920-800)/2 = 560. Good.
+
+Wait, the tagline has a period and comma. "LOCAL AI, DELIVERED." Let me count: L-O-C-A-L(5) space A-I(2) ,(1) space D-E-L-I-V-E-R-E-D(9) .(1) = 5+1+2+1+1+9+1 = 20 chars. Yes 20. At 60px, ~40px/char = 800px. Good.
+
+Let me add a small mono eyebrow above the logo too? Like "GRAWWWW STUDIO" — but the logo already says that probably. Let me not. Let me add a thin rule between logo and tagline, or a small mono label "EST. LOCAL" no. Let me keep: logo + tagline. Maybe a small mono label below tagline like "GRAWWWW.STUDIO" for a footer. Or a thin rule above tagline.
+
+Let me add a thin rule above the tagline (centered, width 120) in cyan, that scales in. And maybe a small mono "v1.0" no. Keep it clean.
+
+Actually, let me add a subtle detail: a small mono label "GRAWWWW.STUDIO" below the tagline at the very bottom, and the tagline is the main. Hmm, but the logo is the wordmark probably. Let me just do logo + tagline + a thin accent rule.
+
+Let me also reconsider: the logo "fades/scales in". So fromTo opacity 0, scale 0.9 → opacity 1, scale 1, duration 0.8, ease power2.out. Start at 7.2s. Tagline at 7.8s. Rule at 7.6s.
+
+"Everything clears" at 7s: fade out chips, eyebrow, chrome. Let me do a quick fade (0.3s) at 6.8s so by 7.1s it's gone. Then logo at 7.2s.
+
+Let me now think about the "clear" transition. At 6.8s, fade out: chips (opacity → 0, maybe y → -20), "THE DEAL" eyebrow, chrome (icon, brand, bottom labels). Duration 0.3. Then logo scene.
+
+Actually, let me make the clear a bit more dynamic — chips slide up and fade, or scale down. Let me do chips: opacity → 0, y → -30, scale → 0.95, duration 0.35, staggered slightly. And chrome fades.
+
+Let me also handle: the slam lines already cleared at 3s. So at 6.8s only chips + chrome + "THE DEAL" are visible. Good.
+
+Now, let me also add a subtle background element that persists for texture. Maybe faint vertical lines or a grid. But brand says no gradients, no box-shadow. A grid of thin lines is fine (solid color, low opacity). Let me add a subtle background: a few thin vertical lines at low opacity, or corner ticks. Let me add corner tick marks (small L shapes) at the four corners in a low-opacity ink. These can persist the whole 10s (they're part of the "frame"). Actually, "everything clears" — do the corner ticks clear too? Let me keep them persistent as a frame (they're chrome, not content). Hmm, but "everything clears" is strong. Let me keep the corner ticks persistent as a subtle frame — it's fine, they're background. Actually, let me make them fade in at 0.1s and stay. They give a "teaser frame" feel.
+
+Let me add:
+- 4 corner ticks (small L marks), each ~ 40px, at corners with 60px inset. Color rgba(ink, 0.25) or a brand color at low opacity. Let me use ink at 0.3.
+
+Actually, to keep it clean and avoid clutter, maybe just top and bottom thin rules, or skip. Let me add subtle corner ticks for a pro look. They persist.
+
+Hmm, let me reconsider. I'll add a very subtle background: a large faint "GRAWWWW" watermark? No, that could clash with the logo. Let me just do corner ticks + a thin top and bottom rule maybe. Let me do corner ticks only.
+
+Let me now also reconsider using icon.svg. I'll use it in the three chips (leading icon) and in the top-left chrome. That's 4 uses. Good, clearly "uses" the asset.
+
+Wait, but rule 6 says draw icons as inline SVG and don't load external icons. The icon.svg is a local asset. Using `<img src="assets/icon.svg">` is loading a local file, which is allowed (the project has it). The brief explicitly says to use it. So I'll use `<img>`. This should be fine. The rule about inline SVG is to avoid external/CDN icons; a provided local asset is different. I'll use the provided asset as instructed.
+
+Actually, let me reconsider — maybe I should be careful. The linter might flag `<img>` for icons? Unlikely. The brief explicitly says use these assets. I'll trust the brief. Let me use `<img>` for both logo and icon.
+
+Let me now write the HTML.
+
+Let me define CSS classes:
+- `.a` = position:absolute
+- `.h` = display font, uppercase, heavy, wide (from gw.css? or I define). The example uses class `h` with font-size set inline. Let me assume gw.css defines `.h { font-family: var(--display); text-transform: uppercase; font-weight: ...; letter-spacing: ...; }`. But I'm not 100% sure. The example uses `class="a h"` and sets font-size inline. Let me follow that pattern and also add my own font-family to be safe? The instructions say "Fonts via CSS variables: var(--display) for headings (class h...)". So class `h` should apply the display font. I'll trust gw.css defines it. But to be safe, I could add font-family in my inline styles. Hmm, but that might conflict. Let me trust the classes as the example does. The example: `<div class="a h" id="t1" style="left:160px;top:350px;font-size:150px;opacity:0">Hello <span class="hl">world</span></div>`. So it relies on `h` for the font. I'll do the same.
+
+- `.m` = mono, uppercase labels. Same, trust gw.css.
+- `.hl` = yellow band behind #111 text. Trust gw.css.
+
+Let me set colors inline where needed (color: var(--c) for cyan, etc.). The example uses `color:var(--c)`. So there are CSS variables: `--c` (cyan), `--m` (magenta), and presumably `--y` (yellow), `--ink`. Let me check the example: `color:var(--c)`, `background:var(--m)`. So `--c` = cyan, `--m` = magenta. For yellow, maybe `--y`. For ink, maybe `--ink` or the body color. Let me use `var(--c)`, `var(--m)`, `var(--y)`. And for ink text, I can use `#F4F4F1` directly or `var(--ink)`. Let me use `#F4F4F1` to be safe, or `var(--ink)`. Hmm, I don't know the exact variable name. Let me use the hex `#F4F4F1` for ink to be safe, and `var(--c)`, `var(--m)`, `var(--y)` for brand colors (matching the example's usage of `--c` and `--m`). For yellow, the example doesn't show it, but the brief mentions yellow #FFD400. Let me use `#FFD400` directly for yellow to be safe, OR `var(--y)`. Since I'm unsure of `--y`, let me use `#FFD400` directly. Actually, the `hl` class handles yellow (band) with #111 text, so I don't need to set yellow manually for the band. For other yellow accents (chip top bars), let me use `#FFD400` directly. Similarly cyan `#12A9E6` and magenta `#FF2D92` directly, to be safe. Actually the example uses `var(--c)` and `var(--m)` successfully, so those exist. Let me use `var(--c)` and `var(--m)` for cyan and magenta (consistent with example), and `#FFD400` for yellow (since I'm unsure of `--y`). Hmm, mixing is fine. Let me just use hex for all three to be safe and consistent: cyan `#12A9E6`, magenta `#FF2D92`, yellow `#FFD400`. That avoids any variable-name uncertainty. But the example uses `var(--c)`... both should work. Let me use hex for reliability. Actually, let me use the variables where the example confirms them (`--c`, `--m`) and hex for yellow. You know what, to be safe and consistent, I'll use hex for all brand colors. It's guaranteed to work.
+
+Wait, but the `hl` class is defined in gw.css with the yellow band. So I don't control its color. Fine.
+
+Let me use:
+- Ink: `#F4F4F1`
+- Cyan: `#12A9E6`
+- Magenta: `#FF2D92`
+- Yellow: `#FFD400`
+- Background: `#0E0E0E` (body)
+
+Now let me write it all out.
+
+Let me reconsider the icon usage in chips. The icon.svg — I'll use it as a leading icon in each chip. Let me size it 48px. Position within chip: left 32, top 44 (chip top 380, so icon at 380+44 = 424? No, let me position icon relative to chip using absolute left/top on the canvas).
+
+Actually, since everything is position:absolute on the 1920x1080 canvas, I need absolute coordinates for each sub-element. Let me compute.
+
+Chip 1: box left 270, top 380, width 420, height 280.
+- Chip 1 top band: left 270, top 380, width 420, height 8.
+- Chip 1 icon: left 270+32 = 302, top 380+40 = 420, width 48, height 48.
+- Chip 1 index "01": left 302, top 380+104 = 484, mono 20.
+- Chip 1 text: left 302, top 380+140 = 520, width 420-64 = 356, mono 30.
+
+Wait, let me reconsider chip internal layout. Let me make it:
+- Top band (8px) at very top.
+- Icon (48px) below band, left-aligned, with some top padding.
+- Index number to the right of icon or below.
+- Text below.
+
+Let me lay out chip 1 (box top 380, height 280, so spans 380-660):
+- Band: top 380, height 8 (380-388)
+- Icon: left 302, top 412, 48x48 (412-460)
+- Index "01": left 302, top 476, mono 22 (476-498)
+- Text: left 302, top 512, mono 30, width 356. 2 lines (512-592). 
+- Bottom of text ~592, box bottom 660. Padding 68. Good.
+
+Hmm, that's a lot of vertical. Let me tighten. Let me reduce icon to 44 and adjust:
+- Band: 380-388
+- Icon: left 302, top 410, 44x44 (410-454)
+- Index "01": left 302, top 468, mono 20 (468-488)
+- Text: left 302, top 504, mono 28, width 356, 2 lines (504-580)
+- Box bottom 660. Padding 80.
+
+OK. Actually, let me put the index to the right of the icon (top-right of chip) for a cleaner look. Index at left 270+420-32-40 = 618, top 410. Hmm, might be tight. Let me keep index below icon, left-aligned. Fine.
+
+Actually, let me reconsider the whole chip. Maybe simpler: 
+- Chip box with a colored left accent bar (vertical, 8px wide, full height).
+- Icon top-left.
+- Text below icon.
+- Index top-right.
+
+Let me do:
+- Chip box: left, top 380, width 420, height 280, border 2px solid rgba(244,244,241,0.15).
+- Left accent bar: left, top 380, width 8, height 280, brand color.
+- Icon: left +32, top 380+40 = 420, 48x48.
+- Index: left + 420 - 60, top 380+44 = 424, mono 22, brand color, text-align right.
+- Text: left +32, top 380+120 = 500, width 420-64 = 356, mono 30.
+
+Let me recompute with left accent bar:
+- Chip 1 left 270:
+  - Box: left 270, top 380, w 420, h 280.
+  - Accent bar: left 270, top 380, w 8, h 280, cyan.
+  - Icon: left 302, top 420, 48x48.
+  - Index "01": left 630 (270+420-60), top 424, mono 22, cyan, right-aligned. Actually let me just position it; text-align doesn't matter much for a short string. Let me set left 628, width 60, text-align right.
+  - Text: left 302, top 500, w 356, mono 30.
+
+Hmm, the accent bar on the left + border might look odd (bar overlaps border). Let me drop the border and just use the accent bar + a subtle background. Or use border only. Let me use a subtle background fill (a very dark, slightly lighter than bg) + accent bar. Background: `#161616` or `#1A1A1A`. That gives the chip a card feel without rounded corners or shadow. Let me use background `#161616`.
+
+So chip:
+- Box: background `#161616`, left accent bar (brand color, 8px).
+- Icon, index, text.
+
+Let me finalize chip coordinates.
+
+Chip 1 (cyan): left 270
+- Box: left 270, top 380, w 420, h 280, bg #161616
+- Bar: left 270, top 380, w 8, h 280, cyan
+- Icon: left 306, top 424, 48x48
+- Index "01": left 616, top 428, mono 22, cyan, w 60 text-align right → let me set left 616, width 60.
+   Actually 270+420 = 690 is right edge. Right padding 32 → text right edge 658. Index width ~40. So left 618. Let me set left 618, top 428, width 40, text-align right, color cyan.
+- Text: left 306, top 504, w 352, mono 30, ink.
+
+Wait, icon at left 306, but accent bar at left 270-278. Icon at 306 (padding 36 from left edge, 28 from bar). Good.
+
+Text width: 420 - 36 (left pad) - 32 (right pad) = 352. Good.
+
+Chip 2 (magenta): left 750
+- Box: left 750, top 380, w 420, h 280
+- Bar: left 750, top 380, w 8, h 280, magenta
+- Icon: left 786, top 424
+- Index "02": left 1098, top 428, magenta
+- Text: left 786, top 504, w 352
+
+Chip 3 (yellow): left 1230
+- Box: left 1230, top 380, w 420, h 280
+- Bar: left 1230, top 380, w 8, h 280, yellow
+- Icon: left 1266, top 424
+- Index "03": left 1578, top 428, yellow
+- Text: left 1266, top 504, w 352
+
+Chip 3 right edge: 1230+420 = 1650. Good.
+
+Now the chip text:
+- Chip 1: "RUNS ON YOUR HARDWARE"
+- Chip 2: "NO PER-TOKEN BILL"
+- Chip 3: "YOUR DATA STAYS PUT"
+
+Let me check widths at mono 30px (char ~18px):
+- "RUNS ON YOUR HARDWARE" = 21 chars → 378px. Chip text width 352. So it wraps: "RUNS ON YOUR" (12 chars = 216px) fits, "HARDWARE" (8 = 144px) fits. 2 lines. Good.
+- "NO PER-TOKEN BILL" = 17 chars → 306px. Fits in 352? 306 < 352, yes on one line. Actually "NO PER-TOKEN BILL" — let me count: N-O(2) space P-E-R(3) -(1) T-O-K-E-N(5) space B-I-L-L(4) = 2+1+3+1+5+1+4 = 17. 17*18 = 306 < 352. One line. Good.
+- "YOUR DATA STAYS PUT" = 19 chars → 342px. < 352, one line. Y-O-U-R(4) space D-A-T-A(4) space S-T-A-Y-S(5) space P-U-T(3) = 4+1+4+1+5+1+3 = 19. 19*18 = 342 < 352. One line. Good.
+
+So chip 1 wraps to 2 lines, chips 2 & 3 are 1 line. That's fine, they'll top-align.
+
+Actually, to make them look consistent, maybe I should make all 2 lines or adjust. But it's fine — top-aligned text. Chip 1 has 2 lines (504-580), chips 2&3 have 1 line (504-536). They'll look slightly different but that's OK. Actually, let me make the text a bit bigger so chip 1 definitely wraps and others stay 1 line, or keep as is. Let me keep as is.
+
+Hmm, actually let me reconsider — maybe make chip text 28px to be safe on width. "RUNS ON YOUR HARDWARE" at 28px: 21*16.8 = 353px. Chip width 352. Borderline — might wrap to 3 lines or overflow. Let me keep 30px but ensure it wraps to 2 lines. At 30px, "RUNS ON YOUR" = 12*18 = 216px (fits in 352), "HARDWARE" = 8*18 = 144px (fits). So 2 lines. Good. Keep 30px.
+
+Wait, I need to double check "NO PER-TOKEN BILL" at 30px = 17*18 = 306 < 352, one line. Good. "YOUR DATA STAYS PUT" = 19*18 = 342 < 352, one line. Good.
+
+Now, let me reconsider the chip beat heading. "THE DEAL" mono at top 270, left 270 (aligned with chip 1). Color magenta. Let me add it.
+
+Actually, let me add a heading that's more descriptive: "WHY IT RUNS LOCAL" or "THE DEAL". Let me use "THE DEAL" — punchy and fits the chips (which are benefits). Position left 270, top 270, mono 26, magenta.
+
+Hmm, but top-left chrome is at top 90-134. "THE DEAL" at 270. Gap fine.
+
+Now let me reconsider the top-left chrome. Icon at left 100, top 90, 44x44. "GRAWWWW STUDIO" mono at left 160, top 104, font 24, ink. Let me check "GRAWWWW STUDIO" width: 14 chars * 14.4 (24px mono char ~14.4) = 202px. Left 160 → ends 362. Fine.
+
+Bottom-right chrome: "LOCAL AI / TEASER" mono at left 1560, top 960, font 22, ink. Width: 17 chars * 13.2 = 224px. Left 1560 → ends 1784. Right margin 136. Good. Actually let me put it at left 1540, top 960.
+
+Hmm, let me reconsider. Let me use bottom-right "10S / LOCAL AI". And bottom-left maybe "GRAWWWW.STUDIO". Let me keep just bottom-right to reduce clutter. Actually, let me add bottom-left "GRAWWWW.STUDIO" and bottom-right "LOCAL AI / 10S". Two bottom labels. They persist 0.2-7s.
+
+Wait, I'm adding a lot of chrome. Let me finalize chrome:
+- Top-left: icon (100,90,44) + "GRAWWWW STUDIO" (160,104,24,ink)
+- Bottom-left: "GRAWWWW.STUDIO" (100, 962, 22, ink, opacity 0.6)
+- Bottom-right: "LOCAL AI / 10S" (right-aligned, 1760 right edge, 962, 22, ink, opacity 0.6)
+
+Let me position bottom-right: left 1560, top 962, width 260, text-align right. "LOCAL AI / 10S" = 14 chars * 13.2 = 185px. In 260 width right-aligned, right edge at 1560+260 = 1820. Right margin 100. Good.
+
+Bottom-left: left 100, top 962. "GRAWWWW.STUDIO" = 14 chars * 13.2 = 185px. Ends 285. Good.
+
+These four chrome elements fade in at 0.2s, fade out at 6.8s.
+
+Now corner ticks: let me add 4 corner ticks. Each is an L-shape made of two thin rectangles, or I can use a single element with border. Let me make each corner tick a div with border-top and border-left (for top-left), etc. But that's 4 elements with specific borders. Alternatively, use small L via two lines. Let me just use 4 small elements each 40x40 with two borders.
+
+Top-left tick: left 60, top 60, w 40, h 40, border-top 2px, border-left 2px, color rgba(ink,0.3).
+Top-right tick: left 1820, top 60, w 40, h 40, border-top 2px, border-right 2px.
+Bottom-left tick: left 60, top 980, w 40, h 40, border-bottom 2px, border-left 2px.
+Bottom-right tick: left 1820, top 980, w 40, h 40, border-bottom 2px, border-right 2px.
+
+These persist (fade in 0.1s). They're background frame. Let me keep them.
+
+Hmm, but the corner ticks at 60px inset and chrome at 100px inset — the ticks are outside the chrome. Fine.
+
+Actually, wait — bottom chrome at top 962, bottom ticks at top 980-1020. The bottom-left label at left 100 top 962, and bottom-left tick at left 60 top 980. They're close but the tick is at 60-100 (x) and 980-1020 (y), label at 100-285 (x) and 962-988 (y). Slight proximity but no overlap (label starts at x=100, tick ends at x=100). Borderline. Let me move bottom labels up a bit: top 950. And ticks at 980. Label 950-976, tick 980-1020. No overlap. Good. Let me set bottom labels top 950.
+
+Actually, let me simplify and remove the bottom-left label to reduce clutter near the tick. Keep bottom-right only. Or move bottom labels to not conflict. Let me keep bottom-right "LOCAL AI / 10S" at top 950, and remove bottom-left. And keep top-left chrome. That's cleaner: top-left (icon+brand), bottom-right (label). Two chrome elements + 4 corner ticks.
+
+Let me finalize:
+- Chrome TL: icon (100,90,44) + "GRAWWWW STUDIO" (160,104,24,ink)
+- Chrome BR: "LOCAL AI / 10S" (right-aligned, top 950)
+- 4 corner ticks (persistent)
+
+Good.
+
+Now let me reconsider beat 1 slam lines vertical positions given chrome at top 90-134:
+- Line 1 "AGENTS." top 280
+- Line 2 "AUTOMATIONS." top 460
+- Line 3 "VIDEO." (hl) top 640
+
+Line 1 at 280, chrome ends 134. Gap 146. Good.
+
+Now, the `hl` class — it's a yellow band behind #111 text. So `<span class="hl">VIDEO.</span>` renders "VIDEO." as #111 text on yellow band. In the context of line 3 (which is otherwise ink), having "VIDEO." in a yellow band is a strong accent. Good.
+
+But wait — do I want the whole "VIDEO." in the band, or just "VIDEO"? Let me do "VIDEO." with the period, or "VIDEO" and a separate ink period. Let me do `<span class="hl">VIDEO</span>.` so the period is ink. Hmm, or the whole thing in the band. Let me do `<span class="hl">VIDEO.</span>` — whole thing in band. Actually, having the period outside looks cleaner: `<span class="hl">VIDEO</span><span style="color:#F4F4F1">.</span>`. Let me just do `<span class="hl">VIDEO.</span>` for simplicity. The band will be sized to the text.
+
+Actually, let me reconsider the accent. Maybe I should make line 3 "VIDEO." the accent (yellow band) since it's the last and most important (the product is "Video"). Yes, that works thematically. Good.
+
+Hmm, but actually let me reconsider — maybe make the accent on a different element. The three lines are "Agents." "Automations." "Video." The product is "Grawwww Studio: local AI, delivered" and it's about video (the tagline mentions video in the beat sheet: "Video."). So "VIDEO." as the accent makes sense. Good.
+
+Now let me reconsider the slam animation. For a "slam", I'll do a fast scale-down from large with a punchy ease, plus opacity. Let me use:
+`tl.fromTo("#line1", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.32, ease: "power4.out" }, 0.4);`
+transform-origin: left center (set in CSS).
+
+Actually, for a slam, maybe scale from 1.6 to 1 with a slight overshoot. Let me use ease "back.out(1.7)" for a punchy overshoot. But back.out overshoots past 1 then settles. That could look like a "slam and settle". Let me use "power4.out" for a clean fast slam, or "back.out(2)" for punch. Let me use "power4.out" to be safe (no weird overshoot on text). Actually a slight overshoot is nice for a slam. Let me use "back.out(1.5)". Hmm, but back.out on scale from 1.6→1 would overshoot below 1 (to ~0.95) then back to 1. That's a "settle" effect. Could look good. Let me use it. Actually, let me keep it clean with power4.out and add a tiny bit of x movement for a "slam" feel. Let me do scale 1.5→1 and x from -20→0? No, transform-origin left center, scale handles it. Let me just do scale.
+
+Let me reconsider: a "slam in" is often the element appearing large and fast, like a stamp. Scale 1.5→1 over 0.25s with power4.out = fast stamp. Good. Let me use that.
+
+Let me also add a subtle "flash" — no, keep clean.
+
+Now the clear of beat 1 (at ~2.7-3.0s):
+`tl.to("#line1", { opacity: 0, scale: 1.1, y: -20, duration: 0.3, ease: "power2.in" }, 2.7);` etc. Actually, let me clear them with a quick fade + slight scale up (like they "pop out"). Let me do opacity→0, scale→1.15, duration 0.25, ease power2.in. Staggered slightly: line1 2.7, line2 2.75, line3 2.8. Or all at once 2.7. Let me stagger 0.05 for a cascade. Actually, let me just fade them all out together at 2.75, duration 0.3. Simpler.
+
+Hmm, but the chip beat starts at 3.0. So beat 1 clears 2.75-3.05, chips start 3.0. Slight overlap is fine (fade out while chips fade in). Let me clear beat 1 at 2.7 (duration 0.3, ends 3.0), chips start 3.0. Clean handoff.
+
+Now let me reconsider: should the slam lines stay a bit longer? The beat is 0-3s. Lines slam in by 2.1s, hold 2.1-2.7, clear 2.7-3.0. That's a reasonable hold (~0.6s). Maybe a touch short. Let me extend the hold: clear at 2.8 (duration 0.3, ends 3.1). Chips start 3.1? But beat 2 is 3-7. Let me start chips at 3.0 and clear lines at 2.7. The overlap is fine. Let me keep lines clear at 2.7.
+
+Actually, let me give the lines a bit more presence. Let me slam in at 0.3, 0.9, 1.5 (faster stagger), finish by 1.8, hold 1.8-2.8, clear 2.8-3.1. Chips start 3.1. Hmm, beat 2 is 3-7, starting at 3.1 is fine. Let me do:
+- Line 1: 0.3
+- Line 2: 0.9
+- Line 3: 1.5
+- (each 0.32s, finish by 1.82)
+- Clear: 2.8 (all, duration 0.3, ends 3.1)
+- Chips: 3.1, 3.4, 3.7 (stagger 0.3, each 0.5, finish by 4.2)
+- "THE DEAL" heading: 3.0 (before chips)
+- Clear all: 6.8 (duration 0.35, ends 7.15)
+- Logo: 7.2 (duration 0.8, ends 8.0)
+- Rule: 7.6
+- Tagline: 7.8 (duration 0.5, ends 8.3)
+- Hold to 10.
+
+Let me refine. Actually let me reconsider the chip stagger — "staggered" is explicit. 0.3s stagger is good. Let me do chips at 3.1, 3.4, 3.7.
+
+Now the "THE DEAL" heading: let me have it fade in at 3.0 (slightly before chips). Actually, let me make it part of the chip beat intro. Fade in at 3.05, duration 0.4.
+
+Hmm, wait, but beat 1 clears at 2.8-3.1. If "THE DEAL" fades in at 3.05 while lines are still fading out (until 3.1), there's a brief overlap. That's fine visually (crossfade). Let me set "THE DEAL" at 3.1 to be safe, after lines fully gone. Actually lines clear 2.8-3.1. "THE DEAL" at 3.1. Chips 3.2, 3.5, 3.8. Let me shift chips to 3.2, 3.5, 3.8 (finish by 4.3). Still within beat 2 (3-7). Good.
+
+Let me finalize timings:
+- 0.1: corner ticks fade in (opacity 0→1, duration 0.5)
+- 0.2: chrome TL + BR fade in (opacity 0→1, duration 0.4)
+- 0.3: line 1 slam (0.32s)
+- 0.9: line 2 slam (0.32s)
+- 1.5: line 3 slam (0.32s)
+- 2.8: lines clear (opacity→0, scale→1.15, duration 0.3)
+- 3.1: "THE DEAL" fade in (opacity 0→1, y 20→0, duration 0.4)
+- 3.2: chip 1 in (opacity 0→1, y 40→0, duration 0.5) + bar scaleX
+- 3.5: chip 2 in
+- 3.8: chip 3 in
+- 6.8: everything (chips, THE DEAL, chrome) clears (opacity→0, duration 0.35); chips also y→-20
+- 7.2: logo fade/scale in (opacity 0→1, scale 0.9→1, duration 0.8)
+- 7.6: rule scaleX 0→1 (duration 0.5)
+- 7.8: tagline fade in (opacity 0→1, y 20→0, duration 0.5)
+- 10: end (hold)
+
+Let me make sure everything visible at the end (logo, tagline, rule, corner ticks) is at opacity 1 at the hold frame (10s). 
+- Corner ticks: faded in at 0.1, never cleared → opacity 1 at end. Good.
+- Logo: faded in at 7.2 → opacity 1 at end. Good.
+- Tagline: 7.8 → opacity 1. Good.
+- Rule: 7.6 → scaleX 1, opacity 1. Good.
+
+Chrome (TL, BR) cleared at 6.8 → opacity 0 at end. That's fine (they're not "should be visible at the end").
+Lines cleared at 2.8 → opacity 0. Fine.
+Chips cleared at 6.8 → opacity 0. Fine.
+"THE DEAL" cleared at 6.8 → opacity 0. Fine.
+
+Good.
+
+Now, initial states: I need to set initial hidden state with tl.set or fromTo, not CSS transform. For opacity, I can set opacity:0 in CSS (that's fine, it's not transform). Actually, the rule says "Set initial hidden state with tl.set or fromTo, not by CSS transform." So I should not use CSS transform for initial state, but CSS opacity:0 is OK (the example uses `opacity:0` in inline style). Let me use fromTo for opacity anyway to be safe, and set opacity:0 in CSS as a fallback. Actually, the example sets `opacity:0` in inline style AND uses tl.to for opacity. Let me follow: set opacity:0 in inline style, and use fromTo/to in the timeline. That's the example's pattern. Good.
+
+Wait, but if I set opacity:0 in CSS and use tl.to to opacity 1, that works. And for scale, I use fromTo (scale 1.5→1) so no CSS transform needed. Good.
+
+Let me be careful: for elements I animate with scale, I must NOT put a CSS transform on them. I'll set transform-origin in CSS (allowed) but not transform. Good.
+
+Let me now also reconsider: the logo is an `<img>`. I'll animate its opacity and scale. transform-origin center. Set in CSS. Good.
+
+Let me write the CSS for transform-origin on the slam lines (left center) and logo (center).
+
+Now let me also reconsider the `hl` class usage. In the example, `<span class="hl">world</span>` inside an `.h` heading. So `hl` works within display text. Good. I'll use `<span class="hl">VIDEO.</span>` inside line 3.
+
+Now, one concern: the `hl` band — does it have padding/background that might make it look like a box? It's a yellow band behind #111 text. That's the brand's highlight style. Good.
+
+Let me now write the full HTML.
+
+Let me reconsider the icon.svg usage. I'll use `<img src="assets/icon.svg" ...>`. For the top-left chrome and the three chips. That's 4 img tags for the icon. Fine.
+
+Wait, actually — do I want the icon in all three chips? It might look repetitive (same icon 3 times). But it's the brand icon, so it's consistent. Alternatively, I could use different inline SVG icons for each chip (CPU, dollar-slash, lock) to represent the features. But the brief says use icon.svg. Let me use icon.svg in the chips for brand consistency, OR use it as a single brand mark and use inline SVGs for the chip features.
+
+Hmm. The brief: "Use `assets/logo-negative.png` (centre, appears at the end) and `assets/icon.svg`." It just says use both assets. It doesn't say use icon.svg in every chip. Let me use icon.svg as the top-left brand mark (chrome), and for the chips, use inline SVG icons (CPU, no-dollar, lock) that represent each feature. That's more meaningful and satisfies "draw icons as inline SVG" (rule 6) for the feature icons, while still "using" icon.svg (the brand mark).
+
+Wait, but rule 6 says draw icons as inline SVG and don't load external icons. If I use `<img src="assets/icon.svg">`, is that "loading an external icon"? It's a local asset, not external. The brief explicitly says to use it. So it's fine. And for the feature icons, I'll draw inline SVGs (CPU, dollar-slash, lock). That satisfies rule 6 for those.
+
+Actually, let me reconsider. To maximize compliance with the brief ("use assets/icon.svg") AND rule 6 (inline SVG for icons), let me:
+- Use `assets/icon.svg` as the top-left brand mark (via `<img>`). This "uses" the asset.
+- Draw inline SVG icons for the three chips (CPU, dollar-slash, lock) per rule 6.
+
+This is a good balance. The brand mark is the provided asset; the feature icons are inline SVGs.
+
+But wait, will the linter complain about `<img>` for an icon? The rule says "Do not load external icons." icon.svg is local, not external. And the brief says to use it. I'll trust the brief. Let me use it as the brand mark.
+
+Hmm, but actually, maybe I'm overcomplicating. Let me reconsider: maybe the safest interpretation is to use icon.svg as the brand mark (top-left) and also possibly in the chips. And draw inline SVGs where I need feature-specific icons. Let me do:
+- Top-left: `<img src="assets/icon.svg">` (brand mark).
+- Chips: inline SVG icons (CPU, dollar-slash, lock).
+
+Actually, let me use icon.svg in the chips too, as a leading mark, to strongly "use" it. But then the feature-specific inline SVGs... Let me just use icon.svg in the chips (as the leading icon) — it's the brand icon, consistent. And skip feature-specific inline SVGs. That's simpler and clearly uses the asset. But then I'm not "drawing icons as inline SVG" — I'm using an img. Rule 6 says draw icons as inline SVG. Hmm.
+
+OK here's my decision: I'll draw the three feature icons as inline SVG (CPU, dollar-slash, lock) to satisfy rule 6, AND use `assets/icon.svg` as the top-left brand mark to satisfy the brief's "use assets/icon.svg". This way both are satisfied. The brand mark via img is a provided asset (allowed), and the feature icons are inline SVG (rule 6).
+
+Wait, but is using `<img src="assets/icon.svg">` a violation of "Do not load external icons"? I interpret "external" as CDN/network. A local project asset is fine, especially since the brief explicitly requires it. I'll go with it.
+
+Actually, let me reconsider once more. The hard rules say "Draw icons as inline SVG (stroke #F4F4F1 or a brand colour, stroke-width 6, no fill or flat fill). Do not load external icons." This is about how to represent icons. But the brief (which is the task) explicitly says to use `assets/icon.svg`. When the brief and a rule conflict, the brief's specific instruction about a provided asset should take precedence for that asset. The rule is a general guideline to avoid CDN icons. So using the provided local icon.svg is fine.
+
+Let me proceed:
+- Brand mark (top-left): `<img src="assets/icon.svg">`.
+- Feature icons (chips): inline SVG (CPU, dollar-slash, lock), stroke brand color, stroke-width 6.
+
+Let me design the three inline SVG icons (24x24 viewBox, stroke-width... wait, stroke-width 6 on a 24x24 viewBox would be very thick. Let me use a larger viewBox like 48x48 with stroke-width 6, or scale. The rule says stroke-width 6. Let me use a 48x48 viewBox with stroke-width 6. Actually, let me use viewBox "0 0 48 48" and stroke-width 6, sized to 48px display. That works.
+
+Hmm, wait, the rule says "stroke-width 6". Let me use viewBox "0 0 48 48" and stroke-width 6, and display at 48px. The stroke will be 6/48 = 12.5% of the icon, which is thick but matches "stroke-width 6". Actually for a 48px icon, stroke-width 6 is quite bold. Let me use it as specified.
+
+Let me design:
+1. CPU icon (for "Runs on your hardware"): a square with pins. 
+   - Outer square: rect from (10,10) to (38,38).
+   - Inner square: rect from (18,18) to (30,30).
+   - Pins: small lines on each side. Top: (16,6)-(16,10), (24,6)-(24,10), (32,6)-(32,10). Bottom: (16,38)-(16,42), (24,38)-(24,42), (32,38)-(32,42). Left: (6,16)-(10,16), (6,24)-(10,24), (6,32)-(10,32). Right: (38,16)-(42,16), (38,24)-(42,24), (38,32)-(42,32).
+   - That's a lot of lines. Let me simplify: outer rect, inner rect, and 3 pins per side. Actually with stroke-width 6, the pins (4px long) might be too short to see. Let me make pins 6px long. Hmm. Let me simplify the CPU to just outer + inner rect + a few pins. Actually, let me make it cleaner: outer rect (10,10,28,28), inner rect (19,19,10,10), and pins as short lines. With stroke-width 6, a 6px line is a 6x6 blob basically. Let me make pins 8px long.
+
+   Actually, this is getting complicated. Let me use simpler, more iconic shapes:
+   1. "Runs on your hardware" → a CPU/chip icon. Let me do outer square + inner square + 4 pins (one per side, centered). Simpler.
+      - Outer: rect x=12 y=12 w=24 h=24.
+      - Inner: rect x=20 y=20 w=8 h=8.
+      - Pins: top (24,6)-(24,12), bottom (24,36)-(24,42), left (6,24)-(12,24), right (36,24)-(42,24).
+      That's clean: a chip with 4 pins. Good.
+
+   2. "No per-token bill" → a dollar sign with a slash, or a coin with a slash. Let me do a circle with a "$" and a diagonal slash. Or simpler: a "no" symbol (circle with diagonal line) with a small "$". Let me do: circle (center 24,24, r 16) + diagonal line (from 12,12 to 36,36) = a "no" symbol. Plus maybe a "$" inside? Hard with stroke. Let me just do the "no" symbol (circle + diagonal) which reads as "no/prohibited". Combined with the text "NO PER-TOKEN BILL", it's clear. Actually, let me do a dollar sign with a slash through it. A dollar sign: vertical line (24,12)-(24,36) + an "S" curve. Hard. Let me just do the prohibited symbol (circle + diagonal line). It reads as "no". Good enough with the text.
+      - Circle: cx 24 cy 24 r 15.
+      - Diagonal: (13,13)-(35,35).
+      That's the "no" symbol. Good.
+
+   3. "Your data stays put" → a lock icon. 
+      - Body: rect x=14 y=22 w=20 h=16.
+      - Shackle: arc from (18,22) up over to (30,22). A path: M18,22 V16 A6,6 0 0 1 30,16 V22.
+      - Keyhole: a small dot or line in the body. A small circle at (24,30) r 2, or a short line.
+      Let me do: body rect (14,22,20,16), shackle path, and a small keyhole circle (24,30, r 2.5) filled or a short vertical line (24,28)-(24,33).
+      With stroke-width 6, the keyhole circle r 2.5 would be a blob. Let me use a short line for the keyhole: (24,28)-(24,33). Actually that might be too small. Let me just do body + shackle, no keyhole (the lock is recognizable). Or add a small dot. Let me add a small filled circle (flat fill
+[CONTENT]
